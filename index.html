@@ -9,15 +9,18 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
   <style>
-    /* REMOVE BROWSER URL, HEADER & FOOTER ON PRINT */
+    /* BROWSER URL, HEADER & FOOTER REMOVAL */
     @page {
       margin: 0;
+      size: auto;
     }
 
     @media print {
+      /* Hide regular UI completely */
       body > *:not(#masterDirectPrintArea) {
         display: none !important;
       }
+      
       #masterDirectPrintArea {
         display: block !important;
         position: absolute !important;
@@ -25,30 +28,31 @@
         top: 0 !important;
         background: #fff !important;
         color: #000 !important;
-        padding: 0 !important;
         margin: 0 !important;
       }
-      /* Compact 58mm Pocket Thermal Print Rules */
-      .thermal-mode {
+
+      /* Strict 58mm Pocket Thermal Print Sizing */
+      body.mode-thermal #masterDirectPrintArea {
         width: 58mm !important;
         max-width: 58mm !important;
-        padding: 2mm !important;
+        padding: 2mm 3mm !important;
         font-family: 'Courier New', Courier, monospace !important;
         font-size: 11px !important;
         line-height: 1.25 !important;
-        color: #000 !important;
       }
+
       .receipt-cut-line {
         page-break-after: always !important;
         border-bottom: 2px dashed #000 !important;
-        margin: 12px 0 !important;
-        padding-bottom: 10px !important;
+        margin: 10px 0 !important;
+        padding-bottom: 8px !important;
       }
-      /* A4 Admin Mode */
-      .a4-mode {
+
+      /* A4 Mode */
+      body.mode-a4 #masterDirectPrintArea {
         width: 210mm !important;
         min-height: 297mm !important;
-        padding: 10mm !important;
+        padding: 12mm !important;
         font-family: system-ui, -apple-system, sans-serif !important;
         font-size: 11px !important;
         color: #111 !important;
@@ -68,7 +72,7 @@
         <div>
           <div class="flex items-center gap-2">
             <h1 class="text-xl font-bold tracking-tight text-white">SMARTFIX<span class="text-indigo-400">PRO</span></h1>
-            <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">POS & Workshop</span>
+            <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">POS Edition</span>
           </div>
           <p class="text-xs text-slate-400 font-medium flex items-center gap-1.5">
             <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> <span id="currentDateDisplay" class="font-mono text-slate-300"></span>
@@ -107,7 +111,7 @@
         <div class="flex flex-wrap items-center justify-between gap-3 pb-6 border-b border-slate-800 mb-6">
           <div>
             <h2 class="text-xl font-bold text-white tracking-wide">Customer Device Intake Form</h2>
-            <p class="text-xs md:text-sm text-slate-400">Records today's intake date and prints 2-copy thermal voucher</p>
+            <p class="text-xs md:text-sm text-slate-400">Records intake and prepares thermal slip</p>
           </div>
           <span class="text-xs font-mono bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-3 py-1.5 rounded-lg flex items-center gap-1.5">
             <i class="fa-solid fa-print"></i> 58mm Dual-Print Ready
@@ -151,7 +155,7 @@
           <div class="md:col-span-2 flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
             <button type="reset" class="px-5 py-3 rounded-xl border border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800 text-sm font-semibold transition">Clear</button>
             <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg shadow-indigo-600/30 transition">
-              <i class="fa-solid fa-receipt"></i> Save & Print Intake Voucher
+              <i class="fa-solid fa-receipt"></i> Save & Print Dual Slips
             </button>
           </div>
         </form>
@@ -554,11 +558,11 @@
     </div>
   </div>
 
-  <!-- MASTER PRINT CONTAINER: ALWAYS ACTIVE, NEVER BLANK -->
+  <!-- MASTER PRINT CONTAINER: ALWAYS ACTIVE, NEVER WIPED -->
   <div id="masterDirectPrintArea" style="display: none;"></div>
 
   <script>
-    const STORAGE_KEY = "smartfix_pro_pos_v6";
+    const STORAGE_KEY = "smartfix_pro_pos_v7";
     const ADMIN_PIN = "1234";
     let isOwnerAuthenticated = false;
     let pendingDestinationTab = null;
@@ -741,8 +745,8 @@
       repairJobs.unshift(newJob);
       saveState();
 
+      // Directly launch 58mm Thermal Print without crashing download
       printDirectThermalVoucher(newJob, true);
-      saveJobPdfVoucher(newJob);
 
       e.target.reset();
       activateTab('dailyCash');
@@ -922,7 +926,6 @@
             <div class="bg-slate-950 p-3 rounded-xl mb-4 text-xs space-y-1.5 border border-slate-800/80">
               <div class="flex items-center justify-between">
                 <p><span class="text-slate-500 font-medium">Customer:</span> <strong class="text-slate-300">${job.customerName}</strong></p>
-                <!-- Direct Calling Button -->
                 <a href="tel:${job.phone}" title="Call Customer Direct" class="px-2.5 py-1 bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white rounded-lg font-mono text-[11px] font-bold border border-emerald-500/30 transition flex items-center gap-1.5">
                   <i class="fa-solid fa-phone"></i> ${job.phone}
                 </a>
@@ -1061,7 +1064,6 @@
 
         saveState();
         printDirectThermalVoucher(repairJobs[idx], false);
-        saveJobPdfVoucher(repairJobs[idx]);
         closeDeliveryModal();
       }
     }
@@ -1212,7 +1214,7 @@
     }
 
     // ----------------------------------------------------
-    // COMPACT 58mm ZERO-MARGIN DIRECT PRINT ENGINE
+    // COMPACT 58mm DIRECT PRINT ENGINE (NO URL, ZERO-BLANK)
     // ----------------------------------------------------
     function printDirectThermalVoucher(job, isDualIntake = false) {
       const isUnrepairable = job.status === "Unrepairable";
@@ -1223,16 +1225,16 @@
       let balanceOrSettlement = isUnrepairable ? "0 (Returned)" : Math.max(0, totalOrEst - job.advPaid);
 
       let printHTML = `
-        <div class="thermal-mode">
+        <div>
           <!-- Customer Copy -->
           <div class="${isDualIntake ? 'receipt-cut-line' : ''}">
             <div style="text-align: center;">
-              <h2 style="font-size: 14px; font-weight: bold; margin: 0;">SMARTFIX MOBILE CARE</h2>
+              <h2 style="font-size: 13px; font-weight: bold; margin: 0;">SMARTFIX MOBILE CARE</h2>
               <p style="font-size: 9px; margin: 2px 0;">Main Road, Workshop Station</p>
               <p style="font-size: 9px; margin: 2px 0;">Helpline: +91 98765 43210</p>
-              <p style="font-size: 11px; font-weight: bold; text-decoration: underline; margin-top: 5px;">${voucherTitle}</p>
+              <p style="font-size: 11px; font-weight: bold; text-decoration: underline; margin-top: 4px;">${voucherTitle}</p>
             </div>
-            <div style="border-top: 1px dashed #000; margin: 6px 0;"></div>
+            <div style="border-top: 1px dashed #000; margin: 5px 0;"></div>
             <table style="width: 100%; font-size: 10px;">
               <tr><td><strong>Bill No:</strong></td><td style="text-align: right;">${job.billNo}</td></tr>
               <tr><td><strong>Intake Date:</strong></td><td style="text-align: right;">${job.intakeDate}</td></tr>
@@ -1242,28 +1244,28 @@
               <tr><td><strong>Device:</strong></td><td style="text-align: right;">${job.model}</td></tr>
               <tr><td><strong>IMEI:</strong></td><td style="text-align: right;">${job.imei}</td></tr>
             </table>
-            <div style="border-top: 1px dashed #000; margin: 6px 0;"></div>
+            <div style="border-top: 1px dashed #000; margin: 5px 0;"></div>
             <div style="font-size: 10px;">
               <strong>Problem:</strong> ${job.fault}
             </div>
-            <div style="border-top: 1px dashed #000; margin: 6px 0;"></div>
+            <div style="border-top: 1px dashed #000; margin: 5px 0;"></div>
             <table style="width: 100%; font-size: 10px;">
               <tr><td>Estimate / Billed:</td><td style="text-align: right;">₹${totalOrEst}</td></tr>
               <tr><td>Advance Received:</td><td style="text-align: right;">₹${job.advPaid}</td></tr>
               ${isUnrepairable && job.refundPaid > 0 ? `<tr><td><strong>Advance Refunded:</strong></td><td style="text-align: right; color: red;"><strong>- ₹${job.refundPaid}</strong></td></tr>` : ''}
               <tr><td><strong>Balance / Settlement:</strong></td><td style="text-align: right;"><strong>₹${balanceOrSettlement}</strong></td></tr>
             </table>
-            <div style="margin-top: 5px; font-size: 10px; font-weight: bold; border: 1px solid #000; padding: 3px; text-align: center;">
+            <div style="margin-top: 4px; font-size: 10px; font-weight: bold; border: 1px solid #000; padding: 2px; text-align: center;">
               Warranty: ${job.warranty || 'No Warranty'}
             </div>
-            <div style="border-top: 1px dashed #000; margin: 8px 0;"></div>
-            <div style="font-size: 8px; line-height: 1.25;">
+            <div style="border-top: 1px dashed #000; margin: 6px 0;"></div>
+            <div style="font-size: 8px; line-height: 1.2;">
               <strong>TERMS & CONDITIONS:</strong><br>
               1. NO WARRANTY on Physical Damage, Broken Glass, Liquid Damage, Inner Display Lining, or Green/White Lines.<br>
-              2. Devices must be claimed within 30 days from intake. Workshop shall NOT be liable for unclaimed units past 30 days.<br>
+              2. Devices must be claimed within 30 days from intake. Workshop is NOT liable for unclaimed units past 30 days.<br>
               3. Original voucher mandatory for pickup.
             </div>
-            <div style="text-align: center; margin-top: 6px; font-size: 8px;">
+            <div style="text-align: center; margin-top: 5px; font-size: 8px;">
               *** Customer Care Copy ***
             </div>
           </div>
@@ -1271,20 +1273,19 @@
 
       if (isDualIntake) {
         printHTML += `
-          <!-- Shop Tag Copy -->
           <div>
             <div style="text-align: center;">
               <h3 style="font-size: 12px; font-weight: bold; margin: 0;">SHOP TAG (ATTACH TO PHONE)</h3>
             </div>
             <div style="border-top: 1px dashed #000; margin: 5px 0;"></div>
-            <div style="font-size: 11px;">
-              <p style="margin: 3px 0;"><strong>BILL NO:</strong> <span style="font-size: 13px; font-weight: bold;">${job.billNo}</span></p>
-              <p style="margin: 3px 0;"><strong>INTAKE DATE:</strong> ${job.intakeDate}</p>
-              <p style="margin: 3px 0;"><strong>MODEL:</strong> ${job.model}</p>
-              <p style="margin: 3px 0;"><strong>IMEI:</strong> ${job.imei}</p>
-              <p style="margin: 3px 0;"><strong>FAULT:</strong> ${job.fault}</p>
-              <p style="margin: 3px 0;"><strong>CUST:</strong> ${job.customerName} (${job.phone})</p>
-              <p style="margin: 3px 0;"><strong>ADV PAID:</strong> ₹${job.advPaid}</p>
+            <div style="font-size: 10px;">
+              <p style="margin: 2px 0;"><strong>BILL NO:</strong> <span style="font-size: 12px; font-weight: bold;">${job.billNo}</span></p>
+              <p style="margin: 2px 0;"><strong>INTAKE DATE:</strong> ${job.intakeDate}</p>
+              <p style="margin: 2px 0;"><strong>MODEL:</strong> ${job.model}</p>
+              <p style="margin: 2px 0;"><strong>IMEI:</strong> ${job.imei}</p>
+              <p style="margin: 2px 0;"><strong>FAULT:</strong> ${job.fault}</p>
+              <p style="margin: 2px 0;"><strong>CUST:</strong> ${job.customerName} (${job.phone})</p>
+              <p style="margin: 2px 0;"><strong>ADV PAID:</strong> ₹${job.advPaid}</p>
             </div>
             <div style="border-top: 1px dashed #000; margin: 5px 0;"></div>
             <div style="text-align: center; font-size: 8px;">
@@ -1295,6 +1296,10 @@
       }
 
       printHTML += `</div>`;
+
+      // Set Thermal Print Mode
+      document.body.classList.remove('mode-a4');
+      document.body.classList.add('mode-thermal');
       executeDirectPrint(printHTML);
     }
 
@@ -1306,9 +1311,9 @@
       const netCash = document.getElementById('dailyNetCash').innerText;
 
       const summary = `
-        <div class="a4-mode">
+        <div>
           <div style="border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 12px;">
-            <h1 style="font-size: 20px; font-weight: bold; margin: 0; text-transform: uppercase;">SMARTFIX MOBILE CARE</h1>
+            <h1 style="font-size: 18px; font-weight: bold; margin: 0; text-transform: uppercase;">SMARTFIX MOBILE CARE</h1>
             <p style="font-size: 11px; color: #444; margin: 2px 0;">Daily Cashier Closing Report | Date: ${selectedDate}</p>
           </div>
           <div style="display: flex; justify-content: space-between; border: 1px solid #ccc; padding: 10px; margin-bottom: 15px; font-size: 11px; font-weight: bold;">
@@ -1325,6 +1330,8 @@
         </div>
       `;
 
+      document.body.classList.remove('mode-thermal');
+      document.body.classList.add('mode-a4');
       executeDirectPrint(summary);
     }
 
@@ -1335,9 +1342,9 @@
       });
 
       const reportHTML = `
-        <div class="a4-mode">
+        <div>
           <div style="border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 12px;">
-            <h1 style="font-size: 20px; font-weight: bold; margin: 0; text-transform: uppercase;">SMARTFIX MOBILE CARE</h1>
+            <h1 style="font-size: 18px; font-weight: bold; margin: 0; text-transform: uppercase;">SMARTFIX MOBILE CARE</h1>
             <p style="font-size: 11px; color: #444; margin: 2px 0;">Financial Statement & Service Performance Ledger</p>
           </div>
           ${sourceTable.outerHTML}
@@ -1348,76 +1355,21 @@
         </div>
       `;
 
+      document.body.classList.remove('mode-thermal');
+      document.body.classList.add('mode-a4');
       executeDirectPrint(reportHTML);
     }
 
+    // PERSISTENT DIRECT PRINT (Does not wipe DOM, preventing blank outputs)
     function executeDirectPrint(htmlContent) {
       const printArea = document.getElementById('masterDirectPrintArea');
       printArea.innerHTML = htmlContent;
       printArea.style.display = 'block';
 
+      // Slight render delay so mobile spooler can capture exact elements
       setTimeout(() => {
         window.print();
-        setTimeout(() => {
-          printArea.style.display = 'none';
-          printArea.innerHTML = '';
-        }, 500);
-      }, 50);
-    }
-
-    function saveJobPdfVoucher(job) {
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: [80, 165] });
-
-      doc.setFont("courier", "bold");
-      doc.setFontSize(11);
-      doc.text("SMARTFIX MOBILE CARE", 40, 12, { align: "center" });
-      doc.setFontSize(8);
-      doc.setFont("courier", "normal");
-      doc.text("Service Voucher & Policy Agreement", 40, 17, { align: "center" });
-      doc.text("----------------------------------------", 40, 21, { align: "center" });
-
-      let y = 28;
-      const lines = [
-        `Bill No       : ${job.billNo}`,
-        `Intake Date   : ${job.intakeDate}`,
-        `Delivery Date : ${job.deliveryDate || '--'}`,
-        `Customer      : ${job.customerName}`,
-        `Phone         : ${job.phone}`,
-        `Device        : ${job.model}`,
-        `IMEI          : ${job.imei}`,
-        `Problem       : ${job.fault.substring(0, 24)}`,
-        `Status        : ${job.status}`,
-        `Warranty      : ${job.warranty || 'No Warranty'}`,
-        `Estimated/Bill: Rs. ${job.status === 'Unrepairable' ? 0 : (job.finalAmount || job.estCost)}`,
-        `Advance Recv  : Rs. ${job.advPaid}`,
-        `Advance Refund: Rs. ${job.refundPaid || 0}`
-      ];
-
-      lines.forEach(line => {
-        doc.text(line, 5, y);
-        y += 5.5;
-      });
-
-      doc.text("----------------------------------------", 40, y, { align: "center" });
-      y += 5.5;
-
-      doc.setFontSize(6.5);
-      doc.setFont("courier", "bold");
-      doc.text("TERMS & CONDITIONS:", 5, y);
-      y += 4;
-      doc.setFont("courier", "normal");
-      const terms = [
-        "- No warranty on physical damage, liquid damage, or display lines.",
-        "- Devices must be collected within 30 days from intake.",
-        "- Workshop is not liable for unclaimed units past 30 days."
-      ];
-      terms.forEach(t => {
-        doc.text(t, 5, y);
-        y += 3.8;
-      });
-
-      doc.save(`SmartFix_${job.billNo}_${job.imei.slice(-4)}.pdf`);
+      }, 150);
     }
 
     function exportA4PDF() {
