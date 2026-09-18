@@ -3,13 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SmartFix Pro - Mobile Workshop POS & Cashier System</title>
+  <title>SmartFix Pro - Mobile Workshop POS</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
   <style>
-    /* 100% RELIABLE ZERO-BLANK PRINT ENGINE */
+    /* REMOVE BROWSER URL, HEADER & FOOTER ON PRINT */
+    @page {
+      margin: 0;
+    }
+
     @media print {
       body > *:not(#masterDirectPrintArea) {
         display: none !important;
@@ -19,12 +23,12 @@
         position: absolute !important;
         left: 0 !important;
         top: 0 !important;
-        width: 100% !important;
         background: #fff !important;
         color: #000 !important;
         padding: 0 !important;
         margin: 0 !important;
       }
+      /* Compact 58mm Pocket Thermal Print Rules */
       .thermal-mode {
         width: 58mm !important;
         max-width: 58mm !important;
@@ -37,9 +41,10 @@
       .receipt-cut-line {
         page-break-after: always !important;
         border-bottom: 2px dashed #000 !important;
-        margin: 14px 0 !important;
-        padding-bottom: 12px !important;
+        margin: 12px 0 !important;
+        padding-bottom: 10px !important;
       }
+      /* A4 Admin Mode */
       .a4-mode {
         width: 210mm !important;
         min-height: 297mm !important;
@@ -375,6 +380,18 @@
     </section>
   </main>
 
+  <!-- Footer with Developer Credit -->
+  <footer class="bg-slate-900 border-t border-slate-800 py-4 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 text-center">
+      <p class="text-xs text-slate-400">
+        SmartFix Pro &copy; 2026 | Mobile Workshop Management System
+      </p>
+      <p class="text-xs font-semibold text-indigo-400 mt-1">
+        <i class="fa-solid fa-code mr-1"></i> Developed by Debapriya Sarkar
+      </p>
+    </div>
+  </footer>
+
   <!-- Complete Service & Delivery Modal -->
   <div id="deliveryModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
     <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4">
@@ -541,7 +558,7 @@
   <div id="masterDirectPrintArea" style="display: none;"></div>
 
   <script>
-    const STORAGE_KEY = "smartfix_pro_pos_v5";
+    const STORAGE_KEY = "smartfix_pro_pos_v6";
     const ADMIN_PIN = "1234";
     let isOwnerAuthenticated = false;
     let pendingDestinationTab = null;
@@ -578,7 +595,7 @@
         model: "OnePlus 9RT",
         imei: "869910048291044",
         fault: "Water Damage / CPU Dead",
-        remarks: "Sent to specialized micro-soldering center, unable to salvage",
+        remarks: "Sent to specialized center",
         estCost: 4000,
         advPaid: 500,
         refundPaid: 500,
@@ -598,7 +615,7 @@
         model: "Samsung Galaxy A53",
         imei: "867701058291044",
         fault: "Type-C Port Damaged",
-        remarks: "Sub-board ordered, will arrive Friday",
+        remarks: "Sub-board ordered",
         estCost: 1200,
         advPaid: 200,
         refundPaid: 0,
@@ -905,6 +922,7 @@
             <div class="bg-slate-950 p-3 rounded-xl mb-4 text-xs space-y-1.5 border border-slate-800/80">
               <div class="flex items-center justify-between">
                 <p><span class="text-slate-500 font-medium">Customer:</span> <strong class="text-slate-300">${job.customerName}</strong></p>
+                <!-- Direct Calling Button -->
                 <a href="tel:${job.phone}" title="Call Customer Direct" class="px-2.5 py-1 bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white rounded-lg font-mono text-[11px] font-bold border border-emerald-500/30 transition flex items-center gap-1.5">
                   <i class="fa-solid fa-phone"></i> ${job.phone}
                 </a>
@@ -1193,6 +1211,9 @@
       document.getElementById('footProfit').innerText = "₹" + totalProfit;
     }
 
+    // ----------------------------------------------------
+    // COMPACT 58mm ZERO-MARGIN DIRECT PRINT ENGINE
+    // ----------------------------------------------------
     function printDirectThermalVoucher(job, isDualIntake = false) {
       const isUnrepairable = job.status === "Unrepairable";
       const isDelivered = job.status === "Delivered";
@@ -1203,6 +1224,7 @@
 
       let printHTML = `
         <div class="thermal-mode">
+          <!-- Customer Copy -->
           <div class="${isDualIntake ? 'receipt-cut-line' : ''}">
             <div style="text-align: center;">
               <h2 style="font-size: 14px; font-weight: bold; margin: 0;">SMARTFIX MOBILE CARE</h2>
@@ -1249,6 +1271,7 @@
 
       if (isDualIntake) {
         printHTML += `
+          <!-- Shop Tag Copy -->
           <div>
             <div style="text-align: center;">
               <h3 style="font-size: 12px; font-weight: bold; margin: 0;">SHOP TAG (ATTACH TO PHONE)</h3>
@@ -1272,7 +1295,6 @@
       }
 
       printHTML += `</div>`;
-
       executeDirectPrint(printHTML);
     }
 
@@ -1458,6 +1480,7 @@
       doc.save("SmartFixPro_Financial_Statement.pdf");
     }
 
+    // Initialize View
     window.addEventListener('DOMContentLoaded', () => {
       document.getElementById('currentDateDisplay').innerText = todayStr;
       document.getElementById('dailyReportDatePicker').value = todayStr;
