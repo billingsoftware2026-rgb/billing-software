@@ -1,0 +1,15 @@
+{
+  "name": "SmartFix Pro",
+  "short_name": "SmartFix",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#020617",
+  "theme_color": "#4f46e5",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/2920/2920329.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
