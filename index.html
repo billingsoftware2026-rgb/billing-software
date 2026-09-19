@@ -64,7 +64,7 @@
           <i class="fa-solid fa-screwdriver-wrench"></i>
         </div>
         <h2 class="text-2xl font-bold text-white tracking-wide" id="authTitle">Workshop Portal</h2>
-        <p class="text-xs text-slate-400" id="authSubtitle">Sign in to manage your repairs and ledger</p>
+        <p class="text-xs text-slate-400" id="authSubtitle">Sign in to manage your repairs and cloud ledger</p>
       </div>
 
       <div class="flex bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs font-semibold">
@@ -152,9 +152,10 @@
     </div>
   </header>
 
-  <!-- Main Content -->
+  <!-- Main Content Container -->
   <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 space-y-6">
-    <!-- TAB 1: Intake -->
+
+    <!-- TAB 1: Intake Form -->
     <section id="view-newJob" class="tab-panel block space-y-6">
       <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 shadow-xl max-w-4xl mx-auto">
         <div class="flex flex-wrap items-center justify-between gap-3 pb-6 border-b border-slate-800 mb-6">
@@ -198,7 +199,7 @@
           </div>
           <div class="md:col-span-2">
             <label class="block text-xs font-semibold uppercase tracking-wider text-amber-400 mb-2">Internal Workshop Remarks 🔒</label>
-            <input type="text" id="intakeRemarks" placeholder="e.g. Sent for CPU reballing / Awaiting stock" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-500 text-white transition">
+            <input type="text" id="intakeRemarks" placeholder="e.g. Sent for CPU reballing / Awaiting vendor stock" class="w-full bg-slate-950 border border-amber-500/40 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-500 text-white transition">
           </div>
 
           <div class="md:col-span-2 flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
@@ -347,7 +348,7 @@
             <h2 class="text-xl font-bold text-white">Owner Financial Statement & Profit Ledger</h2>
             <span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Owner Access</span>
           </div>
-          <p class="text-xs text-slate-400">Track multi-month turnover, parts consumption, advance refunds, market dues & cumulative profit.</p>
+          <p class="text-xs text-slate-400">Review turnover, parts consumption, advance refunds, market dues & cumulative profit.</p>
         </div>
         <div class="flex flex-wrap items-center gap-2">
           <button onclick="lockSystem()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-2 rounded-xl border border-slate-700 transition">
@@ -638,7 +639,7 @@
     </div>
   </div>
 
-  <!-- Password Authorization Modal (DYNAMIC OWNER PASSWORD) -->
+  <!-- Password Authorization Modal -->
   <div id="passwordModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md hidden items-center justify-center p-4 z-50">
     <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4 text-center">
       <div class="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-400 border border-amber-500/20 mx-auto flex items-center justify-center text-xl">
@@ -735,7 +736,7 @@
             shopAddress: sAddr,
             shopPhone: sPhone,
             ownerEmail: email,
-            savedPassword: pass, // Developer can retrieve if owner forgets
+            savedPassword: pass,
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
           });
         } else {
@@ -822,7 +823,6 @@
       pendingDestinationTab = null;
     }
 
-    // Dynamic verification using user's real account password
     async function verifyAdminPassword() {
       const entered = document.getElementById('adminPasswordInput').value;
       const errorElem = document.getElementById('passwordError');
@@ -944,7 +944,7 @@
         if (job.deliveryDate === selectedDate) {
           if (job.status === "Delivered") {
             countDelivered++;
-            const collected = (job.deliveryCollected !== undefined) ? job.deliveryCollected : Math.max(0, job.finalAmount - job.advPaid);
+            const collected = (job.deliveryCollected !== undefined) ? job.deliveryCollected : Math.max(0, (job.finalAmount || 0) - (job.advPaid || 0));
             cashFromDelivery += collected;
             addAuditRow(job.billNo, "Repair Delivery Cash Collected", job.customerName, job.phone, job.model, "Delivered", collected, 0);
           } else if (job.status === "Unrepairable") {
@@ -1133,7 +1133,7 @@
                 <i class="fa-solid fa-print"></i>
               </button>
               ${!isDelivered && !isUnrepairable ? `
-                <button onclick="openDeliveryModal('${job.billNo}', ${job.estCost}, ${job.advPaid})" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-xl text-xs font-bold text-white flex items-center gap-1.5 shadow transition">
+                <button onclick="openDeliveryModal('${job.billNo}', ${job.estCost},${job.advPaid})" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-xl text-xs font-bold text-white flex items-center gap-1.5 shadow transition">
                   <i class="fa-solid fa-truck-ramp-box"></i> Deliver
                 </button>
               ` : ''}
@@ -1230,11 +1230,13 @@
         repairJobs[idx].deliveryDate = today;
 
         if (status === "Unrepairable") {
+          // STRICT ZERO RULES FOR UNREPAIRABLE
           repairJobs[idx].status = "Unrepairable";
           repairJobs[idx].warranty = "No Warranty";
           repairJobs[idx].partName = "Unrepairable / Returned";
           repairJobs[idx].partCost = 0;
           repairJobs[idx].finalAmount = 0;
+          repairJobs[idx].estCost = 0;
           repairJobs[idx].refundPaid = advPaid;
           repairJobs[idx].deliveryCollected = 0;
           repairJobs[idx].dueBalance = 0;
@@ -1279,7 +1281,7 @@
       document.getElementById('editFault').value = job.fault;
       document.getElementById('editRemarks').value = job.remarks || '';
       document.getElementById('editStatusSelect').value = job.status;
-      document.getElementById('editEstCost').value = (job.finalAmount || job.estCost);
+      document.getElementById('editEstCost').value = (job.status === 'Unrepairable' ? 0 : (job.finalAmount || job.estCost));
       document.getElementById('editAdvPaid').value = job.advPaid;
       document.getElementById('editDueBalance').value = job.dueBalance || 0;
 
@@ -1298,16 +1300,28 @@
       const bNo = document.getElementById('editBillNo').value;
       const idx = repairJobs.findIndex(j => j.billNo === bNo);
       if (idx !== -1) {
+        const newStatus = document.getElementById('editStatusSelect').value;
         repairJobs[idx].customerName = document.getElementById('editCustName').value.trim();
         repairJobs[idx].phone = document.getElementById('editCustPhone').value.trim();
         repairJobs[idx].model = document.getElementById('editModel').value.trim();
         repairJobs[idx].imei = document.getElementById('editImei').value.trim();
         repairJobs[idx].fault = document.getElementById('editFault').value.trim();
         repairJobs[idx].remarks = document.getElementById('editRemarks').value.trim();
-        repairJobs[idx].status = document.getElementById('editStatusSelect').value;
-        repairJobs[idx].finalAmount = parseFloat(document.getElementById('editEstCost').value) || 0;
-        repairJobs[idx].advPaid = parseFloat(document.getElementById('editAdvPaid').value) || 0;
-        repairJobs[idx].dueBalance = parseFloat(document.getElementById('editDueBalance').value) || 0;
+        repairJobs[idx].status = newStatus;
+
+        if (newStatus === 'Unrepairable') {
+          repairJobs[idx].finalAmount = 0;
+          repairJobs[idx].estCost = 0;
+          repairJobs[idx].partCost = 0;
+          repairJobs[idx].netProfit = 0;
+          repairJobs[idx].dueBalance = 0;
+          repairJobs[idx].refundPaid = repairJobs[idx].advPaid;
+        } else {
+          repairJobs[idx].finalAmount = parseFloat(document.getElementById('editEstCost').value) || 0;
+          repairJobs[idx].advPaid = parseFloat(document.getElementById('editAdvPaid').value) || 0;
+          repairJobs[idx].dueBalance = parseFloat(document.getElementById('editDueBalance').value) || 0;
+          repairJobs[idx].netProfit = Math.max(0, repairJobs[idx].finalAmount - (repairJobs[idx].partCost || 0));
+        }
 
         await syncJobToFirestore(repairJobs[idx]);
         closeEditModal();
@@ -1342,6 +1356,7 @@
       renderLedgerTable();
     }
 
+    // STRICT UNREPAIRABLE ZERO PROFIT ACCOUNTING ENGINE
     function renderLedgerTable() {
       const tbody = document.getElementById('ledgerTableBody');
       tbody.innerHTML = '';
@@ -1375,11 +1390,13 @@
       filteredJobs.forEach(job => {
         const isDelivered = job.status === "Delivered";
         const isUnrepairable = job.status === "Unrepairable";
-        const partsCost = job.partCost || 0;
-        const billed = isUnrepairable ? 0 : (isDelivered ? job.finalAmount : job.estCost);
-        const refund = job.refundPaid || 0;
-        const profit = job.netProfit || 0;
-        const due = job.dueBalance || 0;
+
+        // If unrepairable, force all financial fields to exactly 0
+        const partsCost = isUnrepairable ? 0 : (job.partCost || 0);
+        const billed = isUnrepairable ? 0 : (isDelivered ? (job.finalAmount || 0) : (job.estCost || 0));
+        const refund = isUnrepairable ? (job.refundPaid || job.advPaid || 0) : (job.refundPaid || 0);
+        const profit = isUnrepairable ? 0 : (job.netProfit || 0);
+        const due = isUnrepairable ? 0 : (job.dueBalance || 0);
 
         totalParts += partsCost;
         totalBilled += billed;
@@ -1387,7 +1404,7 @@
         totalProfit += profit;
         totalMarketDue += due;
 
-        if (due > 0) {
+        if (due > 0 && !isUnrepairable) {
           countDueCustomers++;
           const paidSoFar = (job.advPaid || 0) + (job.deliveryCollected || 0);
           const dueTr = document.createElement('tr');
@@ -1420,7 +1437,7 @@
             <div class="text-xs text-slate-400">${job.customerName} (${job.phone})</div>
           </td>
           <td class="p-4 text-xs font-semibold text-indigo-300">${job.warranty || 'None'}</td>
-          <td class="p-4 text-xs">${job.partName || '<span class="text-slate-500">None</span>'}</td>
+          <td class="p-4 text-xs">${isUnrepairable ? 'None' : (job.partName || '<span class="text-slate-500">None</span>')}</td>
           <td class="p-4 text-rose-400 font-semibold">₹${partsCost}</td>
           <td class="p-4 font-bold text-white">₹${billed}</td>
           <td class="p-4 font-bold ${due > 0 ? 'text-rose-400' : 'text-slate-500'}">₹${due}</td>
@@ -1504,7 +1521,7 @@
               <tr><td>Advance Received:</td><td style="text-align: right;">₹${job.advPaid}</td></tr>
               ${isDelivered && job.deliveryCollected ? `<tr><td>Delivery Paid:</td><td style="text-align: right;">₹${job.deliveryCollected}</td></tr>` : ''}
               ${isDelivered && job.dueBalance ? `<tr><td><strong style="color:red;">Pending Due:</strong></td><td style="text-align: right; color:red;"><strong>₹${job.dueBalance}</strong></td></tr>` : ''}
-              ${isUnrepairable && job.refundPaid > 0 ? `<tr><td><strong>Advance Refunded:</strong></td><td style="text-align: right; color: red;"><strong>- ₹${job.refundPaid}</strong></td></tr>` : ''}
+              ${isUnrepairable && (job.refundPaid || job.advPaid) > 0 ? `<tr><td><strong>Advance Refunded:</strong></td><td style="text-align: right; color: red;"><strong>- ₹${job.refundPaid || job.advPaid}</strong></td></tr>` : ''}
               <tr><td><strong>Settlement Status:</strong></td><td style="text-align: right;"><strong>${isUnrepairable ? 'Closed (Returned)' : (job.dueBalance > 0 ? '₹' + job.dueBalance + ' Due' : 'Paid in Full')}</strong></td></tr>
             </table>
             <div style="margin-top: 4px; font-size: 10px; font-weight: bold; border: 1px solid #000; padding: 2px; text-align: center;">
@@ -1658,10 +1675,11 @@
       });
 
       const rows = filtered.map(j => {
-        const billed = j.status === 'Unrepairable' ? 0 : (j.finalAmount || j.estCost);
-        const pCost = j.partCost || 0;
-        const profit = j.netProfit || 0;
-        const due = j.dueBalance || 0;
+        const isUnrepairable = j.status === 'Unrepairable';
+        const billed = isUnrepairable ? 0 : (j.finalAmount || j.estCost || 0);
+        const pCost = isUnrepairable ? 0 : (j.partCost || 0);
+        const profit = isUnrepairable ? 0 : (j.netProfit || 0);
+        const due = isUnrepairable ? 0 : (j.dueBalance || 0);
 
         totalParts += pCost;
         totalBilled += billed;
