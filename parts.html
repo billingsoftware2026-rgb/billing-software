@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>SmartFixPro | LCD Inventory & Compatibility Hub</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- jsPDF & AutoTable -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              dark: '#0a0d14',
+              card: '#111622',
+              cardInner: '#171e2e',
+              border: '#1f293d',
+              accent: '#6366f1',
+              accentHover: '#4f46e5',
+              glow: '#818cf8',
+              purple: '#7c3aed'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #0a0d14; }
+    ::-webkit-scrollbar-thumb { background: #26334a; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #3b4d6e; }
+    .glass-card {
+      background: linear-gradient(180deg, rgba(23, 30, 46, 0.7) 0%, rgba(17, 22, 34, 0.95) 100%);
+      backdrop-filter: blur(12px);
+    }
+  </style>
+</head>
+<body class="bg-brand-dark text-slate-100 font-sans min-h-screen flex flex-col antialiased">
+
+  <!-- Header -->
+  <header class="sticky top-0 z-40 bg-brand-card/90 backdrop-blur-md border-b border-brand-border px-4 py-3 sm:px-6">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-500 flex items-center justify-center shadow-lg shadow-indigo-600/30">
+          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-base font-black tracking-wider uppercase text-white">SMARTFIX<span class="text-indigo-400">PRO</span></h1>
+            <span class="inline-flex items-center gap-1 text-[10px] font-semibold bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 px-2 py-0.5 rounded-full">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              PARTS OS
+            </span>
+          </div>
+          <p class="text-[11px] text-slate-400 font-mono">LCD Stock & Compatibility Hub</p>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="flex items-center bg-brand-cardInner border border-brand-border p-1 rounded-xl gap-1 text-xs font-semibold">
+        <button id="navTabSearch" onclick="switchView('search')" class="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-indigo-600 text-white shadow">
+          🔍 Compatibility Search
+        </button>
+        <button id="navTabInventory" onclick="switchView('inventory')" class="flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-slate-400 hover:text-slate-200">
+          📦 Stock Manager & Entry
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-6">
+
+    <!-- SEARCH VIEW -->
+    <div id="viewSearch" class="space-y-6">
+      <div class="glass-card rounded-2xl border border-brand-border p-6 text-center space-y-4">
+        <h2 class="text-2xl font-black text-white">Instant LCD Compatibility Finder</h2>
+        <p class="text-xs text-slate-400 max-w-xl mx-auto">Search by phone model name or factory code (e.g. Y12s, V2029, Y21) to check store stock and deduct units.</p>
+
+        <div class="max-w-2xl mx-auto relative border border-brand-border rounded-2xl">
+          <input 
+            type="text" 
+            id="searchInput" 
+            oninput="handleSearch()"
+            placeholder="Type any model (e.g. Vivo Y20, Y12s, V2029, Redmi 9, C11)..." 
+            class="w-full px-5 py-4 rounded-2xl bg-brand-cardInner text-white placeholder-slate-500 text-base focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            autofocus
+          >
+        </div>
+
+        <div class="flex flex-wrap items-center justify-center gap-2 pt-1 text-xs text-slate-400">
+          <span>Quick search:</span>
+          <button onclick="quickFill('Y12s')" class="px-2 py-1 rounded bg-brand-cardInner border border-brand-border hover:text-white">Vivo Y12s</button>
+          <button onclick="quickFill('V2029')" class="px-2 py-1 rounded bg-brand-cardInner border border-brand-border hover:text-white">V2029</button>
+          <button onclick="quickFill('Redmi 9')" class="px-2 py-1 rounded bg-brand-cardInner border border-brand-border hover:text-white">Redmi 9</button>
+        </div>
+      </div>
+
+      <div id="searchResultsArea" class="space-y-4"></div>
+    </div>
+
+    <!-- INVENTORY VIEW -->
+    <div id="viewInventory" class="hidden space-y-6">
+      <!-- KPIs -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div class="glass-card p-4 rounded-2xl border border-brand-border">
+          <span class="text-xs text-slate-400 uppercase font-semibold">Total Models</span>
+          <div class="text-2xl font-black text-white mt-1" id="kpiTotalModels">0</div>
+        </div>
+        <div class="glass-card p-4 rounded-2xl border border-brand-border">
+          <span class="text-xs text-slate-400 uppercase font-semibold">Total Stock</span>
+          <div class="text-2xl font-black text-white mt-1" id="kpiTotalUnits">0</div>
+        </div>
+        <div class="glass-card p-4 rounded-2xl border border-brand-border">
+          <span class="text-xs text-amber-400 uppercase font-semibold">Low Stock (≤2)</span>
+          <div class="text-2xl font-black text-amber-400 mt-1" id="kpiLowStock">0</div>
+        </div>
+        <div class="glass-card p-4 rounded-2xl border border-brand-border">
+          <span class="text-xs text-purple-400 uppercase font-semibold">Aging (>30d)</span>
+          <div class="text-2xl font-black text-purple-300 mt-1" id="kpiAgingStock">0</div>
+        </div>
+      </div>
+
+      <!-- Actions & Filters -->
+      <div class="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-3 bg-brand-card p-4 rounded-2xl border border-brand-border">
+        <div class="flex flex-wrap items-center gap-1.5 text-xs font-semibold">
+          <button onclick="setFilter('all')" id="filterAll" class="px-3 py-1.5 rounded-lg bg-indigo-600 text-white">All LCDs</button>
+          <button onclick="setFilter('low')" id="filterLow" class="px-3 py-1.5 rounded-lg bg-brand-cardInner text-slate-300 border border-brand-border">⚠️ Low Stock (≤2)</button>
+          <button onclick="setFilter('out')" id="filterOut" class="px-3 py-1.5 rounded-lg bg-brand-cardInner text-slate-300 border border-brand-border">🚫 Out of Stock (0)</button>
+          <button onclick="setFilter('aging')" id="filterAging" class="px-3 py-1.5 rounded-lg bg-brand-cardInner text-slate-300 border border-brand-border">⏳ Aging (>30d)</button>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button onclick="openModal()" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs flex items-center gap-1">
+            ➕ Add New LCD
+          </button>
+          <button onclick="exportToPDF()" class="px-3 py-2 rounded-xl bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 font-semibold text-xs">
+            📄 Export PDF
+          </button>
+          <button onclick="exportJsonBackup()" class="px-3 py-2 rounded-xl bg-brand-cardInner border border-brand-border text-slate-300 text-xs">
+            💾 Backup
+          </button>
+          <label class="px-3 py-2 rounded-xl bg-brand-cardInner border border-brand-border text-slate-300 text-xs cursor-pointer">
+            📥 Restore
+            <input type="file" onchange="importJsonBackup(event)" class="hidden" accept=".json">
+          </label>
+        </div>
+      </div>
+
+      <!-- Inventory Table -->
+      <div class="glass-card rounded-2xl border border-brand-border overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-brand-cardInner/80 border-b border-brand-border text-[11px] font-bold text-slate-400 uppercase">
+                <th class="p-3.5">LCD Combo Name</th>
+                <th class="p-3.5">Stock</th>
+                <th class="p-3.5">Cost (₹)</th>
+                <th class="p-3.5">Rack Location</th>
+                <th class="p-3.5">Age</th>
+                <th class="p-3.5">Compatible Models</th>
+                <th class="p-3.5 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="inventoryTableBody" class="divide-y divide-brand-border/60 text-xs"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ADD/EDIT MODAL -->
+  <div id="entryModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="glass-card w-full max-w-xl rounded-2xl border border-brand-border p-6 shadow-2xl relative space-y-4">
+      <div class="flex items-center justify-between pb-2 border-b border-brand-border">
+        <h3 class="text-base font-bold text-white" id="modalTitle">Add New LCD Combo</h3>
+        <button onclick="closeModal()" class="text-slate-400 hover:text-white text-lg font-bold">✕</button>
+      </div>
+
+      <form id="lcdForm" onsubmit="saveLcdEntry(event)" class="space-y-3">
+        <input type="hidden" id="editItemId">
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">LCD Name / Title *</label>
+          <input type="text" id="formName" required placeholder="e.g. Vivo Y20 (V2029) Combo" class="w-full px-3 py-2 rounded-xl bg-brand-cardInner border border-brand-border text-white text-xs outline-none">
+        </div>
+
+        <div class="grid grid-cols-3 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Stock (Pcs) *</label>
+            <input type="number" id="formStock" min="0" required placeholder="5" class="w-full px-3 py-2 rounded-xl bg-brand-cardInner border border-brand-border text-white text-xs outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Purchase Cost (₹) *</label>
+            <input type="number" step="any" id="formPrice" required placeholder="825" class="w-full px-3 py-2 rounded-xl bg-brand-cardInner border border-brand-border text-white text-xs outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Rack Location</label>
+            <input type="text" id="formRack" placeholder="Box A-1" class="w-full px-3 py-2 rounded-xl bg-brand-cardInner border border-brand-border text-white text-xs outline-none">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Compatible Models (Comma separated) *</label>
+          <textarea id="formModels" required rows="3" placeholder="Vivo Y12s, Vivo Y20, Vivo Y20G, V2029, iQOO U1x" class="w-full px-3 py-2 rounded-xl bg-brand-cardInner border border-brand-border text-white text-xs outline-none"></textarea>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="closeModal()" class="px-4 py-2 rounded-xl bg-brand-cardInner text-slate-300 text-xs">Cancel</button>
+          <button type="submit" class="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs">Save Record</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const sampleData = [
+      {
+        id: 1,
+        name: "Vivo Y20 (V2029) - LCD Display Combo Folder",
+        stock: 6,
+        price: 825,
+        location: "Rack A, Box 1",
+        dateAdded: "2026-08-15",
+        models: ["Vivo Y12G", "Vivo Y12s", "Vivo Y20", "Vivo Y20A", "Vivo Y20G", "Vivo Y20i", "Vivo Y20T", "Vivo Y15s", "Vivo Y01", "Vivo Y16", "Vivo Y21", "iQOO U1x", "V2029", "V2026"]
+      },
+      {
+        id: 2,
+        name: "Redmi 9 / 9 Prime / Poco M2 Folder",
+        stock: 2,
+        price: 740,
+        location: "Rack B, Box 2",
+        dateAdded: "2026-07-10",
+        models: ["Redmi 9", "Redmi 9 Prime", "Poco M2", "Redmi 9 Activ", "M2004J19G"]
+      }
+    ];
+
+    let inventory = JSON.parse(localStorage.getItem('smartfix_lcd_db')) || sampleData;
+    let currentFilter = 'all';
+
+    function saveDB() {
+      localStorage.setItem('smartfix_lcd_db', JSON.stringify(inventory));
+      updateKPIs();
+      renderInventoryTable();
+      handleSearch();
+    }
+
+    function switchView(view) {
+      if (view === 'search') {
+        document.getElementById('viewSearch').classList.remove('hidden');
+        document.getElementById('viewInventory').classList.add('hidden');
+        document.getElementById('navTabSearch').className = "flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-indigo-600 text-white shadow";
+        document.getElementById('navTabInventory').className = "flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-slate-400 hover:text-slate-200";
+        document.getElementById('searchInput').focus();
+      } else {
+        document.getElementById('viewSearch').classList.add('hidden');
+        document.getElementById('viewInventory').classList.remove('hidden');
+        document.getElementById('navTabInventory').className = "flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-indigo-600 text-white shadow";
+        document.getElementById('navTabSearch').className = "flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-slate-400 hover:text-slate-200";
+        updateKPIs();
+        renderInventoryTable();
+      }
+    }
+
+    function getDaysOld(dateStr) {
+      if (!dateStr) return 0;
+      const diff = Math.abs(new Date() - new Date(dateStr));
+      return Math.floor(diff / (1000 * 60 * 60 * 24));
+    }
+
+    function updateKPIs() {
+      document.getElementById('kpiTotalModels').innerText = inventory.length;
+      document.getElementById('kpiTotalUnits').innerText = inventory.reduce((s, i) => s + Number(i.stock), 0);
+      document.getElementById('kpiLowStock').innerText = inventory.filter(i => Number(i.stock) <= 2).length;
+      document.getElementById('kpiAgingStock').innerText = inventory.filter(i => getDaysOld(i.dateAdded) > 30 && Number(i.stock) > 0).length;
+    }
+
+    function deductOneUnit(id) {
+      const item = inventory.find(i => i.id === id);
+      if (item && item.stock > 0) {
+        item.stock = Number(item.stock) - 1;
+        saveDB();
+      } else {
+        alert("Item is already out of stock!");
+      }
+    }
+
+    function addOneUnit(id) {
+      const item = inventory.find(i => i.id === id);
+      if (item) {
+        item.stock = Number(item.stock) + 1;
+        saveDB();
+      }
+    }
+
+    function quickFill(text) {
+      const input = document.getElementById('searchInput');
+      input.value = text;
+      handleSearch();
+    }
+
+    function handleSearch() {
+      const query = document.getElementById('searchInput').value.trim().toLowerCase();
+      const container = document.getElementById('searchResultsArea');
+
+      if (!query) {
+        container.innerHTML = `
+          <div class="p-10 text-center border border-dashed border-brand-border rounded-2xl">
+            <p class="text-xs text-slate-400">Search by typing any model name above.</p>
+          </div>
+        `;
+        return;
+      }
+
+      const matches = inventory.filter(item => 
+        item.name.toLowerCase().includes(query) ||
+        item.models.some(m => m.toLowerCase().includes(query))
+      );
+
+      if (matches.length === 0) {
+        container.innerHTML = `<div class="p-6 text-center text-amber-400 border border-amber-500/30 rounded-2xl">No compatible LCD found for "${query}"</div>`;
+        return;
+      }
+
+      let html = '';
+      matches.forEach(item => {
+        const isOut = Number(item.stock) <= 0;
+        const badge = isOut 
+          ? `<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-rose-500/20 text-rose-400">Out of Stock</span>`
+          : `<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-400">${item.stock} Pcs In Stock</span>`;
+
+        const modelTags = item.models.map(m => {
+          const match = m.toLowerCase().includes(query);
+          return `<span class="px-2 py-0.5 rounded text-xs ${match ? 'bg-indigo-600 text-white font-bold' : 'bg-brand-cardInner text-slate-300 border border-brand-border'}">${m}</span>`;
+        }).join(' ');
+
+        html += `
+          <div class="glass-card rounded-2xl border border-brand-border p-5 space-y-3">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+              <div>
+                <h3 class="text-base font-bold text-white">${item.name}</h3>
+                <div class="text-xs text-slate-400 mt-1 flex gap-3">
+                  <span>Cost: <b class="text-indigo-300">₹${item.price}</b></span>
+                  <span>Rack: <b class="text-slate-200">${item.location || '-'}</b></span>
+                </div>
+              </div>
+              <div class="flex items-center gap-2">
+                ${badge}
+                <button onclick="deductOneUnit(${item.id})" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs px-3 py-2 rounded-xl">
+                  -1 Used / Sell
+                </button>
+              </div>
+            </div>
+            <div class="text-xs text-slate-400">
+              <span class="block text-indigo-400 font-semibold mb-1">Compatible Models:</span>
+              <div class="flex flex-wrap gap-1">${modelTags}</div>
+            </div>
+          </div>
+        `;
+      });
+      container.innerHTML = html;
+    }
+
+    function setFilter(type) {
+      currentFilter = type;
+      ['all', 'low', 'out', 'aging'].forEach(t => {
+        const btn = document.getElementById('filter' + t.charAt(0).toUpperCase() + t.slice(1));
+        btn.className = (t === type) 
+          ? "px-3 py-1.5 rounded-lg bg-indigo-600 text-white"
+          : "px-3 py-1.5 rounded-lg bg-brand-cardInner text-slate-300 border border-brand-border";
+      });
+      renderInventoryTable();
+    }
+
+    function renderInventoryTable() {
+      const tbody = document.getElementById('inventoryTableBody');
+      tbody.innerHTML = '';
+
+      let list = inventory;
+      if (currentFilter === 'low') list = inventory.filter(i => Number(i.stock) > 0 && Number(i.stock) <= 2);
+      if (currentFilter === 'out') list = inventory.filter(i => Number(i.stock) <= 0);
+      if (currentFilter === 'aging') list = inventory.filter(i => getDaysOld(i.dateAdded) > 30 && Number(i.stock) > 0);
+
+      list.forEach(item => {
+        tbody.innerHTML += `
+          <tr class="hover:bg-brand-cardInner/50">
+            <td class="p-3 font-semibold text-white">${item.name}</td>
+            <td class="p-3">
+              <div class="flex items-center gap-1">
+                <button onclick="deductOneUnit(${item.id})" class="px-1.5 py-0.5 bg-brand-cardInner rounded text-xs">-</button>
+                <span class="font-bold px-1">${item.stock}</span>
+                <button onclick="addOneUnit(${item.id})" class="px-1.5 py-0.5 bg-brand-cardInner rounded text-xs">+</button>
+              </div>
+            </td>
+            <td class="p-3">₹${item.price}</td>
+            <td class="p-3 text-slate-400">${item.location || '-'}</td>
+            <td class="p-3">${getDaysOld(item.dateAdded)}d</td>
+            <td class="p-3 text-slate-400 max-w-xs truncate" title="${item.models.join(', ')}">${item.models.join(', ')}</td>
+            <td class="p-3 text-right space-x-2">
+              <button onclick="editEntry(${item.id})" class="text-indigo-400 text-xs">Edit</button>
+              <button onclick="deleteEntry(${item.id})" class="text-rose-500 text-xs">Delete</button>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    function openModal() {
+      document.getElementById('lcdForm').reset();
+      document.getElementById('editItemId').value = '';
+      document.getElementById('modalTitle').innerText = "Add New LCD Combo";
+      document.getElementById('entryModal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('entryModal').classList.add('hidden');
+    }
+
+    function editEntry(id) {
+      const item = inventory.find(i => i.id === id);
+      if (!item) return;
+
+      document.getElementById('editItemId').value = item.id;
+      document.getElementById('formName').value = item.name;
+      document.getElementById('formStock').value = item.stock;
+      document.getElementById('formPrice').value = item.price;
+      document.getElementById('formRack').value = item.location || '';
+      document.getElementById('formModels').value = item.models.join(', ');
+      document.getElementById('modalTitle').innerText = "Edit LCD Combo";
+      document.getElementById('entryModal').classList.remove('hidden');
+    }
+
+    function saveLcdEntry(e) {
+      e.preventDefault();
+      const editId = document.getElementById('editItemId').value;
+      const name = document.getElementById('formName').value.trim();
+      const stock = parseInt(document.getElementById('formStock').value) || 0;
+      const price = parseFloat(document.getElementById('formPrice').value) || 0;
+      const location = document.getElementById('formRack').value.trim() || 'General';
+      const rawModels = document.getElementById('formModels').value;
+
+      // FIXED REGEX: এখন আর কোনো সিনট্যাক্স এরর হবে না
+      const models = rawModels.split(/[\n,]+/).map(m => m.trim()).filter(m => m.length > 0);
+
+      if (editId) {
+        const item = inventory.find(i => i.id == editId);
+        if (item) {
+          item.name = name;
+          item.stock = stock;
+          item.price = price;
+          item.location = location;
+          item.models = models;
+        }
+      } else {
+        inventory.unshift({
+          id: Date.now(),
+          name,
+          stock,
+          price,
+          location,
+          dateAdded: new Date().toISOString().slice(0, 10),
+          models
+        });
+      }
+
+      saveDB();
+      closeModal();
+    }
+
+    function deleteEntry(id) {
+      if (confirm("Delete this LCD record?")) {
+        inventory = inventory.filter(i => i.id !== id);
+        saveDB();
+      }
+    }
+
+    function exportToPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF('l', 'mm', 'a4');
+      doc.text("SmartFixPro - LCD Stock & Compatibility Report", 14, 15);
+
+      const tableData = inventory.map((i, idx) => [
+        idx + 1, i.name, i.stock + " pcs", "Rs. " + i.price, i.location, i.models.join(', ')
+      ]);
+
+      doc.autoTable({
+        startY: 22,
+        head: [['#', 'Combo Name', 'Stock', 'Cost', 'Location', 'Supported Models']],
+        body: tableData
+      });
+      doc.save("LCD_Stock_Report.pdf");
+    }
+
+    function exportJsonBackup() {
+      const blob = new Blob([JSON.stringify(inventory, null, 2)], { type: "application/json" });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = "lcd_backup.json";
+      a.click();
+    }
+
+    function importJsonBackup(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          inventory = JSON.parse(e.target.result);
+          saveDB();
+          alert("Backup restored!");
+        } catch(err) {
+          alert("Invalid file!");
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    // Run on startup
+    saveDB();
+  </script>
+</body>
+</html>
