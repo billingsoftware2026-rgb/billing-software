@@ -3,22 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SmartFix Pro - Mobile Workshop POS & Cashier System</title>
+  <title>SmartFix Pro - Mobile Workshop POS</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#4f46e5">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
-  <style>
-    @page {
-      margin: 0;
-      size: auto;
-    }
 
+  <!-- Firebase SDKs (v9 Compat Mode) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+  <style>
+    @page { margin: 0; size: auto; }
     @media print {
-      body > *:not(#masterDirectPrintArea) {
-        display: none !important;
-      }
-      
+      body > *:not(#masterDirectPrintArea) { display: none !important; }
       #masterDirectPrintArea {
         display: block !important;
         position: absolute !important;
@@ -28,7 +29,6 @@
         color: #000 !important;
         margin: 0 !important;
       }
-
       body.mode-thermal #masterDirectPrintArea {
         width: 58mm !important;
         max-width: 58mm !important;
@@ -37,14 +37,12 @@
         font-size: 11px !important;
         line-height: 1.25 !important;
       }
-
       .receipt-cut-line {
         page-break-after: always !important;
         border-bottom: 2px dashed #000 !important;
         margin: 10px 0 !important;
         padding-bottom: 8px !important;
       }
-
       body.mode-a4 #masterDirectPrintArea {
         width: 210mm !important;
         min-height: 297mm !important;
@@ -58,6 +56,60 @@
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-indigo-600 selection:text-white">
 
+  <!-- AUTH / REGISTRATION OVERLAY -->
+  <div id="authScreen" class="fixed inset-0 bg-slate-950 z-50 flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl space-y-6">
+      <div class="text-center space-y-2">
+        <div class="w-12 h-12 bg-indigo-600 rounded-2xl mx-auto flex items-center justify-center text-xl text-white shadow-lg shadow-indigo-600/30">
+          <i class="fa-solid fa-screwdriver-wrench"></i>
+        </div>
+        <h2 class="text-2xl font-bold text-white tracking-wide" id="authTitle">Workshop Portal</h2>
+        <p class="text-xs text-slate-400" id="authSubtitle">Sign in to manage your repairs and cloud ledger</p>
+      </div>
+
+      <div class="flex bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs font-semibold">
+        <button onclick="toggleAuthMode('login')" id="btnLoginTab" class="flex-1 py-2 rounded-lg bg-indigo-600 text-white transition">Sign In</button>
+        <button onclick="toggleAuthMode('register')" id="btnRegisterTab" class="flex-1 py-2 rounded-lg text-slate-400 hover:text-white transition">Register Store</button>
+      </div>
+
+      <form id="authForm" onsubmit="handleAuth(event)" class="space-y-4 text-xs">
+        <div id="shopMetaFields" class="hidden space-y-4">
+          <div>
+            <label class="block uppercase font-bold text-slate-400 mb-1">Shop / Business Name *</label>
+            <input type="text" id="regShopName" placeholder="e.g. Maa Tara Telecom" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+          </div>
+          <div>
+            <label class="block uppercase font-bold text-slate-400 mb-1">Shop Address *</label>
+            <input type="text" id="regShopAddress" placeholder="e.g. Main Road, Station Bazar" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+          </div>
+          <div>
+            <label class="block uppercase font-bold text-slate-400 mb-1">Shop Helpline Number *</label>
+            <input type="tel" id="regShopPhone" placeholder="e.g. 9876543210" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+          </div>
+        </div>
+
+        <div>
+          <label class="block uppercase font-bold text-slate-400 mb-1">Email Account *</label>
+          <input type="email" id="authEmail" required placeholder="owner@gmail.com" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+        </div>
+        <div>
+          <label class="block uppercase font-bold text-slate-400 mb-1">Password *</label>
+          <input type="password" id="authPassword" required placeholder="••••••••" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+        </div>
+
+        <p id="authErrorMsg" class="text-rose-400 text-xs font-semibold hidden"></p>
+
+        <button type="submit" id="authSubmitBtn" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold shadow-lg shadow-indigo-600/30 transition text-sm">
+          Sign In
+        </button>
+      </form>
+
+      <div class="text-center pt-2 border-t border-slate-800/80">
+        <p class="text-[11px] text-slate-500">SmartFix Pro &copy; 2026 | Developed by Debapriya Sarkar</p>
+      </div>
+    </div>
+  </div>
+
   <!-- Header Navbar -->
   <header class="bg-slate-900/90 backdrop-blur border-b border-slate-800 sticky top-0 z-40">
     <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-4">
@@ -67,8 +119,8 @@
         </div>
         <div>
           <div class="flex items-center gap-2">
-            <h1 class="text-xl font-bold tracking-tight text-white">SMARTFIX<span class="text-indigo-400">PRO</span></h1>
-            <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">POS Edition</span>
+            <h1 class="text-xl font-bold tracking-tight text-white uppercase" id="navShopName">SMARTFIX<span class="text-indigo-400">PRO</span></h1>
+            <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">Cloud Active</span>
           </div>
           <p class="text-xs text-slate-400 font-medium flex items-center gap-1.5">
             <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> <span id="currentDateDisplay" class="font-mono text-slate-300"></span>
@@ -76,7 +128,6 @@
         </div>
       </div>
 
-      <!-- Navigation Tabs -->
       <nav class="flex items-center bg-slate-950/80 p-1 rounded-xl border border-slate-800">
         <button onclick="requestTabAccess('newJob')" id="tab-newJob" class="px-3.5 py-2 rounded-lg text-xs md:text-sm font-semibold transition bg-indigo-600 text-white shadow-md flex items-center gap-1.5">
           <i class="fa-solid fa-circle-plus"></i>
@@ -93,6 +144,9 @@
         <button onclick="requestTabAccess('reports')" id="tab-reports" class="px-3.5 py-2 rounded-lg text-xs md:text-sm font-semibold transition text-slate-400 hover:text-white flex items-center gap-1.5">
           <i class="fa-solid fa-lock text-[11px] text-amber-400"></i>
           <span>Admin Ledger</span>
+        </button>
+        <button onclick="signOutShop()" title="Sign Out" class="px-2.5 py-2 text-slate-400 hover:text-rose-400 text-xs">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i>
         </button>
       </nav>
     </div>
@@ -145,7 +199,7 @@
           </div>
           <div class="md:col-span-2">
             <label class="block text-xs font-semibold uppercase tracking-wider text-amber-400 mb-2">Internal Workshop Remarks (Hidden from customer bills) 🔒</label>
-            <input type="text" id="intakeRemarks" placeholder="e.g. Sent to Kolkata market for CPU reballing / Awaiting vendor display stock" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-500 text-white transition">
+            <input type="text" id="intakeRemarks" placeholder="e.g. Sent for CPU reballing / Awaiting vendor display stock" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-500 text-white transition">
           </div>
 
           <div class="md:col-span-2 flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
@@ -181,7 +235,7 @@
 
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
-          <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Adv. Received (Today Intake)</span>
+          <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Adv. Received (Today)</span>
           <h4 id="dailyAdvReceived" class="text-xl md:text-2xl font-bold text-blue-400">₹0</h4>
         </div>
         <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
@@ -189,11 +243,11 @@
           <h4 id="dailyDeliveryCash" class="text-xl md:text-2xl font-bold text-emerald-400">₹0</h4>
         </div>
         <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
-          <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Advance Refunded (Unrepaired)</span>
+          <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Advance Refunded</span>
           <h4 id="dailyAdvRefunded" class="text-xl md:text-2xl font-bold text-rose-400">- ₹0</h4>
         </div>
         <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
-          <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Net Closing Cash Drawer</span>
+          <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Net Closing Drawer</span>
           <h4 id="dailyNetCash" class="text-xl md:text-2xl font-bold text-white">₹0</h4>
         </div>
       </div>
@@ -204,11 +258,11 @@
           <p id="dailyCountReceived" class="text-lg font-bold text-white">0</p>
         </div>
         <div class="bg-slate-950 border border-slate-800/80 p-3 rounded-xl text-center">
-          <span class="text-[11px] text-slate-400">Repaired & Delivered Today</span>
+          <span class="text-[11px] text-slate-400">Repaired & Delivered</span>
           <p id="dailyCountDelivered" class="text-lg font-bold text-emerald-400">0</p>
         </div>
         <div class="bg-slate-950 border border-slate-800/80 p-3 rounded-xl text-center">
-          <span class="text-[11px] text-slate-400">Returned Unrepaired Today</span>
+          <span class="text-[11px] text-slate-400">Returned Unrepaired</span>
           <p id="dailyCountUnrepaired" class="text-lg font-bold text-rose-400">0</p>
         </div>
         <div class="bg-slate-950 border border-slate-800/80 p-3 rounded-xl text-center">
@@ -286,7 +340,7 @@
       </div>
     </section>
 
-    <!-- TAB 4: Admin Ledger (PIN: 1234) -->
+    <!-- TAB 4: Admin Ledger -->
     <section id="view-reports" class="tab-panel hidden space-y-6">
       <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl flex flex-wrap items-center justify-between gap-4">
         <div>
@@ -326,7 +380,6 @@
         </div>
       </div>
 
-      <!-- Financial Metrics + MARKET DUE CARD -->
       <div class="grid grid-cols-1 sm:grid-cols-5 gap-3 md:gap-4">
         <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
           <span class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Total Parts Cost</span>
@@ -428,7 +481,7 @@
     </div>
   </footer>
 
-  <!-- Complete Service & Delivery Modal (With Remaining Due & Cash Received Inputs) -->
+  <!-- Complete Service & Delivery Modal -->
   <div id="deliveryModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
     <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4">
       <div class="flex items-center justify-between border-b border-slate-800 pb-3">
@@ -477,7 +530,6 @@
           </div>
         </div>
 
-        <!-- PAYMENT CALCULATION & DUE BOX -->
         <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-2 text-xs">
           <div class="flex justify-between items-center text-slate-400">
             <span>Advance Received Earlier:</span>
@@ -498,7 +550,6 @@
         </div>
       </div>
 
-      <!-- Unrepairable Full 100% Refund Fields -->
       <div id="unrepairableRefundFields" class="hidden space-y-3 bg-rose-500/10 border border-rose-500/20 p-4 rounded-2xl text-xs">
         <div class="flex items-center gap-2 text-rose-400 font-bold text-sm">
           <i class="fa-solid fa-triangle-exclamation"></i> Non-Repairable Return Protocol
@@ -615,93 +666,139 @@
     </div>
   </div>
 
-  <!-- MASTER PRINT CONTAINER: ALWAYS ACTIVE -->
+  <!-- MASTER PRINT CONTAINER -->
   <div id="masterDirectPrintArea" style="display: none;"></div>
 
   <script>
-    const STORAGE_KEY = "smartfix_pro_pos_v8";
+    // --- INTEGRATED EXACT FIREBASE CREDENTIALS ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyCG357Dtw_ftKsgAyRSsoZUSfMNpx-GGz0",
+      authDomain: "billing-ab24c.firebaseapp.com",
+      projectId: "billing-ab24c",
+      storageBucket: "billing-ab24c.firebasestorage.app",
+      messagingSenderId: "356489808931",
+      appId: "1:356489808931:web:55297f31640c181c7db596",
+      measurementId: "G-QPVQTXGFFJ"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
     const ADMIN_PIN = "1234";
     let isOwnerAuthenticated = false;
     let pendingDestinationTab = null;
     let currentStatusFilter = "ALL";
+    let currentStore = null;
+    let currentAuthMode = "login";
+    let repairJobs = [];
 
     const todayStr = new Date().toISOString().split('T')[0];
-    let repairJobs = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [
-      {
-        billNo: "SFX-9101",
-        intakeDate: todayStr,
-        deliveryDate: todayStr,
-        customerName: "Robert Anderson",
-        phone: "9876501234",
-        model: "iPhone 12 Pro",
-        imei: "358921094829101",
-        fault: "OLED Screen Broken",
-        remarks: "Internal display connector re-soldered",
-        estCost: 6500,
-        advPaid: 1500,
-        refundPaid: 0,
-        deliveryCollected: 4500,
-        dueBalance: 500, // Pending Due Example
-        status: "Delivered",
-        warranty: "90 Days Warranty (Display & Touch)",
-        partName: "OEM OLED Combo",
-        partCost: 3800,
-        finalAmount: 6500,
-        netProfit: 2700
-      },
-      {
-        billNo: "SFX-9102",
-        intakeDate: "2026-05-10",
-        deliveryDate: todayStr,
-        customerName: "Alex Martin",
-        phone: "9811223344",
-        model: "OnePlus 9RT",
-        imei: "869910048291044",
-        fault: "Water Damage / CPU Dead",
-        remarks: "Sent to specialized center",
-        estCost: 4000,
-        advPaid: 500,
-        refundPaid: 500,
-        deliveryCollected: 0,
-        dueBalance: 0,
-        status: "Unrepairable",
-        warranty: "No Warranty",
-        partName: "Unrepairable / Returned",
-        partCost: 0,
-        finalAmount: 0,
-        netProfit: 0
-      },
-      {
-        billNo: "SFX-9103",
-        intakeDate: todayStr,
-        deliveryDate: "--",
-        customerName: "David Miller",
-        phone: "9823456789",
-        model: "Samsung Galaxy A53",
-        imei: "867701058291044",
-        fault: "Type-C Port Damaged",
-        remarks: "Sub-board ordered",
-        estCost: 1200,
-        advPaid: 200,
-        refundPaid: 0,
-        deliveryCollected: 0,
-        dueBalance: 0,
-        status: "Ready",
-        warranty: "No Warranty",
-        partName: "",
-        partCost: 0,
-        finalAmount: 0,
-        netProfit: 0
-      }
-    ];
 
-    function saveState() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(repairJobs));
-      renderDailyCashReport();
-      renderJobCards();
-      if (isOwnerAuthenticated) {
-        renderLedgerTable();
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js').catch(() => {});
+    }
+
+    function toggleAuthMode(mode) {
+      currentAuthMode = mode;
+      document.getElementById('authErrorMsg').classList.add('hidden');
+      if (mode === 'register') {
+        document.getElementById('btnLoginTab').className = "flex-1 py-2 rounded-lg text-slate-400 hover:text-white transition";
+        document.getElementById('btnRegisterTab').className = "flex-1 py-2 rounded-lg bg-indigo-600 text-white transition";
+        document.getElementById('shopMetaFields').classList.remove('hidden');
+        document.getElementById('authTitle').innerText = "Register Your Workshop";
+        document.getElementById('authSubtitle').innerText = "Set up your store name & details for invoices";
+        document.getElementById('authSubmitBtn').innerText = "Create Store & Account";
+      } else {
+        document.getElementById('btnLoginTab').className = "flex-1 py-2 rounded-lg bg-indigo-600 text-white transition";
+        document.getElementById('btnRegisterTab').className = "flex-1 py-2 rounded-lg text-slate-400 hover:text-white transition";
+        document.getElementById('shopMetaFields').classList.add('hidden');
+        document.getElementById('authTitle').innerText = "Workshop Portal";
+        document.getElementById('authSubtitle').innerText = "Sign in to manage your repairs and ledger";
+        document.getElementById('authSubmitBtn').innerText = "Sign In";
       }
+    }
+
+    async function handleAuth(e) {
+      e.preventDefault();
+      const email = document.getElementById('authEmail').value.trim();
+      const pass = document.getElementById('authPassword').value;
+      const errorMsg = document.getElementById('authErrorMsg');
+      errorMsg.classList.add('hidden');
+
+      try {
+        if (currentAuthMode === 'register') {
+          const sName = document.getElementById('regShopName').value.trim();
+          const sAddr = document.getElementById('regShopAddress').value.trim();
+          const sPhone = document.getElementById('regShopPhone').value.trim();
+
+          if (!sName || !sAddr || !sPhone) {
+            errorMsg.innerText = "Please complete all shop details.";
+            errorMsg.classList.remove('hidden');
+            return;
+          }
+
+          const cred = await auth.createUserWithEmailAndPassword(email, pass);
+          await db.collection('stores').doc(cred.user.uid).set({
+            shopName: sName,
+            shopAddress: sAddr,
+            shopPhone: sPhone,
+            ownerEmail: email,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+        } else {
+          await auth.signInWithEmailAndPassword(email, pass);
+        }
+      } catch (err) {
+        errorMsg.innerText = err.message;
+        errorMsg.classList.remove('hidden');
+      }
+    }
+
+    function signOutShop() {
+      auth.signOut();
+      location.reload();
+    }
+
+    auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        const storeDoc = await db.collection('stores').doc(user.uid).get();
+        if (storeDoc.exists) {
+          currentStore = storeDoc.data();
+          document.getElementById('navShopName').innerText = currentStore.shopName;
+        } else {
+          currentStore = {
+            shopName: "SMARTFIX MOBILE CARE",
+            shopAddress: "Main Road, Workshop Station",
+            shopPhone: "9876543210"
+          };
+        }
+        document.getElementById('authScreen').classList.add('hidden');
+
+        db.collection('stores').doc(user.uid).collection('jobs')
+          .orderBy('createdAt', 'desc')
+          .onSnapshot((snapshot) => {
+            repairJobs = [];
+            snapshot.forEach(doc => {
+              repairJobs.push({ id: doc.id, ...doc.data() });
+            });
+            renderDailyCashReport();
+            renderJobCards();
+            if (isOwnerAuthenticated) renderLedgerTable();
+          });
+      } else {
+        document.getElementById('authScreen').classList.remove('hidden');
+      }
+    });
+
+    async function syncJobToFirestore(job) {
+      if (!auth.currentUser) return;
+      const userUid = auth.currentUser.uid;
+      const jobData = {
+        ...job,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      };
+      await db.collection('stores').doc(userUid).collection('jobs').doc(job.billNo).set(jobData, { merge: true });
     }
 
     function requestTabAccess(tabId) {
@@ -776,7 +873,7 @@
       if (tabId === 'reports') renderLedgerTable();
     }
 
-    function handleFormSubmit(e) {
+    async function handleFormSubmit(e) {
       e.preventDefault();
       const generatedBill = "SFX-" + Math.floor(1000 + Math.random() * 9000);
       const today = new Date().toISOString().split('T')[0];
@@ -807,9 +904,7 @@
         netProfit: 0
       };
 
-      repairJobs.unshift(newJob);
-      saveState();
-
+      await syncJobToFirestore(newJob);
       printDirectThermalVoucher(newJob, true);
 
       e.target.reset();
@@ -917,8 +1012,8 @@
 
     function renderJobCards() {
       const q = (document.getElementById('searchInput')?.value || '').trim().toLowerCase();
-      const fromDate = document.getElementById('trackFromDate')?.value;
-      const toDate = document.getElementById('trackToDate')?.value;
+      const fromDate = document.getElementById('trackFromDate')?.value || '';
+      const toDate = document.getElementById('trackToDate')?.value || '';
 
       document.getElementById('cntAll').innerText = repairJobs.length;
       document.getElementById('cntPending').innerText = repairJobs.filter(j => j.status === 'Pending').length;
@@ -938,9 +1033,15 @@
         if (!matchesQuery) return false;
         if (currentStatusFilter !== 'ALL' && job.status !== currentStatusFilter) return false;
 
-        const effectiveDate = (job.deliveryDate && job.deliveryDate !== '--') ? job.deliveryDate : job.intakeDate;
-        if (fromDate && effectiveDate < fromDate) return false;
-        if (toDate && effectiveDate > toDate) return false;
+        const dateA = job.intakeDate || '';
+        const dateB = (job.deliveryDate && job.deliveryDate !== '--') ? job.deliveryDate : dateA;
+
+        if (fromDate) {
+          if (dateA < fromDate && dateB < fromDate) return false;
+        }
+        if (toDate) {
+          if (dateA > toDate && dateB > toDate) return false;
+        }
 
         return true;
       });
@@ -949,7 +1050,7 @@
         container.innerHTML = `
           <div class="col-span-full py-12 text-center text-slate-500 bg-slate-900 border border-slate-800 rounded-3xl">
             <i class="fa-solid fa-magnifying-glass text-3xl mb-3 text-slate-600"></i>
-            <p class="text-sm font-medium">No repair record matches IMEI, Bill, or Mobile Number</p>
+            <p class="text-sm font-medium">No repair record matches criteria or selected date</p>
           </div>
         `;
         return;
@@ -1042,11 +1143,11 @@
       });
     }
 
-    function toggleDeviceReady(billNo) {
+    async function toggleDeviceReady(billNo) {
       const idx = repairJobs.findIndex(j => j.billNo === billNo);
       if (idx !== -1) {
         repairJobs[idx].status = (repairJobs[idx].status === "Ready" ? "Pending" : "Ready");
-        saveState();
+        await syncJobToFirestore(repairJobs[idx]);
       }
     }
 
@@ -1059,9 +1160,6 @@
       }
     }
 
-    // ----------------------------------------------------
-    // DELIVERY MODAL (DYNAMIC REMAINING DUE CALCULATION)
-    // ----------------------------------------------------
     function openDeliveryModal(billNo, estAmount, advPaid) {
       document.getElementById('modalBillNo').value = billNo;
       document.getElementById('modalAdvPaidHidden').value = advPaid;
@@ -1090,7 +1188,6 @@
       document.getElementById('modalDeliveryAdvDisp').innerText = "₹" + adv;
       document.getElementById('modalDeliveryRemDueDisp').innerText = "₹" + remainingPayable;
 
-      // Default collected to full remaining if untouched
       const cashCollectedInput = document.getElementById('modalDeliveryCashCollected');
       if (cashCollectedInput.value === '' || parseFloat(cashCollectedInput.value) > remainingPayable) {
         cashCollectedInput.value = remainingPayable;
@@ -1121,7 +1218,7 @@
       modal.classList.remove('flex');
     }
 
-    function submitDelivery() {
+    async function submitDelivery() {
       const bNo = document.getElementById('modalBillNo').value;
       const status = document.getElementById('modalStatusSelect').value;
       const advPaid = parseFloat(document.getElementById('modalAdvPaidHidden').value) || 0;
@@ -1162,15 +1259,12 @@
           repairJobs[idx].netProfit = Math.max(0, fAmount - pCost);
         }
 
-        saveState();
+        await syncJobToFirestore(repairJobs[idx]);
         printDirectThermalVoucher(repairJobs[idx], false);
         closeDeliveryModal();
       }
     }
 
-    // ----------------------------------------------------
-    // EDIT MODAL
-    // ----------------------------------------------------
     function openEditModal(billNo) {
       const job = repairJobs.find(j => j.billNo === billNo);
       if (!job) return;
@@ -1199,7 +1293,7 @@
       modal.classList.remove('flex');
     }
 
-    function saveEditedJob() {
+    async function saveEditedJob() {
       const bNo = document.getElementById('editBillNo').value;
       const idx = repairJobs.findIndex(j => j.billNo === bNo);
       if (idx !== -1) {
@@ -1214,14 +1308,11 @@
         repairJobs[idx].advPaid = parseFloat(document.getElementById('editAdvPaid').value) || 0;
         repairJobs[idx].dueBalance = parseFloat(document.getElementById('editDueBalance').value) || 0;
 
-        saveState();
+        await syncJobToFirestore(repairJobs[idx]);
         closeEditModal();
       }
     }
 
-    // ----------------------------------------------------
-    // ADMIN FINANCIAL LEDGER & DUE SHORTLIST WITH WHATSAPP
-    // ----------------------------------------------------
     function setLedgerPreset(preset) {
       const now = new Date();
       if (preset === 'month') {
@@ -1257,13 +1348,19 @@
       const dueTbody = document.getElementById('dueTableBody');
       dueTbody.innerHTML = '';
 
-      const fromDate = document.getElementById('ledgerFromDate')?.value;
-      const toDate = document.getElementById('ledgerToDate')?.value;
+      const fromDate = document.getElementById('ledgerFromDate')?.value || '';
+      const toDate = document.getElementById('ledgerToDate')?.value || '';
 
       const filteredJobs = repairJobs.filter(job => {
-        const effectiveDate = (job.deliveryDate && job.deliveryDate !== '--') ? job.deliveryDate : job.intakeDate;
-        if (fromDate && effectiveDate < fromDate) return false;
-        if (toDate && effectiveDate > toDate) return false;
+        const dateA = job.intakeDate || '';
+        const dateB = (job.deliveryDate && job.deliveryDate !== '--') ? job.deliveryDate : dateA;
+
+        if (fromDate) {
+          if (dateA < fromDate && dateB < fromDate) return false;
+        }
+        if (toDate) {
+          if (dateA > toDate && dateB > toDate) return false;
+        }
         return true;
       });
 
@@ -1289,7 +1386,6 @@
         totalProfit += profit;
         totalMarketDue += due;
 
-        // Due List Table
         if (due > 0) {
           countDueCustomers++;
           const paidSoFar = (job.advPaid || 0) + (job.deliveryCollected || 0);
@@ -1312,7 +1408,6 @@
           dueTbody.appendChild(dueTr);
         }
 
-        // Ledger Table
         const tr = document.createElement('tr');
         tr.className = "hover:bg-slate-950/40 transition";
         tr.innerHTML = `
@@ -1356,36 +1451,36 @@
       document.getElementById('footProfit').innerText = "₹" + totalProfit;
     }
 
-    // Direct WhatsApp Reminder Trigger
     function sendWhatsAppReminder(phone, name, billNo, model, dueAmount) {
       const cleanPhone = phone.replace(/[^0-9]/g, '');
       const formattedPhone = cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone;
+      const sName = currentStore ? currentStore.shopName : "SmartFix Mobile Care";
       
-      const message = `Dear ${name},\nThis is a friendly reminder from *SmartFix Mobile Care* regarding your repaired device *${model}* (Bill: *${billNo}*).\nThere is a remaining due balance of *₹${dueAmount}* on your account.\nKindly settle the pending payment at your earliest convenience.\nThank you!`;
+      const message = `Dear ${name},\nThis is a friendly reminder from *${sName}* regarding your repaired device *${model}* (Bill: *${billNo}*).\nThere is a remaining due balance of *₹${dueAmount}* on your account.\nKindly settle the pending payment at your earliest convenience.\nThank you!`;
       
       const whatsappUrl = `https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`;
       window.open(whatsappUrl, '_blank');
     }
 
-    // ----------------------------------------------------
-    // COMPACT 58mm DIRECT PRINT ENGINE WITH CREDIT FOOTER
-    // ----------------------------------------------------
     function printDirectThermalVoucher(job, isDualIntake = false) {
       const isUnrepairable = job.status === "Unrepairable";
       const isDelivered = job.status === "Delivered";
       const voucherTitle = isDualIntake ? "INTAKE INVOICE" : (isUnrepairable ? "RETURN VOUCHER (NON-REPAIR)" : "DELIVERY & WARRANTY INVOICE");
+
+      const sName = currentStore ? currentStore.shopName : "SMARTFIX MOBILE CARE";
+      const sAddr = currentStore ? currentStore.shopAddress : "Main Road, Workshop Station";
+      const sPhone = currentStore ? currentStore.shopPhone : "9876543210";
 
       let totalOrEst = isUnrepairable ? 0 : (isDelivered ? job.finalAmount : job.estCost);
       let balanceOrSettlement = isUnrepairable ? "0 (Returned)" : Math.max(0, totalOrEst - job.advPaid);
 
       let printHTML = `
         <div>
-          <!-- Customer Copy -->
           <div class="${isDualIntake ? 'receipt-cut-line' : ''}">
             <div style="text-align: center;">
-              <h2 style="font-size: 13px; font-weight: bold; margin: 0;">SMARTFIX MOBILE CARE</h2>
-              <p style="font-size: 9px; margin: 2px 0;">Main Road, Workshop Station</p>
-              <p style="font-size: 9px; margin: 2px 0;">Helpline: +91 98765 43210</p>
+              <h2 style="font-size: 13px; font-weight: bold; margin: 0; text-transform: uppercase;">${sName}</h2>
+              <p style="font-size: 9px; margin: 2px 0;">${sAddr}</p>
+              <p style="font-size: 9px; margin: 2px 0;">Helpline: +91 ${sPhone}</p>
               <p style="font-size: 11px; font-weight: bold; text-decoration: underline; margin-top: 4px;">${voucherTitle}</p>
             </div>
             <div style="border-top: 1px dashed #000; margin: 5px 0;"></div>
@@ -1422,7 +1517,6 @@
               3. Original voucher mandatory for pickup.
             </div>
             
-            <!-- MANDATORY DEVELOPER CREDIT FOOTER -->
             <div style="border-top: 1px dashed #000; margin: 6px 0 3px 0;"></div>
             <div style="text-align: center; font-size: 7.5px; line-height: 1.2; color: #333;">
               SmartFix Pro &copy; 2026 | Mobile Workshop Management System<br>
@@ -1433,7 +1527,6 @@
 
       if (isDualIntake) {
         printHTML += `
-          <!-- Shop Tag Copy -->
           <div>
             <div style="text-align: center;">
               <h3 style="font-size: 12px; font-weight: bold; margin: 0;">SHOP TAG (ATTACH TO PHONE)</h3>
@@ -1464,6 +1557,7 @@
 
     function printDirectDailyReport() {
       const selectedDate = document.getElementById('dailyReportDatePicker').value || todayStr;
+      const sName = currentStore ? currentStore.shopName : "SMARTFIX MOBILE CARE";
       const advRecv = document.getElementById('dailyAdvReceived').innerText;
       const delCash = document.getElementById('dailyDeliveryCash').innerText;
       const advRef = document.getElementById('dailyAdvRefunded').innerText;
@@ -1472,7 +1566,7 @@
       const summary = `
         <div>
           <div style="border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 12px;">
-            <h1 style="font-size: 18px; font-weight: bold; margin: 0; text-transform: uppercase;">SMARTFIX MOBILE CARE</h1>
+            <h1 style="font-size: 18px; font-weight: bold; margin: 0; text-transform: uppercase;">${sName}</h1>
             <p style="font-size: 11px; color: #444; margin: 2px 0;">Daily Cashier Closing Report | Date: ${selectedDate}</p>
           </div>
           <div style="display: flex; justify-content: space-between; border: 1px solid #ccc; padding: 10px; margin-bottom: 15px; font-size: 11px; font-weight: bold;">
@@ -1498,6 +1592,7 @@
     }
 
     function printDirectA4Table() {
+      const sName = currentStore ? currentStore.shopName : "SMARTFIX MOBILE CARE";
       const sourceTable = document.getElementById('ledgerTable').cloneNode(true);
       sourceTable.querySelectorAll('tr').forEach(row => {
         if (row.cells.length > 11) row.deleteCell(-1);
@@ -1506,7 +1601,7 @@
       const reportHTML = `
         <div>
           <div style="border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 12px;">
-            <h1 style="font-size: 18px; font-weight: bold; margin: 0; text-transform: uppercase;">SMARTFIX MOBILE CARE</h1>
+            <h1 style="font-size: 18px; font-weight: bold; margin: 0; text-transform: uppercase;">${sName}</h1>
             <p style="font-size: 11px; color: #444; margin: 2px 0;">Financial Statement & Service Performance Ledger</p>
           </div>
           ${sourceTable.outerHTML}
@@ -1538,9 +1633,10 @@
     function exportA4PDF() {
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF('landscape', 'pt', 'a4');
+      const sName = currentStore ? currentStore.shopName : "SMARTFIX MOBILE CARE";
 
       doc.setFontSize(15);
-      doc.text("SMARTFIX MOBILE CARE - FINANCIAL & WORKSHOP STATEMENT", 40, 40);
+      doc.text(`${sName} - FINANCIAL & WORKSHOP STATEMENT`, 40, 40);
       doc.setFontSize(9);
       doc.text(`Generated Date: ${new Date().toLocaleDateString()} | Owner Financial Statement`, 40, 56);
 
@@ -1549,13 +1645,14 @@
       let totalProfit = 0;
       let totalDue = 0;
 
-      const fromDate = document.getElementById('ledgerFromDate')?.value;
-      const toDate = document.getElementById('ledgerToDate')?.value;
+      const fromDate = document.getElementById('ledgerFromDate')?.value || '';
+      const toDate = document.getElementById('ledgerToDate')?.value || '';
 
       const filtered = repairJobs.filter(job => {
-        const effectiveDate = (job.deliveryDate && job.deliveryDate !== '--') ? job.deliveryDate : job.intakeDate;
-        if (fromDate && effectiveDate < fromDate) return false;
-        if (toDate && effectiveDate > toDate) return false;
+        const dateA = job.intakeDate || '';
+        const dateB = (job.deliveryDate && job.deliveryDate !== '--') ? job.deliveryDate : dateA;
+        if (fromDate && dateA < fromDate && dateB < fromDate) return false;
+        if (toDate && dateA > toDate && dateB > toDate) return false;
         return true;
       });
 
@@ -1596,20 +1693,17 @@
         styles: { fontSize: 8, cellPadding: 4 }
       });
 
-      // Developer Credit on PDF
       const pageHeight = doc.internal.pageSize.height;
       doc.setFontSize(8);
       doc.setTextColor(100);
       doc.text("SmartFix Pro © 2026 | Mobile Workshop Management System | Developed by Debapriya Sarkar", 40, pageHeight - 20);
 
-      doc.save("SmartFixPro_Financial_Statement.pdf");
+      doc.save(`${sName.replace(/\\s+/g, '_')}_Statement.pdf`);
     }
 
     window.addEventListener('DOMContentLoaded', () => {
       document.getElementById('currentDateDisplay').innerText = todayStr;
       document.getElementById('dailyReportDatePicker').value = todayStr;
-      renderDailyCashReport();
-      renderJobCards();
     });
   </script>
 </body>
