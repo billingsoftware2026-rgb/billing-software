@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartFix Pro - Developer Control Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans">
+
+  <!-- DEVELOPER LOGIN GATE -->
+  <div id="devAuthGate" class="fixed inset-0 bg-slate-950 z-50 flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 p-8 rounded-3xl max-w-sm w-full shadow-2xl space-y-4 text-center">
+      <div class="w-12 h-12 rounded-2xl bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 mx-auto flex items-center justify-center text-xl">
+        <i class="fa-solid fa-terminal"></i>
+      </div>
+      <h2 class="text-xl font-bold text-white">Developer Security Gate</h2>
+      <p class="text-xs text-slate-400">Restricted access for Debapriya Sarkar</p>
+      <input type="password" id="devMasterPin" placeholder="Enter Developer Secret PIN" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-center text-sm text-white focus:outline-none focus:border-indigo-500">
+      <p id="devPinError" class="text-xs text-rose-400 font-semibold hidden">Incorrect Developer PIN!</p>
+      <button onclick="unlockDevConsole()" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition">
+        Enter Control Center
+      </button>
+      <p class="text-[10px] text-slate-500">Default PIN: <span class="font-mono text-slate-400">admin2026</span></p>
+    </div>
+  </div>
+
+  <!-- TOP BAR -->
+  <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+      <div class="flex items-center gap-3">
+        <div class="bg-indigo-600 p-2 rounded-xl text-white"><i class="fa-solid fa-code"></i></div>
+        <div>
+          <h1 class="text-lg font-bold text-white">SmartFix Pro - Developer Portal</h1>
+          <p class="text-xs text-emerald-400 font-medium">Author: Debapriya Sarkar</p>
+        </div>
+      </div>
+      <span class="text-xs bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-3 py-1.5 rounded-xl font-mono">
+        Active Database: billing-ab24c
+      </span>
+    </div>
+  </header>
+
+  <!-- MAIN CONSOLE -->
+  <main class="max-w-7xl w-full mx-auto p-4 md:p-6 space-y-6 flex-1">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl space-y-4">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-4">
+        <div>
+          <h2 class="text-lg font-bold text-white">Registered Workshop Clients</h2>
+          <p class="text-xs text-slate-400">View client passwords or update credentials on request</p>
+        </div>
+        <button onclick="loadAllStores()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl border border-slate-700">
+          <i class="fa-solid fa-rotate mr-1"></i> Refresh Stores
+        </button>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-950 text-slate-400 uppercase font-semibold border-b border-slate-800">
+            <tr>
+              <th class="p-3.5">Store UID</th>
+              <th class="p-3.5">Shop Name</th>
+              <th class="p-3.5">Owner Phone</th>
+              <th class="p-3.5">Registered Email</th>
+              <th class="p-3.5">Owner Password</th>
+              <th class="p-3.5 text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="storeListTbody" class="divide-y divide-slate-800/60 text-slate-300">
+            <tr><td colspan="6" class="p-6 text-center text-slate-500">Loading store database...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- RESET CLIENT PASSWORD MODAL -->
+  <div id="resetPassModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4 text-center">
+      <h3 class="text-base font-bold text-white">Reset Client Password</h3>
+      <p class="text-xs text-slate-400">Store: <span id="modalTargetShopName" class="text-indigo-400 font-bold"></span></p>
+      <input type="hidden" id="modalTargetUid">
+      <div>
+        <input type="text" id="newClientPassword" placeholder="Enter New Password (min 6 chars)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-center text-sm text-white focus:outline-none focus:border-indigo-500 font-mono">
+      </div>
+      <div class="flex gap-2 pt-2">
+        <button onclick="closeResetModal()" class="flex-1 py-2 rounded-xl border border-slate-800 text-xs text-slate-400">Cancel</button>
+        <button onclick="confirmClientPasswordReset()" class="flex-1 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-xs font-bold text-white">Update & Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCG357Dtw_ftKsgAyRSsoZUSfMNpx-GGz0",
+      authDomain: "billing-ab24c.firebaseapp.com",
+      projectId: "billing-ab24c",
+      storageBucket: "billing-ab24c.firebasestorage.app",
+      messagingSenderId: "356489808931",
+      appId: "1:356489808931:web:55297f31640c181c7db596",
+      measurementId: "G-QPVQTXGFFJ"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    const DEVELOPER_PIN = "admin2026";
+
+    function unlockDevConsole() {
+      const pin = document.getElementById('devMasterPin').value;
+      if (pin === DEVELOPER_PIN) {
+        document.getElementById('devAuthGate').classList.add('hidden');
+        loadAllStores();
+      } else {
+        document.getElementById('devPinError').classList.remove('hidden');
+      }
+    }
+
+    async function loadAllStores() {
+      const tbody = document.getElementById('storeListTbody');
+      tbody.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-slate-500">Querying Firestore stores collection...</td></tr>';
+
+      try {
+        const snap = await db.collection('stores').get();
+        if (snap.empty) {
+          tbody.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-slate-500">No stores registered yet.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = '';
+        snap.forEach(doc => {
+          const s = doc.data();
+          const tr = document.createElement('tr');
+          tr.className = "hover:bg-slate-950/40 transition";
+          tr.innerHTML = `
+            <td class="p-3.5 font-mono text-slate-500 text-[10px]">${doc.id.substring(0, 10)}...</td>
+            <td class="p-3.5 font-bold text-white">${s.shopName || 'Unnamed'}</td>
+            <td class="p-3.5 font-mono text-indigo-400">${s.shopPhone || '-'}</td>
+            <td class="p-3.5 text-slate-300">${s.ownerEmail || '-'}</td>
+            <td class="p-3.5 font-mono font-bold text-emerald-400 bg-slate-950/40 px-2 py-1 rounded">${s.savedPassword || '<i class="text-slate-500">Protected</i>'}</td>
+            <td class="p-3.5 text-center">
+              <button onclick="openResetModal('${doc.id}', '${s.shopName || ''}')" class="px-3 py-1 bg-indigo-600/20 hover:bg-indigo-600 text-indigo-400 hover:text-white border border-indigo-500/30 rounded-lg transition font-semibold">
+                <i class="fa-solid fa-key mr-1"></i> Reset Pass
+              </button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-rose-400 font-semibold">Error: ${err.message}</td></tr>`;
+      }
+    }
+
+    function openResetModal(uid, name) {
+      document.getElementById('modalTargetUid').value = uid;
+      document.getElementById('modalTargetShopName').innerText = name;
+      document.getElementById('newClientPassword').value = '';
+      document.getElementById('resetPassModal').classList.remove('hidden');
+      document.getElementById('resetPassModal').classList.add('flex');
+    }
+
+    function closeResetModal() {
+      document.getElementById('resetPassModal').classList.add('hidden');
+      document.getElementById('resetPassModal').classList.remove('flex');
+    }
+
+    async function confirmClientPasswordReset() {
+      const uid = document.getElementById('modalTargetUid').value;
+      const newPass = document.getElementById('newClientPassword').value.trim();
+
+      if (newPass.length < 6) {
+        alert("Password must be at least 6 characters long.");
+        return;
+      }
+
+      try {
+        await db.collection('stores').doc(uid).update({
+          savedPassword: newPass
+        });
+        alert("Password updated successfully in database! Client can now be informed.");
+        closeResetModal();
+        loadAllStores();
+      } catch (err) {
+        alert("Update failed: " + err.message);
+      }
+    }
+  </script>
+</body>
+</html>
