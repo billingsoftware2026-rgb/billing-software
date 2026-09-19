@@ -53,7 +53,7 @@
       <div class="flex justify-between items-center border-b border-slate-800 pb-4">
         <div>
           <h2 class="text-lg font-bold text-white">Registered Workshop Clients</h2>
-          <p class="text-xs text-slate-400">View client passwords or update credentials on request</p>
+          <p class="text-xs text-slate-400">Manage client passwords, store names, addresses and contact details</p>
         </div>
         <button onclick="loadAllStores()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl border border-slate-700">
           <i class="fa-solid fa-rotate mr-1"></i> Refresh Stores
@@ -80,18 +80,38 @@
     </div>
   </main>
 
-  <!-- RESET CLIENT PASSWORD MODAL -->
-  <div id="resetPassModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4 text-center">
-      <h3 class="text-base font-bold text-white">Reset Client Password</h3>
-      <p class="text-xs text-slate-400">Store: <span id="modalTargetShopName" class="text-indigo-400 font-bold"></span></p>
-      <input type="hidden" id="modalTargetUid">
-      <div>
-        <input type="text" id="newClientPassword" placeholder="Enter New Password (min 6 chars)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-center text-sm text-white focus:outline-none focus:border-indigo-500 font-mono">
+  <!-- EDIT STORE PROFILE & CREDENTIALS MODAL -->
+  <div id="editStoreModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+        <h3 class="text-base font-bold text-white">Edit Store Details</h3>
+        <button onclick="closeEditStoreModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
       </div>
-      <div class="flex gap-2 pt-2">
-        <button onclick="closeResetModal()" class="flex-1 py-2 rounded-xl border border-slate-800 text-xs text-slate-400">Cancel</button>
-        <button onclick="confirmClientPasswordReset()" class="flex-1 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-xs font-bold text-white">Update & Save</button>
+      
+      <input type="hidden" id="modalStoreUid">
+      
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block font-semibold text-slate-400 uppercase tracking-wider mb-1">Shop Name *</label>
+          <input type="text" id="modalShopName" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-400 uppercase tracking-wider mb-1">Shop Address *</label>
+          <input type="text" id="modalShopAddress" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-400 uppercase tracking-wider mb-1">Helpline Phone *</label>
+          <input type="tel" id="modalShopPhone" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-400 uppercase tracking-wider mb-1">Owner Password *</label>
+          <input type="text" id="modalShopPassword" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-emerald-400 font-mono font-bold focus:outline-none focus:border-indigo-500">
+        </div>
+      </div>
+
+      <div class="flex gap-2 pt-3 border-t border-slate-800">
+        <button onclick="closeEditStoreModal()" class="flex-1 py-2.5 rounded-xl border border-slate-800 text-xs text-slate-400 hover:text-white">Cancel</button>
+        <button onclick="saveStoreProfileChanges()" class="flex-1 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-xs font-bold text-white">Save Changes</button>
       </div>
     </div>
   </div>
@@ -143,10 +163,10 @@
             <td class="p-3.5 font-bold text-white">${s.shopName || 'Unnamed'}</td>
             <td class="p-3.5 font-mono text-indigo-400">${s.shopPhone || '-'}</td>
             <td class="p-3.5 text-slate-300">${s.ownerEmail || '-'}</td>
-            <td class="p-3.5 font-mono font-bold text-emerald-400 bg-slate-950/40 px-2 py-1 rounded">${s.savedPassword || '<i class="text-slate-500">Protected</i>'}</td>
+            <td class="p-3.5 font-mono font-bold text-emerald-400 bg-slate-950/40 px-2 py-1 rounded">${s.savedPassword || 'Protected'}</td>
             <td class="p-3.5 text-center">
-              <button onclick="openResetModal('${doc.id}', '${s.shopName || ''}')" class="px-3 py-1 bg-indigo-600/20 hover:bg-indigo-600 text-indigo-400 hover:text-white border border-indigo-500/30 rounded-lg transition font-semibold">
-                <i class="fa-solid fa-key mr-1"></i> Reset Pass
+              <button onclick='openEditStoreModal("${doc.id}", ${JSON.stringify(s)})' class="px-3 py-1.5 bg-indigo-600/20 hover:bg-indigo-600 text-indigo-400 hover:text-white border border-indigo-500/30 rounded-lg transition font-semibold flex items-center gap-1.5 mx-auto">
+                <i class="fa-solid fa-pen-to-square"></i> Edit Store
               </button>
             </td>
           `;
@@ -157,37 +177,48 @@
       }
     }
 
-    function openResetModal(uid, name) {
-      document.getElementById('modalTargetUid').value = uid;
-      document.getElementById('modalTargetShopName').innerText = name;
-      document.getElementById('newClientPassword').value = '';
-      document.getElementById('resetPassModal').classList.remove('hidden');
-      document.getElementById('resetPassModal').classList.add('flex');
+    function openEditStoreModal(uid, store) {
+      document.getElementById('modalStoreUid').value = uid;
+      document.getElementById('modalShopName').value = store.shopName || '';
+      document.getElementById('modalShopAddress').value = store.shopAddress || '';
+      document.getElementById('modalShopPhone').value = store.shopPhone || '';
+      document.getElementById('modalShopPassword').value = store.savedPassword || '';
+      
+      const modal = document.getElementById('editStoreModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
     }
 
-    function closeResetModal() {
-      document.getElementById('resetPassModal').classList.add('hidden');
-      document.getElementById('resetPassModal').classList.remove('flex');
+    function closeEditStoreModal() {
+      const modal = document.getElementById('editStoreModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
     }
 
-    async function confirmClientPasswordReset() {
-      const uid = document.getElementById('modalTargetUid').value;
-      const newPass = document.getElementById('newClientPassword').value.trim();
+    async function saveStoreProfileChanges() {
+      const uid = document.getElementById('modalStoreUid').value;
+      const newName = document.getElementById('modalShopName').value.trim();
+      const newAddress = document.getElementById('modalShopAddress').value.trim();
+      const newPhone = document.getElementById('modalShopPhone').value.trim();
+      const newPassword = document.getElementById('modalShopPassword').value.trim();
 
-      if (newPass.length < 6) {
-        alert("Password must be at least 6 characters long.");
+      if (!newName || !newAddress || !newPhone) {
+        alert("Please fill all required store fields.");
         return;
       }
 
       try {
         await db.collection('stores').doc(uid).update({
-          savedPassword: newPass
+          shopName: newName,
+          shopAddress: newAddress,
+          shopPhone: newPhone,
+          savedPassword: newPassword
         });
-        alert("Password updated successfully in database! Client can now be informed.");
-        closeResetModal();
+        alert(`Store "${newName}" details updated successfully!`);
+        closeEditStoreModal();
         loadAllStores();
       } catch (err) {
-        alert("Update failed: " + err.message);
+        alert("Failed to update store: " + err.message);
       }
     }
   </script>
