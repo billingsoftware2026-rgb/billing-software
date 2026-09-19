@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SmartFix Pro - Mobile Workshop POS</title>
+  <title>SmartFix Pro - Cloud Mobile Workshop Management OS</title>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#4f46e5">
   <script src="https://cdn.tailwindcss.com"></script>
@@ -56,56 +56,145 @@
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-indigo-600 selection:text-white">
 
-  <!-- AUTH / REGISTRATION OVERLAY -->
-  <div id="authScreen" class="fixed inset-0 bg-slate-950 z-50 flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl space-y-6">
-      <div class="text-center space-y-2">
-        <div class="w-12 h-12 bg-indigo-600 rounded-2xl mx-auto flex items-center justify-center text-xl text-white shadow-lg shadow-indigo-600/30">
-          <i class="fa-solid fa-screwdriver-wrench"></i>
+  <!-- ==================== PREMIUM ENTERPRISE AUTH SCREEN ==================== -->
+  <div id="authScreen" class="fixed inset-0 bg-slate-950 z-50 overflow-y-auto flex items-center justify-center p-4 sm:p-6 lg:p-8">
+    <!-- Ambient Gradient Background Glows -->
+    <div class="fixed top-1/4 left-1/4 w-96 h-96 bg-indigo-600/15 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="fixed bottom-1/4 right-1/4 w-96 h-96 bg-violet-600/15 rounded-full blur-3xl pointer-events-none"></div>
+
+    <div class="relative w-full max-w-4xl bg-slate-900/80 backdrop-blur-2xl border border-slate-800/80 rounded-3xl shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-12 my-auto">
+      
+      <!-- Left Panel: Brand & Feature Highlights -->
+      <div class="lg:col-span-5 bg-gradient-to-br from-indigo-950/80 via-slate-900 to-slate-950 p-6 sm:p-8 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-slate-800">
+        <div class="space-y-6">
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 bg-gradient-to-tr from-indigo-600 to-violet-500 rounded-2xl flex items-center justify-center text-white text-xl shadow-lg shadow-indigo-600/40">
+              <i class="fa-solid fa-screwdriver-wrench"></i>
+            </div>
+            <div>
+              <h1 class="text-xl font-extrabold tracking-tight text-white">SMARTFIX<span class="text-indigo-400">PRO</span></h1>
+              <p class="text-[10px] text-slate-400 uppercase tracking-widest font-semibold">Workshop OS & POS</p>
+            </div>
+          </div>
+
+          <div class="space-y-3 pt-2">
+            <h3 class="text-base font-bold text-slate-200">Everything Your Mobile Repair Shop Needs</h3>
+            <p class="text-xs text-slate-400 leading-relaxed">Multi-device cloud synchronization, automated invoices, and accurate profit calculations designed for modern repair businesses.</p>
+          </div>
+
+          <!-- Feature Badges List -->
+          <div class="space-y-2.5 pt-2">
+            <div class="flex items-center gap-3 text-xs text-slate-300">
+              <div class="w-6 h-6 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-xs flex-shrink-0 border border-emerald-500/20">
+                <i class="fa-solid fa-print"></i>
+              </div>
+              <span>58mm Dual-Print (Customer Slip + Phone Tag)</span>
+            </div>
+            <div class="flex items-center gap-3 text-xs text-slate-300">
+              <div class="w-6 h-6 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-xs flex-shrink-0 border border-indigo-500/20">
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+              </div>
+              <span>Real-time Multi-Device Cloud Sync</span>
+            </div>
+            <div class="flex items-center gap-3 text-xs text-slate-300">
+              <div class="w-6 h-6 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-xs flex-shrink-0 border border-emerald-500/20">
+                <i class="fa-brands fa-whatsapp"></i>
+              </div>
+              <span>One-Click WhatsApp Due Balance Reminders</span>
+            </div>
+            <div class="flex items-center gap-3 text-xs text-slate-300">
+              <div class="w-6 h-6 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center text-xs flex-shrink-0 border border-amber-500/20">
+                <i class="fa-solid fa-cash-register"></i>
+              </div>
+              <span>Staff Cash Register & Drawer Balance</span>
+            </div>
+          </div>
         </div>
-        <h2 class="text-2xl font-bold text-white tracking-wide" id="authTitle">Workshop Portal</h2>
-        <p class="text-xs text-slate-400" id="authSubtitle">Sign in to manage your repairs and cloud ledger</p>
+
+        <div class="pt-6 border-t border-slate-800/80 mt-6 lg:mt-0 flex items-center justify-between text-[11px] text-slate-500">
+          <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Cloud v2.4 Active</span>
+          <span>Lead Dev: Debapriya Sarkar</span>
+        </div>
       </div>
 
-      <div class="flex bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs font-semibold">
-        <button onclick="toggleAuthMode('login')" id="btnLoginTab" class="flex-1 py-2 rounded-lg bg-indigo-600 text-white transition">Sign In</button>
-        <button onclick="toggleAuthMode('register')" id="btnRegisterTab" class="flex-1 py-2 rounded-lg text-slate-400 hover:text-white transition">Register Store</button>
-      </div>
-
-      <form id="authForm" onsubmit="handleAuth(event)" class="space-y-4 text-xs">
-        <div id="shopMetaFields" class="hidden space-y-4">
-          <div>
-            <label class="block uppercase font-bold text-slate-400 mb-1">Shop / Business Name *</label>
-            <input type="text" id="regShopName" placeholder="e.g. Maa Tara Telecom" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
-          </div>
-          <div>
-            <label class="block uppercase font-bold text-slate-400 mb-1">Shop Address *</label>
-            <input type="text" id="regShopAddress" placeholder="e.g. Main Road, Station Bazar" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
-          </div>
-          <div>
-            <label class="block uppercase font-bold text-slate-400 mb-1">Shop Helpline Number *</label>
-            <input type="tel" id="regShopPhone" placeholder="e.g. 9876543210" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
-          </div>
-        </div>
-
+      <!-- Right Panel: Auth Form -->
+      <div class="lg:col-span-7 p-6 sm:p-8 flex flex-col justify-center space-y-6">
         <div>
-          <label class="block uppercase font-bold text-slate-400 mb-1">Owner Email *</label>
-          <input type="email" id="authEmail" required placeholder="owner@gmail.com" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
-        </div>
-        <div>
-          <label class="block uppercase font-bold text-slate-400 mb-1">Owner Password *</label>
-          <input type="password" id="authPassword" required placeholder="••••••••" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+          <h2 class="text-xl font-bold text-white tracking-wide" id="authTitle">Owner Authorization</h2>
+          <p class="text-xs text-slate-400 mt-1" id="authSubtitle">Sign in with your registered workshop credentials</p>
         </div>
 
-        <p id="authErrorMsg" class="text-rose-400 text-xs font-semibold hidden"></p>
+        <!-- Mode Toggle Tabs -->
+        <div class="flex bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs font-semibold">
+          <button onclick="toggleAuthMode('login')" id="btnLoginTab" class="flex-1 py-2.5 rounded-lg bg-indigo-600 text-white shadow transition flex items-center justify-center gap-1.5">
+            <i class="fa-solid fa-arrow-right-to-bracket text-[11px]"></i> Sign In
+          </button>
+          <button onclick="toggleAuthMode('register')" id="btnRegisterTab" class="flex-1 py-2.5 rounded-lg text-slate-400 hover:text-white transition flex items-center justify-center gap-1.5">
+            <i class="fa-solid fa-store text-[11px]"></i> Register New Store
+          </button>
+        </div>
 
-        <button type="submit" id="authSubmitBtn" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold shadow-lg shadow-indigo-600/30 transition text-sm">
-          Sign In
-        </button>
-      </form>
+        <form id="authForm" onsubmit="handleAuth(event)" class="space-y-4 text-xs">
+          <div id="shopMetaFields" class="hidden space-y-3.5">
+            <div>
+              <label class="block uppercase font-bold text-slate-400 mb-1">Store / Business Name *</label>
+              <div class="relative">
+                <i class="fa-solid fa-shop absolute left-3.5 top-3 text-slate-500"></i>
+                <input type="text" id="regShopName" placeholder="e.g. Maa Tara Telecom" class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500 transition">
+              </div>
+            </div>
+            <div>
+              <label class="block uppercase font-bold text-slate-400 mb-1">Shop Address (For Bills) *</label>
+              <div class="relative">
+                <i class="fa-solid fa-location-dot absolute left-3.5 top-3 text-slate-500"></i>
+                <input type="text" id="regShopAddress" placeholder="e.g. Main Market, Station Road" class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500 transition">
+              </div>
+            </div>
+            <div>
+              <label class="block uppercase font-bold text-slate-400 mb-1">Shop Helpline Number (For Bills) *</label>
+              <div class="relative">
+                <i class="fa-solid fa-phone absolute left-3.5 top-3 text-slate-500"></i>
+                <input type="tel" id="regShopPhone" placeholder="e.g. 9876543210" class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500 transition">
+              </div>
+            </div>
+          </div>
 
-      <div class="text-center pt-2 border-t border-slate-800/80">
-        <p class="text-[11px] text-slate-500">SmartFix Pro &copy; 2026 | Developed by Debapriya Sarkar</p>
+          <div>
+            <label class="block uppercase font-bold text-slate-400 mb-1">Owner Email Address *</label>
+            <div class="relative">
+              <i class="fa-solid fa-envelope absolute left-3.5 top-3 text-slate-500"></i>
+              <input type="email" id="authEmail" required placeholder="owner@gmail.com" class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500 transition">
+            </div>
+          </div>
+
+          <div>
+            <label class="block uppercase font-bold text-slate-400 mb-1">Password *</label>
+            <div class="relative">
+              <i class="fa-solid fa-lock absolute left-3.5 top-3 text-slate-500"></i>
+              <input type="password" id="authPassword" required placeholder="••••••••" class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-10 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500 transition">
+              <button type="button" onclick="togglePasswordVisibility('authPassword', this)" class="absolute right-3.5 top-2.5 text-slate-500 hover:text-white">
+                <i class="fa-solid fa-eye text-xs"></i>
+              </button>
+            </div>
+          </div>
+
+          <div id="authErrorMsg" class="p-3 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-xl text-xs font-semibold hidden flex items-center gap-2">
+            <i class="fa-solid fa-circle-exclamation text-sm"></i>
+            <span id="authErrorText"></span>
+          </div>
+
+          <button type="submit" id="authSubmitBtn" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold shadow-lg shadow-indigo-600/30 transition text-sm flex items-center justify-center gap-2">
+            <span>Sign In to Dashboard</span>
+            <i class="fa-solid fa-arrow-right text-xs"></i>
+          </button>
+        </form>
+
+        <div class="pt-4 border-t border-slate-800/80 text-center">
+          <p class="text-xs text-slate-500">
+            Need technical setup or forgotten credentials? <br>
+            <span class="text-indigo-400 font-semibold">Contact Lead Developer: Debapriya Sarkar</span>
+          </p>
+        </div>
       </div>
     </div>
   </div>
@@ -152,10 +241,10 @@
     </div>
   </header>
 
-  <!-- Main Content -->
+  <!-- Main Content Container -->
   <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 space-y-6">
 
-    <!-- TAB 1: New Intake Form -->
+    <!-- TAB 1: Intake Form -->
     <section id="view-newJob" class="tab-panel block space-y-6">
       <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 shadow-xl max-w-4xl mx-auto">
         <div class="flex flex-wrap items-center justify-between gap-3 pb-6 border-b border-slate-800 mb-6">
@@ -691,23 +780,36 @@
       navigator.serviceWorker.register('sw.js').catch(() => {});
     }
 
+    // Toggle Password Visibility Eye Button
+    function togglePasswordVisibility(fieldId, btn) {
+      const input = document.getElementById(fieldId);
+      const icon = btn.querySelector('i');
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'fa-solid fa-eye-slash text-xs text-indigo-400';
+      } else {
+        input.type = 'password';
+        icon.className = 'fa-solid fa-eye text-xs text-slate-500';
+      }
+    }
+
     function toggleAuthMode(mode) {
       currentAuthMode = mode;
       document.getElementById('authErrorMsg').classList.add('hidden');
       if (mode === 'register') {
-        document.getElementById('btnLoginTab').className = "flex-1 py-2 rounded-lg text-slate-400 hover:text-white transition";
-        document.getElementById('btnRegisterTab').className = "flex-1 py-2 rounded-lg bg-indigo-600 text-white transition";
+        document.getElementById('btnLoginTab').className = "flex-1 py-2.5 rounded-lg text-slate-400 hover:text-white transition flex items-center justify-center gap-1.5";
+        document.getElementById('btnRegisterTab').className = "flex-1 py-2.5 rounded-lg bg-indigo-600 text-white shadow transition flex items-center justify-center gap-1.5";
         document.getElementById('shopMetaFields').classList.remove('hidden');
         document.getElementById('authTitle').innerText = "Register Your Workshop";
         document.getElementById('authSubtitle').innerText = "Set up your store name & details for invoices";
-        document.getElementById('authSubmitBtn').innerText = "Create Store & Account";
+        document.getElementById('authSubmitBtn').innerHTML = '<span>Create Store & Account</span> <i class="fa-solid fa-arrow-right text-xs"></i>';
       } else {
-        document.getElementById('btnLoginTab').className = "flex-1 py-2 rounded-lg bg-indigo-600 text-white transition";
-        document.getElementById('btnRegisterTab').className = "flex-1 py-2 rounded-lg text-slate-400 hover:text-white transition";
+        document.getElementById('btnLoginTab').className = "flex-1 py-2.5 rounded-lg bg-indigo-600 text-white shadow transition flex items-center justify-center gap-1.5";
+        document.getElementById('btnRegisterTab').className = "flex-1 py-2.5 rounded-lg text-slate-400 hover:text-white transition flex items-center justify-center gap-1.5";
         document.getElementById('shopMetaFields').classList.add('hidden');
-        document.getElementById('authTitle').innerText = "Workshop Portal";
-        document.getElementById('authSubtitle').innerText = "Sign in to manage your repairs and ledger";
-        document.getElementById('authSubmitBtn').innerText = "Sign In";
+        document.getElementById('authTitle').innerText = "Owner Authorization";
+        document.getElementById('authSubtitle').innerText = "Sign in with your registered workshop credentials";
+        document.getElementById('authSubmitBtn').innerHTML = '<span>Sign In to Dashboard</span> <i class="fa-solid fa-arrow-right text-xs"></i>';
       }
     }
 
@@ -715,8 +817,9 @@
       e.preventDefault();
       const email = document.getElementById('authEmail').value.trim();
       const pass = document.getElementById('authPassword').value;
-      const errorMsg = document.getElementById('authErrorMsg');
-      errorMsg.classList.add('hidden');
+      const errorBox = document.getElementById('authErrorMsg');
+      const errorText = document.getElementById('authErrorText');
+      errorBox.classList.add('hidden');
 
       try {
         if (currentAuthMode === 'register') {
@@ -725,8 +828,8 @@
           const sPhone = document.getElementById('regShopPhone').value.trim();
 
           if (!sName || !sAddr || !sPhone) {
-            errorMsg.innerText = "Please complete all shop details.";
-            errorMsg.classList.remove('hidden');
+            errorText.innerText = "Please complete all shop details.";
+            errorBox.classList.remove('hidden');
             return;
           }
 
@@ -743,8 +846,8 @@
           await auth.signInWithEmailAndPassword(email, pass);
         }
       } catch (err) {
-        errorMsg.innerText = err.message;
-        errorMsg.classList.remove('hidden');
+        errorText.innerText = err.message;
+        errorBox.classList.remove('hidden');
       }
     }
 
@@ -917,7 +1020,6 @@
       renderDailyCashReport();
     }
 
-    // AUDITED ACCURATE CASH CLOSING ENGINE
     function renderDailyCashReport() {
       const selectedDate = document.getElementById('dailyReportDatePicker').value || todayStr;
       document.getElementById('dailyAuditDateLabel').innerText = `Date: ${selectedDate}`;
@@ -934,7 +1036,6 @@
       auditBody.innerHTML = '';
 
       repairJobs.forEach(job => {
-        // Did intake happen on selected date?
         if (job.intakeDate === selectedDate) {
           countReceived++;
           if (job.advPaid > 0) {
@@ -943,11 +1044,9 @@
           }
         }
 
-        // Did delivery happen on selected date?
         if (job.deliveryDate === selectedDate) {
           if (job.status === "Delivered") {
             countDelivered++;
-            // FIXED: Only add actual money collected at delivery, not imaginary dues
             const collected = (job.deliveryCollected !== undefined) ? (parseFloat(job.deliveryCollected) || 0) : Math.max(0, (job.finalAmount || 0) - (job.advPaid || 0));
             cashFromDelivery += collected;
             addAuditRow(job.billNo, "Repair Delivery Cash Collected", job.customerName, job.phone, job.model, "Delivered", collected, 0);
@@ -1235,7 +1334,6 @@
         repairJobs[idx].deliveryDate = today;
 
         if (status === "Unrepairable") {
-          // RIGID MATHEMATICAL ZERO OVERWRITE
           repairJobs[idx].status = "Unrepairable";
           repairJobs[idx].warranty = "No Warranty";
           repairJobs[idx].partName = "Unrepairable / Returned";
@@ -1256,7 +1354,6 @@
           const remainingPayable = Math.max(0, fAmount - advPaid);
           const pendingDue = Math.max(0, remainingPayable - collected);
 
-          // REALIZED CASH PROFIT CALCULATION
           const totalCashCollected = advPaid + collected;
           const calculatedProfit = Math.max(0, totalCashCollected - pCost);
 
@@ -1366,7 +1463,6 @@
       renderLedgerTable();
     }
 
-    // AUDITED STRICT ZERO PROFIT ENGINE FOR UNREPAIRABLE DEVICES
     function renderLedgerTable() {
       const tbody = document.getElementById('ledgerTableBody');
       tbody.innerHTML = '';
@@ -1401,7 +1497,6 @@
         const isDelivered = job.status === "Delivered";
         const isUnrepairable = job.status === "Unrepairable";
 
-        // Rigid enforcement of 0 on Unrepairable status
         const partsCost = isUnrepairable ? 0 : (parseFloat(job.partCost) || 0);
         const billed = isUnrepairable ? 0 : (isDelivered ? (parseFloat(job.finalAmount) || 0) : (parseFloat(job.estCost) || 0));
         const refund = isUnrepairable ? (parseFloat(job.refundPaid) || parseFloat(job.advPaid) || 0) : 0;
