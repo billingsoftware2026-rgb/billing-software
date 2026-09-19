@@ -3,20 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SmartFix Pro - Mobile Workshop POS</title>
+  <title>SmartFix Pro - Mobile Workshop POS & Cashier System</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
   <style>
-    /* BROWSER URL, HEADER & FOOTER REMOVAL */
     @page {
       margin: 0;
       size: auto;
     }
 
     @media print {
-      /* Hide regular UI completely */
       body > *:not(#masterDirectPrintArea) {
         display: none !important;
       }
@@ -31,7 +29,6 @@
         margin: 0 !important;
       }
 
-      /* Strict 58mm Pocket Thermal Print Sizing */
       body.mode-thermal #masterDirectPrintArea {
         width: 58mm !important;
         max-width: 58mm !important;
@@ -48,7 +45,6 @@
         padding-bottom: 8px !important;
       }
 
-      /* A4 Mode */
       body.mode-a4 #masterDirectPrintArea {
         width: 210mm !important;
         min-height: 297mm !important;
@@ -169,7 +165,7 @@
           <h2 class="text-xl font-bold text-white flex items-center gap-2">
             <i class="fa-solid fa-cash-register text-emerald-400"></i> Daily Cashier Counter & Closing Report
           </h2>
-          <p class="text-xs text-slate-400">No parts or profit data. Tracks gross cash collection, advance refunds, and net drawer balance.</p>
+          <p class="text-xs text-slate-400">Tracks gross cash collection, advance refunds, and net drawer balance.</p>
         </div>
         <div class="flex items-center gap-3">
           <div class="flex items-center gap-2 bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5">
@@ -298,7 +294,7 @@
             <h2 class="text-xl font-bold text-white">Owner Financial Statement & Profit Ledger</h2>
             <span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Owner Access</span>
           </div>
-          <p class="text-xs text-slate-400">Select any date range to review revenue, parts cost, advance refunds, and net profit.</p>
+          <p class="text-xs text-slate-400">Track multi-month turnover, parts consumption, advance refunds, market dues & cumulative profit.</p>
         </div>
         <div class="flex flex-wrap items-center gap-2">
           <button onclick="lockSystem()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-2 rounded-xl border border-slate-700 transition">
@@ -330,25 +326,59 @@
         </div>
       </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+      <!-- Financial Metrics + MARKET DUE CARD -->
+      <div class="grid grid-cols-1 sm:grid-cols-5 gap-3 md:gap-4">
         <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
           <span class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Total Parts Cost</span>
-          <h4 id="calcTotalParts" class="text-2xl font-bold text-rose-400">₹0</h4>
+          <h4 id="calcTotalParts" class="text-xl md:text-2xl font-bold text-rose-400">₹0</h4>
         </div>
         <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
-          <span class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Total Advance Refunded</span>
-          <h4 id="calcTotalRefund" class="text-2xl font-bold text-amber-400">₹0</h4>
+          <span class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Total Adv. Refunded</span>
+          <h4 id="calcTotalRefund" class="text-xl md:text-2xl font-bold text-amber-400">₹0</h4>
         </div>
         <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
           <span class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Total Billed Revenue</span>
-          <h4 id="calcTotalRevenue" class="text-2xl font-bold text-blue-400">₹0</h4>
+          <h4 id="calcTotalRevenue" class="text-xl md:text-2xl font-bold text-blue-400">₹0</h4>
+        </div>
+        <div class="bg-slate-900 border border-rose-500/30 p-4 rounded-2xl bg-rose-500/5">
+          <span class="text-xs text-rose-400 font-semibold uppercase tracking-wider">Total Market Due (বকেয়া)</span>
+          <h4 id="calcTotalDue" class="text-xl md:text-2xl font-bold text-rose-400">₹0</h4>
         </div>
         <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
           <span class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Cumulative Net Profit</span>
-          <h4 id="calcTotalProfit" class="text-2xl font-bold text-emerald-400">₹0</h4>
+          <h4 id="calcTotalProfit" class="text-xl md:text-2xl font-bold text-emerald-400">₹0</h4>
         </div>
       </div>
 
+      <!-- CUSTOMER DUE SHORTLIST & WHATSAPP REMINDER SECTION -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow">
+        <div class="p-4 bg-slate-950 border-b border-slate-800 flex justify-between items-center">
+          <h3 class="text-sm font-bold text-rose-400 uppercase tracking-wider flex items-center gap-2">
+            <i class="fa-solid fa-hand-holding-dollar"></i> Customer Due Balances & WhatsApp Reminders
+          </h3>
+          <span class="text-xs text-slate-400" id="dueCountBadge">0 Customers with Due</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm" id="dueTable">
+            <thead class="bg-slate-950/60 text-slate-400 text-xs uppercase font-semibold border-b border-slate-800">
+              <tr>
+                <th class="p-3">Bill No</th>
+                <th class="p-3">Customer Name</th>
+                <th class="p-3">Phone</th>
+                <th class="p-3">Model</th>
+                <th class="p-3 text-right">Total Bill</th>
+                <th class="p-3 text-right">Collected</th>
+                <th class="p-3 text-right text-rose-400 font-bold">Pending Due</th>
+                <th class="p-3 text-center">Action</th>
+              </tr>
+            </thead>
+            <tbody id="dueTableBody" class="divide-y divide-slate-800/60 text-slate-300">
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Complete Ledger Table -->
       <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow">
         <div class="overflow-x-auto">
           <table class="w-full text-left text-sm" id="ledgerTable">
@@ -362,6 +392,7 @@
                 <th class="p-4">Parts Used</th>
                 <th class="p-4">Parts Cost</th>
                 <th class="p-4">Billed Amount</th>
+                <th class="p-4">Pending Due</th>
                 <th class="p-4">Net Profit</th>
                 <th class="p-4">Status</th>
                 <th class="p-4 text-center">Actions</th>
@@ -374,6 +405,7 @@
                 <td colspan="6" class="p-4 text-right uppercase tracking-wider text-xs">Statement Summary:</td>
                 <td class="p-4 text-rose-400" id="footParts">₹0</td>
                 <td class="p-4 text-blue-400" id="footBilled">₹0</td>
+                <td class="p-4 text-rose-400" id="footDue">₹0</td>
                 <td class="p-4 text-emerald-400" id="footProfit">₹0</td>
                 <td colspan="2" class="p-4"></td>
               </tr>
@@ -396,7 +428,7 @@
     </div>
   </footer>
 
-  <!-- Complete Service & Delivery Modal -->
+  <!-- Complete Service & Delivery Modal (With Remaining Due & Cash Received Inputs) -->
   <div id="deliveryModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
     <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4">
       <div class="flex items-center justify-between border-b border-slate-800 pb-3">
@@ -417,10 +449,10 @@
         </select>
       </div>
 
-      <div id="repairableFields" class="space-y-4">
+      <div id="repairableFields" class="space-y-3">
         <div>
-          <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Warranty Granted *</label>
-          <select id="modalWarranty" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+          <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Warranty Granted *</label>
+          <select id="modalWarranty" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
             <option value="No Warranty">No Warranty (Testing Only)</option>
             <option value="30 Days Service Warranty">30 Days Service Warranty</option>
             <option value="60 Days Service Warranty">60 Days Service Warranty</option>
@@ -430,22 +462,43 @@
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Replaced Parts Description (Optional)</label>
-          <input type="text" id="modalPartName" placeholder="e.g. AMOLED Display Combo + Sub-board" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+          <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Replaced Parts Description (Optional)</label>
+          <input type="text" id="modalPartName" placeholder="e.g. AMOLED Display Combo + Sub-board" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
         </div>
 
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Parts Cost (₹)</label>
-            <input type="number" id="modalPartCost" value="0" min="0" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Parts Cost (₹)</label>
+            <input type="number" id="modalPartCost" value="0" min="0" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Final Billed Amount (₹)</label>
-            <input type="number" id="modalFinalAmount" min="0" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm font-bold text-emerald-400 focus:outline-none focus:border-indigo-500">
+            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Final Total Bill (₹) *</label>
+            <input type="number" id="modalFinalAmount" min="0" oninput="updateDeliveryPaymentMath()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm font-bold text-white focus:outline-none focus:border-indigo-500">
+          </div>
+        </div>
+
+        <!-- PAYMENT CALCULATION & DUE BOX -->
+        <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-2 text-xs">
+          <div class="flex justify-between items-center text-slate-400">
+            <span>Advance Received Earlier:</span>
+            <span id="modalDeliveryAdvDisp" class="font-bold text-white">₹0</span>
+          </div>
+          <div class="flex justify-between items-center text-amber-400 font-semibold">
+            <span>Remaining Payable Balance:</span>
+            <span id="modalDeliveryRemDueDisp" class="text-sm font-bold">₹0</span>
+          </div>
+          <div class="flex justify-between items-center pt-2 border-t border-slate-800">
+            <label class="font-bold text-white">Amount Collected Now (₹):</label>
+            <input type="number" id="modalDeliveryCashCollected" min="0" oninput="updateDeliveryPaymentMath()" class="w-28 bg-slate-900 border border-emerald-500/60 rounded-lg px-2.5 py-1 text-right text-emerald-400 font-bold text-sm">
+          </div>
+          <div class="flex justify-between items-center pt-1 text-rose-400 font-bold">
+            <span>Customer Pending Due (বাকি):</span>
+            <span id="modalCustomerFinalDue" class="text-sm">₹0</span>
           </div>
         </div>
       </div>
 
+      <!-- Unrepairable Full 100% Refund Fields -->
       <div id="unrepairableRefundFields" class="hidden space-y-3 bg-rose-500/10 border border-rose-500/20 p-4 rounded-2xl text-xs">
         <div class="flex items-center gap-2 text-rose-400 font-bold text-sm">
           <i class="fa-solid fa-triangle-exclamation"></i> Non-Repairable Return Protocol
@@ -459,7 +512,7 @@
           <label class="font-semibold text-slate-300">Advance Refund to Customer (100% Mandatory):</label>
           <input type="number" id="modalRefundAmount" readonly class="w-28 bg-slate-950 border border-rose-500/60 rounded-lg px-2.5 py-1 text-right text-rose-400 font-bold text-sm cursor-not-allowed">
         </div>
-        <p class="text-[10px] text-amber-300 italic">* Strict Rule Applied: 100% of received advance will be refunded automatically to close as unrepairable.</p>
+        <p class="text-[10px] text-amber-300 italic">* Strict Rule: 100% of received advance will be refunded automatically.</p>
       </div>
 
       <div class="pt-3 border-t border-slate-800 flex justify-end gap-3">
@@ -518,12 +571,16 @@
           </select>
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Estimated Cost (₹)</label>
+          <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Estimated / Final Cost (₹)</label>
           <input type="number" id="editEstCost" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white">
         </div>
         <div>
           <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Advance Received (₹)</label>
           <input type="number" id="editAdvPaid" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-rose-400 uppercase tracking-wider mb-1">Customer Due Balance (₹)</label>
+          <input type="number" id="editDueBalance" class="w-full bg-slate-950 border border-rose-500/40 rounded-xl px-3 py-2 text-sm text-rose-400 font-bold">
         </div>
       </div>
 
@@ -544,7 +601,7 @@
       </div>
       <div>
         <h3 class="text-base font-bold text-white">Owner Authorization Required</h3>
-        <p class="text-xs text-slate-400 mt-1">Enter Master Password to view financial ledgers, edit records, or access profit accounts.</p>
+        <p class="text-xs text-slate-400 mt-1">Enter Master Password to view financial ledgers, edit records, or access market dues.</p>
       </div>
       <div>
         <input type="password" id="adminPasswordInput" placeholder="Enter PIN / Password" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-center text-sm text-white focus:outline-none focus:border-indigo-500 tracking-widest">
@@ -558,11 +615,11 @@
     </div>
   </div>
 
-  <!-- MASTER PRINT CONTAINER: ALWAYS ACTIVE, NEVER WIPED -->
+  <!-- MASTER PRINT CONTAINER: ALWAYS ACTIVE -->
   <div id="masterDirectPrintArea" style="display: none;"></div>
 
   <script>
-    const STORAGE_KEY = "smartfix_pro_pos_v7";
+    const STORAGE_KEY = "smartfix_pro_pos_v8";
     const ADMIN_PIN = "1234";
     let isOwnerAuthenticated = false;
     let pendingDestinationTab = null;
@@ -583,6 +640,8 @@
         estCost: 6500,
         advPaid: 1500,
         refundPaid: 0,
+        deliveryCollected: 4500,
+        dueBalance: 500, // Pending Due Example
         status: "Delivered",
         warranty: "90 Days Warranty (Display & Touch)",
         partName: "OEM OLED Combo",
@@ -603,6 +662,8 @@
         estCost: 4000,
         advPaid: 500,
         refundPaid: 500,
+        deliveryCollected: 0,
+        dueBalance: 0,
         status: "Unrepairable",
         warranty: "No Warranty",
         partName: "Unrepairable / Returned",
@@ -623,6 +684,8 @@
         estCost: 1200,
         advPaid: 200,
         refundPaid: 0,
+        deliveryCollected: 0,
+        dueBalance: 0,
         status: "Ready",
         warranty: "No Warranty",
         partName: "",
@@ -734,6 +797,8 @@
         estCost: est,
         advPaid: adv,
         refundPaid: 0,
+        deliveryCollected: 0,
+        dueBalance: 0,
         status: "Pending",
         warranty: "No Warranty",
         partName: "",
@@ -745,7 +810,6 @@
       repairJobs.unshift(newJob);
       saveState();
 
-      // Directly launch 58mm Thermal Print without crashing download
       printDirectThermalVoucher(newJob, true);
 
       e.target.reset();
@@ -784,16 +848,14 @@
         if (job.deliveryDate === selectedDate) {
           if (job.status === "Delivered") {
             countDelivered++;
-            const dueCollected = Math.max(0, job.finalAmount - job.advPaid);
-            cashFromDelivery += dueCollected;
-            addAuditRow(job.billNo, "Repair Delivery & Final Payment", job.customerName, job.phone, job.model, "Delivered", dueCollected, 0);
+            const collected = (job.deliveryCollected !== undefined) ? job.deliveryCollected : Math.max(0, job.finalAmount - job.advPaid);
+            cashFromDelivery += collected;
+            addAuditRow(job.billNo, "Repair Delivery Cash Collected", job.customerName, job.phone, job.model, "Delivered", collected, 0);
           } else if (job.status === "Unrepairable") {
             countUnrepaired++;
             if (job.refundPaid > 0) {
               cashOutRefund += job.refundPaid;
               addAuditRow(job.billNo, "Unrepairable Full Advance Refund", job.customerName, job.phone, job.model, "Refund Out", 0, job.refundPaid);
-            } else {
-              addAuditRow(job.billNo, "Returned Without Repair (No Advance)", job.customerName, job.phone, job.model, "Unrepairable", 0, 0);
             }
           }
         }
@@ -897,6 +959,7 @@
         const isDelivered = job.status === "Delivered";
         const isUnrepairable = job.status === "Unrepairable";
         const isReady = job.status === "Ready";
+        const hasDue = (job.dueBalance || 0) > 0;
 
         let statusBadge = "";
         if (isDelivered) {
@@ -933,25 +996,31 @@
               <p><span class="text-slate-500 font-medium">Problem:</span> ${job.fault}</p>
               ${job.remarks ? `
                 <div class="p-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-300 text-[11px]">
-                  <i class="fa-solid fa-note-sticky mr-1"></i> <strong>Remarks (Internal):</strong> ${job.remarks}
+                  <i class="fa-solid fa-note-sticky mr-1"></i> <strong>Remarks:</strong> ${job.remarks}
                 </div>
               ` : ''}
               <p><span class="text-slate-500 font-medium">Warranty:</span> <strong class="text-indigo-400">${job.warranty || 'None'}</strong></p>
+              ${hasDue ? `
+                <div class="p-1.5 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 font-bold flex justify-between">
+                  <span>Pending Due (বাকি):</span>
+                  <span>₹${job.dueBalance}</span>
+                </div>
+              ` : ''}
               ${isUnrepairable ? `
                 <div class="pt-1.5 border-t border-slate-800 text-rose-400 font-semibold">
-                  Returned Unrepaired. ${job.refundPaid > 0 ? `Advance Refunded in Full: ₹${job.refundPaid}` : 'No advance to refund.'}
+                  Returned Unrepaired. ${job.refundPaid > 0 ? `Advance Refunded: ₹${job.refundPaid}` : 'No advance.'}
                 </div>
               ` : ''}
             </div>
           </div>
           <div class="pt-3 border-t border-slate-800 flex items-center justify-between gap-2">
             <div>
-              <span class="text-[10px] uppercase font-semibold text-slate-500">Bill Amount</span>
+              <span class="text-[10px] uppercase font-semibold text-slate-500">Total Billed</span>
               <p class="text-sm font-bold text-white">₹${isUnrepairable ? 0 : (isDelivered ? job.finalAmount : job.estCost)} ${!isDelivered && !isUnrepairable && job.advPaid > 0 ? `<span class="text-xs text-emerald-400 font-normal">(Adv: ₹${job.advPaid})</span>` : ''}</p>
             </div>
             <div class="flex items-center gap-1.5">
               ${!isDelivered && !isUnrepairable ? `
-                <button onclick="toggleDeviceReady('${job.billNo}')" title="${isReady ? 'Mark as Pending Repair' : 'Mark as Ready for Pickup'}" class="px-2.5 py-2 rounded-xl text-xs font-bold border transition flex items-center gap-1 ${isReady ? 'bg-blue-600 text-white border-blue-500 shadow-md' : 'bg-slate-800 text-slate-300 border-slate-700 hover:text-white'}">
+                <button onclick="toggleDeviceReady('${job.billNo}')" title="${isReady ? 'Mark as Pending' : 'Mark as Ready for Pickup'}" class="px-2.5 py-2 rounded-xl text-xs font-bold border transition flex items-center gap-1 ${isReady ? 'bg-blue-600 text-white border-blue-500 shadow-md' : 'bg-slate-800 text-slate-300 border-slate-700 hover:text-white'}">
                   <i class="fa-solid fa-bell"></i> ${isReady ? 'Ready' : 'Set Ready'}
                 </button>
               ` : ''}
@@ -990,6 +1059,9 @@
       }
     }
 
+    // ----------------------------------------------------
+    // DELIVERY MODAL (DYNAMIC REMAINING DUE CALCULATION)
+    // ----------------------------------------------------
     function openDeliveryModal(billNo, estAmount, advPaid) {
       document.getElementById('modalBillNo').value = billNo;
       document.getElementById('modalAdvPaidHidden').value = advPaid;
@@ -1003,10 +1075,30 @@
       document.getElementById('modalRefundAmount').value = advPaid;
 
       toggleDeliveryOutcomeUI();
+      updateDeliveryPaymentMath();
 
       const modal = document.getElementById('deliveryModal');
       modal.classList.remove('hidden');
       modal.classList.add('flex');
+    }
+
+    function updateDeliveryPaymentMath() {
+      const adv = parseFloat(document.getElementById('modalAdvPaidHidden').value) || 0;
+      const finalAmt = parseFloat(document.getElementById('modalFinalAmount').value) || 0;
+      
+      const remainingPayable = Math.max(0, finalAmt - adv);
+      document.getElementById('modalDeliveryAdvDisp').innerText = "₹" + adv;
+      document.getElementById('modalDeliveryRemDueDisp').innerText = "₹" + remainingPayable;
+
+      // Default collected to full remaining if untouched
+      const cashCollectedInput = document.getElementById('modalDeliveryCashCollected');
+      if (cashCollectedInput.value === '' || parseFloat(cashCollectedInput.value) > remainingPayable) {
+        cashCollectedInput.value = remainingPayable;
+      }
+
+      const collected = parseFloat(cashCollectedInput.value) || 0;
+      const pendingDue = Math.max(0, remainingPayable - collected);
+      document.getElementById('modalCustomerFinalDue').innerText = "₹" + pendingDue;
     }
 
     function toggleDeliveryOutcomeUI() {
@@ -1046,18 +1138,26 @@
           repairJobs[idx].partCost = 0;
           repairJobs[idx].finalAmount = 0;
           repairJobs[idx].refundPaid = advPaid;
+          repairJobs[idx].deliveryCollected = 0;
+          repairJobs[idx].dueBalance = 0;
           repairJobs[idx].netProfit = 0;
         } else {
           const pName = document.getElementById('modalPartName').value.trim();
           const pCost = parseFloat(document.getElementById('modalPartCost').value) || 0;
           const fAmount = parseFloat(document.getElementById('modalFinalAmount').value) || 0;
           const warranty = document.getElementById('modalWarranty').value;
+          const collected = parseFloat(document.getElementById('modalDeliveryCashCollected').value) || 0;
+          
+          const remainingPayable = Math.max(0, fAmount - advPaid);
+          const pendingDue = Math.max(0, remainingPayable - collected);
 
           repairJobs[idx].status = "Delivered";
           repairJobs[idx].warranty = warranty;
           repairJobs[idx].partName = pName;
           repairJobs[idx].partCost = pCost;
           repairJobs[idx].finalAmount = fAmount;
+          repairJobs[idx].deliveryCollected = collected;
+          repairJobs[idx].dueBalance = pendingDue;
           repairJobs[idx].refundPaid = 0;
           repairJobs[idx].netProfit = Math.max(0, fAmount - pCost);
         }
@@ -1068,6 +1168,9 @@
       }
     }
 
+    // ----------------------------------------------------
+    // EDIT MODAL
+    // ----------------------------------------------------
     function openEditModal(billNo) {
       const job = repairJobs.find(j => j.billNo === billNo);
       if (!job) return;
@@ -1081,8 +1184,9 @@
       document.getElementById('editFault').value = job.fault;
       document.getElementById('editRemarks').value = job.remarks || '';
       document.getElementById('editStatusSelect').value = job.status;
-      document.getElementById('editEstCost').value = job.estCost;
+      document.getElementById('editEstCost').value = (job.finalAmount || job.estCost);
       document.getElementById('editAdvPaid').value = job.advPaid;
+      document.getElementById('editDueBalance').value = job.dueBalance || 0;
 
       const modal = document.getElementById('editModal');
       modal.classList.remove('hidden');
@@ -1106,14 +1210,18 @@
         repairJobs[idx].fault = document.getElementById('editFault').value.trim();
         repairJobs[idx].remarks = document.getElementById('editRemarks').value.trim();
         repairJobs[idx].status = document.getElementById('editStatusSelect').value;
-        repairJobs[idx].estCost = parseFloat(document.getElementById('editEstCost').value) || 0;
+        repairJobs[idx].finalAmount = parseFloat(document.getElementById('editEstCost').value) || 0;
         repairJobs[idx].advPaid = parseFloat(document.getElementById('editAdvPaid').value) || 0;
+        repairJobs[idx].dueBalance = parseFloat(document.getElementById('editDueBalance').value) || 0;
 
         saveState();
         closeEditModal();
       }
     }
 
+    // ----------------------------------------------------
+    // ADMIN FINANCIAL LEDGER & DUE SHORTLIST WITH WHATSAPP
+    // ----------------------------------------------------
     function setLedgerPreset(preset) {
       const now = new Date();
       if (preset === 'month') {
@@ -1146,6 +1254,9 @@
       const tbody = document.getElementById('ledgerTableBody');
       tbody.innerHTML = '';
 
+      const dueTbody = document.getElementById('dueTableBody');
+      dueTbody.innerHTML = '';
+
       const fromDate = document.getElementById('ledgerFromDate')?.value;
       const toDate = document.getElementById('ledgerToDate')?.value;
 
@@ -1160,6 +1271,8 @@
       let totalBilled = 0;
       let totalRefund = 0;
       let totalProfit = 0;
+      let totalMarketDue = 0;
+      let countDueCustomers = 0;
 
       filteredJobs.forEach(job => {
         const isDelivered = job.status === "Delivered";
@@ -1168,12 +1281,38 @@
         const billed = isUnrepairable ? 0 : (isDelivered ? job.finalAmount : job.estCost);
         const refund = job.refundPaid || 0;
         const profit = job.netProfit || 0;
+        const due = job.dueBalance || 0;
 
         totalParts += partsCost;
         totalBilled += billed;
         totalRefund += refund;
         totalProfit += profit;
+        totalMarketDue += due;
 
+        // Due List Table
+        if (due > 0) {
+          countDueCustomers++;
+          const paidSoFar = (job.advPaid || 0) + (job.deliveryCollected || 0);
+          const dueTr = document.createElement('tr');
+          dueTr.className = "hover:bg-slate-950/40 transition";
+          dueTr.innerHTML = `
+            <td class="p-3 font-mono font-bold text-indigo-400">${job.billNo}</td>
+            <td class="p-3 font-medium text-white">${job.customerName}</td>
+            <td class="p-3 font-mono text-xs">${job.phone}</td>
+            <td class="p-3 text-xs">${job.model}</td>
+            <td class="p-3 text-right">₹${billed}</td>
+            <td class="p-3 text-right text-emerald-400">₹${paidSoFar}</td>
+            <td class="p-3 text-right text-rose-400 font-bold">₹${due}</td>
+            <td class="p-3 text-center">
+              <button onclick="sendWhatsAppReminder('${job.phone}', '${job.customerName}', '${job.billNo}', '${job.model}', ${due})" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold flex items-center gap-1 mx-auto shadow transition">
+                <i class="fa-brands fa-whatsapp text-sm"></i> Remind
+              </button>
+            </td>
+          `;
+          dueTbody.appendChild(dueTr);
+        }
+
+        // Ledger Table
         const tr = document.createElement('tr');
         tr.className = "hover:bg-slate-950/40 transition";
         tr.innerHTML = `
@@ -1188,6 +1327,7 @@
           <td class="p-4 text-xs">${job.partName || '<span class="text-slate-500">None</span>'}</td>
           <td class="p-4 text-rose-400 font-semibold">₹${partsCost}</td>
           <td class="p-4 font-bold text-white">₹${billed}</td>
+          <td class="p-4 font-bold ${due > 0 ? 'text-rose-400' : 'text-slate-500'}">₹${due}</td>
           <td class="p-4 font-bold ${profit > 0 ? 'text-emerald-400' : 'text-slate-500'}">₹${profit}</td>
           <td class="p-4">
             <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${isDelivered ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : (isUnrepairable ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20' : 'bg-amber-500/10 text-amber-400 border border-amber-500/20')}">
@@ -1203,18 +1343,32 @@
         tbody.appendChild(tr);
       });
 
+      document.getElementById('dueCountBadge').innerText = `${countDueCustomers} Customers with Due`;
       document.getElementById('calcTotalParts').innerText = "₹" + totalParts;
       document.getElementById('calcTotalRefund').innerText = "₹" + totalRefund;
       document.getElementById('calcTotalRevenue').innerText = "₹" + totalBilled;
+      document.getElementById('calcTotalDue').innerText = "₹" + totalMarketDue;
       document.getElementById('calcTotalProfit').innerText = "₹" + totalProfit;
 
       document.getElementById('footParts').innerText = "₹" + totalParts;
       document.getElementById('footBilled').innerText = "₹" + totalBilled;
+      document.getElementById('footDue').innerText = "₹" + totalMarketDue;
       document.getElementById('footProfit').innerText = "₹" + totalProfit;
     }
 
+    // Direct WhatsApp Reminder Trigger
+    function sendWhatsAppReminder(phone, name, billNo, model, dueAmount) {
+      const cleanPhone = phone.replace(/[^0-9]/g, '');
+      const formattedPhone = cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone;
+      
+      const message = `Dear ${name},\nThis is a friendly reminder from *SmartFix Mobile Care* regarding your repaired device *${model}* (Bill: *${billNo}*).\nThere is a remaining due balance of *₹${dueAmount}* on your account.\nKindly settle the pending payment at your earliest convenience.\nThank you!`;
+      
+      const whatsappUrl = `https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`;
+      window.open(whatsappUrl, '_blank');
+    }
+
     // ----------------------------------------------------
-    // COMPACT 58mm DIRECT PRINT ENGINE (NO URL, ZERO-BLANK)
+    // COMPACT 58mm DIRECT PRINT ENGINE WITH CREDIT FOOTER
     // ----------------------------------------------------
     function printDirectThermalVoucher(job, isDualIntake = false) {
       const isUnrepairable = job.status === "Unrepairable";
@@ -1250,10 +1404,12 @@
             </div>
             <div style="border-top: 1px dashed #000; margin: 5px 0;"></div>
             <table style="width: 100%; font-size: 10px;">
-              <tr><td>Estimate / Billed:</td><td style="text-align: right;">₹${totalOrEst}</td></tr>
+              <tr><td>Total Bill:</td><td style="text-align: right;">₹${totalOrEst}</td></tr>
               <tr><td>Advance Received:</td><td style="text-align: right;">₹${job.advPaid}</td></tr>
+              ${isDelivered && job.deliveryCollected ? `<tr><td>Delivery Paid:</td><td style="text-align: right;">₹${job.deliveryCollected}</td></tr>` : ''}
+              ${isDelivered && job.dueBalance ? `<tr><td><strong style="color:red;">Pending Due:</strong></td><td style="text-align: right; color:red;"><strong>₹${job.dueBalance}</strong></td></tr>` : ''}
               ${isUnrepairable && job.refundPaid > 0 ? `<tr><td><strong>Advance Refunded:</strong></td><td style="text-align: right; color: red;"><strong>- ₹${job.refundPaid}</strong></td></tr>` : ''}
-              <tr><td><strong>Balance / Settlement:</strong></td><td style="text-align: right;"><strong>₹${balanceOrSettlement}</strong></td></tr>
+              <tr><td><strong>Settlement Status:</strong></td><td style="text-align: right;"><strong>${isUnrepairable ? 'Closed (Returned)' : (job.dueBalance > 0 ? '₹' + job.dueBalance + ' Due' : 'Paid in Full')}</strong></td></tr>
             </table>
             <div style="margin-top: 4px; font-size: 10px; font-weight: bold; border: 1px solid #000; padding: 2px; text-align: center;">
               Warranty: ${job.warranty || 'No Warranty'}
@@ -1265,14 +1421,19 @@
               2. Devices must be claimed within 30 days from intake. Workshop is NOT liable for unclaimed units past 30 days.<br>
               3. Original voucher mandatory for pickup.
             </div>
-            <div style="text-align: center; margin-top: 5px; font-size: 8px;">
-              *** Customer Care Copy ***
+            
+            <!-- MANDATORY DEVELOPER CREDIT FOOTER -->
+            <div style="border-top: 1px dashed #000; margin: 6px 0 3px 0;"></div>
+            <div style="text-align: center; font-size: 7.5px; line-height: 1.2; color: #333;">
+              SmartFix Pro &copy; 2026 | Mobile Workshop Management System<br>
+              <strong>Developed by Debapriya Sarkar</strong>
             </div>
           </div>
       `;
 
       if (isDualIntake) {
         printHTML += `
+          <!-- Shop Tag Copy -->
           <div>
             <div style="text-align: center;">
               <h3 style="font-size: 12px; font-weight: bold; margin: 0;">SHOP TAG (ATTACH TO PHONE)</h3>
@@ -1288,16 +1449,14 @@
               <p style="margin: 2px 0;"><strong>ADV PAID:</strong> ₹${job.advPaid}</p>
             </div>
             <div style="border-top: 1px dashed #000; margin: 5px 0;"></div>
-            <div style="text-align: center; font-size: 8px;">
-              INTERNAL WORKSHOP IDENTIFIER
+            <div style="text-align: center; font-size: 7.5px; line-height: 1.2; color: #333;">
+              SmartFix Pro &copy; 2026 | Developed by Debapriya Sarkar
             </div>
           </div>
         `;
       }
 
       printHTML += `</div>`;
-
-      // Set Thermal Print Mode
       document.body.classList.remove('mode-a4');
       document.body.classList.add('mode-thermal');
       executeDirectPrint(printHTML);
@@ -1327,6 +1486,9 @@
             <div>Generated: ${new Date().toLocaleString()}</div>
             <div>Cashier Signature: _______________________</div>
           </div>
+          <div style="border-top: 1px solid #ccc; margin-top: 25px; padding-top: 8px; text-align: center; font-size: 9px; color: #555;">
+            SmartFix Pro &copy; 2026 | Mobile Workshop Management System | <strong>Developed by Debapriya Sarkar</strong>
+          </div>
         </div>
       `;
 
@@ -1338,7 +1500,7 @@
     function printDirectA4Table() {
       const sourceTable = document.getElementById('ledgerTable').cloneNode(true);
       sourceTable.querySelectorAll('tr').forEach(row => {
-        if (row.cells.length > 10) row.deleteCell(-1);
+        if (row.cells.length > 11) row.deleteCell(-1);
       });
 
       const reportHTML = `
@@ -1352,6 +1514,9 @@
             <div>Generated On: ${new Date().toLocaleString()}</div>
             <div>Authorized Signatory: _______________________</div>
           </div>
+          <div style="border-top: 1px solid #ccc; margin-top: 25px; padding-top: 8px; text-align: center; font-size: 9px; color: #555;">
+            SmartFix Pro &copy; 2026 | Mobile Workshop Management System | <strong>Developed by Debapriya Sarkar</strong>
+          </div>
         </div>
       `;
 
@@ -1360,13 +1525,11 @@
       executeDirectPrint(reportHTML);
     }
 
-    // PERSISTENT DIRECT PRINT (Does not wipe DOM, preventing blank outputs)
     function executeDirectPrint(htmlContent) {
       const printArea = document.getElementById('masterDirectPrintArea');
       printArea.innerHTML = htmlContent;
       printArea.style.display = 'block';
 
-      // Slight render delay so mobile spooler can capture exact elements
       setTimeout(() => {
         window.print();
       }, 150);
@@ -1384,6 +1547,7 @@
       let totalParts = 0;
       let totalBilled = 0;
       let totalProfit = 0;
+      let totalDue = 0;
 
       const fromDate = document.getElementById('ledgerFromDate')?.value;
       const toDate = document.getElementById('ledgerToDate')?.value;
@@ -1399,10 +1563,12 @@
         const billed = j.status === 'Unrepairable' ? 0 : (j.finalAmount || j.estCost);
         const pCost = j.partCost || 0;
         const profit = j.netProfit || 0;
+        const due = j.dueBalance || 0;
 
         totalParts += pCost;
         totalBilled += billed;
         totalProfit += profit;
+        totalDue += due;
 
         return [
           j.billNo,
@@ -1413,15 +1579,16 @@
           j.warranty || "None",
           `Rs. ${pCost}`,
           `Rs. ${billed}`,
+          `Rs. ${due}`,
           `Rs. ${profit}`,
           j.status
         ];
       });
 
       doc.autoTable({
-        head: [["Bill No", "Intake", "Delivered", "Customer", "Model", "Warranty", "Parts Cost", "Billed Amt", "Net Profit", "Status"]],
+        head: [["Bill No", "Intake", "Delivered", "Customer", "Model", "Warranty", "Parts Cost", "Billed Amt", "Due Amt", "Net Profit", "Status"]],
         body: rows,
-        foot: [["TOTALS", "", "", "", "", "", `Rs. ${totalParts}`, `Rs. ${totalBilled}`, `Rs. ${totalProfit}`, ""]],
+        foot: [["TOTALS", "", "", "", "", "", `Rs. ${totalParts}`, `Rs. ${totalBilled}`, `Rs. ${totalDue}`, `Rs. ${totalProfit}`, ""]],
         startY: 70,
         theme: 'grid',
         headStyles: { fillColor: [49, 46, 129], textColor: [255, 255, 255], fontStyle: 'bold' },
@@ -1429,10 +1596,15 @@
         styles: { fontSize: 8, cellPadding: 4 }
       });
 
+      // Developer Credit on PDF
+      const pageHeight = doc.internal.pageSize.height;
+      doc.setFontSize(8);
+      doc.setTextColor(100);
+      doc.text("SmartFix Pro © 2026 | Mobile Workshop Management System | Developed by Debapriya Sarkar", 40, pageHeight - 20);
+
       doc.save("SmartFixPro_Financial_Statement.pdf");
     }
 
-    // Initialize View
     window.addEventListener('DOMContentLoaded', () => {
       document.getElementById('currentDateDisplay').innerText = todayStr;
       document.getElementById('dailyReportDatePicker').value = todayStr;
