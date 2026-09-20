@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>SmartFix Pro | Pre-Owned Mobile Inventory & POS</title>
+  <meta name="theme-color" content="#4f46e5">
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <!-- jsPDF & AutoTable -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+  <style>
+    @page { margin: 0; size: auto; }
+    @media print {
+      body > *:not(#thermalPrintArea) { display: none !important; }
+      #thermalPrintArea {
+        display: block !important;
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        background: #fff !important;
+        color: #000 !important;
+        margin: 0 !important;
+        width: 58mm !important;
+        max-width: 58mm !important;
+        padding: 2mm 3mm !important;
+        font-family: 'Courier New', Courier, monospace !important;
+        font-size: 11px !important;
+        line-height: 1.25 !important;
+      }
+    }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #020617; }
+    ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #334155; }
+    .glass-card {
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.75) 0%, rgba(2, 6, 23, 0.95) 100%);
+      backdrop-filter: blur(12px);
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-indigo-600 selection:text-white">
+
+  <!-- ==================== AUTH CHECK OVERLAY ==================== -->
+  <div id="authScreen" class="fixed inset-0 bg-slate-950 z-50 flex items-center justify-center p-4">
+    <div class="max-w-md w-full bg-slate-900 border border-slate-800 p-8 rounded-3xl text-center space-y-4 shadow-2xl">
+      <div class="w-12 h-12 bg-indigo-600/20 text-indigo-400 rounded-2xl flex items-center justify-center mx-auto text-xl border border-indigo-500/30">
+        <i class="fa-solid fa-lock"></i>
+      </div>
+      <h2 class="text-xl font-bold text-white">Workshop Sign-In Required</h2>
+      <p class="text-xs text-slate-400">Please sign in to your SmartFix Pro store account to view your second-hand mobile devices.</p>
+      <div class="pt-2">
+        <a href="index.html" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-lg shadow-indigo-600/30 transition">
+          <i class="fa-solid fa-arrow-right-to-bracket"></i> Go to Shop Login
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header Navbar -->
+  <header class="bg-slate-900/90 backdrop-blur border-b border-slate-800 sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="bg-gradient-to-tr from-emerald-600 to-teal-500 p-2.5 rounded-xl shadow-lg shadow-emerald-600/30">
+          <i class="fa-solid fa-mobile-screen text-xl text-white"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-xl font-bold tracking-tight text-white uppercase" id="navShopName">SMARTFIX<span class="text-emerald-400">PRO</span></h1>
+            <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              <i class="fa-solid fa-cloud mr-1"></i> Cloud Active
+            </span>
+          </div>
+          <p class="text-xs text-slate-400 font-medium">Pre-Owned Phone Stock, Ledger & POS</p>
+        </div>
+      </div>
+
+      <!-- Nav Tabs -->
+      <nav class="flex items-center bg-slate-950/80 p-1 rounded-xl border border-slate-800 gap-1 text-xs">
+        <button id="navTabStock" onclick="switchView('stock')" class="px-3.5 py-2 rounded-lg font-semibold transition bg-indigo-600 text-white shadow-md flex items-center gap-1.5">
+          <i class="fa-solid fa-box-open"></i>
+          <span>In-Stock Devices</span>
+        </button>
+        <button id="navTabSales" onclick="switchView('sales')" class="px-3.5 py-2 rounded-lg font-semibold transition text-slate-400 hover:text-white flex items-center gap-1.5">
+          <i class="fa-solid fa-chart-line text-emerald-400"></i>
+          <span>Sales & Profit Ledger</span>
+        </button>
+        <a href="parts.html" title="LCD Compatibility Hub" class="px-3 py-2 text-slate-400 hover:text-white flex items-center gap-1.5 border-l border-slate-800 ml-1">
+          <i class="fa-solid fa-layer-group text-indigo-400"></i>
+          <span class="hidden sm:inline">LCD Hub</span>
+        </a>
+        <a href="index.html" title="Main Workshop OS" class="px-3 py-2 text-slate-400 hover:text-white flex items-center gap-1.5">
+          <i class="fa-solid fa-screwdriver-wrench text-amber-400"></i>
+          <span class="hidden sm:inline">Repairs OS</span>
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Body -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 space-y-6">
+
+    <!-- KPI Metric Cards -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
+        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Phones In Stock</span>
+        <h4 id="kpiStockCount" class="text-2xl font-black text-white mt-1">0</h4>
+        <p class="text-[10px] text-slate-500">Ready for resale</p>
+      </div>
+
+      <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
+        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Investment</span>
+        <h4 id="kpiInvested" class="text-2xl font-black text-blue-400 mt-1">₹0</h4>
+        <p class="text-[10px] text-slate-500">Active stock purchase cost</p>
+      </div>
+
+      <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
+        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Phones Sold</span>
+        <h4 id="kpiSoldCount" class="text-2xl font-black text-slate-300 mt-1">0</h4>
+        <p class="text-[10px] text-slate-500">Completed device sales</p>
+      </div>
+
+      <div class="bg-slate-900 border border-emerald-500/30 p-4 rounded-2xl bg-emerald-500/5">
+        <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400">Total Net Profit</span>
+        <h4 id="kpiTotalProfit" class="text-2xl font-black text-emerald-400 mt-1">₹0</h4>
+        <p class="text-[10px] text-slate-500">Realized resale profit</p>
+      </div>
+    </div>
+
+    <!-- ================= VIEW 1: ACTIVE IN-STOCK PHONES ================= -->
+    <section id="viewStock" class="space-y-6">
+      <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-xl flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4">
+        
+        <!-- Search -->
+        <div class="relative flex-1 max-w-md">
+          <i class="fa-solid fa-magnifying-glass absolute left-4 top-3.5 text-slate-500 text-sm"></i>
+          <input 
+            type="text" 
+            id="stockSearchInput" 
+            oninput="renderStockDevices()" 
+            placeholder="Search by Model, IMEI, Brand, Seller Name..." 
+            class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-11 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition"
+          >
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex items-center gap-2">
+          <button onclick="openIntakeModal()" class="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-lg shadow-indigo-600/30 transition flex items-center gap-1.5">
+            <i class="fa-solid fa-plus"></i> Buy / Intake Phone
+          </button>
+          <button onclick="exportStockPDF()" class="px-3.5 py-2.5 rounded-xl bg-rose-600/20 hover:bg-rose-600/30 text-rose-400 border border-rose-500/30 font-semibold text-xs flex items-center gap-1.5 transition">
+            <i class="fa-solid fa-file-pdf"></i> Stock Sheet
+          </button>
+        </div>
+      </div>
+
+      <!-- Grid of Available Phones -->
+      <div id="stockGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+    </section>
+
+
+    <!-- ================= VIEW 2: SALES & PROFIT LEDGER ================= -->
+    <section id="viewSales" class="hidden space-y-6">
+      <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-xl flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h3 class="text-base font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-file-invoice-dollar text-emerald-400"></i> Second-Hand Phone Sales & Profit Audit
+          </h3>
+          <p class="text-xs text-slate-400">Shows buyer details, sale prices, purchase investments, and net profit per device.</p>
+        </div>
+        <button onclick="exportSalesPDF()" class="px-4 py-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 font-semibold text-xs flex items-center gap-1.5 transition">
+          <i class="fa-solid fa-file-pdf"></i> Export Sales Statement
+        </button>
+      </div>
+
+      <div class="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-xl">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm" id="salesTable">
+            <thead class="bg-slate-950/80 text-slate-400 text-xs uppercase tracking-wider font-semibold border-b border-slate-800">
+              <tr>
+                <th class="p-4">Sold Date</th>
+                <th class="p-4">Device & Storage</th>
+                <th class="p-4">IMEI</th>
+                <th class="p-4">Buyer Info</th>
+                <th class="p-4">Purchase (₹)</th>
+                <th class="p-4">Repair (₹)</th>
+                <th class="p-4 font-bold text-white">Sold For (₹)</th>
+                <th class="p-4 font-bold text-emerald-400">Net Profit (₹)</th>
+                <th class="p-4 text-center">Receipt</th>
+              </tr>
+            </thead>
+            <tbody id="salesTableBody" class="divide-y divide-slate-800/70 text-slate-300 text-xs"></tbody>
+          </table>
+        </div>
+        <div id="salesEmptyNotice" class="hidden p-8 text-center text-slate-500 text-xs font-medium">
+          No sold phones recorded yet.
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ================= INTAKE / PURCHASE MODAL ================= -->
+  <div id="intakeModal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-2xl w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+        <h3 class="text-base font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-cart-flatbed text-indigo-400"></i> Intake Second-Hand Mobile Device
+        </h3>
+        <button onclick="closeIntakeModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+
+      <form id="intakePhoneForm" onsubmit="savePhonePurchase(event)" class="space-y-4 text-xs">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block uppercase font-bold text-slate-400 mb-1">Brand *</label>
+            <input type="text" id="phoneBrand" required placeholder="e.g. Apple / Vivo / Samsung" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white">
+          </div>
+          <div>
+            <label class="block uppercase font-bold text-slate-400 mb-1">Model Name *</label>
+            <input type="text" id="phoneModel" required placeholder="e.g. iPhone 11 / Vivo V20" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white">
+          </div>
+          <div>
+            <label class="block uppercase font-bold text-slate-400 mb-1">RAM / Storage</label>
+            <input type="text" id="phoneVariant" placeholder="e.g. 8GB / 128GB" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block uppercase font-bold text-slate-400 mb-1">IMEI Number (15-digit) *</label>
+            <input type="text" id="phoneImei" required placeholder="IMEI 1" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white font-mono">
+          </div>
+          <div>
+            <label class="block uppercase font-bold text-slate-400 mb-1">Condition / Color</label>
+            <input type="text" id="phoneCondition" placeholder="e.g. Minor scratches, Blue, 85% Battery" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white">
+          </div>
+        </div>
+
+        <!-- Financials -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-slate-950 p-3.5 rounded-2xl border border-slate-800">
+          <div>
+            <label class="block uppercase font-bold text-slate-400 mb-1">Purchase Cost (₹) *</label>
+            <input type="number" step="any" id="phoneBuyPrice" required placeholder="8000" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-bold">
+          </div>
+          <div>
+            <label class="block uppercase font-bold text-slate-400 mb-1">Repair/Refurbish Cost (₹)</label>
+            <input type="number" step="any" id="phoneRepairCost" value="0" placeholder="0" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
+          </div>
+          <div>
+            <label class="block uppercase font-bold text-slate-400 mb-1">Target Selling Price (₹) *</label>
+            <input type="number" step="any" id="phoneSellTarget" required placeholder="11500" class="w-full bg-slate-900 border border-emerald-500/50 rounded-xl px-3 py-2 text-emerald-400 font-bold">
+          </div>
+        </div>
+
+        <!-- Seller Details (Safety Proof) -->
+        <div class="p-3 bg-slate-950 rounded-2xl border border-slate-800 space-y-2">
+          <span class="block text-[11px] uppercase font-bold text-amber-400">Seller / Customer Origin (Verification Data)</span>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <input type="text" id="sellerName" required placeholder="Seller Full Name *" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white">
+            </div>
+            <div>
+              <input type="tel" id="sellerPhone" required placeholder="Seller Mobile No *" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white">
+            </div>
+            <div>
+              <input type="text" id="sellerIdProof" placeholder="Govt ID / Document Name" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white">
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-2 border-t border-slate-800 flex justify-end gap-2">
+          <button type="button" onclick="closeIntakeModal()" class="px-4 py-2.5 rounded-xl border border-slate-800 text-slate-400 hover:text-white font-semibold">Cancel</button>
+          <button type="submit" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold shadow-lg shadow-indigo-600/30">Save to Cloud Stock</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= SELL PHONE POS MODAL ================= -->
+  <div id="sellModal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+        <h3 class="text-base font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-cash-register text-emerald-400"></i> Sell Device & Generate Invoice
+        </h3>
+        <button onclick="closeSellModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+
+      <input type="hidden" id="sellDocId">
+      <input type="hidden" id="sellBuyCost">
+      <input type="hidden" id="sellRepairCost">
+
+      <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800 text-xs space-y-1">
+        <p class="text-slate-400">Selling: <strong id="sellPhoneTitle" class="text-white"></strong></p>
+        <p class="text-slate-400">IMEI: <span id="sellPhoneImei" class="font-mono text-indigo-300"></span></p>
+        <p class="text-slate-400">Total Purchase + Refurbish Cost: <strong id="sellTotalCostDisp" class="text-rose-400">₹0</strong></p>
+      </div>
+
+      <form id="sellPhoneForm" onsubmit="finalizePhoneSale(event)" class="space-y-3 text-xs">
+        <div>
+          <label class="block uppercase font-bold text-slate-400 mb-1">Final Selling Amount (₹) *</label>
+          <input type="number" step="any" id="sellFinalPrice" required oninput="calculateProjectedProfit()" class="w-full bg-slate-950 border border-emerald-500/60 rounded-xl px-3.5 py-2.5 text-base font-bold text-emerald-400 focus:outline-none">
+        </div>
+
+        <div class="p-2.5 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex justify-between items-center text-xs">
+          <span class="text-emerald-400 font-bold">Estimated Net Profit:</span>
+          <span id="sellNetProfitDisp" class="font-bold text-base text-emerald-400">₹0</span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block uppercase font-bold text-slate-400 mb-1">Buyer Full Name *</label>
+            <input type="text" id="buyerName" required placeholder="e.g. Rahul Sen" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white">
+          </div>
+          <div>
+            <label class="block uppercase font-bold text-slate-400 mb-1">Buyer Phone *</label>
+            <input type="tel" id="buyerPhone" required placeholder="9876543210" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white">
+          </div>
+        </div>
+
+        <div>
+          <label class="block uppercase font-bold text-slate-400 mb-1">Store Warranty Granted</label>
+          <select id="sellWarranty" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white">
+            <option value="7 Days Checking Warranty">7 Days Checking Warranty</option>
+            <option value="15 Days Service Warranty">15 Days Service Warranty</option>
+            <option value="30 Days Hardware Warranty">30 Days Hardware Warranty</option>
+            <option value="No Warranty (Testing Only)">No Warranty (Testing Only)</option>
+          </select>
+        </div>
+
+        <div class="pt-2 border-t border-slate-800 flex justify-end gap-2">
+          <button type="button" onclick="closeSellModal()" class="px-4 py-2.5 rounded-xl border border-slate-800 text-slate-400 hover:text-white font-semibold">Cancel</button>
+          <button type="submit" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-lg shadow-emerald-600/30">Complete Sale & Print</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- THERMAL PRINT CONTAINER -->
+  <div id="thermalPrintArea" style="display: none;"></div>
+
+  <!-- Toast -->
+  <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none px-4 py-3 rounded-xl bg-indigo-600 text-white text-xs font-semibold shadow-2xl flex items-center gap-2">
+    <span id="toastMsg">Action completed</span>
+  </div>
+
+  <script>
+    // EXACT SAME FIREBASE CONFIGURATION
+    const firebaseConfig = {
+      apiKey: "AIzaSyCG357Dtw_ftKsgAyRSsoZUSfMNpx-GGz0",
+      authDomain: "billing-ab24c.firebaseapp.com",
+      projectId: "billing-ab24c",
+      storageBucket: "billing-ab24c.firebasestorage.app",
+      messagingSenderId: "356489808931",
+      appId: "1:356489808931:web:55297f31640c181c7db596",
+      measurementId: "G-QPVQTXGFFJ"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    let currentUser = null;
+    let currentStore = null;
+    let usedDevices = [];
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastMsg').innerText = msg;
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      setTimeout(() => toast.classList.add('translate-y-20', 'opacity-0'), 2500);
+    }
+
+    // MULTI-STORE AUTH & FIRESTORE REALTIME LISTENER
+    auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        currentUser = user;
+        document.getElementById('authScreen').classList.add('hidden');
+
+        // Fetch Store Identity
+        const storeDoc = await db.collection('stores').doc(user.uid).get();
+        if (storeDoc.exists) {
+          currentStore = storeDoc.data();
+          document.getElementById('navShopName').innerText = currentStore.shopName;
+        }
+
+        // Realtime Listener for THIS STORE'S used mobile collection
+        db.collection('stores').doc(user.uid).collection('used_mobiles')
+          .orderBy('intakeDate', 'desc')
+          .onSnapshot((snapshot) => {
+            usedDevices = [];
+            snapshot.forEach(doc => {
+              usedDevices.push({ docId: doc.id, ...doc.data() });
+            });
+            updateKPIs();
+            renderStockDevices();
+            renderSalesLedger();
+          }, (err) => console.error("Firestore Error:", err));
+
+      } else {
+        document.getElementById('authScreen').classList.remove('hidden');
+      }
+    });
+
+    function switchView(view) {
+      const vStock = document.getElementById('viewStock');
+      const vSales = document.getElementById('viewSales');
+      const tStock = document.getElementById('navTabStock');
+      const tSales = document.getElementById('navTabSales');
+
+      if (view === 'stock') {
+        vStock.classList.remove('hidden');
+        vSales.classList.add('hidden');
+        tStock.className = "px-3.5 py-2 rounded-lg font-semibold transition bg-indigo-600 text-white shadow-md flex items-center gap-1.5";
+        tSales.className = "px-3.5 py-2 rounded-lg font-semibold transition text-slate-400 hover:text-white flex items-center gap-1.5";
+      } else {
+        vStock.classList.add('hidden');
+        vSales.classList.remove('hidden');
+        tSales.className = "px-3.5 py-2 rounded-lg font-semibold transition bg-indigo-600 text-white shadow-md flex items-center gap-1.5";
+        tStock.className = "px-3.5 py-2 rounded-lg font-semibold transition text-slate-400 hover:text-white flex items-center gap-1.5";
+      }
+    }
+
+    function updateKPIs() {
+      const available = usedDevices.filter(d => d.status === 'In-Stock');
+      const sold = usedDevices.filter(d => d.status === 'Sold');
+
+      const totalInvested = available.reduce((sum, d) => sum + (Number(d.buyPrice || 0) + Number(d.repairCost || 0)), 0);
+      const totalProfit = sold.reduce((sum, d) => sum + Number(d.netProfit || 0), 0);
+
+      document.getElementById('kpiStockCount').innerText = available.length;
+      document.getElementById('kpiInvested').innerText = "₹" + totalInvested;
+      document.getElementById('kpiSoldCount').innerText = sold.length;
+      document.getElementById('kpiTotalProfit').innerText = "₹" + totalProfit;
+    }
+
+    // Render Active In-Stock Cards
+    function renderStockDevices() {
+      const q = (document.getElementById('stockSearchInput').value || '').trim().toLowerCase();
+      const grid = document.getElementById('stockGrid');
+      grid.innerHTML = '';
+
+      const available = usedDevices.filter(d => d.status === 'In-Stock' && (
+        (d.brand || '').toLowerCase().includes(q) ||
+        (d.model || '').toLowerCase().includes(q) ||
+        (d.imei || '').toLowerCase().includes(q) ||
+        (d.sellerName || '').toLowerCase().includes(q)
+      ));
+
+      if (available.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full py-12 text-center text-slate-500 bg-slate-900 border border-slate-800 rounded-3xl">
+            <i class="fa-solid fa-mobile-screen text-3xl mb-3 text-slate-600"></i>
+            <p class="text-sm font-medium">No second-hand mobile devices in stock matching criteria.</p>
+          </div>
+        `;
+        return;
+      }
+
+      available.forEach(item => {
+        const totalCost = Number(item.buyPrice || 0) + Number(item.repairCost || 0);
+        const card = document.createElement('div');
+        card.className = "bg-slate-900 border border-slate-800 p-5 rounded-3xl flex flex-col justify-between hover:border-indigo-500/50 transition shadow-xl space-y-4";
+        card.innerHTML = `
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-2">
+              <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">${item.brand}</span>
+              <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">In Stock</span>
+            </div>
+            <h4 class="text-base font-bold text-white">${item.model} <span class="text-xs text-slate-400 font-normal">(${item.variant || 'Standard'})</span></h4>
+            <p class="text-xs text-slate-400 font-mono">IMEI: ${item.imei}</p>
+            
+            <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800/80 my-3 text-xs space-y-1">
+              <div class="flex justify-between text-slate-400">
+                <span>Purchase Price:</span>
+                <span class="font-bold text-white">₹${item.buyPrice}</span>
+              </div>
+              <div class="flex justify-between text-slate-400">
+                <span>Refurbish/Parts Cost:</span>
+                <span class="font-bold text-rose-400">₹${item.repairCost || 0}</span>
+              </div>
+              <div class="flex justify-between border-t border-slate-800 pt-1 text-slate-300 font-semibold">
+                <span>Net Invested:</span>
+                <span>₹${totalCost}</span>
+              </div>
+              <div class="flex justify-between text-emerald-400 font-bold pt-1">
+                <span>Target Sale Price:</span>
+                <span class="text-sm">₹${item.targetSellPrice}</span>
+              </div>
+            </div>
+
+            <div class="text-[11px] text-slate-500">
+              <p>Purchased from: <strong class="text-slate-400">${item.sellerName}</strong> (${item.sellerPhone})</p>
+              <p>Condition: ${item.condition || 'Tested OK'}</p>
+            </div>
+          </div>
+
+          <div class="pt-3 border-t border-slate-800 flex items-center justify-between gap-2">
+            <button onclick="deleteDevice('${item.docId}')" class="p-2.5 bg-rose-950/40 hover:bg-rose-600 text-rose-400 hover:text-white rounded-xl border border-rose-500/30 text-xs transition" title="Delete record">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
+            <button onclick="openSellModal('${item.docId}')" class="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-lg shadow-emerald-600/30 transition flex items-center justify-center gap-1.5">
+              <i class="fa-solid fa-cash-register"></i> Sell Device
+            </button>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    // Render Sales Table
+    function renderSalesLedger() {
+      const tbody = document.getElementById('salesTableBody');
+      const emptyNotice = document.getElementById('salesEmptyNotice');
+      tbody.innerHTML = '';
+
+      const soldItems = usedDevices.filter(d => d.status === 'Sold');
+
+      if (soldItems.length === 0) {
+        emptyNotice.classList.remove('hidden');
+        return;
+      } else {
+        emptyNotice.classList.add('hidden');
+      }
+
+      soldItems.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-950/40 transition";
+        tr.innerHTML = `
+          <td class="p-4 font-mono text-slate-400">${item.saleDate || item.intakeDate}</td>
+          <td class="p-4">
+            <strong class="text-white">${item.brand} ${item.model}</strong>
+            <div class="text-slate-500">${item.variant || ''}</div>
+          </td>
+          <td class="p-4 font-mono text-indigo-400">${item.imei}</td>
+          <td class="p-4">
+            <div class="font-semibold text-white">${item.buyerName || 'Walk-in'}</div>
+            <div class="text-slate-500">${item.buyerPhone || '-'}</div>
+          </td>
+          <td class="p-4 font-mono">₹${item.buyPrice}</td>
+          <td class="p-4 font-mono text-rose-400">₹${item.repairCost || 0}</td>
+          <td class="p-4 font-mono font-bold text-white">₹${item.salePrice}</td>
+          <td class="p-4 font-mono font-bold text-emerald-400">₹${item.netProfit}</td>
+          <td class="p-4 text-center">
+            <button onclick='printSalesReceipt(${JSON.stringify(item)})' class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs" title="Print 58mm Invoice">
+              <i class="fa-solid fa-print"></i>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Modal Operations
+    function openIntakeModal() {
+      document.getElementById('intakePhoneForm').reset();
+      document.getElementById('intakeModal').classList.remove('hidden');
+    }
+    function closeIntakeModal() {
+      document.getElementById('intakeModal').classList.add('hidden');
+    }
+
+    async function savePhonePurchase(e) {
+      e.preventDefault();
+      if (!currentUser) return;
+
+      const newDevice = {
+        brand: document.getElementById('phoneBrand').value.trim(),
+        model: document.getElementById('phoneModel').value.trim(),
+        variant: document.getElementById('phoneVariant').value.trim(),
+        imei: document.getElementById('phoneImei').value.trim(),
+        condition: document.getElementById('phoneCondition').value.trim(),
+        buyPrice: parseFloat(document.getElementById('phoneBuyPrice').value) || 0,
+        repairCost: parseFloat(document.getElementById('phoneRepairCost').value) || 0,
+        targetSellPrice: parseFloat(document.getElementById('phoneSellTarget').value) || 0,
+        sellerName: document.getElementById('sellerName').value.trim(),
+        sellerPhone: document.getElementById('sellerPhone').value.trim(),
+        sellerIdProof: document.getElementById('sellerIdProof').value.trim(),
+        status: "In-Stock",
+        intakeDate: new Date().toISOString().split('T')[0],
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      };
+
+      try {
+        await db.collection('stores').doc(currentUser.uid).collection('used_mobiles').add(newDevice);
+        showToast("Device registered in cloud inventory!");
+        closeIntakeModal();
+      } catch (err) {
+        alert("Purchase save error: " + err.message);
+      }
+    }
+
+    function openSellModal(docId) {
+      const item = usedDevices.find(d => d.docId === docId);
+      if (!item) return;
+
+      const totalCost = Number(item.buyPrice || 0) + Number(item.repairCost || 0);
+
+      document.getElementById('sellDocId').value = item.docId;
+      document.getElementById('sellBuyCost').value = item.buyPrice;
+      document.getElementById('sellRepairCost').value = item.repairCost || 0;
+      document.getElementById('sellPhoneTitle').innerText = `${item.brand} ${item.model} (${item.variant || ''})`;
+      document.getElementById('sellPhoneImei').innerText = item.imei;
+      document.getElementById('sellTotalCostDisp').innerText = `₹${totalCost}`;
+      document.getElementById('sellFinalPrice').value = item.targetSellPrice || totalCost;
+      
+      calculateProjectedProfit();
+      document.getElementById('sellModal').classList.remove('hidden');
+    }
+
+    function closeSellModal() {
+      document.getElementById('sellModal').classList.add('hidden');
+    }
+
+    function calculateProjectedProfit() {
+      const buyPrice = parseFloat(document.getElementById('sellBuyCost').value) || 0;
+      const repairCost = parseFloat(document.getElementById('sellRepairCost').value) || 0;
+      const totalCost = buyPrice + repairCost;
+      const salePrice = parseFloat(document.getElementById('sellFinalPrice').value) || 0;
+      const profit = salePrice - totalCost;
+
+      document.getElementById('sellNetProfitDisp').innerText = "₹" + profit;
+      document.getElementById('sellNetProfitDisp').className = "font-bold text-base " + (profit >= 0 ? "text-emerald-400" : "text-rose-400");
+    }
+
+    async function finalizePhoneSale(e) {
+      e.preventDefault();
+      if (!currentUser) return;
+
+      const docId = document.getElementById('sellDocId').value;
+      const buyPrice = parseFloat(document.getElementById('sellBuyCost').value) || 0;
+      const repairCost = parseFloat(document.getElementById('sellRepairCost').value) || 0;
+      const salePrice = parseFloat(document.getElementById('sellFinalPrice').value) || 0;
+      const profit = salePrice - (buyPrice + repairCost);
+
+      const buyerName = document.getElementById('buyerName').value.trim();
+      const buyerPhone = document.getElementById('buyerPhone').value.trim();
+      const warranty = document.getElementById('sellWarranty').value;
+      const today = new Date().toISOString().split('T')[0];
+
+      const item = usedDevices.find(d => d.docId === docId);
+
+      const updateData = {
+        status: "Sold",
+        salePrice: salePrice,
+        netProfit: profit,
+        buyerName: buyerName,
+        buyerPhone: buyerPhone,
+        warranty: warranty,
+        saleDate: today,
+        soldAt: firebase.firestore.FieldValue.serverTimestamp()
+      };
+
+      try {
+        await db.collection('stores').doc(currentUser.uid).collection('used_mobiles').doc(docId).update(updateData);
+        showToast("Phone successfully sold! Receipt generated.");
+        closeSellModal();
+        printSalesReceipt({ ...item, ...updateData });
+      } catch (err) {
+        alert("Sale error: " + err.message);
+      }
+    }
+
+    async function deleteDevice(docId) {
+      if (!currentUser) return;
+      if (!confirm("Delete this device record from inventory?")) return;
+
+      try {
+        await db.collection('stores').doc(currentUser.uid).collection('used_mobiles').doc(docId).delete();
+        showToast("Device record removed.");
+      } catch (err) {
+        alert("Delete error: " + err.message);
+      }
+    }
+
+    // 58mm Thermal Receipt Generator
+    function printSalesReceipt(item) {
+      const sName = currentStore ? currentStore.shopName : "SMARTFIX WORKSHOP";
+      const sAddr = currentStore ? currentStore.shopAddress : "Main Station Road";
+      const sPhone = currentStore ? currentStore.shopPhone : "9876543210";
+
+      const receiptHTML = `
+        <div style="text-align: center;">
+          <h2 style="font-size: 13px; font-weight: bold; margin: 0; text-transform: uppercase;">${sName}</h2>
+          <p style="font-size: 9px; margin: 2px 0;">${sAddr}</p>
+          <p style="font-size: 9px; margin: 2px 0;">Helpline: +91 ${sPhone}</p>
+          <p style="font-size: 11px; font-weight: bold; text-decoration: underline; margin-top: 5px;">PRE-OWNED MOBILE INVOICE</p>
+        </div>
+        <div style="border-top: 1px dashed #000; margin: 5px 0;"></div>
+        <table style="width: 100%; font-size: 10px;">
+          <tr><td><strong>Date:</strong></td><td style="text-align: right;">${item.saleDate || item.intakeDate}</td></tr>
+          <tr><td><strong>Buyer:</strong></td><td style="text-align: right;">${item.buyerName || 'Walk-in'}</td></tr>
+          <tr><td><strong>Phone:</strong></td><td style="text-align: right;">${item.buyerPhone || '-'}</td></tr>
+          <tr><td><strong>Device:</strong></td><td style="text-align: right;">${item.brand} ${item.model}</td></tr>
+          <tr><td><strong>Variant:</strong></td><td style="text-align: right;">${item.variant || 'Standard'}</td></tr>
+          <tr><td><strong>IMEI:</strong></td><td style="text-align: right;">${item.imei}</td></tr>
+        </table>
+        <div style="border-top: 1px dashed #000; margin: 5px 0;"></div>
+        <table style="width: 100%; font-size: 11px; font-weight: bold;">
+          <tr><td>TOTAL BILLED:</td><td style="text-align: right;">Rs. ${item.salePrice}</td></tr>
+          <tr><td>PAYMENT:</td><td style="text-align: right;">PAID IN FULL</td></tr>
+        </table>
+        <div style="margin-top: 5px; font-size: 10px; font-weight: bold; border: 1px solid #000; padding: 3px; text-align: center;">
+          Warranty: ${item.warranty || 'No Warranty'}
+        </div>
+        <div style="border-top: 1px dashed #000; margin: 6px 0;"></div>
+        <div style="font-size: 8px; line-height: 1.2;">
+          1. Used devices are thoroughly checked before delivery.<br>
+          2. Physical or water damage voids all warranties.<br>
+          3. Invoice copy required for warranty assistance.
+        </div>
+        <div style="border-top: 1px dashed #000; margin: 5px 0; text-align: center; font-size: 7.5px; color: #444;">
+          SmartFix Pro &copy; 2026 | Developed by Debapriya Sarkar
+        </div>
+      `;
+
+      const area = document.getElementById('thermalPrintArea');
+      area.innerHTML = receiptHTML;
+      area.style.display = 'block';
+      setTimeout(() => window.print(), 100);
+    }
+
+    // PDF Exports
+    function exportStockPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF('l', 'mm', 'a4');
+      const sName = currentStore ? currentStore.shopName : "SMARTFIX WORKSHOP";
+
+      doc.setFontSize(14);
+      doc.text(`${sName} - PRE-OWNED MOBILE STOCK AUDIT`, 14, 15);
+
+      const available = usedDevices.filter(d => d.status === 'In-Stock');
+      const rows = available.map((d, i) => [
+        i + 1, d.intakeDate, d.brand + " " + d.model, d.variant || '-', d.imei, "Rs. " + d.buyPrice, "Rs. " + (d.repairCost || 0), "Rs. " + d.targetSellPrice, `${d.sellerName} (${d.sellerPhone})`
+      ]);
+
+      doc.autoTable({
+        startY: 22,
+        head: [['#', 'Intake Date', 'Device Model', 'Storage', 'IMEI', 'Buy Cost', 'Refurbish', 'Target Sell', 'Purchased From']],
+        body: rows,
+        headStyles: { fillColor: [15, 23, 42] },
+        styles: { fontSize: 8 }
+      });
+
+      doc.save(`Used_Stock_Report.pdf`);
+    }
+
+    function exportSalesPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF('l', 'mm', 'a4');
+      const sName = currentStore ? currentStore.shopName : "SMARTFIX WORKSHOP";
+
+      doc.setFontSize(14);
+      doc.text(`${sName} - SECOND-HAND PHONE SALES & PROFIT REPORT`, 14, 15);
+
+      const sold = usedDevices.filter(d => d.status === 'Sold');
+      const rows = sold.map((d, i) => [
+        i + 1, d.saleDate || d.intakeDate, d.brand + " " + d.model, d.imei, `${d.buyerName} (${d.buyerPhone})`, "Rs. " + d.buyPrice, "Rs. " + (d.repairCost || 0), "Rs. " + d.salePrice, "Rs. " + d.netProfit
+      ]);
+
+      doc.autoTable({
+        startY: 22,
+        head: [['#', 'Sold Date', 'Device Model', 'IMEI', 'Buyer Customer', 'Buy Cost', 'Refurbish', 'Sold Price', 'Net Profit']],
+        body: rows,
+        headStyles: { fillColor: [5, 150, 105] },
+        styles: { fontSize: 8 }
+      });
+
+      doc.save(`Used_Phone_Sales_Profit.pdf`);
+    }
+  </script>
+</body>
+</html>
