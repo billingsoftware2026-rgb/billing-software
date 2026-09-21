@@ -14,7 +14,7 @@
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-indigo-600 selection:text-white">
 
-  <!-- DEVELOPER AUTH OVERLAY (LOCKED TO UID) -->
+  <!-- DEVELOPER AUTH OVERLAY -->
   <div id="devAuthGate" class="fixed inset-0 bg-slate-950 z-50 flex items-center justify-center p-4">
     <div class="fixed top-1/4 left-1/4 w-96 h-96 bg-indigo-600/15 rounded-full blur-3xl pointer-events-none"></div>
     <div class="relative bg-slate-900/90 backdrop-blur-2xl border border-slate-800 p-8 rounded-3xl max-w-sm w-full shadow-2xl space-y-5 text-center">
@@ -29,7 +29,7 @@
       <form id="devLoginForm" onsubmit="handleDevLogin(event)" class="space-y-3.5 text-xs text-left">
         <div>
           <label class="block font-bold uppercase text-slate-400 mb-1">Developer Email</label>
-          <input type="email" id="devEmail" required placeholder="developer@gmail.com" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+          <input type="email" id="devEmail" required placeholder="billingsoftware2026@gmail.com" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
         </div>
         <div>
           <label class="block font-bold uppercase text-slate-400 mb-1">Developer Password</label>
@@ -41,7 +41,6 @@
           <i class="fa-solid fa-arrow-right"></i>
         </button>
       </form>
-      <p class="text-[10px] text-slate-500 font-mono">UID Locked: PoJ5...4qJ3</p>
     </div>
   </div>
 
@@ -72,8 +71,6 @@
 
   <!-- MAIN CONSOLE -->
   <main class="max-w-7xl w-full mx-auto p-4 md:p-6 space-y-6 flex-1">
-    
-    <!-- STATS CARDS -->
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
       <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
         <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Registered Stores</span>
@@ -177,8 +174,8 @@
     const auth = firebase.auth();
     const db = firebase.firestore();
 
-    // AUTHORIZED DEVELOPER UID
-    const AUTHORIZED_DEV_UID = "PoJ5YLjwGHWUWEm8LPi8clty4qJ3";
+    // উভয় কেস সাপোর্ট করার জন্য টলারেন্স সেট করা হলো
+    const VALID_DEV_UID = "poj5yljwghwuwem8lpi8clty4qj3"; 
 
     async function handleDevLogin(e) {
       e.preventDefault();
@@ -189,16 +186,17 @@
 
       try {
         const cred = await auth.signInWithEmailAndPassword(email, pass);
-        if (cred.user.uid !== AUTHORIZED_DEV_UID) {
+        // UID চেক
+        if (cred.user.uid.toLowerCase() !== VALID_DEV_UID) {
           await auth.signOut();
-          errBox.innerText = "Access Denied: This account is not authorized as Root Developer!";
+          errBox.innerText = `অ্যাক্সেস ডিনাইড: এই অ্যাকাউন্টটির UID (${cred.user.uid}) ডেভেলপার হিসেবে অনুমোদিত নয়!`;
           errBox.classList.remove('hidden');
           return;
         }
         document.getElementById('devAuthGate').classList.add('hidden');
         loadAllStores();
       } catch (err) {
-        errBox.innerText = err.message;
+        errBox.innerText = "লগইন ব্যর্থ হয়েছে: " + err.message;
         errBox.classList.remove('hidden');
       }
     }
@@ -209,7 +207,7 @@
     }
 
     auth.onAuthStateChanged((user) => {
-      if (user && user.uid === AUTHORIZED_DEV_UID) {
+      if (user && user.uid.toLowerCase() === VALID_DEV_UID) {
         document.getElementById('devAuthGate').classList.add('hidden');
         loadAllStores();
       } else {
@@ -299,13 +297,15 @@
       document.getElementById('modalShopPhone').value = store.shopPhone || '';
       document.getElementById('modalShopPassword').value = store.savedPassword || '';
       
-      document.getElementById('editStoreModal').classList.remove('hidden');
-      document.getElementById('editStoreModal').classList.add('flex');
+      const modal = document.getElementById('editStoreModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
     }
 
     function closeEditStoreModal() {
-      document.getElementById('editStoreModal').classList.add('hidden');
-      document.getElementById('editStoreModal').classList.remove('flex');
+      const modal = document.getElementById('editStoreModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
     }
 
     async function saveStoreProfileChanges() {
