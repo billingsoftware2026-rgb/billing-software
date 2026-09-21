@@ -19,7 +19,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
   <style>
-    /* STRICT SINGLE-PAGE 58MM THERMAL PRINT FIX */
+    /* STRICT ZERO-OVERFLOW SINGLE-PAGE 58MM THERMAL PRINT */
     @page { 
       margin: 0 !important; 
       size: 58mm auto !important; 
@@ -31,27 +31,29 @@
         margin: 0 !important;
         padding: 0 !important;
         background: #fff !important;
-        overflow: visible !important;
+        overflow: hidden !important;
       }
       body > *:not(#thermalPrintArea) { 
         display: none !important; 
       }
       #thermalPrintArea {
         display: block !important;
-        position: static !important;
-        width: 54mm !important;
-        max-width: 54mm !important;
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 50mm !important;
+        max-width: 50mm !important;
         margin: 0 auto !important;
-        padding: 2mm 1mm !important;
+        padding: 1mm !important;
         background: #fff !important;
         color: #000 !important;
         font-family: 'Courier New', Courier, monospace !important;
-        font-size: 10px !important;
-        line-height: 1.2 !important;
+        font-size: 9px !important;
+        line-height: 1.15 !important;
         page-break-inside: avoid !important;
         page-break-after: avoid !important;
+        page-break-before: avoid !important;
       }
-      .no-print { display: none !important; }
     }
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: #020617; }
@@ -156,11 +158,10 @@
     </div>
 
 
-    <!-- ================= VIEW 1: SHOWROOM SHOWCASE (DEFAULT) ================= -->
+    <!-- ================= VIEW 1: SHOWROOM SHOWCASE ================= -->
     <section id="viewShowcase" class="space-y-6">
       <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-xl flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4">
         
-        <!-- Filter Tabs & Quick Search -->
         <div class="flex flex-wrap items-center gap-2">
           <div class="relative w-full sm:w-64">
             <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-500 text-xs"></i>
@@ -177,7 +178,6 @@
           <button onclick="setShowcaseFilter('repair')" id="btnFilterRepair" class="px-3 py-2 rounded-xl text-xs font-semibold bg-slate-950 text-slate-300 border border-slate-800 hover:border-amber-500 transition">Under Repair</button>
         </div>
 
-        <!-- Action Buttons -->
         <div class="flex items-center gap-2">
           <button onclick="openIntakeModal()" class="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-lg shadow-indigo-600/30 transition flex items-center gap-1.5">
             <i class="fa-solid fa-plus"></i> Buy / Intake Mobile
@@ -351,7 +351,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
             <label class="block uppercase font-bold text-slate-400 mb-1">Brand *</label>
-            <select id="phoneBrand" required onchange="updateBrandPreview()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white">
+            <select id="phoneBrand" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white">
               <option value="Samsung">Samsung</option>
               <option value="Apple">Apple iPhone</option>
               <option value="Vivo">Vivo</option>
@@ -384,7 +384,6 @@
           </div>
         </div>
 
-        <!-- Optional Custom Image URL or Auto-Brand -->
         <div>
           <label class="block uppercase font-bold text-slate-400 mb-1">Device Image URL (Optional - Leave blank for Auto Brand Visual)</label>
           <input type="url" id="phoneCustomImg" placeholder="https://example.com/phone-image.jpg" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs">
@@ -761,7 +760,7 @@
       }
     }
 
-    // ACCURATE BRAND-SPECIFIC VISUAL MOCKUP GENERATOR (Prevents showing wrong phone photos)
+    // ACCURATE BRAND-SPECIFIC VISUAL MOCKUP GENERATOR
     function getDeviceVisual(brand, model, customImg) {
       if (customImg && customImg.trim() !== '') {
         return `<img src="${customImg}" alt="${model}" class="h-full w-full object-cover group-hover:scale-105 transition duration-500">`;
@@ -870,7 +869,6 @@
         card.className = "bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden hover:border-indigo-500/50 transition duration-300 shadow-xl flex flex-col justify-between group";
         card.innerHTML = `
           <div>
-            <!-- Accurate Visual Header -->
             <div class="relative h-44 w-full bg-slate-950 overflow-hidden flex items-center justify-center border-b border-slate-800/80">
               ${visualHtml}
               <div class="absolute top-3 left-3">
@@ -885,7 +883,6 @@
               </div>
             </div>
 
-            <!-- Content Details -->
             <div class="p-4 space-y-3">
               <div>
                 <span class="text-[10px] uppercase font-bold text-indigo-400 tracking-wider">${item.brand}</span>
@@ -893,7 +890,6 @@
                 <p class="text-xs text-slate-400 font-mono">IMEI: ${item.imei}</p>
               </div>
 
-              <!-- Price Box -->
               <div class="p-3 bg-slate-950 rounded-2xl border border-slate-800 flex items-center justify-between">
                 <div>
                   <span class="text-[10px] uppercase font-bold text-slate-500 block">Showroom Price</span>
@@ -913,7 +909,6 @@
             </div>
           </div>
 
-          <!-- Bottom Buttons -->
           <div class="p-4 pt-0 flex items-center gap-2">
             <button onclick="viewDeviceDetails('${item.docId}')" class="flex-1 py-2.5 rounded-xl bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-white font-bold text-xs transition flex items-center justify-center gap-1.5">
               <i class="fa-solid fa-eye"></i> View
@@ -1493,51 +1488,55 @@
       }
     }
 
-    // STRICT SINGLE-PAGE 58MM THERMAL RECEIPT GENERATOR (No Second Page Overflow)
+    // STRICT ZERO-OVERFLOW 58MM THERMAL RECEIPT GENERATOR
     function printSalesReceipt(item) {
       const sName = currentStore ? currentStore.shopName : "SMARTFIX WORKSHOP";
       const sAddr = currentStore ? currentStore.shopAddress : "Main Station Road";
       const sPhone = currentStore ? currentStore.shopPhone : "9876543210";
 
       const receiptHTML = `
-        <div style="text-align: center; margin: 0; padding: 0;">
-          <h2 style="font-size: 12px; font-weight: bold; margin: 0; text-transform: uppercase;">${sName}</h2>
-          <p style="font-size: 8.5px; margin: 1px 0;">${sAddr}</p>
-          <p style="font-size: 8.5px; margin: 1px 0;">Helpline: +91 ${sPhone}</p>
-          <p style="font-size: 10px; font-weight: bold; text-decoration: underline; margin: 3px 0;">PRE-OWNED MOBILE BILL</p>
-        </div>
-        <div style="border-top: 1px dashed #000; margin: 3px 0;"></div>
-        <table style="width: 100%; font-size: 9px; border-collapse: collapse;">
-          <tr><td>Date:</td><td style="text-align: right;">${item.saleDate || item.intakeDate}</td></tr>
-          <tr><td>Buyer:</td><td style="text-align: right;">${item.buyerName || 'Walk-in'}</td></tr>
-          <tr><td>Phone:</td><td style="text-align: right;">${item.buyerPhone || '-'}</td></tr>
-          <tr><td>Device:</td><td style="text-align: right;">${item.brand} ${item.model}</td></tr>
-          <tr><td>Storage:</td><td style="text-align: right;">${item.variant || 'Standard'}</td></tr>
-          <tr><td>IMEI:</td><td style="text-align: right;">${item.imei}</td></tr>
-        </table>
-        <div style="border-top: 1px dashed #000; margin: 3px 0;"></div>
-        <table style="width: 100%; font-size: 10px; font-weight: bold; border-collapse: collapse;">
-          <tr><td>TOTAL BILLED:</td><td style="text-align: right;">Rs. ${item.salePrice}</td></tr>
-          <tr><td>PAYMENT:</td><td style="text-align: right;">PAID IN FULL</td></tr>
-        </table>
-        <div style="margin-top: 3px; font-size: 9px; font-weight: bold; border: 1px solid #000; padding: 2px; text-align: center;">
-          Warranty: ${item.warranty || 'No Warranty'}
-        </div>
-        <div style="border-top: 1px dashed #000; margin: 4px 0 2px 0;"></div>
-        <div style="font-size: 7.5px; line-height: 1.15; color: #222;">
-          1. Physical / Liquid damage voids all warranty.<br>
-          2. Original bill required for warranty service.
-        </div>
-        <div style="border-top: 1px dashed #000; margin: 3px 0 0 0; text-align: center; font-size: 7px; color: #444;">
-          SmartFix Pro &copy; 2026 | Verified Device
+        <div style="width: 100%; text-align: center; margin: 0; padding: 0;">
+          <h2 style="font-size: 11px; font-weight: bold; margin: 0; text-transform: uppercase;">${sName}</h2>
+          <p style="font-size: 8px; margin: 1px 0;">${sAddr}</p>
+          <p style="font-size: 8px; margin: 1px 0;">Helpline: +91 ${sPhone}</p>
+          <p style="font-size: 9px; font-weight: bold; text-decoration: underline; margin: 2px 0;">PRE-OWNED MOBILE BILL</p>
+          <div style="border-top: 1px dashed #000; margin: 2px 0;"></div>
+          <table style="width: 100%; font-size: 8.5px; border-collapse: collapse; text-align: left;">
+            <tr><td>Date:</td><td style="text-align: right;">${item.saleDate || item.intakeDate}</td></tr>
+            <tr><td>Buyer:</td><td style="text-align: right;">${item.buyerName || 'Walk-in'}</td></tr>
+            <tr><td>Phone:</td><td style="text-align: right;">${item.buyerPhone || '-'}</td></tr>
+            <tr><td>Device:</td><td style="text-align: right;">${item.brand} ${item.model}</td></tr>
+            <tr><td>IMEI:</td><td style="text-align: right;">${item.imei}</td></tr>
+          </table>
+          <div style="border-top: 1px dashed #000; margin: 2px 0;"></div>
+          <table style="width: 100%; font-size: 9.5px; font-weight: bold; border-collapse: collapse;">
+            <tr><td>TOTAL:</td><td style="text-align: right;">Rs. ${item.salePrice}</td></tr>
+            <tr><td>STATUS:</td><td style="text-align: right;">PAID IN FULL</td></tr>
+          </table>
+          <div style="margin: 2px 0; font-size: 8.5px; font-weight: bold; border: 1px solid #000; padding: 1px;">
+            Warranty: ${item.warranty || 'No Warranty'}
+          </div>
+          <div style="border-top: 1px dashed #000; margin: 2px 0;"></div>
+          <div style="font-size: 7px; line-height: 1.1; color: #222;">
+            * Physical/Liquid damage voids warranty.<br>
+            * Bill copy mandatory for service claim.
+          </div>
+          <div style="border-top: 1px dashed #000; margin: 2px 0 0 0; font-size: 6.5px; color: #444;">
+            SmartFix Pro &copy; 2026 | Verified
+          </div>
         </div>
       `;
 
       const area = document.getElementById('thermalPrintArea');
       area.innerHTML = receiptHTML;
       area.style.display = 'block';
+
       setTimeout(() => {
         window.print();
+        setTimeout(() => {
+          area.style.display = 'none';
+          area.innerHTML = '';
+        }, 500);
       }, 100);
     }
 
@@ -1605,7 +1604,7 @@
         styles: { fontSize: 8, cellPadding: 3 }
       });
 
-      doc.save(`${sName.replace(/\s+/g, '_')}_Sales_${fromDate}_to_${toDate}.pdf`);
+      doc.save(`${sName.replace(/\\s+/g, '_')}_Sales_${fromDate}_to_${toDate}.pdf`);
     }
 
     function exportStockPDF() {
@@ -1637,7 +1636,7 @@
         styles: { fontSize: 8, cellPadding: 3 }
       });
 
-      doc.save(`${sName.replace(/\s+/g, '_')}_Showroom_Stock.pdf`);
+      doc.save(`${sName.replace(/\\s+/g, '_')}_Showroom_Stock.pdf`);
     }
   </script>
 </body>
