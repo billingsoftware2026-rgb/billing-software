@@ -5,11 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>SmartFix Pro | Pre-Owned Mobile Showcase & POS</title>
   <meta name="theme-color" content="#4f46e5">
-  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <!-- jsPDF & AutoTable -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 
@@ -19,7 +16,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
   <style>
-    /* STRICT ZERO-OVERFLOW SINGLE-PAGE 58MM THERMAL PRINT */
+    /* STANDARDIZED 58MM THERMAL MEMO PRINT (APPROX 5.5 - 6 INCHES LONG) */
     @page { 
       margin: 0 !important; 
       size: 58mm auto !important; 
@@ -27,32 +24,24 @@
     @media print {
       html, body {
         width: 58mm !important;
-        height: auto !important;
         margin: 0 !important;
         padding: 0 !important;
         background: #fff !important;
-        overflow: hidden !important;
       }
       body > *:not(#thermalPrintArea) { 
         display: none !important; 
       }
       #thermalPrintArea {
         display: block !important;
-        position: absolute !important;
-        top: 0 !important;
-        left: 0 !important;
-        width: 50mm !important;
-        max-width: 50mm !important;
+        width: 54mm !important;
+        max-width: 54mm !important;
         margin: 0 auto !important;
-        padding: 1mm !important;
+        padding: 2mm 1.5mm 6mm 1.5mm !important;
         background: #fff !important;
         color: #000 !important;
         font-family: 'Courier New', Courier, monospace !important;
-        font-size: 9px !important;
-        line-height: 1.15 !important;
-        page-break-inside: avoid !important;
-        page-break-after: avoid !important;
-        page-break-before: avoid !important;
+        font-size: 10px !important;
+        line-height: 1.25 !important;
       }
     }
     ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -67,7 +56,7 @@
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-indigo-600 selection:text-white">
 
-  <!-- ==================== AUTH OVERLAY ==================== -->
+  <!-- AUTH OVERLAY -->
   <div id="authScreen" class="fixed inset-0 bg-slate-950 z-50 flex items-center justify-center p-4">
     <div class="max-w-md w-full bg-slate-900 border border-slate-800 p-8 rounded-3xl text-center space-y-4 shadow-2xl">
       <div class="w-12 h-12 bg-indigo-600/20 text-indigo-400 rounded-2xl flex items-center justify-center mx-auto text-xl border border-indigo-500/30">
@@ -157,11 +146,9 @@
       </div>
     </div>
 
-
-    <!-- ================= VIEW 1: SHOWROOM SHOWCASE ================= -->
+    <!-- VIEW 1: SHOWROOM SHOWCASE -->
     <section id="viewShowcase" class="space-y-6">
       <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-xl flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4">
-        
         <div class="flex flex-wrap items-center gap-2">
           <div class="relative w-full sm:w-64">
             <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-500 text-xs"></i>
@@ -188,12 +175,10 @@
         </div>
       </div>
 
-      <!-- Responsive Grid for Mobile & Desktop -->
       <div id="showcaseGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"></div>
     </section>
 
-
-    <!-- ================= VIEW 2: GLOBAL IMEI & PHONE LIFECYCLE HISTORY ================= -->
+    <!-- VIEW 2: GLOBAL IMEI & PHONE LIFECYCLE HISTORY -->
     <section id="viewHistory" class="hidden space-y-6">
       <div class="glass-card rounded-3xl border border-slate-800 p-6 text-center space-y-4 max-w-2xl mx-auto shadow-2xl">
         <h2 class="text-xl sm:text-2xl font-black text-white">Full Device Lifecycle & Trace History</h2>
@@ -214,8 +199,7 @@
       <div id="historyResultsArea" class="max-w-4xl mx-auto space-y-4"></div>
     </section>
 
-
-    <!-- ================= VIEW 3: DEDICATED OWNER / ADMIN STOCK CONSOLE ================= -->
+    <!-- VIEW 3: DEDICATED OWNER / ADMIN STOCK CONSOLE -->
     <section id="viewAdmin" class="hidden space-y-6">
       <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-xl flex flex-wrap items-center justify-between gap-4">
         <div>
@@ -232,7 +216,6 @@
         </button>
       </div>
 
-      <!-- Master Inventory Table -->
       <div class="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-xl">
         <div class="overflow-x-auto">
           <table class="w-full text-left text-sm" id="adminStockTable">
@@ -254,8 +237,7 @@
       </div>
     </section>
 
-
-    <!-- ================= VIEW 4: SALES & PROFIT LEDGER (OWNER ONLY) ================= -->
+    <!-- VIEW 4: SALES & PROFIT LEDGER (OWNER ONLY) -->
     <section id="viewLedger" class="hidden space-y-6">
       <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-xl flex flex-wrap items-center justify-between gap-4">
         <div>
@@ -269,7 +251,6 @@
         </div>
 
         <div class="flex flex-wrap items-center gap-2">
-          <!-- 1-Click Today's Sales PDF Button -->
           <button onclick="exportTodaySalesPDF()" class="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-lg shadow-indigo-600/30 transition flex items-center gap-1.5">
             <i class="fa-solid fa-calendar-day"></i> Today's Sales PDF (1-Click)
           </button>
@@ -282,7 +263,7 @@
         </div>
       </div>
 
-      <!-- Customizable Date Filter -->
+      <!-- Date Filter -->
       <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex flex-wrap items-center justify-between gap-3 text-xs">
         <div class="flex flex-wrap items-center gap-2">
           <span class="text-slate-400 font-semibold">Presets:</span>
@@ -337,7 +318,7 @@
 
   </main>
 
-  <!-- ================= INTAKE / BUY PHONE MODAL ================= -->
+  <!-- INTAKE / BUY PHONE MODAL -->
   <div id="intakeModal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-2xl w-full p-6 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto">
       <div class="flex items-center justify-between pb-3 border-b border-slate-800">
@@ -420,7 +401,7 @@
           </div>
         </div>
 
-        <!-- Seller Verification Details -->
+        <!-- Seller Details -->
         <div class="p-3.5 bg-slate-950 rounded-2xl border border-slate-800 space-y-2">
           <span class="block text-[11px] uppercase font-bold text-indigo-400">Seller Legal Origin (Verification Record)</span>
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -444,8 +425,7 @@
     </div>
   </div>
 
-
-  <!-- ================= COMPLETE REPAIR MODAL ================= -->
+  <!-- COMPLETE REPAIR MODAL -->
   <div id="completeRepairModal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
       <div class="flex items-center justify-between pb-3 border-b border-slate-800">
@@ -487,8 +467,7 @@
     </div>
   </div>
 
-
-  <!-- ================= VIEW DEVICE DETAILS MODAL ================= -->
+  <!-- VIEW DEVICE DETAILS MODAL -->
   <div id="detailsModal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4">
       <div class="flex items-center justify-between pb-3 border-b border-slate-800">
@@ -506,8 +485,7 @@
     </div>
   </div>
 
-
-  <!-- ================= SELL PHONE POS MODAL ================= -->
+  <!-- SELL PHONE POS MODAL -->
   <div id="sellModal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
       <div class="flex items-center justify-between pb-3 border-b border-slate-800">
@@ -567,8 +545,7 @@
     </div>
   </div>
 
-
-  <!-- ================= OWNER PASSWORD AUTH MODAL ================= -->
+  <!-- OWNER PASSWORD AUTH MODAL -->
   <div id="passwordModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md hidden items-center justify-center p-4 z-50">
     <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4 text-center">
       <div class="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-400 border border-amber-500/20 mx-auto flex items-center justify-center text-xl">
@@ -589,8 +566,7 @@
     </div>
   </div>
 
-
-  <!-- ================= EDIT BILL / DEVICE MODAL (OWNER ONLY) ================= -->
+  <!-- EDIT BILL / DEVICE MODAL (OWNER ONLY) -->
   <div id="editDeviceModal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4">
       <div class="flex items-center justify-between pb-3 border-b border-slate-800">
@@ -655,17 +631,15 @@
     </div>
   </div>
 
-
-  <!-- STRICT SINGLE-PAGE 58MM THERMAL PRINT CONTAINER -->
+  <!-- STANDARDIZED 58MM THERMAL PRINT CONTAINER -->
   <div id="thermalPrintArea" style="display: none;"></div>
 
-  <!-- Notification Toast -->
+  <!-- Toast -->
   <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none px-4 py-3 rounded-xl bg-indigo-600 text-white text-xs font-semibold shadow-2xl flex items-center gap-2">
     <span id="toastMsg">Action completed</span>
   </div>
 
   <script>
-    // EXACT MATCHING FIREBASE CONFIGURATION
     const firebaseConfig = {
       apiKey: "AIzaSyCG357Dtw_ftKsgAyRSsoZUSfMNpx-GGz0",
       authDomain: "billing-ab24c.firebaseapp.com",
@@ -694,20 +668,17 @@
       setTimeout(() => toast.classList.add('translate-y-20', 'opacity-0'), 2500);
     }
 
-    // MULTI-STORE AUTH & FIRESTORE REALTIME LISTENER
     auth.onAuthStateChanged(async (user) => {
       if (user) {
         currentUser = user;
         document.getElementById('authScreen').classList.add('hidden');
 
-        // Fetch Store Profile
         const storeDoc = await db.collection('stores').doc(user.uid).get();
         if (storeDoc.exists) {
           currentStore = storeDoc.data();
           document.getElementById('navShopName').innerText = currentStore.shopName;
         }
 
-        // Realtime Listener for THIS SPECIFIC STORE'S pre-owned devices
         db.collection('stores').doc(user.uid).collection('used_mobiles')
           .orderBy('intakeDate', 'desc')
           .onSnapshot((snapshot) => {
@@ -760,7 +731,6 @@
       }
     }
 
-    // ACCURATE BRAND-SPECIFIC VISUAL MOCKUP GENERATOR
     function getDeviceVisual(brand, model, customImg) {
       if (customImg && customImg.trim() !== '') {
         return `<img src="${customImg}" alt="${model}" class="h-full w-full object-cover group-hover:scale-105 transition duration-500">`;
@@ -822,7 +792,6 @@
       document.getElementById('kpiStockCost').innerText = "₹" + stockInvestment;
     }
 
-    // SHOWROOM SHOWCASE
     function setShowcaseFilter(type) {
       currentShowcaseFilter = type;
       ['all', 'ready', 'repair'].forEach(t => {
@@ -929,7 +898,6 @@
       });
     }
 
-    // VIEW DEVICE DETAILS
     function viewDeviceDetails(docId) {
       const item = usedDevices.find(d => d.docId === docId);
       if (!item) return;
@@ -970,7 +938,6 @@
       document.getElementById('detailsModal').classList.add('hidden');
     }
 
-    // COMPLETE REPAIR WORKFLOW
     function openCompleteRepairModal(docId) {
       const item = usedDevices.find(d => d.docId === docId);
       if (!item) return;
@@ -1017,7 +984,6 @@
       }
     }
 
-    // GLOBAL IMEI & PHONE HISTORY TRACE
     function handleHistorySearch() {
       const q = (document.getElementById('historySearchInput')?.value || '').trim().toLowerCase();
       const container = document.getElementById('historyResultsArea');
@@ -1095,7 +1061,6 @@
       });
     }
 
-    // OWNER SECURITY & CONSOLE UNLOCK
     function requestOwnerAccess(targetView) {
       if (isOwnerUnlocked) {
         switchView(targetView);
@@ -1149,7 +1114,6 @@
       showToast("Console locked. Password required.");
     }
 
-    // DEDICATED ADMIN STOCK CONSOLE TABLE
     function renderAdminStockTable() {
       if (!isOwnerUnlocked) return;
       const tbody = document.getElementById('adminStockTableBody');
@@ -1188,7 +1152,6 @@
       });
     }
 
-    // SALES LEDGER & DATE FILTERS
     function setSalesDateFilter(preset) {
       const now = new Date();
       const today = now.toISOString().split('T')[0];
@@ -1285,7 +1248,6 @@
       document.getElementById('footTotalProfit').innerText = "₹" + sumProfit;
     }
 
-    // OWNER EDIT & DELETE FUNCTIONS
     function openEditDeviceModal(docId) {
       const item = usedDevices.find(d => d.docId === docId);
       if (!item) return;
@@ -1363,7 +1325,6 @@
       closeEditModal();
     }
 
-    // INTAKE MODAL UI & LOGIC
     function toggleRepairInputUI() {
       const isChecked = document.getElementById('needsRepairSwitch').checked;
       document.getElementById('repairNoteBox').classList.toggle('hidden', !isChecked);
@@ -1412,7 +1373,6 @@
       }
     }
 
-    // SELL MODAL OPERATIONS
     function openSellModal(docId) {
       const item = usedDevices.find(d => d.docId === docId);
       if (!item) return;
@@ -1488,42 +1448,87 @@
       }
     }
 
-    // STRICT ZERO-OVERFLOW 58MM THERMAL RECEIPT GENERATOR
+    // STANDARDIZED 58MM THERMAL RECEIPT (PROPORTIONAL 5.5 - 6 INCH RECEIPT)
     function printSalesReceipt(item) {
       const sName = currentStore ? currentStore.shopName : "SMARTFIX WORKSHOP";
       const sAddr = currentStore ? currentStore.shopAddress : "Main Station Road";
       const sPhone = currentStore ? currentStore.shopPhone : "9876543210";
+      const invoiceNo = "INV-" + (item.imei ? item.imei.slice(-6) : Math.floor(100000 + Math.random() * 900000));
 
       const receiptHTML = `
         <div style="width: 100%; text-align: center; margin: 0; padding: 0;">
-          <h2 style="font-size: 11px; font-weight: bold; margin: 0; text-transform: uppercase;">${sName}</h2>
-          <p style="font-size: 8px; margin: 1px 0;">${sAddr}</p>
-          <p style="font-size: 8px; margin: 1px 0;">Helpline: +91 ${sPhone}</p>
-          <p style="font-size: 9px; font-weight: bold; text-decoration: underline; margin: 2px 0;">PRE-OWNED MOBILE BILL</p>
-          <div style="border-top: 1px dashed #000; margin: 2px 0;"></div>
-          <table style="width: 100%; font-size: 8.5px; border-collapse: collapse; text-align: left;">
+          <!-- Shop Header -->
+          <h2 style="font-size: 13px; font-weight: 900; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">${sName}</h2>
+          <p style="font-size: 8.5px; margin: 2px 0 1px 0;">${sAddr}</p>
+          <p style="font-size: 8.5px; margin: 1px 0;">Helpdesk: +91 ${sPhone}</p>
+          
+          <div style="border-top: 1px solid #000; margin: 4px 0 3px 0;"></div>
+          <p style="font-size: 10.5px; font-weight: bold; text-decoration: underline; margin: 0;">PRE-OWNED MOBILE CASH MEMO</p>
+          <p style="font-size: 8px; margin: 2px 0 0 0;">Memo No: <strong>${invoiceNo}</strong></p>
+          <div style="border-top: 1px dashed #000; margin: 4px 0;"></div>
+
+          <!-- Customer & Date -->
+          <table style="width: 100%; font-size: 9px; border-collapse: collapse; text-align: left;">
             <tr><td>Date:</td><td style="text-align: right;">${item.saleDate || item.intakeDate}</td></tr>
-            <tr><td>Buyer:</td><td style="text-align: right;">${item.buyerName || 'Walk-in'}</td></tr>
-            <tr><td>Phone:</td><td style="text-align: right;">${item.buyerPhone || '-'}</td></tr>
-            <tr><td>Device:</td><td style="text-align: right;">${item.brand} ${item.model}</td></tr>
-            <tr><td>IMEI:</td><td style="text-align: right;">${item.imei}</td></tr>
+            <tr><td>Buyer:</td><td style="text-align: right;"><strong>${item.buyerName || 'Walk-in'}</strong></td></tr>
+            <tr><td>Mobile:</td><td style="text-align: right;">${item.buyerPhone || '-'}</td></tr>
           </table>
-          <div style="border-top: 1px dashed #000; margin: 2px 0;"></div>
-          <table style="width: 100%; font-size: 9.5px; font-weight: bold; border-collapse: collapse;">
-            <tr><td>TOTAL:</td><td style="text-align: right;">Rs. ${item.salePrice}</td></tr>
-            <tr><td>STATUS:</td><td style="text-align: right;">PAID IN FULL</td></tr>
+
+          <div style="border-top: 1px dashed #000; margin: 4px 0;"></div>
+
+          <!-- Device Specs -->
+          <table style="width: 100%; font-size: 9px; border-collapse: collapse; text-align: left;">
+            <tr><td colspan="2" style="font-weight: bold; font-size: 10px;">${item.brand} ${item.model}</td></tr>
+            <tr><td>Storage:</td><td style="text-align: right;">${item.variant || 'Standard'}</td></tr>
+            <tr><td>Condition:</td><td style="text-align: right;">${item.condition || 'Tested OK'}</td></tr>
+            <tr><td>IMEI:</td><td style="text-align: right; font-weight: bold;">${item.imei}</td></tr>
           </table>
-          <div style="margin: 2px 0; font-size: 8.5px; font-weight: bold; border: 1px solid #000; padding: 1px;">
-            Warranty: ${item.warranty || 'No Warranty'}
+
+          <div style="border-top: 1px dashed #000; margin: 4px 0;"></div>
+
+          <!-- Settlement Math -->
+          <table style="width: 100%; font-size: 9px; border-collapse: collapse;">
+            <tr><td>Unit Price:</td><td style="text-align: right;">Rs. ${item.salePrice}</td></tr>
+            <tr><td>Tax / GST:</td><td style="text-align: right;">Rs. 0.00</td></tr>
+            <tr style="font-size: 11px; font-weight: 900; border-top: 1px solid #000;">
+              <td style="padding-top: 3px;">NET AMOUNT:</td>
+              <td style="text-align: right; padding-top: 3px;">Rs. ${item.salePrice}</td>
+            </tr>
+            <tr style="font-size: 9px;">
+              <td>Payment:</td>
+              <td style="text-align: right; font-weight: bold;">PAID IN FULL</td>
+            </tr>
+          </table>
+
+          <!-- Warranty Badge -->
+          <div style="margin: 5px 0 4px 0; font-size: 9px; font-weight: bold; border: 1px solid #000; padding: 3px 2px; text-transform: uppercase;">
+            Store Warranty: ${item.warranty || 'No Warranty'}
           </div>
-          <div style="border-top: 1px dashed #000; margin: 2px 0;"></div>
-          <div style="font-size: 7px; line-height: 1.1; color: #222;">
-            * Physical/Liquid damage voids warranty.<br>
-            * Bill copy mandatory for service claim.
+
+          <div style="border-top: 1px dashed #000; margin: 4px 0 3px 0;"></div>
+
+          <!-- Terms & Condition Notice -->
+          <div style="font-size: 7.5px; line-height: 1.25; text-align: left; color: #111;">
+            <strong>TERMS & CONDITIONS:</strong><br>
+            1. Pre-owned phones are verified with government identity proof of the original owner.<br>
+            2. Warranty does NOT cover display line, touch failure, physical damage, or liquid damage.<br>
+            3. Original invoice copy mandatory for any warranty or service inspection.
           </div>
-          <div style="border-top: 1px dashed #000; margin: 2px 0 0 0; font-size: 6.5px; color: #444;">
-            SmartFix Pro &copy; 2026 | Verified
-          </div>
+
+          <div style="border-top: 1px dashed #000; margin: 8px 0 4px 0;"></div>
+
+          <!-- Signature & Seal Blocks -->
+          <table style="width: 100%; font-size: 7.5px; margin-top: 12px; border-collapse: collapse;">
+            <tr>
+              <td style="text-align: center; width: 50%;">____________________<br>Customer Signature</td>
+              <td style="text-align: center; width: 50%;">____________________<br>Authorized Signatory</td>
+            </tr>
+          </table>
+
+          <p style="text-align: center; font-size: 7px; margin: 8px 0 0 0; color: #444;">
+            Thank you for choosing ${sName}!<br>
+            SmartFix Pro &copy; 2026 | Verified Device POS
+          </p>
         </div>
       `;
 
@@ -1536,11 +1541,10 @@
         setTimeout(() => {
           area.style.display = 'none';
           area.innerHTML = '';
-        }, 500);
+        }, 600);
       }, 100);
     }
 
-    // 1-CLICK TODAY'S SALES PDF
     function exportTodaySalesPDF() {
       const today = new Date().toISOString().split('T')[0];
       document.getElementById('salesFromDate').value = today;
@@ -1549,7 +1553,6 @@
       exportSalesPDF();
     }
 
-    // CUSTOMIZABLE DATE RANGE SALES PDF
     function exportSalesPDF() {
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF('l', 'mm', 'a4');
@@ -1604,7 +1607,7 @@
         styles: { fontSize: 8, cellPadding: 3 }
       });
 
-      doc.save(`${sName.replace(/\\s+/g, '_')}_Sales_${fromDate}_to_${toDate}.pdf`);
+      doc.save(`${sName.replace(/\s+/g, '_')}_Sales_${fromDate}_to_${toDate}.pdf`);
     }
 
     function exportStockPDF() {
@@ -1636,7 +1639,7 @@
         styles: { fontSize: 8, cellPadding: 3 }
       });
 
-      doc.save(`${sName.replace(/\\s+/g, '_')}_Showroom_Stock.pdf`);
+      doc.save(`${sName.replace(/\s+/g, '_')}_Showroom_Stock.pdf`);
     }
   </script>
 </body>
