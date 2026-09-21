@@ -19,24 +19,39 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
   <style>
-    @page { margin: 0; size: auto; }
+    /* STRICT SINGLE-PAGE 58MM THERMAL PRINT FIX */
+    @page { 
+      margin: 0 !important; 
+      size: 58mm auto !important; 
+    }
     @media print {
-      body > *:not(#thermalPrintArea) { display: none !important; }
+      html, body {
+        width: 58mm !important;
+        height: auto !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #fff !important;
+        overflow: visible !important;
+      }
+      body > *:not(#thermalPrintArea) { 
+        display: none !important; 
+      }
       #thermalPrintArea {
         display: block !important;
-        position: absolute !important;
-        left: 0 !important;
-        top: 0 !important;
+        position: static !important;
+        width: 54mm !important;
+        max-width: 54mm !important;
+        margin: 0 auto !important;
+        padding: 2mm 1mm !important;
         background: #fff !important;
         color: #000 !important;
-        margin: 0 !important;
-        width: 58mm !important;
-        max-width: 58mm !important;
-        padding: 2mm 3mm !important;
         font-family: 'Courier New', Courier, monospace !important;
-        font-size: 11px !important;
-        line-height: 1.25 !important;
+        font-size: 10px !important;
+        line-height: 1.2 !important;
+        page-break-inside: avoid !important;
+        page-break-after: avoid !important;
       }
+      .no-print { display: none !important; }
     }
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: #020617; }
@@ -50,14 +65,14 @@
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-indigo-600 selection:text-white">
 
-  <!-- ==================== AUTH SCREEN ==================== -->
+  <!-- ==================== AUTH OVERLAY ==================== -->
   <div id="authScreen" class="fixed inset-0 bg-slate-950 z-50 flex items-center justify-center p-4">
     <div class="max-w-md w-full bg-slate-900 border border-slate-800 p-8 rounded-3xl text-center space-y-4 shadow-2xl">
       <div class="w-12 h-12 bg-indigo-600/20 text-indigo-400 rounded-2xl flex items-center justify-center mx-auto text-xl border border-indigo-500/30">
         <i class="fa-solid fa-lock"></i>
       </div>
       <h2 class="text-xl font-bold text-white">Workshop Sign-In Required</h2>
-      <p class="text-xs text-slate-400">Please login to your SmartFix Pro store account to access your pre-owned inventory.</p>
+      <p class="text-xs text-slate-400">Please sign in with your workshop credentials to access store stock & POS.</p>
       <div class="pt-2">
         <a href="index.html" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-lg shadow-indigo-600/30 transition">
           <i class="fa-solid fa-arrow-right-to-bracket"></i> Go to Shop Login
@@ -77,28 +92,32 @@
           <div class="flex items-center gap-2">
             <h1 class="text-xl font-bold tracking-tight text-white uppercase" id="navShopName">SMARTFIX<span class="text-emerald-400">PRO</span></h1>
             <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-              <i class="fa-solid fa-store mr-1"></i> Pre-Owned Showcase
+              <i class="fa-solid fa-store mr-1"></i> Pre-Owned POS
             </span>
           </div>
-          <p class="text-xs text-slate-400 font-medium">Second-Hand Mobiles & Secure Verification OS</p>
+          <p class="text-xs text-slate-400 font-medium">Verified Used Mobile Stock & Sales Engine</p>
         </div>
       </div>
 
-      <!-- Navigation tabs -->
+      <!-- Navigation Tabs -->
       <nav class="flex items-center bg-slate-950/80 p-1 rounded-xl border border-slate-800 gap-1 text-xs">
         <button id="navTabShowcase" onclick="switchView('showcase')" class="px-3.5 py-2 rounded-lg font-semibold transition bg-indigo-600 text-white shadow-md flex items-center gap-1.5">
           <i class="fa-solid fa-store"></i>
-          <span>Showroom Showcase</span>
+          <span>Showroom</span>
         </button>
-        <button id="navTabSearchHistory" onclick="switchView('history')" class="px-3.5 py-2 rounded-lg font-semibold transition text-slate-400 hover:text-white flex items-center gap-1.5">
+        <button id="navTabHistory" onclick="switchView('history')" class="px-3.5 py-2 rounded-lg font-semibold transition text-slate-400 hover:text-white flex items-center gap-1.5">
           <i class="fa-solid fa-magnifying-glass"></i>
-          <span>IMEI / Phone History</span>
+          <span>IMEI History</span>
         </button>
-        <button id="navTabLedger" onclick="requestOwnerLedgerAccess()" class="px-3.5 py-2 rounded-lg font-semibold transition text-slate-400 hover:text-white flex items-center gap-1.5">
-          <i class="fa-solid fa-lock text-amber-400"></i>
-          <span>Sales & Profit Ledger</span>
+        <button id="navTabAdmin" onclick="requestOwnerAccess('admin')" class="px-3.5 py-2 rounded-lg font-semibold transition text-slate-400 hover:text-white flex items-center gap-1.5">
+          <i class="fa-solid fa-shield-halved text-amber-400"></i>
+          <span>Owner Console</span>
         </button>
-        <a href="parts.html" title="LCD Compatibility Hub" class="px-3 py-2 text-slate-400 hover:text-white flex items-center gap-1.5 border-l border-slate-800 ml-1">
+        <button id="navTabLedger" onclick="requestOwnerAccess('ledger')" class="px-3.5 py-2 rounded-lg font-semibold transition text-slate-400 hover:text-white flex items-center gap-1.5">
+          <i class="fa-solid fa-file-invoice-dollar text-emerald-400"></i>
+          <span>Sales & Profit</span>
+        </button>
+        <a href="parts.html" title="LCD Hub" class="px-3 py-2 text-slate-400 hover:text-white flex items-center gap-1.5 border-l border-slate-800 ml-1">
           <i class="fa-solid fa-layer-group text-indigo-400"></i>
           <span class="hidden sm:inline">LCD Hub</span>
         </a>
@@ -106,33 +125,33 @@
     </div>
   </header>
 
-  <!-- Main Container -->
+  <!-- Main Content Container -->
   <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 space-y-6">
 
-    <!-- KPI Metric Summary -->
+    <!-- KPI Summary Counters -->
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
       <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
         <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Ready in Showroom</span>
         <h4 id="kpiReadyCount" class="text-2xl font-black text-emerald-400 mt-1">0</h4>
-        <p class="text-[10px] text-slate-500">Available for instant sale</p>
+        <p class="text-[10px] text-slate-500">Available to sell</p>
       </div>
 
       <div class="bg-slate-900 border border-amber-500/30 p-4 rounded-2xl bg-amber-500/5">
         <span class="text-[10px] font-bold uppercase tracking-wider text-amber-400">Under Repair</span>
         <h4 id="kpiRepairCount" class="text-2xl font-black text-amber-400 mt-1">0</h4>
-        <p class="text-[10px] text-slate-500">Workshop refurbishing</p>
+        <p class="text-[10px] text-slate-500">Refurbishing in workshop</p>
       </div>
 
       <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
         <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Devices Sold</span>
         <h4 id="kpiSoldCount" class="text-2xl font-black text-white mt-1">0</h4>
-        <p class="text-[10px] text-slate-500">Customer deliveries</p>
+        <p class="text-[10px] text-slate-500">Deliveries completed</p>
       </div>
 
       <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
-        <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-400">Total Stock Value</span>
+        <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-400">Total Stock Investment</span>
         <h4 id="kpiStockCost" class="text-2xl font-black text-indigo-400 mt-1">₹0</h4>
-        <p class="text-[10px] text-slate-500">Active stock purchase cost</p>
+        <p class="text-[10px] text-slate-500">Purchase + Repair invested</p>
       </div>
     </div>
 
@@ -141,7 +160,7 @@
     <section id="viewShowcase" class="space-y-6">
       <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-xl flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4">
         
-        <!-- Filter Pills & Search -->
+        <!-- Filter Tabs & Quick Search -->
         <div class="flex flex-wrap items-center gap-2">
           <div class="relative w-full sm:w-64">
             <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-500 text-xs"></i>
@@ -149,7 +168,7 @@
               type="text" 
               id="showcaseSearchInput" 
               oninput="renderShowcaseGrid()" 
-              placeholder="Search showroom phones..." 
+              placeholder="Search showroom (Samsung, iPhone, Vivo)..." 
               class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
             >
           </div>
@@ -158,7 +177,7 @@
           <button onclick="setShowcaseFilter('repair')" id="btnFilterRepair" class="px-3 py-2 rounded-xl text-xs font-semibold bg-slate-950 text-slate-300 border border-slate-800 hover:border-amber-500 transition">Under Repair</button>
         </div>
 
-        <!-- Add Button -->
+        <!-- Action Buttons -->
         <div class="flex items-center gap-2">
           <button onclick="openIntakeModal()" class="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-lg shadow-indigo-600/30 transition flex items-center gap-1.5">
             <i class="fa-solid fa-plus"></i> Buy / Intake Mobile
@@ -174,11 +193,11 @@
     </section>
 
 
-    <!-- ================= VIEW 2: GLOBAL IMEI & PHONE HISTORY SEARCH ================= -->
+    <!-- ================= VIEW 2: GLOBAL IMEI & PHONE LIFECYCLE HISTORY ================= -->
     <section id="viewHistory" class="hidden space-y-6">
       <div class="glass-card rounded-3xl border border-slate-800 p-6 text-center space-y-4 max-w-2xl mx-auto shadow-2xl">
         <h2 class="text-xl sm:text-2xl font-black text-white">Full Device Lifecycle & Trace History</h2>
-        <p class="text-xs text-slate-400">Search any 15-digit IMEI number, Seller mobile number, or Buyer phone to inspect complete purchase origins, repair notes, and sale records.</p>
+        <p class="text-xs text-slate-400">Search by 15-digit IMEI, Seller mobile number, Buyer mobile, or Model name. Trace full origins and reprint thermal receipts even after sale.</p>
         
         <div class="relative max-w-lg mx-auto">
           <i class="fa-solid fa-magnifying-glass absolute left-4 top-3.5 text-slate-500 text-base"></i>
@@ -196,7 +215,47 @@
     </section>
 
 
-    <!-- ================= VIEW 3: SALES & PROFIT LEDGER (OWNER ONLY) ================= -->
+    <!-- ================= VIEW 3: DEDICATED OWNER / ADMIN STOCK CONSOLE ================= -->
+    <section id="viewAdmin" class="hidden space-y-6">
+      <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-xl flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-2">
+            <h3 class="text-base font-bold text-white flex items-center gap-2">
+              <i class="fa-solid fa-shield-halved text-amber-400"></i> Owner Master Stock Console
+            </h3>
+            <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20">Admin Privileges</span>
+          </div>
+          <p class="text-xs text-slate-400">Dedicated hub to view all inventory, adjust purchase/repair costs, edit buyer bills, or delete records.</p>
+        </div>
+        <button onclick="lockOwnerConsole()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold border border-slate-700 transition">
+          <i class="fa-solid fa-lock mr-1"></i> Lock Console
+        </button>
+      </div>
+
+      <!-- Master Inventory Table -->
+      <div class="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-xl">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm" id="adminStockTable">
+            <thead class="bg-slate-950/80 text-slate-400 text-xs uppercase tracking-wider font-semibold border-b border-slate-800">
+              <tr>
+                <th class="p-4">Device Details</th>
+                <th class="p-4">IMEI</th>
+                <th class="p-4">Status</th>
+                <th class="p-4 text-rose-400">Buy Cost (₹)</th>
+                <th class="p-4 text-amber-400">Repair Cost (₹)</th>
+                <th class="p-4 font-bold text-white">Target/Sale (₹)</th>
+                <th class="p-4">Origin / Buyer</th>
+                <th class="p-4 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="adminStockTableBody" class="divide-y divide-slate-800/70 text-slate-300 text-xs"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ================= VIEW 4: SALES & PROFIT LEDGER (OWNER ONLY) ================= -->
     <section id="viewLedger" class="hidden space-y-6">
       <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-xl flex flex-wrap items-center justify-between gap-4">
         <div>
@@ -204,31 +263,35 @@
             <h3 class="text-base font-bold text-white flex items-center gap-2">
               <i class="fa-solid fa-file-invoice-dollar text-emerald-400"></i> Owner Sales & Realized Profit Ledger
             </h3>
-            <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Unlocked</span>
+            <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Authorized</span>
           </div>
-          <p class="text-xs text-slate-400">Protected financial statement showing purchase costs, repairs, selling revenue, and cumulative profit.</p>
+          <p class="text-xs text-slate-400">Track net profit, analyze margins, and export custom date-wise audit reports.</p>
         </div>
 
-        <div class="flex items-center gap-2">
-          <button onclick="lockLedger()" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold border border-slate-700 transition">
-            <i class="fa-solid fa-lock mr-1"></i> Lock Ledger
+        <div class="flex flex-wrap items-center gap-2">
+          <!-- 1-Click Today's Sales PDF Button -->
+          <button onclick="exportTodaySalesPDF()" class="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-lg shadow-indigo-600/30 transition flex items-center gap-1.5">
+            <i class="fa-solid fa-calendar-day"></i> Today's Sales PDF (1-Click)
           </button>
           <button onclick="exportSalesPDF()" class="px-3.5 py-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 font-semibold text-xs flex items-center gap-1.5 transition">
-            <i class="fa-solid fa-file-pdf"></i> Export Sales Statement
+            <i class="fa-solid fa-file-pdf"></i> Custom Range PDF
+          </button>
+          <button onclick="lockOwnerConsole()" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold border border-slate-700 transition">
+            <i class="fa-solid fa-lock mr-1"></i> Lock
           </button>
         </div>
       </div>
 
-      <!-- Date Range Filter -->
+      <!-- Customizable Date Filter -->
       <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex flex-wrap items-center justify-between gap-3 text-xs">
         <div class="flex flex-wrap items-center gap-2">
-          <span class="text-slate-400 font-semibold">Date Filter:</span>
+          <span class="text-slate-400 font-semibold">Presets:</span>
           <button onclick="setSalesDateFilter('today')" class="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 hover:text-white border border-slate-700">Today</button>
           <button onclick="setSalesDateFilter('month')" class="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 hover:text-white border border-slate-700">This Month</button>
           <button onclick="setSalesDateFilter('all')" class="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 hover:text-white border border-slate-700">Lifetime</button>
         </div>
         <div class="flex items-center gap-2">
-          <span class="text-slate-400">Custom:</span>
+          <span class="text-slate-400">Custom Date Range:</span>
           <input type="date" id="salesFromDate" onchange="renderSalesTable()" class="bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1 text-white">
           <span class="text-slate-400">to</span>
           <input type="date" id="salesToDate" onchange="renderSalesTable()" class="bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1 text-white">
@@ -267,7 +330,7 @@
           </table>
         </div>
         <div id="salesEmptyNotice" class="hidden p-8 text-center text-slate-500 text-xs font-medium">
-          No sold phones recorded for this time range.
+          No sold devices found in this selected date range.
         </div>
       </div>
     </section>
@@ -279,7 +342,7 @@
     <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-2xl w-full p-6 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto">
       <div class="flex items-center justify-between pb-3 border-b border-slate-800">
         <h3 class="text-base font-bold text-white flex items-center gap-2">
-          <i class="fa-solid fa-cart-flatbed text-indigo-400"></i> Intake Second-Hand Mobile Device
+          <i class="fa-solid fa-cart-flatbed text-indigo-400"></i> Intake Pre-Owned Device
         </h3>
         <button onclick="closeIntakeModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
       </div>
@@ -288,11 +351,21 @@
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
             <label class="block uppercase font-bold text-slate-400 mb-1">Brand *</label>
-            <input type="text" id="phoneBrand" required placeholder="e.g. Apple / Vivo / Samsung" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white">
+            <select id="phoneBrand" required onchange="updateBrandPreview()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white">
+              <option value="Samsung">Samsung</option>
+              <option value="Apple">Apple iPhone</option>
+              <option value="Vivo">Vivo</option>
+              <option value="Realme">Realme</option>
+              <option value="Xiaomi">Xiaomi / Redmi / Poco</option>
+              <option value="Oppo">Oppo</option>
+              <option value="OnePlus">OnePlus</option>
+              <option value="Motorola">Motorola</option>
+              <option value="Other">Other Brand</option>
+            </select>
           </div>
           <div>
             <label class="block uppercase font-bold text-slate-400 mb-1">Model Name *</label>
-            <input type="text" id="phoneModel" required placeholder="e.g. iPhone 13 / Vivo Y20" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white">
+            <input type="text" id="phoneModel" required placeholder="e.g. Galaxy S21 / iPhone 13" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white">
           </div>
           <div>
             <label class="block uppercase font-bold text-slate-400 mb-1">RAM / Storage</label>
@@ -306,12 +379,18 @@
             <input type="text" id="phoneImei" required placeholder="15-digit IMEI" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white font-mono">
           </div>
           <div>
-            <label class="block uppercase font-bold text-slate-400 mb-1">Device Color / Exterior Condition</label>
-            <input type="text" id="phoneCondition" placeholder="e.g. Blue, Minor scratch, 88% Battery" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white">
+            <label class="block uppercase font-bold text-slate-400 mb-1">Device Color / Condition</label>
+            <input type="text" id="phoneCondition" placeholder="e.g. Phantom Gray, Minor Scratch, 90% Battery" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white">
           </div>
         </div>
 
-        <!-- Repair Workflow Switch (Feature 1) -->
+        <!-- Optional Custom Image URL or Auto-Brand -->
+        <div>
+          <label class="block uppercase font-bold text-slate-400 mb-1">Device Image URL (Optional - Leave blank for Auto Brand Visual)</label>
+          <input type="url" id="phoneCustomImg" placeholder="https://example.com/phone-image.jpg" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs">
+        </div>
+
+        <!-- Repair Workflow Switch -->
         <div class="p-4 bg-slate-950 rounded-2xl border border-slate-800 space-y-3">
           <div class="flex items-center justify-between">
             <div>
@@ -325,8 +404,8 @@
           </div>
 
           <div id="repairNoteBox" class="hidden pt-2 border-t border-slate-800/80 space-y-2">
-            <label class="block uppercase font-bold text-amber-400 text-[10px]">Diagnosed Problem / Repair Required</label>
-            <input type="text" id="repairDiagnosis" placeholder="e.g. Display broken, battery replacement needed, sub-board fault" class="w-full bg-slate-900 border border-amber-500/40 rounded-xl px-3 py-2 text-white text-xs">
+            <label class="block uppercase font-bold text-amber-400 text-[10px]">Diagnosed Problem / Parts Needed</label>
+            <input type="text" id="repairDiagnosis" placeholder="e.g. Broken screen combo replacement, new battery needed" class="w-full bg-slate-900 border border-amber-500/40 rounded-xl px-3 py-2 text-white text-xs">
           </div>
         </div>
 
@@ -344,7 +423,7 @@
 
         <!-- Seller Verification Details -->
         <div class="p-3.5 bg-slate-950 rounded-2xl border border-slate-800 space-y-2">
-          <span class="block text-[11px] uppercase font-bold text-indigo-400">Seller Legal Origin (Proof of Purchase)</span>
+          <span class="block text-[11px] uppercase font-bold text-indigo-400">Seller Legal Origin (Verification Record)</span>
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
               <input type="text" id="sellerName" required placeholder="Seller Full Name *" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white">
@@ -398,7 +477,7 @@
 
         <div>
           <label class="block uppercase font-bold text-slate-400 mb-1">Refurbish Repair Notes</label>
-          <input type="text" id="completedRepairNotes" placeholder="e.g. Fitted Original Combo + New Back Glass" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white">
+          <input type="text" id="completedRepairNotes" placeholder="e.g. Original Display fitted, new battery installed" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white">
         </div>
 
         <div class="pt-2 border-t border-slate-800 flex justify-end gap-2">
@@ -474,10 +553,10 @@
         <div>
           <label class="block uppercase font-bold text-slate-400 mb-1">Store Warranty Granted</label>
           <select id="sellWarranty" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white">
-            <option value="7 Days Checking Warranty">7 Days Checking Warranty</option>
+            <option value="7 Days Testing Warranty">7 Days Testing Warranty</option>
             <option value="15 Days Service Warranty">15 Days Service Warranty</option>
             <option value="30 Days Hardware Warranty">30 Days Hardware Warranty</option>
-            <option value="No Warranty (Testing Only)">No Warranty (Testing Only)</option>
+            <option value="No Warranty (Sold As-Is)">No Warranty (Sold As-Is)</option>
           </select>
         </div>
 
@@ -498,7 +577,7 @@
       </div>
       <div>
         <h3 class="text-base font-bold text-white">Owner Authorization Required</h3>
-        <p class="text-xs text-slate-400 mt-1">Enter your account password to unlock the profit ledger, edit bills, or delete records.</p>
+        <p class="text-xs text-slate-400 mt-1">Enter your store login password to unlock admin controls or financial ledgers.</p>
       </div>
       <div>
         <input type="password" id="adminPasswordInput" placeholder="Enter Account Password" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-center text-sm text-white focus:outline-none focus:border-indigo-500">
@@ -541,6 +620,18 @@
           <label class="block uppercase font-bold text-slate-400 mb-1">Repair Cost (₹)</label>
           <input type="number" step="any" id="editRepairCost" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white">
         </div>
+        <div>
+          <label class="block uppercase font-bold text-slate-400 mb-1">Status</label>
+          <select id="editStatusSelect" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white">
+            <option value="Ready">Ready for Sale</option>
+            <option value="Under-Repair">Under-Repair</option>
+            <option value="Sold">Sold</option>
+          </select>
+        </div>
+        <div>
+          <label class="block uppercase font-bold text-slate-400 mb-1">Target Price (₹)</label>
+          <input type="number" step="any" id="editTargetPrice" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white">
+        </div>
         <div id="editSaleFields" class="col-span-2 grid grid-cols-2 gap-3">
           <div>
             <label class="block uppercase font-bold text-slate-400 mb-1">Sale Price (₹)</label>
@@ -566,7 +657,7 @@
   </div>
 
 
-  <!-- 58mm Thermal Print Area -->
+  <!-- STRICT SINGLE-PAGE 58MM THERMAL PRINT CONTAINER -->
   <div id="thermalPrintArea" style="display: none;"></div>
 
   <!-- Notification Toast -->
@@ -575,7 +666,7 @@
   </div>
 
   <script>
-    // EXACT SAME FIREBASE CONFIGURATION
+    // EXACT MATCHING FIREBASE CONFIGURATION
     const firebaseConfig = {
       apiKey: "AIzaSyCG357Dtw_ftKsgAyRSsoZUSfMNpx-GGz0",
       authDomain: "billing-ab24c.firebaseapp.com",
@@ -594,7 +685,7 @@
     let currentStore = null;
     let usedDevices = [];
     let isOwnerUnlocked = false;
-    let pendingAction = null;
+    let pendingTargetView = null;
     let currentShowcaseFilter = 'all';
 
     function showToast(msg) {
@@ -610,14 +701,14 @@
         currentUser = user;
         document.getElementById('authScreen').classList.add('hidden');
 
-        // Fetch Store Details
+        // Fetch Store Profile
         const storeDoc = await db.collection('stores').doc(user.uid).get();
         if (storeDoc.exists) {
           currentStore = storeDoc.data();
           document.getElementById('navShopName').innerText = currentStore.shopName;
         }
 
-        // Realtime Listener for THIS STORE'S used mobile devices
+        // Realtime Listener for THIS SPECIFIC STORE'S pre-owned devices
         db.collection('stores').doc(user.uid).collection('used_mobiles')
           .orderBy('intakeDate', 'desc')
           .onSnapshot((snapshot) => {
@@ -628,7 +719,10 @@
             updateKPIs();
             renderShowcaseGrid();
             handleHistorySearch();
-            if (isOwnerUnlocked) renderSalesTable();
+            if (isOwnerUnlocked) {
+              renderAdminStockTable();
+              renderSalesTable();
+            }
           }, (err) => console.error("Firestore Error:", err));
 
       } else {
@@ -639,9 +733,10 @@
     function switchView(view) {
       document.getElementById('viewShowcase').classList.add('hidden');
       document.getElementById('viewHistory').classList.add('hidden');
+      document.getElementById('viewAdmin').classList.add('hidden');
       document.getElementById('viewLedger').classList.add('hidden');
 
-      const tabs = ['Showcase', 'SearchHistory', 'Ledger'];
+      const tabs = ['Showcase', 'History', 'Admin', 'Ledger'];
       tabs.forEach(t => {
         const btn = document.getElementById('navTab' + t);
         if (btn) btn.className = "px-3.5 py-2 rounded-lg font-semibold transition text-slate-400 hover:text-white flex items-center gap-1.5";
@@ -653,8 +748,12 @@
         renderShowcaseGrid();
       } else if (view === 'history') {
         document.getElementById('viewHistory').classList.remove('hidden');
-        document.getElementById('navTabSearchHistory').className = "px-3.5 py-2 rounded-lg font-semibold transition bg-indigo-600 text-white shadow-md flex items-center gap-1.5";
+        document.getElementById('navTabHistory').className = "px-3.5 py-2 rounded-lg font-semibold transition bg-indigo-600 text-white shadow-md flex items-center gap-1.5";
         document.getElementById('historySearchInput').focus();
+      } else if (view === 'admin') {
+        document.getElementById('viewAdmin').classList.remove('hidden');
+        document.getElementById('navTabAdmin').className = "px-3.5 py-2 rounded-lg font-semibold transition bg-indigo-600 text-white shadow-md flex items-center gap-1.5";
+        renderAdminStockTable();
       } else if (view === 'ledger') {
         document.getElementById('viewLedger').classList.remove('hidden');
         document.getElementById('navTabLedger').className = "px-3.5 py-2 rounded-lg font-semibold transition bg-indigo-600 text-white shadow-md flex items-center gap-1.5";
@@ -662,18 +761,53 @@
       }
     }
 
-    // Helper: Online smartphone dynamic photo mockup (Feature 2)
-    function getDevicePhotoUrl(brand, model) {
-      const b = (brand || '').toLowerCase();
-      if (b.includes('apple') || b.includes('iphone')) {
-        return "https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=400&auto=format&fit=crop&q=60";
-      } else if (b.includes('samsung')) {
-        return "https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=400&auto=format&fit=crop&q=60";
-      } else if (b.includes('vivo') || b.includes('oppo') || b.includes('iqoo')) {
-        return "https://images.unsplash.com/photo-1580910051074-3eb694886505?w=400&auto=format&fit=crop&q=60";
-      } else {
-        return "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&auto=format&fit=crop&q=60";
+    // ACCURATE BRAND-SPECIFIC VISUAL MOCKUP GENERATOR (Prevents showing wrong phone photos)
+    function getDeviceVisual(brand, model, customImg) {
+      if (customImg && customImg.trim() !== '') {
+        return `<img src="${customImg}" alt="${model}" class="h-full w-full object-cover group-hover:scale-105 transition duration-500">`;
       }
+
+      const b = (brand || '').toLowerCase();
+      let brandColor = "from-blue-600 to-indigo-900";
+      let brandIcon = "fa-solid fa-mobile-screen";
+      let logoText = brand.toUpperCase();
+
+      if (b.includes('samsung')) {
+        brandColor = "from-blue-700 via-sky-800 to-slate-950";
+        brandIcon = "fa-solid fa-mobile";
+        logoText = "SAMSUNG GALAXY";
+      } else if (b.includes('apple') || b.includes('iphone')) {
+        brandColor = "from-neutral-700 via-slate-800 to-neutral-950";
+        brandIcon = "fa-brands fa-apple";
+        logoText = "APPLE IPHONE";
+      } else if (b.includes('vivo') || b.includes('iqoo')) {
+        brandColor = "from-blue-500 via-indigo-800 to-slate-950";
+        brandIcon = "fa-solid fa-mobile-screen-button";
+        logoText = "VIVO SMARTPHONE";
+      } else if (b.includes('realme')) {
+        brandColor = "from-amber-600 via-yellow-700 to-slate-950";
+        brandIcon = "fa-solid fa-bolt";
+        logoText = "REALME DARE TO LEAP";
+      } else if (b.includes('xiaomi') || b.includes('redmi') || b.includes('poco')) {
+        brandColor = "from-orange-600 via-amber-800 to-slate-950";
+        brandIcon = "fa-solid fa-mobile-retro";
+        logoText = "XIAOMI / REDMI";
+      } else if (b.includes('oneplus')) {
+        brandColor = "from-rose-700 via-red-900 to-slate-950";
+        brandIcon = "fa-solid fa-plus";
+        logoText = "ONEPLUS NEVER SETTLE";
+      }
+
+      return `
+        <div class="h-full w-full bg-gradient-to-br ${brandColor} flex flex-col items-center justify-center p-4 relative overflow-hidden group-hover:scale-105 transition duration-500">
+          <div class="absolute -right-6 -bottom-6 w-28 h-28 rounded-full bg-white/5 blur-xl pointer-events-none"></div>
+          <div class="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white text-2xl mb-2 shadow-lg">
+            <i class="${brandIcon}"></i>
+          </div>
+          <span class="text-[11px] font-black tracking-widest text-white/90 uppercase text-center font-mono drop-shadow">${logoText}</span>
+          <span class="text-[10px] text-white/70 font-medium tracking-tight mt-0.5 text-center px-2 line-clamp-1">${model}</span>
+        </div>
+      `;
     }
 
     function updateKPIs() {
@@ -689,7 +823,7 @@
       document.getElementById('kpiStockCost').innerText = "₹" + stockInvestment;
     }
 
-    // SHOWCASE GRID (Feature 2 & 3)
+    // SHOWROOM SHOWCASE
     function setShowcaseFilter(type) {
       currentShowcaseFilter = type;
       ['all', 'ready', 'repair'].forEach(t => {
@@ -713,17 +847,16 @@
         if (currentShowcaseFilter === 'ready' && d.status !== 'Ready') return false;
         if (currentShowcaseFilter === 'repair' && d.status !== 'Under-Repair') return false;
 
-        const match = (d.brand || '').toLowerCase().includes(q) ||
+        return (d.brand || '').toLowerCase().includes(q) ||
           (d.model || '').toLowerCase().includes(q) ||
           (d.imei || '').toLowerCase().includes(q);
-        return match;
       });
 
       if (showroomItems.length === 0) {
         grid.innerHTML = `
           <div class="col-span-full py-16 text-center text-slate-500 bg-slate-900 border border-slate-800 rounded-3xl">
             <i class="fa-solid fa-store-slash text-3xl mb-3 text-slate-600"></i>
-            <p class="text-sm font-semibold">No phones in showroom matching filter.</p>
+            <p class="text-sm font-semibold">No phones in showroom matching this criteria.</p>
           </div>
         `;
         return;
@@ -731,15 +864,15 @@
 
       showroomItems.forEach(item => {
         const isRepair = item.status === 'Under-Repair';
-        const imgUrl = getDevicePhotoUrl(item.brand, item.model);
+        const visualHtml = getDeviceVisual(item.brand, item.model, item.customImg);
 
         const card = document.createElement('div');
         card.className = "bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden hover:border-indigo-500/50 transition duration-300 shadow-xl flex flex-col justify-between group";
         card.innerHTML = `
           <div>
-            <!-- Auto Online Image Mockup Container -->
+            <!-- Accurate Visual Header -->
             <div class="relative h-44 w-full bg-slate-950 overflow-hidden flex items-center justify-center border-b border-slate-800/80">
-              <img src="${imgUrl}" alt="${item.model}" class="h-full w-full object-cover group-hover:scale-105 transition duration-500 opacity-80 group-hover:opacity-100">
+              ${visualHtml}
               <div class="absolute top-3 left-3">
                 <span class="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider ${isRepair ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'} backdrop-blur-md">
                   ${isRepair ? '<i class="fa-solid fa-wrench mr-1"></i> Under Repair' : '<i class="fa-solid fa-check mr-1"></i> Ready for Sale'}
@@ -752,7 +885,7 @@
               </div>
             </div>
 
-            <!-- Content Area -->
+            <!-- Content Details -->
             <div class="p-4 space-y-3">
               <div>
                 <span class="text-[10px] uppercase font-bold text-indigo-400 tracking-wider">${item.brand}</span>
@@ -774,13 +907,13 @@
 
               ${isRepair ? `
                 <div class="p-2 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-[11px]">
-                  <i class="fa-solid fa-screwdriver-wrench mr-1"></i> <strong>Fault:</strong> ${item.repairDiagnosis || 'Refurbishing in progress'}
+                  <i class="fa-solid fa-screwdriver-wrench mr-1"></i> <strong>Fault:</strong> ${item.repairDiagnosis || 'Refurbishing'}
                 </div>
               ` : ''}
             </div>
           </div>
 
-          <!-- Bottom Actions (Feature 3) -->
+          <!-- Bottom Buttons -->
           <div class="p-4 pt-0 flex items-center gap-2">
             <button onclick="viewDeviceDetails('${item.docId}')" class="flex-1 py-2.5 rounded-xl bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-white font-bold text-xs transition flex items-center justify-center gap-1.5">
               <i class="fa-solid fa-eye"></i> View
@@ -801,12 +934,10 @@
       });
     }
 
-    // VIEW DEVICE DETAILS (Feature 3)
+    // VIEW DEVICE DETAILS
     function viewDeviceDetails(docId) {
       const item = usedDevices.find(d => d.docId === docId);
       if (!item) return;
-
-      const totalCost = Number(item.buyPrice || 0) + Number(item.repairCost || 0);
 
       document.getElementById('detailsModalContent').innerHTML = `
         <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2">
@@ -844,7 +975,7 @@
       document.getElementById('detailsModal').classList.add('hidden');
     }
 
-    // COMPLETE REPAIR WORKFLOW (Feature 1)
+    // COMPLETE REPAIR WORKFLOW
     function openCompleteRepairModal(docId) {
       const item = usedDevices.find(d => d.docId === docId);
       if (!item) return;
@@ -884,14 +1015,14 @@
           repairNotes: notes,
           refurbishedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
-        showToast("Device marked ready for sale!");
+        showToast("Device repaired & marked ready for sale!");
         closeCompleteRepairModal();
       } catch (err) {
         alert("Update error: " + err.message);
       }
     }
 
-    // GLOBAL IMEI & PHONE HISTORY (Feature 4)
+    // GLOBAL IMEI & PHONE HISTORY TRACE
     function handleHistorySearch() {
       const q = (document.getElementById('historySearchInput')?.value || '').trim().toLowerCase();
       const container = document.getElementById('historyResultsArea');
@@ -901,7 +1032,7 @@
       if (!q) {
         container.innerHTML = `
           <div class="p-12 text-center border border-dashed border-slate-800 rounded-3xl bg-slate-900/40">
-            <p class="text-xs text-slate-500">Enter full or partial IMEI number, customer phone or device name above.</p>
+            <p class="text-xs text-slate-500">Enter full/partial IMEI, customer mobile, or model to inspect complete trace.</p>
           </div>
         `;
         return;
@@ -925,7 +1056,6 @@
 
       matches.forEach(item => {
         const isSold = item.status === 'Sold';
-        const totalCost = Number(item.buyPrice || 0) + Number(item.repairCost || 0);
 
         container.innerHTML += `
           <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 sm:p-6 shadow-xl space-y-4">
@@ -943,10 +1073,9 @@
               ` : ''}
             </div>
 
-            <!-- Complete Trace Timeline -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
               <div class="bg-slate-950 p-3.5 rounded-2xl border border-slate-800/80 space-y-1">
-                <span class="text-[11px] font-bold text-indigo-400 uppercase"><i class="fa-solid fa-arrow-down-left-and-arrow-up-right-to-center mr-1"></i> Intake & Seller Origin:</span>
+                <span class="text-[11px] font-bold text-indigo-400 uppercase"><i class="fa-solid fa-cart-flatbed mr-1"></i> Intake & Origin:</span>
                 <p><span class="text-slate-400">Intake Date:</span> <strong class="text-white">${item.intakeDate}</strong></p>
                 <p><span class="text-slate-400">Bought From:</span> <strong class="text-slate-200">${item.sellerName}</strong> (${item.sellerPhone})</p>
                 <p><span class="text-slate-400">Seller ID Proof:</span> <span class="text-slate-300">${item.sellerIdProof || 'None'}</span></p>
@@ -955,14 +1084,14 @@
               </div>
 
               <div class="bg-slate-950 p-3.5 rounded-2xl border border-slate-800/80 space-y-1">
-                <span class="text-[11px] font-bold text-emerald-400 uppercase"><i class="fa-solid fa-arrow-up-right-from-square mr-1"></i> Sale & Buyer Record:</span>
+                <span class="text-[11px] font-bold text-emerald-400 uppercase"><i class="fa-solid fa-cash-register mr-1"></i> Sale Record:</span>
                 ${isSold ? `
                   <p><span class="text-slate-400">Sold Date:</span> <strong class="text-white">${item.saleDate}</strong></p>
                   <p><span class="text-slate-400">Sold To:</span> <strong class="text-slate-200">${item.buyerName}</strong> (${item.buyerPhone})</p>
                   <p><span class="text-slate-400">Sold Price:</span> <strong class="font-bold text-white">₹${item.salePrice}</strong></p>
                   <p><span class="text-slate-400">Warranty:</span> <span class="text-indigo-400">${item.warranty}</span></p>
                 ` : `
-                  <p class="text-slate-500 py-3 italic">This phone is currently in stock / showroom and has not been sold yet.</p>
+                  <p class="text-slate-500 py-3 italic">This phone is active in inventory / showroom and has not been sold yet.</p>
                 `}
               </div>
             </div>
@@ -971,21 +1100,12 @@
       });
     }
 
-    // OWNER AUTHORIZATION & LOCK (Feature 5 & 7)
-    function requestOwnerLedgerAccess() {
+    // OWNER SECURITY & CONSOLE UNLOCK
+    function requestOwnerAccess(targetView) {
       if (isOwnerUnlocked) {
-        switchView('ledger');
+        switchView(targetView);
       } else {
-        pendingAction = 'open_ledger';
-        openPasswordModal();
-      }
-    }
-
-    function checkOwnerThenEdit(docId) {
-      if (isOwnerUnlocked) {
-        openEditDeviceModal(docId);
-      } else {
-        pendingAction = 'edit_' + docId;
+        pendingTargetView = targetView;
         openPasswordModal();
       }
     }
@@ -1001,7 +1121,7 @@
     function closePasswordModal() {
       document.getElementById('passwordModal').classList.add('hidden');
       document.getElementById('passwordModal').classList.remove('flex');
-      pendingAction = null;
+      pendingTargetView = null;
     }
 
     async function verifyOwnerPassword() {
@@ -1018,26 +1138,62 @@
         isOwnerUnlocked = true;
         closePasswordModal();
 
-        if (pendingAction === 'open_ledger') {
-          switchView('ledger');
-        } else if (pendingAction && pendingAction.startsWith('edit_')) {
-          const docId = pendingAction.split('_')[1];
-          openEditDeviceModal(docId);
+        if (pendingTargetView) {
+          switchView(pendingTargetView);
+          pendingTargetView = null;
         }
-        pendingAction = null;
         showToast("Owner authentication confirmed.");
       } catch (err) {
         errorElem.classList.remove('hidden');
       }
     }
 
-    function lockLedger() {
+    function lockOwnerConsole() {
       isOwnerUnlocked = false;
       switchView('showcase');
-      showToast("Ledger locked. PIN required.");
+      showToast("Console locked. Password required.");
     }
 
-    // SALES LEDGER & DATE FILTERS (Feature 5 & 6)
+    // DEDICATED ADMIN STOCK CONSOLE TABLE
+    function renderAdminStockTable() {
+      if (!isOwnerUnlocked) return;
+      const tbody = document.getElementById('adminStockTableBody');
+      tbody.innerHTML = '';
+
+      usedDevices.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-950/40 transition";
+        tr.innerHTML = `
+          <td class="p-4">
+            <strong class="text-white">${item.brand} ${item.model}</strong>
+            <div class="text-slate-500">${item.variant || 'Standard'}</div>
+          </td>
+          <td class="p-4 font-mono text-indigo-400">${item.imei}</td>
+          <td class="p-4">
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${item.status === 'Sold' ? 'bg-slate-800 text-slate-400' : (item.status === 'Under-Repair' ? 'bg-amber-500/20 text-amber-400' : 'bg-emerald-500/20 text-emerald-400')}">
+              ${item.status}
+            </span>
+          </td>
+          <td class="p-4 font-mono text-rose-400 font-semibold">₹${item.buyPrice}</td>
+          <td class="p-4 font-mono text-amber-400 font-semibold">₹${item.repairCost || 0}</td>
+          <td class="p-4 font-mono font-bold text-white">₹${item.status === 'Sold' ? item.salePrice : item.targetSellPrice}</td>
+          <td class="p-4 text-xs">
+            ${item.status === 'Sold' ? `<span class="text-emerald-400">Buyer: ${item.buyerName}</span>` : `<span class="text-slate-400">Seller: ${item.sellerName}</span>`}
+          </td>
+          <td class="p-4 text-right space-x-1.5">
+            <button onclick="openEditDeviceModal('${item.docId}')" class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs" title="Edit Device">
+              <i class="fa-solid fa-pen"></i>
+            </button>
+            <button onclick="directOwnerDelete('${item.docId}')" class="p-2 bg-rose-950/40 hover:bg-rose-600 text-rose-400 hover:text-white rounded-lg border border-rose-500/30 text-xs" title="Delete Device">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // SALES LEDGER & DATE FILTERS
     function setSalesDateFilter(preset) {
       const now = new Date();
       const today = now.toISOString().split('T')[0];
@@ -1120,7 +1276,7 @@
             </button>
           </td>
           <td class="p-4 text-right">
-            <button onclick="checkOwnerThenEdit('${item.docId}')" class="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-300 text-xs">
+            <button onclick="openEditDeviceModal('${item.docId}')" class="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-300 text-xs">
               <i class="fa-solid fa-pen"></i>
             </button>
           </td>
@@ -1134,7 +1290,7 @@
       document.getElementById('footTotalProfit').innerText = "₹" + sumProfit;
     }
 
-    // OWNER EDIT & DELETE (Feature 7)
+    // OWNER EDIT & DELETE FUNCTIONS
     function openEditDeviceModal(docId) {
       const item = usedDevices.find(d => d.docId === docId);
       if (!item) return;
@@ -1144,6 +1300,8 @@
       document.getElementById('editImei').value = item.imei;
       document.getElementById('editBuyPrice').value = item.buyPrice;
       document.getElementById('editRepairCost').value = item.repairCost || 0;
+      document.getElementById('editStatusSelect').value = item.status;
+      document.getElementById('editTargetPrice').value = item.targetSellPrice || 0;
 
       const saleFields = document.getElementById('editSaleFields');
       if (item.status === 'Sold') {
@@ -1166,14 +1324,17 @@
       const item = usedDevices.find(d => d.docId === docId);
       if (!item) return;
 
+      const newStatus = document.getElementById('editStatusSelect').value;
       const updated = {
         model: document.getElementById('editModel').value.trim(),
         imei: document.getElementById('editImei').value.trim(),
         buyPrice: parseFloat(document.getElementById('editBuyPrice').value) || 0,
-        repairCost: parseFloat(document.getElementById('editRepairCost').value) || 0
+        repairCost: parseFloat(document.getElementById('editRepairCost').value) || 0,
+        status: newStatus,
+        targetSellPrice: parseFloat(document.getElementById('editTargetPrice').value) || 0
       };
 
-      if (item.status === 'Sold') {
+      if (newStatus === 'Sold') {
         const salePrice = parseFloat(document.getElementById('editSalePrice').value) || 0;
         updated.salePrice = salePrice;
         updated.buyerName = document.getElementById('editBuyerName').value.trim();
@@ -1182,25 +1343,29 @@
 
       try {
         await db.collection('stores').doc(currentUser.uid).collection('used_mobiles').doc(docId).update(updated);
-        showToast("Record updated successfully!");
+        showToast("Record updated in cloud!");
         closeEditModal();
       } catch (err) {
         alert("Update error: " + err.message);
       }
     }
 
-    async function executeOwnerDeleteFromModal() {
+    async function directOwnerDelete(docId) {
       if (!currentUser || !isOwnerUnlocked) return;
-      const docId = document.getElementById('editDocId').value;
       if (!confirm("Are you sure you want to permanently delete this device record? This cannot be undone.")) return;
 
       try {
         await db.collection('stores').doc(currentUser.uid).collection('used_mobiles').doc(docId).delete();
-        showToast("Record deleted permanently.");
-        closeEditModal();
+        showToast("Device permanently deleted.");
       } catch (err) {
         alert("Delete error: " + err.message);
       }
+    }
+
+    function executeOwnerDeleteFromModal() {
+      const docId = document.getElementById('editDocId').value;
+      directOwnerDelete(docId);
+      closeEditModal();
     }
 
     // INTAKE MODAL UI & LOGIC
@@ -1230,6 +1395,7 @@
         variant: document.getElementById('phoneVariant').value.trim(),
         imei: document.getElementById('phoneImei').value.trim(),
         condition: document.getElementById('phoneCondition').value.trim(),
+        customImg: document.getElementById('phoneCustomImg').value.trim(),
         buyPrice: parseFloat(document.getElementById('phoneBuyPrice').value) || 0,
         repairCost: 0,
         targetSellPrice: parseFloat(document.getElementById('phoneSellTarget').value) || 0,
@@ -1244,7 +1410,7 @@
 
       try {
         await db.collection('stores').doc(currentUser.uid).collection('used_mobiles').add(newDevice);
-        showToast(needsRepair ? "Phone sent to Workshop Under-Repair!" : "Phone added to Showroom ready for sale!");
+        showToast(needsRepair ? "Device sent to Workshop Under-Repair!" : "Device added to Showroom ready for sale!");
         closeIntakeModal();
       } catch (err) {
         alert("Purchase save error: " + err.message);
@@ -1327,119 +1493,151 @@
       }
     }
 
-    // 58mm Thermal Receipt Generator
+    // STRICT SINGLE-PAGE 58MM THERMAL RECEIPT GENERATOR (No Second Page Overflow)
     function printSalesReceipt(item) {
       const sName = currentStore ? currentStore.shopName : "SMARTFIX WORKSHOP";
       const sAddr = currentStore ? currentStore.shopAddress : "Main Station Road";
       const sPhone = currentStore ? currentStore.shopPhone : "9876543210";
 
       const receiptHTML = `
-        <div style="text-align: center;">
-          <h2 style="font-size: 13px; font-weight: bold; margin: 0; text-transform: uppercase;">${sName}</h2>
-          <p style="font-size: 9px; margin: 2px 0;">${sAddr}</p>
-          <p style="font-size: 9px; margin: 2px 0;">Helpline: +91 ${sPhone}</p>
-          <p style="font-size: 11px; font-weight: bold; text-decoration: underline; margin-top: 5px;">PRE-OWNED MOBILE INVOICE</p>
+        <div style="text-align: center; margin: 0; padding: 0;">
+          <h2 style="font-size: 12px; font-weight: bold; margin: 0; text-transform: uppercase;">${sName}</h2>
+          <p style="font-size: 8.5px; margin: 1px 0;">${sAddr}</p>
+          <p style="font-size: 8.5px; margin: 1px 0;">Helpline: +91 ${sPhone}</p>
+          <p style="font-size: 10px; font-weight: bold; text-decoration: underline; margin: 3px 0;">PRE-OWNED MOBILE BILL</p>
         </div>
-        <div style="border-top: 1px dashed #000; margin: 5px 0;"></div>
-        <table style="width: 100%; font-size: 10px;">
-          <tr><td><strong>Date:</strong></td><td style="text-align: right;">${item.saleDate || item.intakeDate}</td></tr>
-          <tr><td><strong>Buyer:</strong></td><td style="text-align: right;">${item.buyerName || 'Walk-in'}</td></tr>
-          <tr><td><strong>Phone:</strong></td><td style="text-align: right;">${item.buyerPhone || '-'}</td></tr>
-          <tr><td><strong>Device:</strong></td><td style="text-align: right;">${item.brand} ${item.model}</td></tr>
-          <tr><td><strong>Variant:</strong></td><td style="text-align: right;">${item.variant || 'Standard'}</td></tr>
-          <tr><td><strong>IMEI:</strong></td><td style="text-align: right;">${item.imei}</td></tr>
+        <div style="border-top: 1px dashed #000; margin: 3px 0;"></div>
+        <table style="width: 100%; font-size: 9px; border-collapse: collapse;">
+          <tr><td>Date:</td><td style="text-align: right;">${item.saleDate || item.intakeDate}</td></tr>
+          <tr><td>Buyer:</td><td style="text-align: right;">${item.buyerName || 'Walk-in'}</td></tr>
+          <tr><td>Phone:</td><td style="text-align: right;">${item.buyerPhone || '-'}</td></tr>
+          <tr><td>Device:</td><td style="text-align: right;">${item.brand} ${item.model}</td></tr>
+          <tr><td>Storage:</td><td style="text-align: right;">${item.variant || 'Standard'}</td></tr>
+          <tr><td>IMEI:</td><td style="text-align: right;">${item.imei}</td></tr>
         </table>
-        <div style="border-top: 1px dashed #000; margin: 5px 0;"></div>
-        <table style="width: 100%; font-size: 11px; font-weight: bold;">
+        <div style="border-top: 1px dashed #000; margin: 3px 0;"></div>
+        <table style="width: 100%; font-size: 10px; font-weight: bold; border-collapse: collapse;">
           <tr><td>TOTAL BILLED:</td><td style="text-align: right;">Rs. ${item.salePrice}</td></tr>
-          <tr><td>SETTLEMENT:</td><td style="text-align: right;">PAID IN FULL</td></tr>
+          <tr><td>PAYMENT:</td><td style="text-align: right;">PAID IN FULL</td></tr>
         </table>
-        <div style="margin-top: 5px; font-size: 10px; font-weight: bold; border: 1px solid #000; padding: 3px; text-align: center;">
+        <div style="margin-top: 3px; font-size: 9px; font-weight: bold; border: 1px solid #000; padding: 2px; text-align: center;">
           Warranty: ${item.warranty || 'No Warranty'}
         </div>
-        <div style="border-top: 1px dashed #000; margin: 6px 0;"></div>
-        <div style="font-size: 8px; line-height: 1.2;">
-          1. Used devices are thoroughly checked before sale.<br>
-          2. Physical/Liquid damage voids warranty completely.<br>
-          3. Invoice slip mandatory for warranty claim.
+        <div style="border-top: 1px dashed #000; margin: 4px 0 2px 0;"></div>
+        <div style="font-size: 7.5px; line-height: 1.15; color: #222;">
+          1. Physical / Liquid damage voids all warranty.<br>
+          2. Original bill required for warranty service.
         </div>
-        <div style="border-top: 1px dashed #000; margin: 5px 0; text-align: center; font-size: 7.5px; color: #444;">
-          SmartFix Pro &copy; 2026 | Developed by Debapriya Sarkar
+        <div style="border-top: 1px dashed #000; margin: 3px 0 0 0; text-align: center; font-size: 7px; color: #444;">
+          SmartFix Pro &copy; 2026 | Verified Device
         </div>
       `;
 
       const area = document.getElementById('thermalPrintArea');
       area.innerHTML = receiptHTML;
       area.style.display = 'block';
-      setTimeout(() => window.print(), 100);
+      setTimeout(() => {
+        window.print();
+      }, 100);
     }
 
-    // PDF Reports
-    function exportStockPDF() {
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF('l', 'mm', 'a4');
-      const sName = currentStore ? currentStore.shopName : "SMARTFIX WORKSHOP";
-
-      doc.setFontSize(14);
-      doc.text(`${sName} - SHOWROOM PRE-OWNED STOCK SHEET`, 14, 15);
-
-      const available = usedDevices.filter(d => d.status !== 'Sold');
-      const rows = available.map((d, i) => [
-        i + 1, d.intakeDate, d.brand + " " + d.model, d.variant || '-', d.imei, d.status, "Rs. " + d.buyPrice, "Rs. " + (d.repairCost || 0), "Rs. " + d.targetSellPrice, `${d.sellerName} (${d.sellerPhone})`
-      ]);
-
-      doc.autoTable({
-        startY: 22,
-        head: [['#', 'Intake Date', 'Device Model', 'Storage', 'IMEI', 'Status', 'Buy Cost', 'Repair', 'Target Sell', 'Seller Origin']],
-        body: rows,
-        headStyles: { fillColor: [15, 23, 42] },
-        styles: { fontSize: 8 }
-      });
-
-      doc.save(`Showroom_Stock_Audit.pdf`);
+    // 1-CLICK TODAY'S SALES PDF
+    function exportTodaySalesPDF() {
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('salesFromDate').value = today;
+      document.getElementById('salesToDate').value = today;
+      renderSalesTable();
+      exportSalesPDF();
     }
 
+    // CUSTOMIZABLE DATE RANGE SALES PDF
     function exportSalesPDF() {
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF('l', 'mm', 'a4');
       const sName = currentStore ? currentStore.shopName : "SMARTFIX WORKSHOP";
 
-      const fromDate = document.getElementById('salesFromDate')?.value || 'Start';
+      const fromDate = document.getElementById('salesFromDate')?.value || 'All Time';
       const toDate = document.getElementById('salesToDate')?.value || 'Today';
 
+      doc.setFillColor(15, 23, 42);
+      doc.rect(0, 0, 297, 24, 'F');
+
       doc.setFontSize(14);
-      doc.text(`${sName} - OWNER SALES & NET PROFIT STATEMENT`, 14, 15);
+      doc.setTextColor(255, 255, 255);
+      doc.text(`${sName} - PRE-OWNED SALES & PROFIT AUDIT STATEMENT`, 14, 12);
+      
       doc.setFontSize(9);
-      doc.setTextColor(100);
-      doc.text(`Period: ${fromDate} to ${toDate} | Generated: ${new Date().toLocaleDateString()}`, 14, 20);
+      doc.setTextColor(180, 190, 210);
+      doc.text(`Statement Period: ${fromDate} to ${toDate} | Generated On: ${new Date().toLocaleString()}`, 14, 18);
 
       const sold = usedDevices.filter(d => {
         if (d.status !== 'Sold') return false;
         const sDate = d.saleDate || d.intakeDate;
-        if (fromDate !== 'Start' && sDate < fromDate) return false;
+        if (fromDate !== 'All Time' && sDate < fromDate) return false;
         if (toDate !== 'Today' && sDate > toDate) return false;
         return true;
       });
 
-      let totalProfit = 0;
+      let totalBuy = 0, totalRepair = 0, totalRevenue = 0, totalProfit = 0;
       const rows = sold.map((d, i) => {
-        totalProfit += Number(d.netProfit || 0);
+        const buy = Number(d.buyPrice) || 0;
+        const rep = Number(d.repairCost) || 0;
+        const sale = Number(d.salePrice) || 0;
+        const profit = Number(d.netProfit) || (sale - (buy + rep));
+
+        totalBuy += buy;
+        totalRepair += rep;
+        totalRevenue += sale;
+        totalProfit += profit;
+
         return [
-          i + 1, d.saleDate || d.intakeDate, d.brand + " " + d.model, d.imei, `${d.buyerName} (${d.buyerPhone})`, "Rs. " + d.buyPrice, "Rs. " + (d.repairCost || 0), "Rs. " + d.salePrice, "Rs. " + d.netProfit
+          i + 1, d.saleDate || d.intakeDate, `${d.brand} ${d.model}`, d.imei, `${d.buyerName} (${d.buyerPhone})`, "Rs. " + buy, "Rs. " + rep, "Rs. " + sale, "Rs. " + profit
         ];
       });
 
       doc.autoTable({
-        startY: 24,
-        head: [['#', 'Sold Date', 'Device Model', 'IMEI', 'Buyer Customer', 'Buy Cost', 'Repair', 'Sold Price', 'Net Profit']],
+        startY: 28,
+        head: [['#', 'Sold Date', 'Device Model', 'IMEI', 'Buyer Customer', 'Purchase Cost', 'Repair Cost', 'Sale Revenue', 'Net Profit']],
         body: rows,
-        foot: [['TOTAL', '', '', '', '', '', '', '', `Rs. ${totalProfit}`]],
-        headStyles: { fillColor: [5, 150, 105] },
+        foot: [['TOTAL', '', '', '', '', `Rs. ${totalBuy}`, `Rs. ${totalRepair}`, `Rs. ${totalRevenue}`, `Rs. ${totalProfit}`]],
+        headStyles: { fillColor: [5, 150, 105], textColor: [255, 255, 255], fontStyle: 'bold' },
         footStyles: { fillColor: [15, 23, 42], textColor: [255, 255, 255], fontStyle: 'bold' },
-        styles: { fontSize: 8 }
+        styles: { fontSize: 8, cellPadding: 3 }
       });
 
-      doc.save(`Used_Phone_Sales_Profit_${fromDate}_to_${toDate}.pdf`);
+      doc.save(`${sName.replace(/\s+/g, '_')}_Sales_${fromDate}_to_${toDate}.pdf`);
+    }
+
+    function exportStockPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF('l', 'mm', 'a4');
+      const sName = currentStore ? currentStore.shopName : "SMARTFIX WORKSHOP";
+
+      doc.setFillColor(15, 23, 42);
+      doc.rect(0, 0, 297, 24, 'F');
+
+      doc.setFontSize(14);
+      doc.setTextColor(255, 255, 255);
+      doc.text(`${sName} - ACTIVE SHOWROOM STOCK SHEET`, 14, 12);
+      
+      doc.setFontSize(9);
+      doc.setTextColor(180, 190, 210);
+      doc.text(`Generated On: ${new Date().toLocaleString()}`, 14, 18);
+
+      const available = usedDevices.filter(d => d.status !== 'Sold');
+      const rows = available.map((d, i) => [
+        i + 1, d.intakeDate, `${d.brand} ${d.model}`, d.variant || '-', d.imei, d.status, "Rs. " + d.buyPrice, "Rs. " + (d.repairCost || 0), "Rs. " + d.targetSellPrice, `${d.sellerName} (${d.sellerPhone})`
+      ]);
+
+      doc.autoTable({
+        startY: 28,
+        head: [['#', 'Intake Date', 'Device Model', 'Storage', 'IMEI', 'Status', 'Buy Cost', 'Repair', 'Target Sell', 'Seller Origin']],
+        body: rows,
+        headStyles: { fillColor: [49, 46, 129], textColor: [255, 255, 255], fontStyle: 'bold' },
+        styles: { fontSize: 8, cellPadding: 3 }
+      });
+
+      doc.save(`${sName.replace(/\s+/g, '_')}_Showroom_Stock.pdf`);
     }
   </script>
 </body>
