@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SmartFix Pro - Developer Control Portal</title>
+  <title>SmartFix Pro - Super Admin & Developer Control Portal</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
@@ -12,51 +12,96 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans">
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-indigo-600 selection:text-white">
 
-  <!-- DEVELOPER LOGIN GATE -->
+  <!-- DEVELOPER AUTH OVERLAY (LOCKED TO UID) -->
   <div id="devAuthGate" class="fixed inset-0 bg-slate-950 z-50 flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-800 p-8 rounded-3xl max-w-sm w-full shadow-2xl space-y-4 text-center">
-      <div class="w-12 h-12 rounded-2xl bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 mx-auto flex items-center justify-center text-xl">
-        <i class="fa-solid fa-terminal"></i>
+    <div class="fixed top-1/4 left-1/4 w-96 h-96 bg-indigo-600/15 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="relative bg-slate-900/90 backdrop-blur-2xl border border-slate-800 p-8 rounded-3xl max-w-sm w-full shadow-2xl space-y-5 text-center">
+      <div class="w-12 h-12 rounded-2xl bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 mx-auto flex items-center justify-center text-xl shadow-lg shadow-indigo-600/30">
+        <i class="fa-solid fa-shield-halved"></i>
       </div>
-      <h2 class="text-xl font-bold text-white">Developer Security Gate</h2>
-      <p class="text-xs text-slate-400">Restricted access for Debapriya Sarkar</p>
-      <input type="password" id="devMasterPin" placeholder="Enter Developer Secret PIN" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-center text-sm text-white focus:outline-none focus:border-indigo-500">
-      <p id="devPinError" class="text-xs text-rose-400 font-semibold hidden">Incorrect Developer PIN!</p>
-      <button onclick="unlockDevConsole()" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition">
-        Enter Control Center
-      </button>
-      <p class="text-[10px] text-slate-500">Default PIN: <span class="font-mono text-slate-400">admin2026</span></p>
+      <div>
+        <h2 class="text-xl font-bold text-white tracking-wide">Developer Control Gate</h2>
+        <p class="text-xs text-slate-400 mt-1">Lead Developer: <span class="text-indigo-400 font-semibold">Debapriya Sarkar</span></p>
+      </div>
+
+      <form id="devLoginForm" onsubmit="handleDevLogin(event)" class="space-y-3.5 text-xs text-left">
+        <div>
+          <label class="block font-bold uppercase text-slate-400 mb-1">Developer Email</label>
+          <input type="email" id="devEmail" required placeholder="developer@gmail.com" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+        </div>
+        <div>
+          <label class="block font-bold uppercase text-slate-400 mb-1">Developer Password</label>
+          <input type="password" id="devPassword" required placeholder="••••••••" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+        </div>
+        <p id="devLoginError" class="text-xs text-rose-400 font-semibold hidden"></p>
+        <button type="submit" id="devLoginBtn" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2">
+          <span>Authenticate Root Access</span>
+          <i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </form>
+      <p class="text-[10px] text-slate-500 font-mono">UID Locked: PoJ5...4qJ3</p>
     </div>
   </div>
 
-  <!-- TOP BAR -->
-  <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-40">
-    <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+  <!-- TOP HEADER -->
+  <header class="bg-slate-900/90 backdrop-blur border-b border-slate-800 sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex flex-wrap items-center justify-between gap-4">
       <div class="flex items-center gap-3">
-        <div class="bg-indigo-600 p-2 rounded-xl text-white"><i class="fa-solid fa-code"></i></div>
+        <div class="bg-gradient-to-tr from-indigo-600 to-violet-500 p-2.5 rounded-xl text-white shadow-lg shadow-indigo-600/30">
+          <i class="fa-solid fa-terminal text-lg"></i>
+        </div>
         <div>
-          <h1 class="text-lg font-bold text-white">SmartFix Pro - Developer Portal</h1>
-          <p class="text-xs text-emerald-400 font-medium">Author: Debapriya Sarkar</p>
+          <h1 class="text-lg font-extrabold text-white tracking-tight">SmartFix Pro - Master Developer Portal</h1>
+          <p class="text-xs text-emerald-400 font-medium flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Super Admin: Debapriya Sarkar
+          </p>
         </div>
       </div>
-      <span class="text-xs bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-3 py-1.5 rounded-xl font-mono">
-        Active Database: billing-ab24c
-      </span>
+      <div class="flex items-center gap-3">
+        <span class="text-xs bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-3 py-1.5 rounded-xl font-mono">
+          Project: billing-ab24c
+        </span>
+        <button onclick="signOutDeveloper()" class="px-3.5 py-1.5 bg-rose-600/20 hover:bg-rose-600 text-rose-400 hover:text-white rounded-xl text-xs font-bold border border-rose-500/30 transition flex items-center gap-1.5">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i> Sign Out
+        </button>
+      </div>
     </div>
   </header>
 
   <!-- MAIN CONSOLE -->
   <main class="max-w-7xl w-full mx-auto p-4 md:p-6 space-y-6 flex-1">
+    
+    <!-- STATS CARDS -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
+        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Registered Stores</span>
+        <h3 id="statTotalStores" class="text-2xl font-bold text-white mt-1">0</h3>
+      </div>
+      <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
+        <span class="text-[10px] font-bold uppercase tracking-wider text-amber-400">Pending Approvals</span>
+        <h3 id="statPendingStores" class="text-2xl font-bold text-amber-400 mt-1">0</h3>
+      </div>
+      <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
+        <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400">Active Stores</span>
+        <h3 id="statActiveStores" class="text-2xl font-bold text-emerald-400 mt-1">0</h3>
+      </div>
+      <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
+        <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-400">Database Status</span>
+        <h3 class="text-2xl font-bold text-indigo-400 mt-1">Online</h3>
+      </div>
+    </div>
+
+    <!-- STORES TABLE -->
     <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl space-y-4">
-      <div class="flex justify-between items-center border-b border-slate-800 pb-4">
+      <div class="flex flex-wrap justify-between items-center gap-3 border-b border-slate-800 pb-4">
         <div>
-          <h2 class="text-lg font-bold text-white">Registered Workshop Clients</h2>
-          <p class="text-xs text-slate-400">Manage client passwords, store names, addresses and contact details</p>
+          <h2 class="text-lg font-bold text-white">Workshop Clients & Approvals</h2>
+          <p class="text-xs text-slate-400">Review pending registrations, authorize stores, or modify credentials</p>
         </div>
-        <button onclick="loadAllStores()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl border border-slate-700">
-          <i class="fa-solid fa-rotate mr-1"></i> Refresh Stores
+        <button onclick="loadAllStores()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl border border-slate-700 transition">
+          <i class="fa-solid fa-rotate mr-1.5"></i> Refresh Stores
         </button>
       </div>
 
@@ -65,26 +110,27 @@
           <thead class="bg-slate-950 text-slate-400 uppercase font-semibold border-b border-slate-800">
             <tr>
               <th class="p-3.5">Store UID</th>
-              <th class="p-3.5">Shop Name</th>
-              <th class="p-3.5">Owner Phone</th>
-              <th class="p-3.5">Registered Email</th>
-              <th class="p-3.5">Owner Password</th>
-              <th class="p-3.5 text-center">Actions</th>
+              <th class="p-3.5">Shop Name & Address</th>
+              <th class="p-3.5">Phone</th>
+              <th class="p-3.5">Email</th>
+              <th class="p-3.5">Saved Password</th>
+              <th class="p-3.5">Status</th>
+              <th class="p-3.5 text-center">Approval & Controls</th>
             </tr>
           </thead>
           <tbody id="storeListTbody" class="divide-y divide-slate-800/60 text-slate-300">
-            <tr><td colspan="6" class="p-6 text-center text-slate-500">Loading store database...</td></tr>
+            <tr><td colspan="7" class="p-6 text-center text-slate-500">Connecting to Firestore...</td></tr>
           </tbody>
         </table>
       </div>
     </div>
   </main>
 
-  <!-- EDIT STORE PROFILE & CREDENTIALS MODAL -->
+  <!-- EDIT STORE MODAL -->
   <div id="editStoreModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
     <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-        <h3 class="text-base font-bold text-white">Edit Store Details</h3>
+        <h3 class="text-base font-bold text-white">Modify Client Details</h3>
         <button onclick="closeEditStoreModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
       </div>
       
@@ -104,7 +150,7 @@
           <input type="tel" id="modalShopPhone" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
         </div>
         <div>
-          <label class="block font-semibold text-slate-400 uppercase tracking-wider mb-1">Owner Password *</label>
+          <label class="block font-semibold text-slate-400 uppercase tracking-wider mb-1">Client Account Password *</label>
           <input type="text" id="modalShopPassword" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-emerald-400 font-mono font-bold focus:outline-none focus:border-indigo-500">
         </div>
       </div>
@@ -128,52 +174,121 @@
     };
 
     firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
     const db = firebase.firestore();
 
-    const DEVELOPER_PIN = "admin2026";
+    // AUTHORIZED DEVELOPER UID
+    const AUTHORIZED_DEV_UID = "PoJ5YLjwGHWUWEm8LPi8clty4qJ3";
 
-    function unlockDevConsole() {
-      const pin = document.getElementById('devMasterPin').value;
-      if (pin === DEVELOPER_PIN) {
+    async function handleDevLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById('devEmail').value.trim();
+      const pass = document.getElementById('devPassword').value;
+      const errBox = document.getElementById('devLoginError');
+      errBox.classList.add('hidden');
+
+      try {
+        const cred = await auth.signInWithEmailAndPassword(email, pass);
+        if (cred.user.uid !== AUTHORIZED_DEV_UID) {
+          await auth.signOut();
+          errBox.innerText = "Access Denied: This account is not authorized as Root Developer!";
+          errBox.classList.remove('hidden');
+          return;
+        }
         document.getElementById('devAuthGate').classList.add('hidden');
         loadAllStores();
-      } else {
-        document.getElementById('devPinError').classList.remove('hidden');
+      } catch (err) {
+        errBox.innerText = err.message;
+        errBox.classList.remove('hidden');
       }
     }
 
+    function signOutDeveloper() {
+      auth.signOut();
+      location.reload();
+    }
+
+    auth.onAuthStateChanged((user) => {
+      if (user && user.uid === AUTHORIZED_DEV_UID) {
+        document.getElementById('devAuthGate').classList.add('hidden');
+        loadAllStores();
+      } else {
+        document.getElementById('devAuthGate').classList.remove('hidden');
+      }
+    });
+
     async function loadAllStores() {
       const tbody = document.getElementById('storeListTbody');
-      tbody.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-slate-500">Querying Firestore stores collection...</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="7" class="p-6 text-center text-slate-500">Loading store database...</td></tr>';
 
       try {
         const snap = await db.collection('stores').get();
         if (snap.empty) {
-          tbody.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-slate-500">No stores registered yet.</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="7" class="p-6 text-center text-slate-500">No stores registered yet.</td></tr>';
           return;
         }
 
         tbody.innerHTML = '';
+        let total = 0, pending = 0, active = 0;
+
         snap.forEach(doc => {
+          total++;
           const s = doc.data();
+          const isApproved = s.status === 'approved';
+          if (isApproved) active++; else pending++;
+
           const tr = document.createElement('tr');
           tr.className = "hover:bg-slate-950/40 transition";
           tr.innerHTML = `
             <td class="p-3.5 font-mono text-slate-500 text-[10px]">${doc.id.substring(0, 10)}...</td>
-            <td class="p-3.5 font-bold text-white">${s.shopName || 'Unnamed'}</td>
+            <td class="p-3.5">
+              <div class="font-bold text-white text-sm">${s.shopName || 'Unnamed'}</div>
+              <div class="text-[10px] text-slate-400">${s.shopAddress || '-'}</div>
+            </td>
             <td class="p-3.5 font-mono text-indigo-400">${s.shopPhone || '-'}</td>
             <td class="p-3.5 text-slate-300">${s.ownerEmail || '-'}</td>
             <td class="p-3.5 font-mono font-bold text-emerald-400 bg-slate-950/40 px-2 py-1 rounded">${s.savedPassword || 'Protected'}</td>
-            <td class="p-3.5 text-center">
-              <button onclick='openEditStoreModal("${doc.id}", ${JSON.stringify(s)})' class="px-3 py-1.5 bg-indigo-600/20 hover:bg-indigo-600 text-indigo-400 hover:text-white border border-indigo-500/30 rounded-lg transition font-semibold flex items-center gap-1.5 mx-auto">
-                <i class="fa-solid fa-pen-to-square"></i> Edit Store
+            <td class="p-3.5">
+              <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${isApproved ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'}">
+                ${isApproved ? 'Approved' : 'Pending Approval'}
+              </span>
+            </td>
+            <td class="p-3.5 text-center flex items-center justify-center gap-1.5">
+              ${isApproved ? `
+                <button onclick="updateStoreStatus('${doc.id}', 'pending')" class="px-2.5 py-1 bg-amber-600/20 hover:bg-amber-600 text-amber-400 hover:text-white border border-amber-500/30 rounded-lg text-xs font-bold transition" title="Revoke Approval">
+                  <i class="fa-solid fa-ban mr-1"></i> Block
+                </button>
+              ` : `
+                <button onclick="updateStoreStatus('${doc.id}', 'approved')" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition shadow" title="Approve Store">
+                  <i class="fa-solid fa-check mr-1"></i> Approve
+                </button>
+              `}
+              <button onclick='openEditStoreModal("${doc.id}", ${JSON.stringify(s)})' class="px-2.5 py-1 bg-indigo-600/20 hover:bg-indigo-600 text-indigo-400 hover:text-white border border-indigo-500/30 rounded-lg text-xs font-semibold transition" title="Edit Store Profile">
+                <i class="fa-solid fa-pen-to-square"></i>
               </button>
             </td>
           `;
           tbody.appendChild(tr);
         });
+
+        document.getElementById('statTotalStores').innerText = total;
+        document.getElementById('statPendingStores').innerText = pending;
+        document.getElementById('statActiveStores').innerText = active;
+
       } catch (err) {
-        tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-rose-400 font-semibold">Error: ${err.message}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-rose-400 font-semibold">Error: ${err.message}</td></tr>`;
+      }
+    }
+
+    async function updateStoreStatus(uid, newStatus) {
+      const confirmAction = window.confirm(`Change store status to "${newStatus.toUpperCase()}"?`);
+      if (!confirmAction) return;
+
+      try {
+        await db.collection('stores').doc(uid).update({ status: newStatus });
+        loadAllStores();
+      } catch (err) {
+        alert("Action failed: " + err.message);
       }
     }
 
@@ -184,15 +299,13 @@
       document.getElementById('modalShopPhone').value = store.shopPhone || '';
       document.getElementById('modalShopPassword').value = store.savedPassword || '';
       
-      const modal = document.getElementById('editStoreModal');
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
+      document.getElementById('editStoreModal').classList.remove('hidden');
+      document.getElementById('editStoreModal').classList.add('flex');
     }
 
     function closeEditStoreModal() {
-      const modal = document.getElementById('editStoreModal');
-      modal.classList.add('hidden');
-      modal.classList.remove('flex');
+      document.getElementById('editStoreModal').classList.add('hidden');
+      document.getElementById('editStoreModal').classList.remove('flex');
     }
 
     async function saveStoreProfileChanges() {
@@ -214,7 +327,7 @@
           shopPhone: newPhone,
           savedPassword: newPassword
         });
-        alert(`Store "${newName}" details updated successfully!`);
+        alert(`Store "${newName}" updated successfully!`);
         closeEditStoreModal();
         loadAllStores();
       } catch (err) {
