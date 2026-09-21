@@ -29,19 +29,21 @@
         color: #000 !important;
         margin: 0 !important;
       }
+      /* Premium 58mm Receipt Sizing (~6 Inches proportional spacing) */
       body.mode-thermal #masterDirectPrintArea {
         width: 58mm !important;
         max-width: 58mm !important;
-        padding: 2mm 3mm !important;
+        padding: 4mm 3mm !important;
         font-family: 'Courier New', Courier, monospace !important;
         font-size: 11px !important;
-        line-height: 1.25 !important;
+        line-height: 1.35 !important;
+        color: #000 !important;
       }
       .receipt-cut-line {
         page-break-after: always !important;
         border-bottom: 2px dashed #000 !important;
-        margin: 10px 0 !important;
-        padding-bottom: 8px !important;
+        margin: 15px 0 !important;
+        padding-bottom: 12px !important;
       }
       body.mode-a4 #masterDirectPrintArea {
         width: 210mm !important;
@@ -63,9 +65,9 @@
 
     <div class="relative w-full max-w-4xl bg-slate-900/80 backdrop-blur-2xl border border-slate-800/80 rounded-3xl shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-12 my-auto">
       
-      <!-- Left Panel -->
+      <!-- Left Panel: Features List -->
       <div class="lg:col-span-5 bg-gradient-to-br from-indigo-950/80 via-slate-900 to-slate-950 p-6 sm:p-8 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-slate-800">
-        <div class="space-y-6">
+        <div class="space-y-5">
           <div class="flex items-center gap-3">
             <div class="w-11 h-11 bg-gradient-to-tr from-indigo-600 to-violet-500 rounded-2xl flex items-center justify-center text-white text-xl shadow-lg shadow-indigo-600/40">
               <i class="fa-solid fa-screwdriver-wrench"></i>
@@ -76,12 +78,13 @@
             </div>
           </div>
 
-          <div class="space-y-3 pt-2">
-            <h3 class="text-base font-bold text-slate-200">Everything Your Mobile Repair Shop Needs</h3>
-            <p class="text-xs text-slate-400 leading-relaxed">Multi-device cloud synchronization, automated invoices, and accurate profit calculations designed for modern repair businesses.</p>
+          <div class="space-y-2 pt-1">
+            <h3 class="text-sm sm:text-base font-bold text-slate-200">Everything Your Mobile Repair Shop Needs</h3>
+            <p class="text-xs text-slate-400 leading-relaxed">Multi-device cloud synchronization, automated invoices, spare parts management, and second-hand mobile billing.</p>
           </div>
 
-          <div class="space-y-2.5 pt-2">
+          <!-- Feature Badges List -->
+          <div class="space-y-2.5 pt-1">
             <div class="flex items-center gap-3 text-xs text-slate-300">
               <div class="w-6 h-6 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-xs flex-shrink-0 border border-emerald-500/20">
                 <i class="fa-solid fa-print"></i>
@@ -94,6 +97,20 @@
               </div>
               <span>Real-time Multi-Device Cloud Sync</span>
             </div>
+            <!-- NEW FEATURE 1: PARTS STOCK MANAGEMENT -->
+            <div class="flex items-center gap-3 text-xs text-slate-300">
+              <div class="w-6 h-6 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center text-xs flex-shrink-0 border border-amber-500/20">
+                <i class="fa-solid fa-boxes-stacked"></i>
+              </div>
+              <span>Spare Parts Stock & Inventory Control</span>
+            </div>
+            <!-- NEW FEATURE 2: USED MOBILE PURCHASING & SALES -->
+            <div class="flex items-center gap-3 text-xs text-slate-300">
+              <div class="w-6 h-6 rounded-lg bg-cyan-500/10 text-cyan-400 flex items-center justify-center text-xs flex-shrink-0 border border-cyan-500/20">
+                <i class="fa-solid fa-mobile-retro"></i>
+              </div>
+              <span>Pre-Owned Mobile Purchase, Sales & Stock</span>
+            </div>
             <div class="flex items-center gap-3 text-xs text-slate-300">
               <div class="w-6 h-6 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-xs flex-shrink-0 border border-emerald-500/20">
                 <i class="fa-brands fa-whatsapp"></i>
@@ -101,21 +118,21 @@
               <span>One-Click WhatsApp Due Balance Reminders</span>
             </div>
             <div class="flex items-center gap-3 text-xs text-slate-300">
-              <div class="w-6 h-6 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center text-xs flex-shrink-0 border border-amber-500/20">
+              <div class="w-6 h-6 rounded-lg bg-purple-500/10 text-purple-400 flex items-center justify-center text-xs flex-shrink-0 border border-purple-500/20">
                 <i class="fa-solid fa-cash-register"></i>
               </div>
-              <span>Staff Cash Register & Drawer Balance</span>
+              <span>Daily Cash Drawer, Daybook & Ledger</span>
             </div>
           </div>
         </div>
 
-        <div class="pt-6 border-t border-slate-800/80 mt-6 lg:mt-0 flex items-center justify-between text-[11px] text-slate-500">
-          <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Cloud v2.5 Active</span>
+        <div class="pt-5 border-t border-slate-800/80 mt-6 lg:mt-0 flex items-center justify-between text-[11px] text-slate-500">
+          <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Cloud v2.6 Active</span>
           <span>Lead Dev: Debapriya Sarkar</span>
         </div>
       </div>
 
-      <!-- Right Panel -->
+      <!-- Right Panel: Auth Form -->
       <div class="lg:col-span-7 p-6 sm:p-8 flex flex-col justify-center space-y-6">
         <div>
           <h2 class="text-xl font-bold text-white tracking-wide" id="authTitle">Owner Authorization</h2>
@@ -195,7 +212,7 @@
     </div>
   </div>
 
-  <!-- Header Navbar (ADDED STOCK BUTTON LINKED TO parts.html) -->
+  <!-- Header Navbar (ADDED Used Mobiles TAB) -->
   <header class="bg-slate-900/90 backdrop-blur border-b border-slate-800 sticky top-0 z-40">
     <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-4">
       <div class="flex items-center gap-3">
@@ -226,10 +243,15 @@
           <i class="fa-solid fa-layer-group"></i>
           <span>Tracking</span>
         </button>
-        <!-- NEW STOCK BUTTON LINKING DIRECTLY TO parts.html -->
+        <!-- STOCK (PARTS) LINK -->
         <a href="parts.html" title="Manage Parts Inventory & Stock" class="px-3 py-2 rounded-lg text-xs md:text-sm font-semibold transition text-slate-400 hover:text-white hover:bg-slate-900 flex items-center gap-1.5 border border-transparent hover:border-slate-800">
           <i class="fa-solid fa-boxes-stacked text-amber-400"></i>
           <span>Stock</span>
+        </a>
+        <!-- NEW: USED MOBILES LINK (used_mobile.html) -->
+        <a href="used_mobile.html" title="Second-Hand Mobile Sales & Stock" class="px-3 py-2 rounded-lg text-xs md:text-sm font-semibold transition text-slate-400 hover:text-white hover:bg-slate-900 flex items-center gap-1.5 border border-transparent hover:border-slate-800">
+          <i class="fa-solid fa-mobile-retro text-cyan-400"></i>
+          <span>Used Mobiles</span>
         </a>
         <button onclick="requestTabAccess('reports')" id="tab-reports" class="px-3 py-2 rounded-lg text-xs md:text-sm font-semibold transition text-slate-400 hover:text-white flex items-center gap-1.5">
           <i class="fa-solid fa-lock text-[11px] text-amber-400"></i>
@@ -289,7 +311,7 @@
           </div>
           <div class="md:col-span-2">
             <label class="block text-xs font-semibold uppercase tracking-wider text-amber-400 mb-2">Internal Workshop Remarks 🔒</label>
-            <input type="text" id="intakeRemarks" placeholder="e.g. Sent for CPU reballing / Awaiting stock" class="w-full bg-slate-950 border border-amber-500/40 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-500 text-white transition">
+            <input type="text" id="intakeRemarks" placeholder="e.g. Sent for CPU reballing / Awaiting vendor stock" class="w-full bg-slate-950 border border-amber-500/40 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-500 text-white transition">
           </div>
 
           <div class="md:col-span-2 flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
@@ -1035,7 +1057,7 @@
       renderDailyCashReport();
     }
 
-    // ACCURATE CASH CLOSING ENGINE
+    // ACCURATE CASH CLOSING REPORT
     function renderDailyCashReport() {
       const selectedDate = document.getElementById('dailyReportDatePicker').value || todayStr;
       document.getElementById('dailyAuditDateLabel').innerText = `Date: ${selectedDate}`;
@@ -1063,7 +1085,6 @@
         if (job.deliveryDate === selectedDate) {
           if (job.status === "Delivered") {
             countDelivered++;
-            // Accurate delivery cash calculation
             const collected = (job.deliveryCollected !== undefined && job.deliveryCollected !== '') 
               ? (parseFloat(job.deliveryCollected) || 0) 
               : Math.max(0, (parseFloat(job.finalAmount) || 0) - (parseFloat(job.advPaid) || 0));
@@ -1641,62 +1662,131 @@
       window.open(whatsappUrl, '_blank');
     }
 
+    // =========================================================================
+    // ENHANCED 58mm PREMIUM REPAIR MEMO (STANDARDIZED ~6 INCHES LENGTH)
+    // =========================================================================
     function printDirectThermalVoucher(job, isDualIntake = false) {
       const isUnrepairable = job.status === "Unrepairable";
       const isDelivered = job.status === "Delivered";
-      const voucherTitle = isDualIntake ? "INTAKE INVOICE" : (isUnrepairable ? "RETURN VOUCHER (NON-REPAIR)" : "DELIVERY & WARRANTY INVOICE");
+      const voucherTitle = isDualIntake ? "REPAIR INTAKE MEMO" : (isUnrepairable ? "NON-REPAIR RETURN VOUCHER" : "REPAIR DELIVERY CASH MEMO");
 
-      const sName = currentStore ? currentStore.shopName : "SMARTFIX MOBILE CARE";
+      const sName = currentStore ? currentStore.shopName : "TULSI MOBILE STORE";
       const sAddr = currentStore ? currentStore.shopAddress : "Main Road, Workshop Station";
       const sPhone = currentStore ? currentStore.shopPhone : "9876543210";
 
-      let totalOrEst = isUnrepairable ? 0 : (isDelivered ? (job.finalAmount || 0) : (job.estCost || 0));
-      let balanceOrSettlement = isUnrepairable ? "0 (Returned)" : Math.max(0, totalOrEst - (job.advPaid || 0));
+      let totalOrEst = isUnrepairable ? 0 : (isDelivered ? (parseFloat(job.finalAmount) || 0) : (parseFloat(job.estCost) || 0));
+      let advPaid = parseFloat(job.advPaid) || 0;
+      let delCollected = parseFloat(job.deliveryCollected) || 0;
+      let due = parseFloat(job.dueBalance) || 0;
+
+      let paymentStatusText = "PENDING";
+      if (isUnrepairable) {
+        paymentStatusText = "RETURNED (CLOSED)";
+      } else if (isDelivered) {
+        paymentStatusText = due > 0 ? "PARTIAL (DUE: ₹" + due + ")" : "PAID IN FULL";
+      } else {
+        paymentStatusText = advPaid > 0 ? "ADVANCE PAID" : "PAYMENT DUE";
+      }
 
       let printHTML = `
         <div>
-          <div class="${isDualIntake ? 'receipt-cut-line' : ''}">
-            <div style="text-align: center;">
-              <h2 style="font-size: 13px; font-weight: bold; margin: 0; text-transform: uppercase;">${sName}</h2>
-              <p style="font-size: 9px; margin: 2px 0;">${sAddr}</p>
-              <p style="font-size: 9px; margin: 2px 0;">Helpline: +91 ${sPhone}</p>
-              <p style="font-size: 11px; font-weight: bold; text-decoration: underline; margin-top: 4px;">${voucherTitle}</p>
-            </div>
-            <div style="border-top: 1px dashed #000; margin: 5px 0;"></div>
-            <table style="width: 100%; font-size: 10px;">
-              <tr><td><strong>Bill No:</strong></td><td style="text-align: right;">${job.billNo}</td></tr>
-              <tr><td><strong>Intake Date:</strong></td><td style="text-align: right;">${job.intakeDate}</td></tr>
-              <tr><td><strong>Delivery Date:</strong></td><td style="text-align: right;">${job.deliveryDate || '--'}</td></tr>
-              <tr><td><strong>Customer:</strong></td><td style="text-align: right;">${job.customerName}</td></tr>
-              <tr><td><strong>Phone:</strong></td><td style="text-align: right;">${job.phone}</td></tr>
-              <tr><td><strong>Device:</strong></td><td style="text-align: right;">${job.model}</td></tr>
-              <tr><td><strong>IMEI:</strong></td><td style="text-align: right;">${job.imei}</td></tr>
-            </table>
-            <div style="border-top: 1px dashed #000; margin: 5px 0;"></div>
-            <div style="font-size: 10px;">
-              <strong>Problem:</strong> ${job.fault}
-            </div>
-            <div style="border-top: 1px dashed #000; margin: 5px 0;"></div>
-            <table style="width: 100%; font-size: 10px;">
-              <tr><td>Total Bill:</td><td style="text-align: right;">₹${totalOrEst}</td></tr>
-              <tr><td>Advance Received:</td><td style="text-align: right;">₹${job.advPaid}</td></tr>
-              ${isDelivered && job.deliveryCollected ? `<tr><td>Delivery Paid:</td><td style="text-align: right;">₹${job.deliveryCollected}</td></tr>` : ''}
-              ${isDelivered && job.dueBalance ? `<tr><td><strong style="color:red;">Pending Due:</strong></td><td style="text-align: right; color:red;"><strong>₹${job.dueBalance}</strong></td></tr>` : ''}
-              ${isUnrepairable && (job.refundPaid || job.advPaid) > 0 ? `<tr><td><strong>Advance Refunded:</strong></td><td style="text-align: right; color: red;"><strong>- ₹${job.refundPaid || job.advPaid}</strong></td></tr>` : ''}
-              <tr><td><strong>Settlement Status:</strong></td><td style="text-align: right;"><strong>${isUnrepairable ? 'Closed (Returned)' : (job.dueBalance > 0 ? '₹' + job.dueBalance + ' Due' : 'Paid in Full')}</strong></td></tr>
-            </table>
-            <div style="margin-top: 4px; font-size: 10px; font-weight: bold; border: 1px solid #000; padding: 2px; text-align: center;">
-              Warranty: ${job.warranty || 'No Warranty'}
-            </div>
-            <div style="border-top: 1px dashed #000; margin: 6px 0;"></div>
-            <div style="font-size: 8px; line-height: 1.2;">
-              <strong>TERMS & CONDITIONS:</strong><br>
-              1. NO WARRANTY on Physical Damage, Broken Glass, Liquid Damage, Inner Display Lining, or Green/White Lines.<br>
-              2. Devices must be claimed within 30 days from intake. Workshop is NOT liable for unclaimed units past 30 days.<br>
-              3. Original voucher mandatory for pickup.
+          <!-- Customer Copy (~6 Inches Standard Layout) -->
+          <div class="${isDualIntake ? 'receipt-cut-line' : ''}" style="padding: 2px 0;">
+            <div style="text-align: center; margin-bottom: 5px;">
+              <h2 style="font-size: 14px; font-weight: 900; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">${sName}</h2>
+              <p style="font-size: 9px; margin: 2px 0; color: #333;">${sAddr}</p>
+              <p style="font-size: 9px; margin: 1px 0; font-weight: bold;">Helpdesk: +91 ${sPhone}</p>
             </div>
             
-            <div style="border-top: 1px dashed #000; margin: 6px 0 3px 0;"></div>
+            <div style="border-top: 1.5px solid #000; margin: 4px 0;"></div>
+            <div style="text-align: center; font-size: 11px; font-weight: bold; text-decoration: underline; letter-spacing: 0.5px; padding: 2px 0;">
+              ${voucherTitle}
+            </div>
+            <div style="text-align: center; font-size: 9px; font-family: monospace; margin-bottom: 3px;">
+              Memo No: ${job.billNo}
+            </div>
+            <div style="border-top: 1px dashed #000; margin: 4px 0;"></div>
+
+            <table style="width: 100%; font-size: 10px; line-height: 1.35;">
+              <tr><td style="width: 45%;">Date:</td><td style="text-align: right;">${job.intakeDate}</td></tr>
+              ${isDelivered ? `<tr><td>Delivery Date:</td><td style="text-align: right;">${job.deliveryDate || '--'}</td></tr>` : ''}
+              <tr><td>Customer:</td><td style="text-align: right; font-weight: bold;">${job.customerName}</td></tr>
+              <tr><td>Contact:</td><td style="text-align: right;">${job.phone}</td></tr>
+            </table>
+
+            <div style="border-top: 1px dashed #000; margin: 4px 0;"></div>
+            <table style="width: 100%; font-size: 10px; line-height: 1.35;">
+              <tr><td>Device Model:</td><td style="text-align: right; font-weight: bold;">${job.model}</td></tr>
+              <tr><td>IMEI / Serial:</td><td style="text-align: right; font-family: monospace;">${job.imei}</td></tr>
+              <tr><td>Reported Fault:</td><td style="text-align: right;">${job.fault}</td></tr>
+              ${isDelivered && job.partName ? `<tr><td>Replaced Parts:</td><td style="text-align: right;">${job.partName}</td></tr>` : ''}
+            </table>
+
+            <div style="border-top: 1.5px solid #000; margin: 5px 0;"></div>
+            <table style="width: 100%; font-size: 10px; line-height: 1.4;">
+              <tr>
+                <td>${isDelivered ? 'Total Service Fee:' : 'Estimated Cost:'}</td>
+                <td style="text-align: right; font-weight: bold;">Rs. ${totalOrEst.toFixed(2)}</td>
+              </tr>
+              <tr>
+                <td>Advance Received:</td>
+                <td style="text-align: right;">Rs. ${advPaid.toFixed(2)}</td>
+              </tr>
+              ${isDelivered && delCollected > 0 ? `
+              <tr>
+                <td>Delivery Cash Paid:</td>
+                <td style="text-align: right;">Rs. ${delCollected.toFixed(2)}</td>
+              </tr>` : ''}
+              ${due > 0 && !isUnrepairable ? `
+              <tr>
+                <td style="font-weight: bold; color: red;">Remaining Due:</td>
+                <td style="text-align: right; font-weight: bold; color: red;">Rs. ${due.toFixed(2)}</td>
+              </tr>` : ''}
+              ${isUnrepairable && (job.refundPaid || advPaid) > 0 ? `
+              <tr>
+                <td style="font-weight: bold; color: red;">Advance Refunded:</td>
+                <td style="text-align: right; font-weight: bold; color: red;">- Rs. ${(parseFloat(job.refundPaid) || advPaid).toFixed(2)}</td>
+              </tr>` : ''}
+            </table>
+
+            <div style="border-top: 1.5px solid #000; margin: 5px 0 3px 0;"></div>
+            <table style="width: 100%; font-size: 10.5px; font-weight: bold;">
+              <tr>
+                <td>NET AMOUNT:</td>
+                <td style="text-align: right;">Rs. ${totalOrEst.toFixed(2)}</td>
+              </tr>
+              <tr>
+                <td style="font-size: 9.5px;">Payment Mode:</td>
+                <td style="text-align: right; font-size: 9.5px;">${paymentStatusText}</td>
+              </tr>
+            </table>
+
+            <div style="margin: 6px 0 4px 0; border: 1px solid #000; padding: 4px; text-align: center; font-size: 9px; font-weight: bold; letter-spacing: 0.3px;">
+              WARRANTY: ${(job.warranty || 'NO WARRANTY').toUpperCase()}
+            </div>
+
+            <div style="border-top: 1px dashed #000; margin: 5px 0;"></div>
+            <div style="font-size: 8px; line-height: 1.25; text-align: justify; color: #222;">
+              <strong>TERMS & CONDITIONS:</strong><br>
+              1. NO WARRANTY on physical damage, broken glass, liquid damage, internal display lining, white/green screen.<br>
+              2. Devices must be collected within 30 days of service. Workshop is NOT responsible for unclaimed items.<br>
+              3. Original memo slip mandatory for device delivery.
+            </div>
+
+            <div style="border-top: 1px dashed #000; margin: 12px 0 4px 0;"></div>
+            <table style="width: 100%; font-size: 8px; margin-top: 8px;">
+              <tr>
+                <td style="text-align: left; width: 50%;">____________________<br>Customer Signature</td>
+                <td style="text-align: right; width: 50%;">____________________<br>Authorized Signatory</td>
+              </tr>
+            </table>
+
+            <div style="text-align: center; margin-top: 8px; font-size: 8px;">
+              Thank you for trusting ${sName}!
+            </div>
+
+            <!-- MANDATORY DEVELOPER CREDIT FOOTER -->
+            <div style="border-top: 1px dashed #000; margin: 5px 0 2px 0;"></div>
             <div style="text-align: center; font-size: 7.5px; line-height: 1.2; color: #333;">
               SmartFix Pro &copy; 2026 | Mobile Workshop Management System<br>
               <strong>Developed by Debapriya Sarkar</strong>
@@ -1706,19 +1796,22 @@
 
       if (isDualIntake) {
         printHTML += `
-          <div>
-            <div style="text-align: center;">
-              <h3 style="font-size: 12px; font-weight: bold; margin: 0;">SHOP TAG (ATTACH TO PHONE)</h3>
+          <!-- Internal Workshop Phone Tag Copy -->
+          <div style="padding: 2px 0;">
+            <div style="text-align: center; margin-bottom: 3px;">
+              <h3 style="font-size: 12px; font-weight: bold; margin: 0; text-transform: uppercase;">WORKSHOP PHONE TAG</h3>
+              <p style="font-size: 8.5px; margin: 1px 0;">(ATTACH SECURELY TO DEVICE BACK)</p>
             </div>
-            <div style="border-top: 1px dashed #000; margin: 5px 0;"></div>
-            <div style="font-size: 10px;">
-              <p style="margin: 2px 0;"><strong>BILL NO:</strong> <span style="font-size: 12px; font-weight: bold;">${job.billNo}</span></p>
-              <p style="margin: 2px 0;"><strong>INTAKE DATE:</strong> ${job.intakeDate}</p>
-              <p style="margin: 2px 0;"><strong>MODEL:</strong> ${job.model}</p>
-              <p style="margin: 2px 0;"><strong>IMEI:</strong> ${job.imei}</p>
-              <p style="margin: 2px 0;"><strong>FAULT:</strong> ${job.fault}</p>
-              <p style="margin: 2px 0;"><strong>CUST:</strong> ${job.customerName} (${job.phone})</p>
-              <p style="margin: 2px 0;"><strong>ADV PAID:</strong> ₹${job.advPaid}</p>
+            <div style="border-top: 1px dashed #000; margin: 4px 0;"></div>
+            <div style="font-size: 10px; line-height: 1.35;">
+              <p style="margin: 2px 0;"><strong>BILL NO :</strong> <span style="font-size: 12px; font-weight: bold; font-family: monospace;">${job.billNo}</span></p>
+              <p style="margin: 2px 0;"><strong>INTAKE  :</strong> ${job.intakeDate}</p>
+              <p style="margin: 2px 0;"><strong>MODEL   :</strong> ${job.model}</p>
+              <p style="margin: 2px 0;"><strong>IMEI    :</strong> <span style="font-family: monospace;">${job.imei}</span></p>
+              <p style="margin: 2px 0;"><strong>FAULT   :</strong> ${job.fault}</p>
+              <p style="margin: 2px 0;"><strong>CUST    :</strong> ${job.customerName} (${job.phone})</p>
+              <p style="margin: 2px 0;"><strong>ADV PAID:</strong> Rs. ${advPaid.toFixed(2)}</p>
+              ${job.remarks ? `<p style="margin: 2px 0;"><strong>NOTE    :</strong> ${job.remarks}</p>` : ''}
             </div>
             <div style="border-top: 1px dashed #000; margin: 5px 0;"></div>
             <div style="text-align: center; font-size: 7.5px; line-height: 1.2; color: #333;">
