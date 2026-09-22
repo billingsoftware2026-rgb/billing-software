@@ -16,7 +16,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
   <style>
-    /* STANDARDIZED 58MM THERMAL MEMO PRINT (APPROX 5.5 - 6 INCHES LONG) */
+    /* STRICT THERMAL PAGE RULES - PREVENTS FORCED A4 SIZE */
     @page { 
       margin: 0 !important; 
       size: 58mm auto !important; 
@@ -24,24 +24,29 @@
     @media print {
       html, body {
         width: 58mm !important;
+        max-width: 58mm !important;
         margin: 0 !important;
         padding: 0 !important;
         background: #fff !important;
+        color: #000 !important;
       }
       body > *:not(#thermalPrintArea) { 
         display: none !important; 
       }
       #thermalPrintArea {
         display: block !important;
-        width: 54mm !important;
-        max-width: 54mm !important;
-        margin: 0 auto !important;
-        padding: 2mm 1.5mm 6mm 1.5mm !important;
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 58mm !important;
+        max-width: 58mm !important;
+        margin: 0 !important;
+        padding: 3mm 2mm 8mm 2mm !important;
         background: #fff !important;
         color: #000 !important;
         font-family: 'Courier New', Courier, monospace !important;
         font-size: 10px !important;
-        line-height: 1.25 !important;
+        line-height: 1.3 !important;
       }
     }
     ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -91,27 +96,36 @@
       </div>
 
       <!-- Navigation Tabs -->
-      <nav class="flex items-center bg-slate-950/80 p-1 rounded-xl border border-slate-800 gap-1 text-xs">
-        <button id="navTabShowcase" onclick="switchView('showcase')" class="px-3.5 py-2 rounded-lg font-semibold transition bg-indigo-600 text-white shadow-md flex items-center gap-1.5">
+      <nav class="flex items-center bg-slate-950/80 p-1 rounded-xl border border-slate-800 gap-1 text-xs flex-wrap">
+        <button id="navTabShowcase" onclick="switchView('showcase')" class="px-3 py-2 rounded-lg font-semibold transition bg-indigo-600 text-white shadow-md flex items-center gap-1.5">
           <i class="fa-solid fa-store"></i>
           <span>Showroom</span>
         </button>
-        <button id="navTabHistory" onclick="switchView('history')" class="px-3.5 py-2 rounded-lg font-semibold transition text-slate-400 hover:text-white flex items-center gap-1.5">
+        <button id="navTabHistory" onclick="switchView('history')" class="px-3 py-2 rounded-lg font-semibold transition text-slate-400 hover:text-white flex items-center gap-1.5">
           <i class="fa-solid fa-magnifying-glass"></i>
           <span>IMEI History</span>
         </button>
-        <button id="navTabAdmin" onclick="requestOwnerAccess('admin')" class="px-3.5 py-2 rounded-lg font-semibold transition text-slate-400 hover:text-white flex items-center gap-1.5">
+        <button id="navTabAdmin" onclick="requestOwnerAccess('admin')" class="px-3 py-2 rounded-lg font-semibold transition text-slate-400 hover:text-white flex items-center gap-1.5">
           <i class="fa-solid fa-shield-halved text-amber-400"></i>
           <span>Owner Console</span>
         </button>
-        <button id="navTabLedger" onclick="requestOwnerAccess('ledger')" class="px-3.5 py-2 rounded-lg font-semibold transition text-slate-400 hover:text-white flex items-center gap-1.5">
+        <button id="navTabLedger" onclick="requestOwnerAccess('ledger')" class="px-3 py-2 rounded-lg font-semibold transition text-slate-400 hover:text-white flex items-center gap-1.5">
           <i class="fa-solid fa-file-invoice-dollar text-emerald-400"></i>
           <span>Sales & Profit</span>
         </button>
         <a href="parts.html" title="LCD Hub" class="px-3 py-2 text-slate-400 hover:text-white flex items-center gap-1.5 border-l border-slate-800 ml-1">
           <i class="fa-solid fa-layer-group text-indigo-400"></i>
-          <span class="hidden sm:inline">LCD Hub</span>
+          <span>LCD Hub</span>
         </a>
+        <a href="index.html" title="Workshop Repair OS" class="px-3 py-2 text-slate-400 hover:text-white flex items-center gap-1.5 border-l border-slate-800">
+          <i class="fa-solid fa-screwdriver-wrench text-emerald-400"></i>
+          <span>Repair POS</span>
+        </a>
+        <!-- Bluetooth Thermal Direct Connect Button -->
+        <button onclick="connectBluetoothThermal()" id="btnBtThermal" title="Connect 58mm Bluetooth Printer" class="px-2.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-emerald-400 rounded-lg font-bold border border-slate-800 transition flex items-center gap-1">
+          <i class="fa-brands fa-bluetooth text-blue-400"></i>
+          <span id="btThermalLabel">BT Print</span>
+        </button>
       </nav>
     </div>
   </header>
@@ -634,7 +648,7 @@
   <!-- STANDARDIZED 58MM THERMAL PRINT CONTAINER -->
   <div id="thermalPrintArea" style="display: none;"></div>
 
-  <!-- Toast -->
+  <!-- Toast Notification -->
   <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none px-4 py-3 rounded-xl bg-indigo-600 text-white text-xs font-semibold shadow-2xl flex items-center gap-2">
     <span id="toastMsg">Action completed</span>
   </div>
@@ -661,11 +675,44 @@
     let pendingTargetView = null;
     let currentShowcaseFilter = 'all';
 
+    // Bluetooth Printer variables
+    let btDevice = null;
+    let btCharacteristic = null;
+
     function showToast(msg) {
       const toast = document.getElementById('toast');
       document.getElementById('toastMsg').innerText = msg;
       toast.classList.remove('translate-y-20', 'opacity-0');
       setTimeout(() => toast.classList.add('translate-y-20', 'opacity-0'), 2500);
+    }
+
+    // Direct Web Bluetooth Pairing Function
+    async function connectBluetoothThermal() {
+      const lbl = document.getElementById('btThermalLabel');
+      try {
+        if (!navigator.bluetooth) {
+          alert("Web Bluetooth is not supported in this browser. Please use Chrome browser on Android.");
+          return;
+        }
+
+        lbl.innerText = "Pairing...";
+        btDevice = await navigator.bluetooth.requestDevice({
+          filters: [{ services: ['000018f0-0000-1000-8000-00805f9b34fb'] }],
+          optionalServices: ['000018f0-0000-1000-8000-00805f9b34fb', 'e7810a71-73ae-499d-8c15-faa9aef0c3f2']
+        });
+
+        const server = await btDevice.gatt.connect();
+        const service = await server.getPrimaryService('000018f0-0000-1000-8000-00805f9b34fb');
+        const characteristics = await service.getCharacteristics();
+        btCharacteristic = characteristics.find(c => c.properties.write || c.properties.writeWithoutResponse);
+
+        lbl.innerText = "Connected";
+        document.getElementById('btnBtThermal').classList.replace('text-slate-300', 'text-emerald-400');
+        alert("Bluetooth Thermal Printer Connected Successfully!");
+      } catch (err) {
+        lbl.innerText = "BT Print";
+        alert("Bluetooth info: If not direct pairing, install 'RawBT Print Service' from Play Store for 100% smooth background thermal prints.");
+      }
     }
 
     auth.onAuthStateChanged(async (user) => {
@@ -709,24 +756,24 @@
       const tabs = ['Showcase', 'History', 'Admin', 'Ledger'];
       tabs.forEach(t => {
         const btn = document.getElementById('navTab' + t);
-        if (btn) btn.className = "px-3.5 py-2 rounded-lg font-semibold transition text-slate-400 hover:text-white flex items-center gap-1.5";
+        if (btn) btn.className = "px-3 py-2 rounded-lg font-semibold transition text-slate-400 hover:text-white flex items-center gap-1.5";
       });
 
       if (view === 'showcase') {
         document.getElementById('viewShowcase').classList.remove('hidden');
-        document.getElementById('navTabShowcase').className = "px-3.5 py-2 rounded-lg font-semibold transition bg-indigo-600 text-white shadow-md flex items-center gap-1.5";
+        document.getElementById('navTabShowcase').className = "px-3 py-2 rounded-lg font-semibold transition bg-indigo-600 text-white shadow-md flex items-center gap-1.5";
         renderShowcaseGrid();
       } else if (view === 'history') {
         document.getElementById('viewHistory').classList.remove('hidden');
-        document.getElementById('navTabHistory').className = "px-3.5 py-2 rounded-lg font-semibold transition bg-indigo-600 text-white shadow-md flex items-center gap-1.5";
+        document.getElementById('navTabHistory').className = "px-3 py-2 rounded-lg font-semibold transition bg-indigo-600 text-white shadow-md flex items-center gap-1.5";
         document.getElementById('historySearchInput').focus();
       } else if (view === 'admin') {
         document.getElementById('viewAdmin').classList.remove('hidden');
-        document.getElementById('navTabAdmin').className = "px-3.5 py-2 rounded-lg font-semibold transition bg-indigo-600 text-white shadow-md flex items-center gap-1.5";
+        document.getElementById('navTabAdmin').className = "px-3 py-2 rounded-lg font-semibold transition bg-indigo-600 text-white shadow-md flex items-center gap-1.5";
         renderAdminStockTable();
       } else if (view === 'ledger') {
         document.getElementById('viewLedger').classList.remove('hidden');
-        document.getElementById('navTabLedger').className = "px-3.5 py-2 rounded-lg font-semibold transition bg-indigo-600 text-white shadow-md flex items-center gap-1.5";
+        document.getElementById('navTabLedger').className = "px-3 py-2 rounded-lg font-semibold transition bg-indigo-600 text-white shadow-md flex items-center gap-1.5";
         renderSalesTable();
       }
     }
@@ -1448,7 +1495,7 @@
       }
     }
 
-    // STANDARDIZED 58MM THERMAL RECEIPT (PROPORTIONAL 5.5 - 6 INCH RECEIPT)
+    // STANDARDIZED 58MM THERMAL RECEIPT (~5.5 - 6 INCHES LONG)
     function printSalesReceipt(item) {
       const sName = currentStore ? currentStore.shopName : "SMARTFIX WORKSHOP";
       const sAddr = currentStore ? currentStore.shopAddress : "Main Station Road";
@@ -1462,13 +1509,13 @@
           <p style="font-size: 8.5px; margin: 2px 0 1px 0;">${sAddr}</p>
           <p style="font-size: 8.5px; margin: 1px 0;">Helpdesk: +91 ${sPhone}</p>
           
-          <div style="border-top: 1px solid #000; margin: 4px 0 3px 0;"></div>
+          <div style="border-top: 1.5px solid #000; margin: 4px 0 3px 0;"></div>
           <p style="font-size: 10.5px; font-weight: bold; text-decoration: underline; margin: 0;">PRE-OWNED MOBILE CASH MEMO</p>
           <p style="font-size: 8px; margin: 2px 0 0 0;">Memo No: <strong>${invoiceNo}</strong></p>
           <div style="border-top: 1px dashed #000; margin: 4px 0;"></div>
 
           <!-- Customer & Date -->
-          <table style="width: 100%; font-size: 9px; border-collapse: collapse; text-align: left;">
+          <table style="width: 100%; font-size: 9px; border-collapse: collapse; text-align: left; line-height: 1.35;">
             <tr><td>Date:</td><td style="text-align: right;">${item.saleDate || item.intakeDate}</td></tr>
             <tr><td>Buyer:</td><td style="text-align: right;"><strong>${item.buyerName || 'Walk-in'}</strong></td></tr>
             <tr><td>Mobile:</td><td style="text-align: right;">${item.buyerPhone || '-'}</td></tr>
@@ -1477,22 +1524,22 @@
           <div style="border-top: 1px dashed #000; margin: 4px 0;"></div>
 
           <!-- Device Specs -->
-          <table style="width: 100%; font-size: 9px; border-collapse: collapse; text-align: left;">
+          <table style="width: 100%; font-size: 9px; border-collapse: collapse; text-align: left; line-height: 1.35;">
             <tr><td colspan="2" style="font-weight: bold; font-size: 10px;">${item.brand} ${item.model}</td></tr>
             <tr><td>Storage:</td><td style="text-align: right;">${item.variant || 'Standard'}</td></tr>
             <tr><td>Condition:</td><td style="text-align: right;">${item.condition || 'Tested OK'}</td></tr>
             <tr><td>IMEI:</td><td style="text-align: right; font-weight: bold;">${item.imei}</td></tr>
           </table>
 
-          <div style="border-top: 1px dashed #000; margin: 4px 0;"></div>
+          <div style="border-top: 1.5px solid #000; margin: 4px 0;"></div>
 
           <!-- Settlement Math -->
-          <table style="width: 100%; font-size: 9px; border-collapse: collapse;">
-            <tr><td>Unit Price:</td><td style="text-align: right;">Rs. ${item.salePrice}</td></tr>
+          <table style="width: 100%; font-size: 9.5px; border-collapse: collapse; line-height: 1.4;">
+            <tr><td>Unit Price:</td><td style="text-align: right;">Rs. ${Number(item.salePrice).toFixed(2)}</td></tr>
             <tr><td>Tax / GST:</td><td style="text-align: right;">Rs. 0.00</td></tr>
-            <tr style="font-size: 11px; font-weight: 900; border-top: 1px solid #000;">
+            <tr style="font-size: 11px; font-weight: 900; border-top: 1.5px solid #000;">
               <td style="padding-top: 3px;">NET AMOUNT:</td>
-              <td style="text-align: right; padding-top: 3px;">Rs. ${item.salePrice}</td>
+              <td style="text-align: right; padding-top: 3px;">Rs. ${Number(item.salePrice).toFixed(2)}</td>
             </tr>
             <tr style="font-size: 9px;">
               <td>Payment:</td>
@@ -1510,24 +1557,26 @@
           <!-- Terms & Condition Notice -->
           <div style="font-size: 7.5px; line-height: 1.25; text-align: left; color: #111;">
             <strong>TERMS & CONDITIONS:</strong><br>
-            1. Pre-owned phones are verified with government identity proof of the original owner.<br>
+            1. Pre-owned phones are verified with identity proof of the original seller.<br>
             2. Warranty does NOT cover display line, touch failure, physical damage, or liquid damage.<br>
             3. Original invoice copy mandatory for any warranty or service inspection.
           </div>
 
-          <div style="border-top: 1px dashed #000; margin: 8px 0 4px 0;"></div>
+          <div style="border-top: 1px dashed #000; margin: 10px 0 4px 0;"></div>
 
           <!-- Signature & Seal Blocks -->
-          <table style="width: 100%; font-size: 7.5px; margin-top: 12px; border-collapse: collapse;">
+          <table style="width: 100%; font-size: 7.5px; margin-top: 10px; border-collapse: collapse;">
             <tr>
               <td style="text-align: center; width: 50%;">____________________<br>Customer Signature</td>
               <td style="text-align: center; width: 50%;">____________________<br>Authorized Signatory</td>
             </tr>
           </table>
 
-          <p style="text-align: center; font-size: 7px; margin: 8px 0 0 0; color: #444;">
-            Thank you for choosing ${sName}!<br>
-            SmartFix Pro &copy; 2026 | Verified Device POS
+          <div style="border-top: 1px dashed #000; margin: 6px 0 2px 0;"></div>
+          <!-- DEVELOPER CREDIT -->
+          <p style="text-align: center; font-size: 7.5px; margin: 4px 0 0 0; color: #333;">
+            SmartFix Pro &copy; 2026 | Mobile Workshop Management System<br>
+            <strong>Developed by Debapriya Sarkar</strong>
           </p>
         </div>
       `;
@@ -1541,7 +1590,7 @@
         setTimeout(() => {
           area.style.display = 'none';
           area.innerHTML = '';
-        }, 600);
+        }, 500);
       }, 100);
     }
 
