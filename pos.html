@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartFix Pro - Workshop OS, Retail Billing & Tally POS</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Identity Services -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <!-- SheetJS for CA-Grade Excel Exports -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <!-- HTML5 QR Code & Barcode Scanner Engine -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+
+  <style>
+    /* A4 Print Engine */
+    @media print {
+      body * { visibility: hidden; }
+      #printableInvoice, #printableInvoice * { visibility: visible; }
+      #printableInvoice {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 210mm;
+        margin: 0;
+        padding: 10mm 14mm;
+        background: white !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .no-print { display: none !important; }
+      tr { page-break-inside: avoid; }
+    }
+
+    /* Professional Themes */
+    .theme-blue { --pri: #1e3a8a; --sec: #2563eb; --accent: #f0f7ff; --border: #bfdbfe; }
+    .theme-dark { --pri: #0f172a; --sec: #334155; --accent: #f8fafc; --border: #cbd5e1; }
+    .theme-emerald { --pri: #064e3b; --sec: #059669; --accent: #ecfdf5; --border: #a7f3d0; }
+    .theme-purple { --pri: #4c1d95; --sec: #7c3aed; --accent: #f5f3ff; --border: #ddd6fe; }
+
+    .brand-bg { background-color: var(--pri); }
+    .brand-text { color: var(--pri); }
+    .brand-accent { background-color: var(--accent); }
+    .brand-border { border-color: var(--border); }
+  </style>
+</head>
+<body class="bg-slate-950 font-sans text-slate-100 min-h-screen">
+
+  <!-- Top SMARTFIXPRO Navigation -->
+  <header class="bg-slate-900 border-b border-slate-800 shadow-md no-print sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 py-2.5 flex flex-wrap justify-between items-center gap-3">
+      <div class="flex items-center space-x-3">
+        <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-500/30">
+          🔧
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-lg font-black tracking-tight text-white">SMARTFIX<span class="text-indigo-400">PRO</span></span>
+            <span class="text-[10px] bg-indigo-950 text-indigo-300 font-mono px-2 py-0.5 rounded border border-indigo-800">BILLING & POS</span>
+          </div>
+          <p class="text-[10px] text-slate-400">Lead Dev: Debapriya Sarkar | Workshop Cloud</p>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-3">
+        <div id="storeRegisteredBadge" class="hidden text-xs bg-slate-800 text-emerald-400 border border-slate-700 px-2.5 py-1 rounded-md flex items-center gap-1.5 font-medium">
+          <span>🔒</span> <span id="lockedStoreNameDisplay">Verified Store</span>
+        </div>
+        
+        <button id="authBtn" onclick="handleAuthClick()" class="bg-indigo-600 hover:bg-indigo-700 text-xs px-3 py-1.5 rounded-md font-semibold transition flex items-center gap-1.5 text-white shadow">
+          <span>Connect Google Drive</span>
+        </button>
+        <span id="authStatusBadge" class="hidden text-xs text-emerald-400 font-semibold">● Drive Linked</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Module Menu -->
+  <nav class="bg-slate-900/60 backdrop-blur border-b border-slate-800 shadow-sm no-print">
+    <div class="max-w-7xl mx-auto px-4 flex space-x-2 sm:space-x-4">
+      <button onclick="switchView('billingTab')" id="nav-billingTab" class="tab-btn py-2.5 px-3 text-xs sm:text-sm font-bold border-b-2 border-indigo-500 text-indigo-400">Billing Counter (F1)</button>
+      <button onclick="switchView('accountingTab')" id="nav-accountingTab" class="tab-btn py-2.5 px-3 text-xs sm:text-sm font-semibold text-slate-400 hover:text-white border-b-2 border-transparent">Tally CA Reports & Ledger (F2)</button>
+      <button onclick="switchView('inventoryTab')" id="nav-inventoryTab" class="tab-btn py-2.5 px-3 text-xs sm:text-sm font-semibold text-slate-400 hover:text-white border-b-2 border-transparent">Stock & Barcodes (F3)</button>
+      <button onclick="switchView('settingsTab')" id="nav-settingsTab" class="tab-btn py-2.5 px-3 text-xs sm:text-sm font-semibold text-slate-400 hover:text-white border-b-2 border-transparent">Store Profile & Lock (F4)</button>
+    </div>
+  </nav>
+
+  <main class="max-w-7xl mx-auto px-4 py-6 no-print text-slate-800">
+
+    <!-- 1. BILLING & BARCODE ENGINE -->
+    <section id="billingTab" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      
+      <!-- Input Panel -->
+      <div class="lg:col-span-5 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+        
+        <div class="flex justify-between items-center border-b pb-2">
+          <h2 class="font-bold text-slate-900 text-sm uppercase tracking-wide">POS Sales Invoice</h2>
+          <span class="text-xs bg-indigo-50 text-indigo-700 font-mono font-bold px-2 py-0.5 rounded" id="displayFY">FY 2026-27</span>
+        </div>
+
+        <!-- Barcode Scanner Trigger Bar -->
+        <div class="bg-indigo-50 border border-indigo-200 rounded-xl p-3 space-y-2">
+          <div class="flex justify-between items-center">
+            <span class="text-xs font-bold text-indigo-900 flex items-center gap-1.5">
+              <span>📷</span> Barcode / IMEI Fast Scanner
+            </span>
+            <button onclick="toggleCameraScanner()" id="scannerToggleBtn" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-2.5 py-1 rounded transition">
+              Open Camera Scanner
+            </button>
+          </div>
+          <!-- Live Camera Viewport -->
+          <div id="cameraScannerWrapper" class="hidden overflow-hidden rounded-lg border border-indigo-300">
+            <div id="reader" style="width: 100%;"></div>
+          </div>
+          <!-- Handheld Hardware Barcode Listener -->
+          <div class="relative">
+            <input type="text" id="barcodeQuickInput" onkeydown="handleBarcodeEnter(event)" placeholder="Scan Barcode or Type IMEI and press ENTER..." class="w-full bg-white border border-indigo-300 rounded px-3 py-1.5 text-xs font-mono">
+            <span class="absolute right-2 top-1.5 text-[10px] text-indigo-400 font-bold">Auto-Detect</span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">Invoice No</label>
+            <input type="text" id="invNo" class="w-full bg-slate-50 border border-slate-300 rounded px-2.5 py-1.5 text-xs font-mono font-bold" readonly>
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">Date</label>
+            <input type="date" id="invDate" class="w-full border border-slate-300 rounded px-2.5 py-1.5 text-xs">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">Customer Name</label>
+            <input type="text" id="custName" placeholder="Client Name" class="w-full border border-slate-300 rounded px-2.5 py-1.5 text-xs">
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">Phone Number</label>
+            <input type="tel" id="custPhone" placeholder="Mobile No" class="w-full border border-slate-300 rounded px-2.5 py-1.5 text-xs">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">Customer GSTIN (B2B)</label>
+            <input type="text" id="custGSTIN" placeholder="Optional" class="w-full border border-slate-300 rounded px-2.5 py-1.5 text-xs font-mono uppercase">
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">Payment Method</label>
+            <select id="paymentLedger" class="w-full border border-slate-300 rounded px-2.5 py-1.5 text-xs bg-white">
+              <option value="Cash-in-Hand">Cash A/c (Counter)</option>
+              <option value="Bank / UPI">UPI / QR Payment</option>
+              <option value="Card Payment">Debit / Credit Card</option>
+              <option value="Bajaj / EMI Finance">Bajaj Finance / Loan</option>
+              <option value="Credit / Sundry Debtors">Udhar (Sundry Debtors)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Manual Line Item Input -->
+        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2">
+          <div class="text-[10px] font-bold text-slate-700 uppercase flex justify-between">
+            <span>Manual Product / Mobile Entry</span>
+          </div>
+
+          <input type="text" id="itemDesc" placeholder="Model Name (e.g. Vivo V40 5G 8/128)" class="w-full border border-slate-300 rounded px-2.5 py-1.5 text-xs">
+          <input type="text" id="itemIMEI" placeholder="IMEI 1 & 2 / Serial Number" class="w-full border border-slate-300 rounded px-2.5 py-1.5 text-xs font-mono bg-amber-50/50">
+
+          <div class="grid grid-cols-4 gap-2">
+            <div>
+              <label class="block text-[9px] text-slate-500 font-bold mb-0.5">HSN</label>
+              <input type="text" id="itemHSN" value="8517" class="w-full border rounded px-1.5 py-1 text-xs font-mono">
+            </div>
+            <div>
+              <label class="block text-[9px] text-slate-500 font-bold mb-0.5">GST%</label>
+              <select id="itemGSTRate" class="w-full border rounded px-1 py-1 text-xs bg-white">
+                <option value="18">18%</option>
+                <option value="12">12%</option>
+                <option value="0">0%</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[9px] text-slate-500 font-bold mb-0.5">Qty</label>
+              <input type="number" id="itemQty" value="1" min="1" class="w-full border rounded px-1 py-1 text-xs text-center">
+            </div>
+            <div>
+              <label class="block text-[9px] text-slate-500 font-bold mb-0.5">Gross (₹)</label>
+              <input type="number" id="itemPrice" placeholder="Price" class="w-full border rounded px-1.5 py-1 text-xs font-bold">
+            </div>
+          </div>
+
+          <button onclick="addManualItem()" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-1.5 rounded text-xs transition">+ Add Item</button>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">Invoice Theme</label>
+            <select id="invoiceTheme" onchange="applyInvoiceTheme(this.value)" class="w-full border border-slate-300 rounded px-2.5 py-1.5 text-xs bg-white">
+              <option value="theme-blue">Sapphire Blue (Executive)</option>
+              <option value="theme-dark">Deep Slate / Dark Modern</option>
+              <option value="theme-emerald">Royal Emerald</option>
+              <option value="theme-purple">Majestic Purple</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">Print Action</label>
+            <button onclick="finalizeAndPrint()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-1.5 rounded text-xs shadow transition">
+              💾 Save & Print A4
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Live Auto-Expanding A4 Preview Canvas -->
+      <div class="lg:col-span-7 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center overflow-x-auto">
+        <div class="w-full flex justify-between items-center mb-3">
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Dynamic A4 Page Fitting Preview</span>
+          <span class="text-[11px] text-slate-500">Auto-scales margins for 1 or multiple items</span>
+        </div>
+
+        <!-- The A4 Sheet Container -->
+        <div id="printableInvoice" class="theme-blue bg-white shadow-2xl border border-slate-200 text-xs text-slate-800 flex flex-col justify-between" style="width: 210mm; min-height: 285mm; padding: 12mm 15mm;">
+          <!-- Dynamically populated invoice HTML with Debapriya Sarkar Credits -->
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. TALLY-STYLE ACCOUNTING & CA AUDIT ENGINE -->
+    <section id="accountingTab" class="space-y-6 hidden">
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+        <div class="flex flex-wrap justify-between items-center gap-3">
+          <div>
+            <h2 class="text-lg font-bold text-slate-900 tracking-tight">Tally Accounting & CA Audit Registers</h2>
+            <p class="text-xs text-slate-500">Export audited GSTR-1 Excel reports for your Chartered Accountant.</p>
+          </div>
+          <div class="flex flex-wrap gap-1.5 text-xs font-semibold">
+            <button onclick="setDateRange('today')" class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-slate-700">Today</button>
+            <button onclick="setDateRange('month')" class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-slate-700">1 Month</button>
+            <button onclick="setDateRange('3months')" class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-slate-700">3 Months</button>
+            <button onclick="setDateRange('6months')" class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-slate-700">6 Months</button>
+            <button onclick="setDateRange('1year')" class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-slate-700">1 Year</button>
+            <button onclick="setDateRange('fy')" class="bg-indigo-50 text-indigo-700 border border-indigo-200 px-3 py-1.5 rounded font-bold">Financial Year</button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 pt-2 border-t">
+          <div>
+            <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">From Date</label>
+            <input type="date" id="filterFromDate" class="w-full border rounded px-2.5 py-1.5 text-xs">
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">To Date</label>
+            <input type="date" id="filterToDate" class="w-full border rounded px-2.5 py-1.5 text-xs">
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Voucher Ledger</label>
+            <select id="filterLedger" class="w-full border rounded px-2.5 py-1.5 text-xs bg-white">
+              <option value="ALL">Consolidated All Accounts</option>
+              <option value="Cash-in-Hand">Cash A/c</option>
+              <option value="Bank / UPI">Bank / UPI Direct</option>
+              <option value="Credit / Sundry Debtors">Sundry Debtors (Udhar)</option>
+            </select>
+          </div>
+          <div class="flex items-end">
+            <button onclick="applyTallyFilter()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-1.5 rounded text-xs transition">Filter Records</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Financial Metrics Ribbon -->
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+          <div class="text-[10px] font-bold text-slate-400 uppercase">Gross Turnover</div>
+          <div id="statGrossTurnover" class="text-lg font-black text-slate-900 mt-1">₹0.00</div>
+          <div class="text-[10px] text-slate-500 mt-0.5" id="statVoucherCount">0 Invoices</div>
+        </div>
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+          <div class="text-[10px] font-bold text-slate-400 uppercase">Taxable Sales</div>
+          <div id="statTaxable" class="text-lg font-black text-slate-900 mt-1">₹0.00</div>
+          <div class="text-[10px] text-slate-500 mt-0.5">Net Base</div>
+        </div>
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+          <div class="text-[10px] font-bold text-indigo-600 uppercase">Output GST</div>
+          <div id="statGSTOutput" class="text-lg font-black text-indigo-700 mt-1">₹0.00</div>
+          <div class="text-[10px] text-slate-500 mt-0.5">CGST + SGST</div>
+        </div>
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+          <div class="text-[10px] font-bold text-emerald-600 uppercase">Cash Realized</div>
+          <div id="statCashRealized" class="text-lg font-black text-emerald-700 mt-1">₹0.00</div>
+          <div class="text-[10px] text-slate-500 mt-0.5">Liquid balance</div>
+        </div>
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+          <div class="text-[10px] font-bold text-amber-600 uppercase">Pending Udhar</div>
+          <div id="statReceivables" class="text-lg font-black text-amber-700 mt-1">₹0.00</div>
+          <div class="text-[10px] text-slate-500 mt-0.5">Debtors receivable</div>
+        </div>
+      </div>
+
+      <!-- Action Panel: CA Exports -->
+      <div class="bg-gradient-to-r from-slate-900 to-indigo-950 p-4 rounded-2xl text-white flex flex-wrap justify-between items-center gap-4 shadow-sm">
+        <div>
+          <div class="font-bold text-sm tracking-wide">Chartered Accountant (CA) Tax Export Portal</div>
+          <div class="text-xs text-slate-300">Generate formatted .XLSX workbooks containing GSTR-1, HSN summaries, and Daybooks.</div>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <button onclick="exportToExcelCA()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3.5 py-2 rounded-lg shadow flex items-center gap-1.5 transition">
+            <span>📊 Download CA Excel Workbook (.xlsx)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Ledger / Daybook Transaction Grid -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="p-4 border-b bg-slate-50 flex justify-between items-center">
+          <h3 class="font-bold text-xs uppercase text-slate-700 tracking-wider">Daybook / Sales Register</h3>
+          <span class="text-xs text-slate-500" id="filteredRangeText">Period: Full View</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead class="bg-slate-100 text-slate-600 font-bold border-b uppercase text-[10px]">
+              <tr>
+                <th class="p-3">Date</th>
+                <th class="p-3">Inv No</th>
+                <th class="p-3">Customer & Particulars</th>
+                <th class="p-3">Ledger Head</th>
+                <th class="p-3 text-right">Taxable (₹)</th>
+                <th class="p-3 text-right">GST (₹)</th>
+                <th class="p-3 text-right">Debit (Amount ₹)</th>
+                <th class="p-3 text-center">Action</th>
+              </tr>
+            </thead>
+            <tbody id="accountingGridBody" class="divide-y divide-slate-100">
+              <tr>
+                <td colspan="8" class="text-center py-8 text-slate-400">Loading ledger data...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. STOCK & INVENTORY REGISTER -->
+    <section id="inventoryTab" class="space-y-6 hidden">
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+        <h2 class="font-bold text-slate-900 text-sm uppercase tracking-wide">Stock Inward / Product Register</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-5 gap-3">
+          <input type="text" id="stkModel" placeholder="Model Name (e.g. Redmi Note 13)" class="border rounded px-2.5 py-1.5 text-xs col-span-2">
+          <input type="text" id="stkIMEI" placeholder="Barcode / IMEI" class="border rounded px-2.5 py-1.5 text-xs font-mono">
+          <input type="number" id="stkCost" placeholder="Selling Price (₹)" class="border rounded px-2.5 py-1.5 text-xs font-bold">
+          <button onclick="addStockItem()" class="bg-indigo-600 text-white font-bold py-1.5 rounded text-xs hover:bg-indigo-700 transition">+ Add to Stock</button>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="p-4 border-b bg-slate-50 flex justify-between items-center">
+          <h3 class="font-bold text-xs uppercase text-slate-700 tracking-wider">Live Inventory Register</h3>
+          <span class="text-xs text-slate-500" id="stockCountDisplay">0 Units</span>
+        </div>
+        <table class="w-full text-left text-xs border-collapse">
+          <thead class="bg-slate-100 text-slate-600 uppercase text-[10px]">
+            <tr>
+              <th class="p-3">#</th>
+              <th class="p-3">Device / Item</th>
+              <th class="p-3">Barcode / IMEI</th>
+              <th class="p-3 text-right">Selling Price</th>
+              <th class="p-3 text-center">Action</th>
+            </tr>
+          </thead>
+          <tbody id="stockGridBody" class="divide-y divide-slate-100"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 4. PERMANENT STORE REGISTER & LOCK (ONE-TIME ONLY) -->
+    <section id="settingsTab" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm max-w-2xl mx-auto space-y-4 hidden">
+      <div class="border-b pb-3">
+        <h2 class="font-bold text-slate-900 text-base flex items-center gap-2">
+          <span>🔒</span> Permanent Store Authorization & Lock
+        </h2>
+        <p class="text-xs text-slate-500">Store credentials and Trade Name can only be registered once to protect identity.</p>
+      </div>
+
+      <div id="lockedWarningBanner" class="hidden bg-amber-50 border border-amber-300 p-3 rounded-xl text-xs text-amber-800 flex items-center gap-2 font-medium">
+        <span>⚠</span> <span>This store is permanently registered. To modify critical details, please enter the Master Workshop Secret Key.</span>
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold text-slate-700 mb-1">Registered Trade / Shop Name (Locked)</label>
+        <input type="text" id="cfgStoreName" placeholder="e.g. Maa Tara Telecom & Workshop" class="w-full border rounded px-3 py-2 text-xs font-bold text-slate-800 bg-slate-50">
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">State & GSTIN</label>
+          <input type="text" id="cfgStoreGST" placeholder="19XXXXX1234X1ZX" class="w-full border rounded px-3 py-2 text-xs font-mono uppercase">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Contact Phone</label>
+          <input type="tel" id="cfgStorePhone" class="w-full border rounded px-3 py-2 text-xs">
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold text-slate-700 mb-1">Store Address</label>
+        <textarea id="cfgStoreAddress" rows="2" class="w-full border rounded px-3 py-2 text-xs"></textarea>
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold text-slate-700 mb-1">Store Logo</label>
+        <input type="file" id="cfgLogoFile" accept="image/*" class="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:bg-indigo-50 file:text-indigo-700">
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold text-slate-700 mb-1">Warranty & Service Policy</label>
+        <textarea id="cfgStoreTerms" rows="3" class="w-full border rounded px-3 py-2 text-xs"></textarea>
+      </div>
+
+      <div id="unlockContainer" class="hidden pt-2 border-t">
+        <label class="block text-xs font-bold text-red-600 mb-1">Master Workshop Secret Passcode (To Unlock)</label>
+        <input type="password" id="adminSecretPass" placeholder="Enter workshop master PIN to edit locked store" class="w-full border border-red-300 rounded px-3 py-1.5 text-xs">
+      </div>
+
+      <button id="saveStoreBtn" onclick="saveStoreSettings()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 rounded-xl text-xs transition shadow">
+        Register Store & Permanently Lock
+      </button>
+    </section>
+
+  </main>
+
+  <script>
+    /* ==========================================================================
+       SMARTFIXPRO POS & TALLY SUITE JAVASCRIPT LOGIC
+       ========================================================================== */
+
+    const CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com';
+    const SCOPES = 'https://www.googleapis.com/auth/drive.file';
+
+    let tokenClient;
+    let accessToken = null;
+    let currentTheme = 'theme-blue';
+    let html5QrCode = null;
+    let isScannerOpen = false;
+
+    // Default Profile
+    let storeProfile = {
+      name: "",
+      phone: "+91 98320 12345",
+      gstin: "19AAECR4821F1ZM",
+      address: "Station Road, Chakdaha, Nadia, West Bengal - 741222",
+      logo: "",
+      terms: "1. Warranty service strictly covered by Brand Authorized Service Centers.\n2. Goods once sold will not be returned.\n3. Physical & liquid damages void all warranties.",
+      isLocked: false
+    };
+
+    let invoices = [];
+    let inventory = [];
+    let activeLineItems = [];
+
+    // Financial Year Helper
+    function getFinancialYear(dateObj = new Date()) {
+      const year = dateObj.getFullYear();
+      const month = dateObj.getMonth();
+      if (month >= 3) {
+        return {
+          label: `FY ${year}-${(year + 1).toString().slice(-2)}`,
+          start: new Date(year, 3, 1),
+          end: new Date(year + 1, 2, 31, 23, 59, 59)
+        };
+      } else {
+        return {
+          label: `FY ${year - 1}-${year.toString().slice(-2)}`,
+          start: new Date(year - 1, 3, 1),
+          end: new Date(year, 2, 31, 23, 59, 59)
+        };
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const currentFY = getFinancialYear();
+      document.getElementById('displayFY').innerText = currentFY.label;
+      document.getElementById('invNo').value = `SFP-${currentFY.label.replace('FY ', '').replace('-', '')}-${Math.floor(1000 + Math.random() * 9000)}`;
+      document.getElementById('invDate').value = new Date().toISOString().substring(0, 10);
+
+      document.getElementById('filterFromDate').value = currentFY.start.toISOString().substring(0, 10);
+      document.getElementById('filterToDate').value = currentFY.end.toISOString().substring(0, 10);
+
+      // Hydrate local cache
+      const savedConfig = localStorage.getItem('sfp_store_profile');
+      if (savedConfig) storeProfile = JSON.parse(savedConfig);
+
+      const savedInvoices = localStorage.getItem('sfp_invoices');
+      if (savedInvoices) invoices = JSON.parse(savedInvoices);
+
+      const savedStock = localStorage.getItem('sfp_stock');
+      if (savedStock) inventory = JSON.parse(savedStock);
+
+      enforceStoreLockState();
+      renderLiveInvoicePreview();
+      applyTallyFilter();
+      renderStockTable();
+
+      // Keyboard Shortcuts
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'F1') { e.preventDefault(); switchView('billingTab'); }
+        if (e.key === 'F2') { e.preventDefault(); switchView('accountingTab'); }
+        if (e.key === 'F3') { e.preventDefault(); switchView('inventoryTab'); }
+        if (e.key === 'F4') { e.preventDefault(); switchView('settingsTab'); }
+      });
+
+      // Google Identity
+      try {
+        tokenClient = google.accounts.oauth2.initTokenClient({
+          client_id: CLIENT_ID,
+          scope: SCOPES,
+          callback: (resp) => {
+            accessToken = resp.access_token;
+            document.getElementById('authStatusBadge').classList.remove('hidden');
+            document.getElementById('authBtn').innerText = "Drive Synced ✓";
+            document.getElementById('authBtn').className = "bg-emerald-700 text-xs px-3 py-1.5 rounded-md font-semibold text-white";
+          }
+        });
+      } catch (e) {
+        console.warn("Google GIS SDK loaded in offline mode.");
+      }
+    });
+
+    function handleAuthClick() {
+      if (tokenClient) tokenClient.requestAccessToken();
+    }
+
+    function switchView(tabId) {
+      ['billingTab', 'accountingTab', 'inventoryTab', 'settingsTab'].forEach(t => {
+        document.getElementById(t).classList.add('hidden');
+        document.getElementById(`nav-${t}`).className = "tab-btn py-2.5 px-3 text-xs sm:text-sm font-semibold text-slate-400 hover:text-white border-b-2 border-transparent";
+      });
+      document.getElementById(tabId).classList.remove('hidden');
+      document.getElementById(`nav-${tabId}`).className = "tab-btn py-2.5 px-3 text-xs sm:text-sm font-bold border-b-2 border-indigo-500 text-indigo-400";
+
+      if (tabId === 'accountingTab') applyTallyFilter();
+    }
+
+    /* ==========================================================================
+       STORE LOCK MECHANISM (ONE-TIME REGISTRATION)
+       ========================================================================== */
+
+    function enforceStoreLockState() {
+      if (storeProfile.isLocked && storeProfile.name) {
+        document.getElementById('storeRegisteredBadge').classList.remove('hidden');
+        document.getElementById('lockedStoreNameDisplay').innerText = storeProfile.name;
+        document.getElementById('cfgStoreName').value = storeProfile.name;
+        document.getElementById('cfgStoreName').readOnly = true;
+        document.getElementById('cfgStoreName').classList.add('bg-slate-100', 'text-slate-500');
+        document.getElementById('lockedWarningBanner').classList.remove('hidden');
+        document.getElementById('unlockContainer').classList.remove('hidden');
+        document.getElementById('saveStoreBtn').innerText = "Update with Master Key";
+      } else {
+        document.getElementById('cfgStoreName').value = storeProfile.name || "SmartFix Workshop & Telecom";
+        document.getElementById('cfgStoreName').readOnly = false;
+      }
+      document.getElementById('cfgStorePhone').value = storeProfile.phone;
+      document.getElementById('cfgStoreGST').value = storeProfile.gstin;
+      document.getElementById('cfgStoreAddress').value = storeProfile.address;
+      document.getElementById('cfgStoreTerms').value = storeProfile.terms;
+    }
+
+    function saveStoreSettings() {
+      if (storeProfile.isLocked) {
+        const pass = document.getElementById('adminSecretPass').value;
+        if (pass !== "SMARTFIX99") {
+          alert("Store is permanently locked! Invalid Master Workshop Passcode.");
+          return;
+        }
+      }
+
+      storeProfile.name = document.getElementById('cfgStoreName').value.trim();
+      storeProfile.phone = document.getElementById('cfgStorePhone').value.trim();
+      storeProfile.gstin = document.getElementById('cfgStoreGST').value.trim();
+      storeProfile.address = document.getElementById('cfgStoreAddress').value.trim();
+      storeProfile.terms = document.getElementById('cfgStoreTerms').value.trim();
+      storeProfile.isLocked = true;
+
+      const logoFile = document.getElementById('cfgLogoFile').files[0];
+      if (logoFile) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          storeProfile.logo = e.target.result;
+          persistProfile();
+        };
+        reader.readAsDataURL(logoFile);
+      } else {
+        persistProfile();
+      }
+    }
+
+    function persistProfile() {
+      localStorage.setItem('sfp_store_profile', JSON.stringify(storeProfile));
+      enforceStoreLockState();
+      renderLiveInvoicePreview();
+      alert("Store successfully registered and locked!");
+      switchView('billingTab');
+    }
+
+    /* ==========================================================================
+       BARCODE & HARDWARE SCANNER INTEGRATION
+       ========================================================================== */
+
+    function toggleCameraScanner() {
+      const wrapper = document.getElementById('cameraScannerWrapper');
+      if (isScannerOpen) {
+        if (html5QrCode) {
+          html5QrCode.stop().then(() => {
+            wrapper.classList.add('hidden');
+            isScannerOpen = false;
+            document.getElementById('scannerToggleBtn').innerText = "Open Camera Scanner";
+          });
+        }
+      } else {
+        wrapper.classList.remove('hidden');
+        document.getElementById('scannerToggleBtn').innerText = "Close Scanner";
+        html5QrCode = new Html5Qrcode("reader");
+        html5QrCode.start(
+          { facingMode: "environment" },
+          { fps: 10, qrbox: { width: 300, height: 180 } },
+          (decodedText) => {
+            handleScannedCode(decodedText);
+          },
+          () => {}
+        ).catch(() => alert("Camera permission denied or camera not found."));
+        isScannerOpen = true;
+      }
+    }
+
+    function handleBarcodeEnter(event) {
+      if (event.key === 'Enter') {
+        const code = event.target.value.trim();
+        if (code) {
+          handleScannedCode(code);
+          event.target.value = '';
+        }
+      }
+    }
+
+    function handleScannedCode(code) {
+      const matched = inventory.find(i => i.imei === code || i.model.toLowerCase().includes(code.toLowerCase()));
+      if (matched) {
+        pushProductToBill(matched.model, matched.imei, 8517, 18, 1, matched.cost);
+      } else {
+        const gross = prompt(`Barcode/IMEI Scanned: "${code}". Enter Selling Price (₹):`, "15000");
+        if (gross && !isNaN(gross)) {
+          const model = prompt("Enter Device Name:", "Mobile Device");
+          pushProductToBill(model || "Mobile Phone", code, 8517, 18, 1, parseFloat(gross));
+        }
+      }
+    }
+
+    function addManualItem() {
+      const desc = document.getElementById('itemDesc').value.trim();
+      const imei = document.getElementById('itemIMEI').value.trim();
+      const hsn = document.getElementById('itemHSN').value.trim() || '8517';
+      const gstRate = parseFloat(document.getElementById('itemGSTRate').value) || 18;
+      const qty = parseInt(document.getElementById('itemQty').value) || 1;
+      const grossAmount = parseFloat(document.getElementById('itemPrice').value) || 0;
+
+      if (!desc || grossAmount <= 0) {
+        alert("Enter a valid description and price.");
+        return;
+      }
+
+      pushProductToBill(desc, imei, hsn, gstRate, qty, grossAmount);
+
+      document.getElementById('itemDesc').value = '';
+      document.getElementById('itemIMEI').value = '';
+      document.getElementById('itemPrice').value = '';
+    }
+
+    function pushProductToBill(desc, imei, hsn, gstRate, qty, grossAmount) {
+      const taxableBase = grossAmount / (1 + (gstRate / 100));
+      const totalTax = grossAmount - taxableBase;
+      const cgst = totalTax / 2;
+      const sgst = totalTax / 2;
+
+      activeLineItems.push({
+        id: Date.now(),
+        desc,
+        imei,
+        hsn,
+        gstRate,
+        qty,
+        grossAmount,
+        taxableBase: Number(taxableBase.toFixed(2)),
+        cgst: Number(cgst.toFixed(2)),
+        sgst: Number(sgst.toFixed(2))
+      });
+
+      renderLiveInvoicePreview();
+    }
+
+    function removeItem(index) {
+      activeLineItems.splice(index, 1);
+      renderLiveInvoicePreview();
+    }
+
+    /* ==========================================================================
+       DYNAMIC A4 FITTING & INVOICE RENDERER (WITH DEBAPRIYA SARKAR FOOTER)
+       ========================================================================== */
+
+    function applyInvoiceTheme(themeClass) {
+      currentTheme = themeClass;
+      renderLiveInvoicePreview();
+    }
+
+    function renderLiveInvoicePreview() {
+      const invElement = document.getElementById('printableInvoice');
+      invElement.className = `${currentTheme} bg-white shadow-2xl border border-slate-200 text-xs text-slate-800 flex flex-col justify-between`;
+
+      const invNo = document.getElementById('invNo').value;
+      const invDate = document.getElementById('invDate').value;
+      const custName = document.getElementById('custName').value.trim() || 'Cash Customer';
+      const custPhone = document.getElementById('custPhone').value.trim() || 'N/A';
+      const custGSTIN = document.getElementById('custGSTIN').value.trim();
+      const ledger = document.getElementById('paymentLedger').value;
+
+      let totalGross = activeLineItems.reduce((acc, it) => acc + (it.grossAmount * it.qty), 0);
+      let totalTaxable = activeLineItems.reduce((acc, it) => acc + (it.taxableBase * it.qty), 0);
+      let totalCGST = activeLineItems.reduce((acc, it) => acc + (it.cgst * it.qty), 0);
+      let totalSGST = activeLineItems.reduce((acc, it) => acc + (it.sgst * it.qty), 0);
+
+      // Dynamic Row Spacing Calculation
+      const rowPaddingClass = activeLineItems.length <= 2 ? 'py-4 px-3' : (activeLineItems.length <= 5 ? 'py-2.5 px-3' : 'py-1.5 px-2 text-[10px]');
+
+      let itemsRows = activeLineItems.map((item, idx) => `
+        <tr class="border-b border-slate-100">
+          <td class="${rowPaddingClass} text-center font-bold text-slate-400">${idx + 1}</td>
+          <td class="${rowPaddingClass}">
+            <div class="font-bold text-slate-900">${item.desc}</div>
+            ${item.imei ? `<div class="text-[9px] text-slate-500 font-mono mt-0.5">IMEI: <span class="bg-slate-100 font-bold px-1 rounded text-slate-700">${item.imei}</span></div>` : ''}
+          </td>
+          <td class="${rowPaddingClass} text-center font-mono text-[10px]">${item.hsn}</td>
+          <td class="${rowPaddingClass} text-center font-bold">${item.qty}</td>
+          <td class="${rowPaddingClass} text-right font-mono">₹${item.taxableBase.toFixed(2)}</td>
+          <td class="${rowPaddingClass} text-right font-mono">${item.gstRate}%</td>
+          <td class="${rowPaddingClass} text-right font-mono font-bold text-slate-900">₹${(item.grossAmount * item.qty).toFixed(2)}</td>
+          <td class="${rowPaddingClass} text-center no-print">
+            <button onclick="removeItem(${idx})" class="text-rose-500 hover:text-rose-700 font-bold">×</button>
+          </td>
+        </tr>
+      `).join('');
+
+      if (activeLineItems.length === 0) {
+        itemsRows = `<tr><td colspan="8" class="text-center py-16 text-slate-400">Scan Barcode or Add Products to fill this A4 Tax Invoice.</td></tr>`;
+      }
+
+      const invoiceHTML = `
+        <div>
+          <!-- Header -->
+          <div class="flex justify-between items-start border-b-2 brand-border pb-3 mb-3">
+            <div class="flex items-start space-x-3">
+              ${storeProfile.logo ? `<img src="${storeProfile.logo}" class="h-14 w-auto object-contain rounded">` : ''}
+              <div>
+                <h1 class="text-lg font-black brand-text uppercase tracking-tight">${storeProfile.name || 'SMARTFIXPRO WORKSHOP'}</h1>
+                <p class="text-slate-500 text-[10px] max-w-sm leading-tight mt-0.5">${storeProfile.address}</p>
+                <div class="flex flex-wrap gap-2 text-[10px] text-slate-700 font-medium mt-1">
+                  <span>Phone: <strong>${storeProfile.phone}</strong></span>
+                  <span>GSTIN: <strong class="font-mono">${storeProfile.gstin}</strong></span>
+                </div>
+              </div>
+            </div>
+            <div class="text-right">
+              <span class="inline-block brand-bg text-white text-[9px] uppercase font-black px-2 py-0.5 rounded tracking-wider">ORIGINAL TAX INVOICE</span>
+              <div class="text-xs font-black font-mono mt-1 text-slate-900">${invNo}</div>
+              <div class="text-[10px] text-slate-500">Date: ${invDate}</div>
+            </div>
+          </div>
+
+          <!-- Customer Info -->
+          <div class="grid grid-cols-2 gap-3 brand-accent p-2.5 rounded-lg border brand-border mb-3 text-[11px]">
+            <div>
+              <div class="text-[9px] font-bold text-slate-500 uppercase">Customer Details</div>
+              <div class="font-bold text-slate-900 text-xs">${custName}</div>
+              <div class="text-slate-600">Mob: ${custPhone}</div>
+              ${custGSTIN ? `<div class="text-slate-700 font-mono text-[10px]">GSTIN: <strong>${custGSTIN}</strong></div>` : ''}
+            </div>
+            <div class="text-right">
+              <div class="text-[9px] font-bold text-slate-500 uppercase">Payment Head</div>
+              <div class="font-bold text-emerald-800 text-xs">${ledger}</div>
+              <div class="text-[10px] text-slate-500">Status: Realized</div>
+            </div>
+          </div>
+
+          <!-- Product Table -->
+          <table class="w-full text-left border border-slate-200 rounded-lg overflow-hidden mb-3">
+            <thead class="brand-bg text-white text-[9px] uppercase tracking-wider">
+              <tr>
+                <th class="py-1.5 px-2 text-center w-8">#</th>
+                <th class="py-1.5 px-2">Description & IMEI</th>
+                <th class="py-1.5 px-2 text-center w-14">HSN</th>
+                <th class="py-1.5 px-2 text-center w-10">Qty</th>
+                <th class="py-1.5 px-2 text-right w-20">Taxable</th>
+                <th class="py-1.5 px-2 text-right w-12">GST</th>
+                <th class="py-1.5 px-2 text-right w-24">Total (₹)</th>
+                <th class="py-1.5 px-1 text-center w-6 no-print"></th>
+              </tr>
+            </thead>
+            <tbody>
+              ${itemsRows}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Dynamic Footer with Tax Computation & Credits -->
+        <div>
+          <div class="grid grid-cols-2 gap-4 items-start mb-2 pt-2 border-t">
+            <div class="border border-slate-200 rounded p-2 text-[9px]">
+              <div class="font-bold text-slate-700 uppercase mb-0.5">GST Tax Computation Summary</div>
+              <div class="flex justify-between py-0.5 text-slate-600 border-b">
+                <span>Taxable Amount:</span>
+                <span class="font-mono">₹${totalTaxable.toFixed(2)}</span>
+              </div>
+              <div class="flex justify-between py-0.5 text-slate-600 border-b">
+                <span>Central GST (CGST):</span>
+                <span class="font-mono">₹${totalCGST.toFixed(2)}</span>
+              </div>
+              <div class="flex justify-between py-0.5 text-slate-600">
+                <span>State GST (SGST):</span>
+                <span class="font-mono">₹${totalSGST.toFixed(2)}</span>
+              </div>
+            </div>
+
+            <div class="text-right space-y-1 text-xs">
+              <div class="flex justify-between py-0.5 text-slate-600">
+                <span>Total Taxable:</span>
+                <span class="font-mono font-semibold">₹${totalTaxable.toFixed(2)}</span>
+              </div>
+              <div class="flex justify-between py-0.5 text-slate-600">
+                <span>Total Output Tax:</span>
+                <span class="font-mono font-semibold">₹${(totalCGST + totalSGST).toFixed(2)}</span>
+              </div>
+              <div class="flex justify-between py-1 border-t-2 brand-border text-base font-black brand-text">
+                <span>Grand Total:</span>
+                <span class="font-mono">₹${totalGross.toFixed(2)}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="border-t pt-2">
+            <div class="grid grid-cols-2 gap-4 text-[9px] text-slate-500">
+              <div>
+                <div class="font-bold uppercase tracking-wider text-slate-700 mb-0.5">Terms & Warranty Conditions:</div>
+                <p class="whitespace-pre-line leading-tight">${storeProfile.terms}</p>
+              </div>
+              <div class="text-right flex flex-col justify-end items-end">
+                <div class="h-6"></div>
+                <div class="border-t border-slate-400 w-36 text-center font-bold text-slate-700 pt-0.5">
+                  Authorized Signatory
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- SMARTFIX PRO OFFICIAL SYSTEM CREDIT FOOTER -->
+          <div class="mt-3 pt-1.5 border-t border-slate-200 text-center text-[9px] text-slate-500 font-mono tracking-tight leading-tight">
+            <div>SmartFix Pro © 2026 | Mobile Workshop Management System</div>
+            <div class="font-semibold text-slate-600">Developed by Debapriya Sarkar</div>
+          </div>
+
+        </div>
+      `;
+
+      invElement.innerHTML = invoiceHTML;
+    }
+
+    function finalizeAndPrint() {
+      if (activeLineItems.length === 0) {
+        alert("Please add at least one line item!");
+        return;
+      }
+
+      const invNo = document.getElementById('invNo').value;
+      const invDate = document.getElementById('invDate').value;
+      const custName = document.getElementById('custName').value.trim() || 'Cash Customer';
+      const custPhone = document.getElementById('custPhone').value.trim() || 'N/A';
+      const custGSTIN = document.getElementById('custGSTIN').value.trim();
+      const ledger = document.getElementById('paymentLedger').value;
+
+      const totalGross = activeLineItems.reduce((acc, it) => acc + (it.grossAmount * it.qty), 0);
+      const totalTaxable = activeLineItems.reduce((acc, it) => acc + (it.taxableBase * it.qty), 0);
+      const totalCGST = activeLineItems.reduce((acc, it) => acc + (it.cgst * it.qty), 0);
+      const totalSGST = activeLineItems.reduce((acc, it) => acc + (it.sgst * it.qty), 0);
+
+      const invoiceRecord = {
+        invoiceNo: invNo,
+        date: invDate,
+        financialYear: getFinancialYear(new Date(invDate)).label,
+        customerName: custName,
+        customerPhone: custPhone,
+        customerGSTIN: custGSTIN,
+        ledger: ledger,
+        items: [...activeLineItems],
+        totalTaxable: Number(totalTaxable.toFixed(2)),
+        totalCGST: Number(totalCGST.toFixed(2)),
+        totalSGST: Number(totalSGST.toFixed(2)),
+        totalGross: Number(totalGross.toFixed(2)),
+        theme: currentTheme,
+        timestamp: new Date().toISOString()
+      };
+
+      invoices.unshift(invoiceRecord);
+      localStorage.setItem('sfp_invoices', JSON.stringify(invoices));
+
+      // Asynchronous Google Drive Sync
+      if (accessToken) syncInvoiceToGoogleDrive(invoiceRecord);
+
+      window.print();
+
+      const currentFY = getFinancialYear();
+      document.getElementById('invNo').value = `SFP-${currentFY.label.replace('FY ', '').replace('-', '')}-${Math.floor(1000 + Math.random() * 9000)}`;
+      activeLineItems = [];
+      renderLiveInvoicePreview();
+    }
+
+    /* ==========================================================================
+       TALLY ACCOUNTING ENGINE & CA EXPORT
+       ========================================================================== */
+
+    function setDateRange(period) {
+      const today = new Date();
+      let from = new Date();
+      let to = new Date();
+
+      if (period === 'today') {
+      } else if (period === 'month') {
+        from = new Date(today.getFullYear(), today.getMonth(), 1);
+      } else if (period === '3months') {
+        from = new Date();
+        from.setMonth(today.getMonth() - 3);
+      } else if (period === '6months') {
+        from = new Date();
+        from.setMonth(today.getMonth() - 6);
+      } else if (period === '1year') {
+        from = new Date();
+        from.setFullYear(today.getFullYear() - 1);
+      } else if (period === 'fy') {
+        const fy = getFinancialYear(today);
+        from = fy.start;
+        to = fy.end;
+      }
+
+      document.getElementById('filterFromDate').value = from.toISOString().substring(0, 10);
+      document.getElementById('filterToDate').value = to.toISOString().substring(0, 10);
+      applyTallyFilter();
+    }
+
+    function applyTallyFilter() {
+      const fromStr = document.getElementById('filterFromDate').value;
+      const toStr = document.getElementById('filterToDate').value;
+      const ledger = document.getElementById('filterLedger').value;
+
+      const fromDate = fromStr ? new Date(fromStr) : new Date(2000, 0, 1);
+      const toDate = toStr ? new Date(toStr + 'T23:59:59') : new Date(2099, 11, 31);
+
+      document.getElementById('filteredRangeText').innerText = `Period: ${fromStr} to ${toStr}`;
+
+      const filtered = invoices.filter(inv => {
+        const d = new Date(inv.date);
+        const matchesDate = d >= fromDate && d <= toDate;
+        const matchesLedger = (ledger === 'ALL') || (inv.ledger === ledger);
+        return matchesDate && matchesLedger;
+      });
+
+      let turnover = 0, taxable = 0, cgst = 0, sgst = 0, cash = 0, debtors = 0;
+
+      filtered.forEach(inv => {
+        turnover += inv.totalGross;
+        taxable += inv.totalTaxable;
+        cgst += inv.totalCGST;
+        sgst += inv.totalSGST;
+        if (inv.ledger === 'Cash-in-Hand') cash += inv.totalGross;
+        if (inv.ledger.includes('Credit') || inv.ledger.includes('Debtors')) debtors += inv.totalGross;
+      });
+
+      document.getElementById('statGrossTurnover').innerText = `₹${turnover.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+      document.getElementById('statVoucherCount').innerText = `${filtered.length} Vouchers`;
+      document.getElementById('statTaxable').innerText = `₹${taxable.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+      document.getElementById('statGSTOutput').innerText = `₹${(cgst + sgst).toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+      document.getElementById('statCashRealized').innerText = `₹${cash.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+      document.getElementById('statReceivables').innerText = `₹${debtors.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+
+      const tbody = document.getElementById('accountingGridBody');
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-slate-400">No transactions recorded in this period.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(inv => `
+        <tr class="hover:bg-slate-50 transition">
+          <td class="p-3 font-mono text-slate-600">${inv.date}</td>
+          <td class="p-3 font-bold text-indigo-700 font-mono">${inv.invoiceNo}</td>
+          <td class="p-3">
+            <div class="font-bold text-slate-900">${inv.customerName}</div>
+            <div class="text-[10px] text-slate-500">${inv.items.map(i => i.desc).join(', ')}</div>
+          </td>
+          <td class="p-3 font-semibold text-slate-700">${inv.ledger}</td>
+          <td class="p-3 text-right font-mono">₹${inv.totalTaxable.toFixed(2)}</td>
+          <td class="p-3 text-right font-mono text-slate-500">₹${(inv.totalCGST + inv.totalSGST).toFixed(2)}</td>
+          <td class="p-3 text-right font-mono font-bold text-slate-900">₹${inv.totalGross.toFixed(2)}</td>
+          <td class="p-3 text-center">
+            <button onclick='reprintHistoric(${JSON.stringify(inv)})' class="text-xs bg-slate-200 hover:bg-slate-300 font-bold px-2 py-1 rounded">View/Print</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function exportToExcelCA() {
+      const fromStr = document.getElementById('filterFromDate').value;
+      const toStr = document.getElementById('filterToDate').value;
+      const fromDate = fromStr ? new Date(fromStr) : new Date(2000, 0, 1);
+      const toDate = toStr ? new Date(toStr + 'T23:59:59') : new Date(2099, 11, 31);
+
+      const records = invoices.filter(inv => {
+        const d = new Date(inv.date);
+        return d >= fromDate && d <= toDate;
+      });
+
+      if (records.length === 0) {
+        alert("No entries found to export!");
+        return;
+      }
+
+      const caData = records.map(r => ({
+        "Voucher Date": r.date,
+        "Financial Year": r.financialYear,
+        "Invoice Number": r.invoiceNo,
+        "Customer Name": r.customerName,
+        "Customer Mobile": r.customerPhone,
+        "Customer GSTIN": r.customerGSTIN || "B2C Consumer",
+        "Goods Summary": r.items.map(i => `${i.desc} [IMEI: ${i.imei || 'N/A'}]`).join(" | "),
+        "HSN Code": r.items[0]?.hsn || "8517",
+        "Payment Ledger": r.ledger,
+        "Taxable Value (₹)": r.totalTaxable,
+        "CGST (₹)": r.totalCGST,
+        "SGST (₹)": r.totalSGST,
+        "IGST (₹)": 0.00,
+        "Total Value (₹)": r.totalGross
+      }));
+
+      const ws = XLSX.utils.json_to_sheet(caData);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "GSTR1_Sales_Register");
+      XLSX.writeFile(wb, `SMARTFIXPRO_CA_Register_${fromStr}_to_${toStr}.xlsx`);
+    }
+
+    function reprintHistoric(inv) {
+      document.getElementById('invNo').value = inv.invoiceNo;
+      document.getElementById('invDate').value = inv.date;
+      document.getElementById('custName').value = inv.customerName;
+      document.getElementById('custPhone').value = inv.customerPhone;
+      document.getElementById('custGSTIN').value = inv.customerGSTIN || '';
+      document.getElementById('paymentLedger').value = inv.ledger;
+      activeLineItems = inv.items;
+      applyInvoiceTheme(inv.theme || 'theme-blue');
+      switchView('billingTab');
+    }
+
+    /* ==========================================================================
+       STOCK INVENTORY
+       ========================================================================== */
+
+    function addStockItem() {
+      const model = document.getElementById('stkModel').value.trim();
+      const imei = document.getElementById('stkIMEI').value.trim();
+      const cost = parseFloat(document.getElementById('stkCost').value) || 0;
+
+      if (!model) { alert("Enter Model Name"); return; }
+
+      inventory.push({ id: Date.now(), model, imei, cost });
+      localStorage.setItem('sfp_stock', JSON.stringify(inventory));
+
+      document.getElementById('stkModel').value = '';
+      document.getElementById('stkIMEI').value = '';
+      document.getElementById('stkCost').value = '';
+
+      renderStockTable();
+    }
+
+    function renderStockTable() {
+      const tbody = document.getElementById('stockGridBody');
+      document.getElementById('stockCountDisplay').innerText = `${inventory.length} Devices`;
+
+      if (inventory.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="text-center py-6 text-slate-400">Stock is empty. Add new phones above.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = inventory.map((stk, idx) => `
+        <tr class="hover:bg-slate-50">
+          <td class="p-3 text-slate-500 font-bold">${idx + 1}</td>
+          <td class="p-3 font-bold text-slate-900">${stk.model}</td>
+          <td class="p-3 font-mono text-slate-600">${stk.imei || 'N/A'}</td>
+          <td class="p-3 text-right font-mono font-semibold">₹${stk.cost.toLocaleString('en-IN')}</td>
+          <td class="p-3 text-center">
+            <button onclick="pushProductToBill('${stk.model}', '${stk.imei}', '8517', 18, 1, ${stk.cost}); switchView('billingTab');" class="text-xs bg-indigo-50 text-indigo-700 font-bold px-2 py-1 rounded hover:bg-indigo-100">Sell Now ⚡</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    /* ==========================================================================
+       GOOGLE DRIVE MULTI-TENANT SYNC
+       ========================================================================== */
+
+    async function syncInvoiceToGoogleDrive(record) {
+      try {
+        const rootFolderId = await getOrCreateDriveFolder('SMARTFIXPRO_Cloud_POS');
+        const monthFolderId = await getOrCreateDriveFolder(new Date().toISOString().slice(0, 7), rootFolderId);
+
+        const metadata = {
+          name: `${record.invoiceNo}.json`,
+          parents: [monthFolderId],
+          mimeType: 'application/json'
+        };
+
+        const boundary = 'smartfix_boundary_345';
+        const body =
+          `\r\n--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n` +
+          JSON.stringify(metadata) +
+          `\r\n--${boundary}\r\nContent-Type: application/json\r\n\r\n` +
+          JSON.stringify(record, null, 2) +
+          `\r\n--${boundary}--`;
+
+        fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': `multipart/related; boundary=${boundary}`
+          },
+          body: body
+        });
+      } catch (err) {
+        console.warn("Drive sync error:", err);
+      }
+    }
+
+    async function getOrCreateDriveFolder(folderName, parentId = null) {
+      let q = `name = '${folderName}' and mimeType = 'application/vnd.google-apps.folder' and trashed = false`;
+      if (parentId) q += ` and '${parentId}' in parents`;
+
+      const searchRes = await fetch(`https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}`, {
+        headers: { 'Authorization': `Bearer ${accessToken}` }
+      });
+      const data = await searchRes.json();
+      if (data.files && data.files.length > 0) return data.files[0].id;
+
+      const createRes = await fetch('https://www.googleapis.com/drive/v3/files', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name: folderName,
+          mimeType: 'application/vnd.google-apps.folder',
+          parents: parentId ? [parentId] : []
+        })
+      });
+      const folder = await createRes.json();
+      return folder.id;
+    }
+  </script>
+</body>
+</html>
