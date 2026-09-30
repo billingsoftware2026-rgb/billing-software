@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SmartFix Pro - Workshop OS, Retail Billing & Tally POS</title>
+  <title>SmartFix Pro - Tally-Grade ERP, Sales Return & POS</title>
   
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Google Identity Services -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <!-- SheetJS for CA-Grade Excel Exports -->
+  <!-- SheetJS for CA-Grade Multi-Sheet Excel Exports -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <!-- HTML5 QR Code & Barcode Scanner Engine -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
@@ -17,8 +17,8 @@
   <style>
     /* A4 Print Engine */
     @media print {
-      body * { visibility: hidden; }
-      #printableInvoice, #printableInvoice * { visibility: visible; }
+      body * { visibility: hidden !important; }
+      #printableInvoice, #printableInvoice * { visibility: visible !important; }
       #printableInvoice {
         position: absolute;
         left: 0;
@@ -48,7 +48,7 @@
 </head>
 <body class="bg-slate-950 font-sans text-slate-100 min-h-screen">
 
-  <!-- Top SMARTFIXPRO Navigation -->
+  <!-- Top SMARTFIXPRO Navigation Bar -->
   <header class="bg-slate-900 border-b border-slate-800 shadow-md no-print sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-4 py-2.5 flex flex-wrap justify-between items-center gap-3">
       <div class="flex items-center space-x-3">
@@ -58,9 +58,9 @@
         <div>
           <div class="flex items-center gap-2">
             <span class="text-lg font-black tracking-tight text-white">SMARTFIX<span class="text-indigo-400">PRO</span></span>
-            <span class="text-[10px] bg-indigo-950 text-indigo-300 font-mono px-2 py-0.5 rounded border border-indigo-800">BILLING & POS</span>
+            <span class="text-[10px] bg-indigo-950 text-indigo-300 font-mono px-2 py-0.5 rounded border border-indigo-800">TALLY ERP & POS</span>
           </div>
-          <p class="text-[10px] text-slate-400">Lead Dev: Debapriya Sarkar | Workshop Cloud</p>
+          <p class="text-[10px] text-slate-400">Lead Dev: Debapriya Sarkar | Integrated Workshop ERP</p>
         </div>
       </div>
 
@@ -72,27 +72,29 @@
         <button id="authBtn" onclick="handleAuthClick()" class="bg-indigo-600 hover:bg-indigo-700 text-xs px-3 py-1.5 rounded-md font-semibold transition flex items-center gap-1.5 text-white shadow">
           <span>Connect Google Drive</span>
         </button>
-        <span id="authStatusBadge" class="hidden text-xs text-emerald-400 font-semibold">● Drive Linked</span>
+        <span id="authStatusBadge" class="hidden text-xs text-emerald-400 font-semibold">● Cloud Active</span>
       </div>
     </div>
   </header>
 
-  <!-- Module Menu -->
+  <!-- Module Menu (Tally Quick Functional Keys) -->
   <nav class="bg-slate-900/60 backdrop-blur border-b border-slate-800 shadow-sm no-print">
-    <div class="max-w-7xl mx-auto px-4 flex space-x-2 sm:space-x-4">
-      <button onclick="switchView('billingTab')" id="nav-billingTab" class="tab-btn py-2.5 px-3 text-xs sm:text-sm font-bold border-b-2 border-indigo-500 text-indigo-400">Billing Counter (F1)</button>
-      <button onclick="switchView('accountingTab')" id="nav-accountingTab" class="tab-btn py-2.5 px-3 text-xs sm:text-sm font-semibold text-slate-400 hover:text-white border-b-2 border-transparent">Tally CA Reports & Ledger (F2)</button>
-      <button onclick="switchView('inventoryTab')" id="nav-inventoryTab" class="tab-btn py-2.5 px-3 text-xs sm:text-sm font-semibold text-slate-400 hover:text-white border-b-2 border-transparent">Stock & Barcodes (F3)</button>
-      <button onclick="switchView('settingsTab')" id="nav-settingsTab" class="tab-btn py-2.5 px-3 text-xs sm:text-sm font-semibold text-slate-400 hover:text-white border-b-2 border-transparent">Store Profile & Lock (F4)</button>
+    <div class="max-w-7xl mx-auto px-4 flex flex-wrap space-x-2 sm:space-x-3">
+      <button onclick="switchView('billingTab')" id="nav-billingTab" class="tab-btn py-2.5 px-3 text-xs sm:text-sm font-bold border-b-2 border-indigo-500 text-indigo-400">Sales Invoice (F1)</button>
+      <button onclick="switchView('returnTab')" id="nav-returnTab" class="tab-btn py-2.5 px-3 text-xs sm:text-sm font-semibold text-slate-400 hover:text-white border-b-2 border-transparent">Sales Return / Credit Note (F2)</button>
+      <button onclick="switchView('vouchersTab')" id="nav-vouchersTab" class="tab-btn py-2.5 px-3 text-xs sm:text-sm font-semibold text-slate-400 hover:text-white border-b-2 border-transparent">Daybook & Expenses (F3)</button>
+      <button onclick="switchView('accountingTab')" id="nav-accountingTab" class="tab-btn py-2.5 px-3 text-xs sm:text-sm font-semibold text-slate-400 hover:text-white border-b-2 border-transparent">P&L & CA Audit (F4)</button>
+      <button onclick="switchView('inventoryTab')" id="nav-inventoryTab" class="tab-btn py-2.5 px-3 text-xs sm:text-sm font-semibold text-slate-400 hover:text-white border-b-2 border-transparent">Stock Register (F5)</button>
+      <button onclick="switchView('settingsTab')" id="nav-settingsTab" class="tab-btn py-2.5 px-3 text-xs sm:text-sm font-semibold text-slate-400 hover:text-white border-b-2 border-transparent">Store Profile & Security (F6)</button>
     </div>
   </nav>
 
   <main class="max-w-7xl mx-auto px-4 py-6 no-print text-slate-800">
 
-    <!-- 1. BILLING & BARCODE ENGINE -->
+    <!-- 1. BILLING & POS COUNTER -->
     <section id="billingTab" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
       
-      <!-- Input Panel -->
+      <!-- Input Form -->
       <div class="lg:col-span-5 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
         
         <div class="flex justify-between items-center border-b pb-2">
@@ -100,7 +102,7 @@
           <span class="text-xs bg-indigo-50 text-indigo-700 font-mono font-bold px-2 py-0.5 rounded" id="displayFY">FY 2026-27</span>
         </div>
 
-        <!-- Barcode Scanner Trigger Bar -->
+        <!-- Barcode Scanner Bar -->
         <div class="bg-indigo-50 border border-indigo-200 rounded-xl p-3 space-y-2">
           <div class="flex justify-between items-center">
             <span class="text-xs font-bold text-indigo-900 flex items-center gap-1.5">
@@ -110,14 +112,12 @@
               Open Camera Scanner
             </button>
           </div>
-          <!-- Live Camera Viewport -->
           <div id="cameraScannerWrapper" class="hidden overflow-hidden rounded-lg border border-indigo-300">
             <div id="reader" style="width: 100%;"></div>
           </div>
-          <!-- Handheld Hardware Barcode Listener -->
           <div class="relative">
             <input type="text" id="barcodeQuickInput" onkeydown="handleBarcodeEnter(event)" placeholder="Scan Barcode or Type IMEI and press ENTER..." class="w-full bg-white border border-indigo-300 rounded px-3 py-1.5 text-xs font-mono">
-            <span class="absolute right-2 top-1.5 text-[10px] text-indigo-400 font-bold">Auto-Detect</span>
+            <span class="absolute right-2 top-1.5 text-[10px] text-indigo-400 font-bold">Auto-Add</span>
           </div>
         </div>
 
@@ -135,29 +135,37 @@
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">Customer Name</label>
-            <input type="text" id="custName" placeholder="Client Name" class="w-full border border-slate-300 rounded px-2.5 py-1.5 text-xs">
+            <input type="text" id="custName" oninput="renderLiveInvoicePreview()" placeholder="Client Name" class="w-full border border-slate-300 rounded px-2.5 py-1.5 text-xs">
           </div>
           <div>
             <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">Phone Number</label>
-            <input type="tel" id="custPhone" placeholder="Mobile No" class="w-full border border-slate-300 rounded px-2.5 py-1.5 text-xs">
+            <input type="tel" id="custPhone" oninput="renderLiveInvoicePreview()" placeholder="Mobile No" class="w-full border border-slate-300 rounded px-2.5 py-1.5 text-xs">
           </div>
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">Customer GSTIN (B2B)</label>
-            <input type="text" id="custGSTIN" placeholder="Optional" class="w-full border border-slate-300 rounded px-2.5 py-1.5 text-xs font-mono uppercase">
+            <input type="text" id="custGSTIN" oninput="renderLiveInvoicePreview()" placeholder="Optional" class="w-full border border-slate-300 rounded px-2.5 py-1.5 text-xs font-mono uppercase">
           </div>
           <div>
-            <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">Payment Method</label>
-            <select id="paymentLedger" class="w-full border border-slate-300 rounded px-2.5 py-1.5 text-xs bg-white">
-              <option value="Cash-in-Hand">Cash A/c (Counter)</option>
-              <option value="Bank / UPI">UPI / QR Payment</option>
-              <option value="Card Payment">Debit / Credit Card</option>
-              <option value="Bajaj / EMI Finance">Bajaj Finance / Loan</option>
-              <option value="Credit / Sundry Debtors">Udhar (Sundry Debtors)</option>
+            <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">GST Tax Treatment</label>
+            <select id="gstTaxType" onchange="renderLiveInvoicePreview()" class="w-full border border-indigo-300 rounded px-2.5 py-1.5 text-xs bg-indigo-50 font-semibold text-indigo-900">
+              <option value="INTRA">Intra-State (CGST + SGST)</option>
+              <option value="INTER">Inter-State (IGST 100%)</option>
             </select>
           </div>
+        </div>
+
+        <div>
+          <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">Payment Method</label>
+          <select id="paymentLedger" onchange="renderLiveInvoicePreview()" class="w-full border border-slate-300 rounded px-2.5 py-1.5 text-xs bg-white">
+            <option value="Cash-in-Hand">Cash A/c (Counter)</option>
+            <option value="Bank / UPI">UPI / QR Payment</option>
+            <option value="Card Payment">Debit / Credit Card</option>
+            <option value="Bajaj / EMI Finance">Bajaj Finance / Loan</option>
+            <option value="Credit / Sundry Debtors">Udhar (Sundry Debtors)</option>
+          </select>
         </div>
 
         <!-- Manual Line Item Input -->
@@ -179,6 +187,7 @@
               <select id="itemGSTRate" class="w-full border rounded px-1 py-1 text-xs bg-white">
                 <option value="18">18%</option>
                 <option value="12">12%</option>
+                <option value="28">28%</option>
                 <option value="0">0%</option>
               </select>
             </div>
@@ -208,34 +217,185 @@
           <div>
             <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">Print Action</label>
             <button onclick="finalizeAndPrint()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-1.5 rounded text-xs shadow transition">
-              💾 Save & Print A4
+              💾 Save, Deduct Stock & Print
             </button>
           </div>
         </div>
 
       </div>
 
-      <!-- Live Auto-Expanding A4 Preview Canvas -->
+      <!-- Live Dynamic A4 Preview Canvas -->
       <div class="lg:col-span-7 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center overflow-x-auto">
         <div class="w-full flex justify-between items-center mb-3">
           <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Dynamic A4 Page Fitting Preview</span>
           <span class="text-[11px] text-slate-500">Auto-scales margins for 1 or multiple items</span>
         </div>
 
-        <!-- The A4 Sheet Container -->
         <div id="printableInvoice" class="theme-blue bg-white shadow-2xl border border-slate-200 text-xs text-slate-800 flex flex-col justify-between" style="width: 210mm; min-height: 285mm; padding: 12mm 15mm;">
-          <!-- Dynamically populated invoice HTML with Debapriya Sarkar Credits -->
+          <!-- Dynamically populated invoice HTML -->
         </div>
       </div>
     </section>
 
-    <!-- 2. TALLY-STYLE ACCOUNTING & CA AUDIT ENGINE -->
+    <!-- 2. SALES RETURN & CREDIT NOTE (TALLY CORE MODULE) -->
+    <section id="returnTab" class="space-y-6 hidden">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Return Form -->
+        <div class="lg:col-span-5 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+          <div class="border-b pb-2">
+            <h2 class="font-bold text-slate-900 text-sm uppercase tracking-wide text-rose-700 flex items-center gap-1.5">
+              <span>🔄</span> Issue Credit Note (Sales Return)
+            </h2>
+            <p class="text-[11px] text-slate-500">Enter original invoice no or IMEI to retrieve device and restock.</p>
+          </div>
+
+          <div>
+            <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">Search Sold Invoice / Barcode</label>
+            <div class="flex gap-2">
+              <input type="text" id="retSearchQuery" placeholder="Original Invoice No or IMEI" class="flex-1 border rounded px-3 py-1.5 text-xs font-mono">
+              <button onclick="searchForReturn()" class="bg-indigo-600 text-white font-bold px-3 py-1.5 rounded text-xs">Search</button>
+            </div>
+          </div>
+
+          <div id="returnDetailsBox" class="hidden bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-3">
+            <div class="text-xs font-bold text-slate-800 border-b pb-1" id="retFoundTitle">Invoice Details</div>
+            
+            <div class="space-y-1 text-[11px]">
+              <div class="flex justify-between"><span class="text-slate-500">Customer:</span> <strong id="retCustName"></strong></div>
+              <div class="flex justify-between"><span class="text-slate-500">Original Date:</span> <span id="retOrigDate"></span></div>
+              <div class="flex justify-between"><span class="text-slate-500">Item Sold:</span> <span id="retItemDesc" class="font-bold"></span></div>
+              <div class="flex justify-between"><span class="text-slate-500">IMEI:</span> <span id="retItemIMEI" class="font-mono"></span></div>
+              <div class="flex justify-between"><span class="text-slate-500">Refund Amount:</span> <strong id="retRefundAmount" class="text-rose-600 font-mono text-sm"></strong></div>
+            </div>
+
+            <div>
+              <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">Reason for Return</label>
+              <select id="retReason" class="w-full border rounded px-2.5 py-1.5 text-xs bg-white">
+                <option value="Defective / Handset Replacement">Defective / Factory Fault</option>
+                <option value="Customer Dissatisfaction">Customer Returned / Order Cancelled</option>
+                <option value="Wrong Model Delivered">Wrong Model Delivered</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">Restock Action</label>
+              <label class="flex items-center gap-2 text-xs text-slate-700">
+                <input type="checkbox" id="retRestockCheckbox" checked class="rounded">
+                <span>Automatically add IMEI back to Live Inventory (Available)</span>
+              </label>
+            </div>
+
+            <button onclick="finalizeCreditNote()" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-2 rounded-xl text-xs shadow transition">
+              📄 Issue Official Credit Note (CRN) & Restock
+            </button>
+          </div>
+        </div>
+
+        <!-- Credit Note History -->
+        <div class="lg:col-span-7 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <h3 class="font-bold text-xs uppercase text-slate-700 tracking-wider mb-3">Issued Credit Notes (Sales Returns Register)</h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs border-collapse">
+              <thead class="bg-slate-100 text-slate-600 uppercase text-[10px]">
+                <tr>
+                  <th class="p-2.5">CRN No</th>
+                  <th class="p-2.5">Date</th>
+                  <th class="p-2.5">Original Inv</th>
+                  <th class="p-2.5">Customer</th>
+                  <th class="p-2.5 text-right">Tax Reversal (₹)</th>
+                  <th class="p-2.5 text-right">Total Refund (₹)</th>
+                  <th class="p-2.5 text-center">Print</th>
+                </tr>
+              </thead>
+              <tbody id="creditNoteGridBody" class="divide-y divide-slate-100"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. DAYBOOK, CASH DRAWER & EXPENSE VOUCHERS -->
+    <section id="vouchersTab" class="space-y-6 hidden">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Expense & Receipt Form -->
+        <div class="lg:col-span-5 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+          <h2 class="font-bold text-slate-900 text-sm uppercase tracking-wide">Record Payment / Expense / Due Receipt</h2>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">Voucher Type</label>
+              <select id="vchType" class="w-full border rounded px-2.5 py-1.5 text-xs bg-white font-semibold">
+                <option value="EXPENSE">Payment Voucher (Shop Expense)</option>
+                <option value="RECEIPT">Receipt Voucher (Customer Due Cleared)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">Date</label>
+              <input type="date" id="vchDate" class="w-full border rounded px-2.5 py-1.5 text-xs">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">Account Head / Category</label>
+            <input type="text" id="vchCategory" placeholder="e.g. Shop Rent, Electricity, Staff Salary, Tea & Snacks" class="w-full border rounded px-2.5 py-1.5 text-xs">
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">Paid Via / Received In</label>
+              <select id="vchAccount" class="w-full border rounded px-2.5 py-1.5 text-xs bg-white">
+                <option value="Cash-in-Hand">Cash A/c (Cash Drawer)</option>
+                <option value="Bank / UPI">Bank / UPI (HDFC/SBI)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">Amount (₹)</label>
+              <input type="number" id="vchAmount" placeholder="Amount in ₹" class="w-full border rounded px-2.5 py-1.5 text-xs font-bold text-slate-900">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">Particulars / Narration</label>
+            <input type="text" id="vchNarration" placeholder="Details about this payment or customer name" class="w-full border rounded px-2.5 py-1.5 text-xs">
+          </div>
+
+          <button onclick="saveVoucher()" class="w-full bg-slate-900 hover:bg-black text-white font-bold py-2 rounded-xl text-xs transition">
+            + Record in Daybook
+          </button>
+        </div>
+
+        <!-- Voucher Ledger Table -->
+        <div class="lg:col-span-7 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="flex justify-between items-center mb-3">
+            <h3 class="font-bold text-xs uppercase text-slate-700 tracking-wider">Expense & Receipt Register</h3>
+            <span class="text-xs text-slate-500" id="totalExpenseDisplay">Total Expense: ₹0.00</span>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs border-collapse">
+              <thead class="bg-slate-100 text-slate-600 uppercase text-[10px]">
+                <tr>
+                  <th class="p-2.5">Date</th>
+                  <th class="p-2.5">Voucher Type</th>
+                  <th class="p-2.5">Particulars</th>
+                  <th class="p-2.5">Ledger</th>
+                  <th class="p-2.5 text-right">Debit (Expense)</th>
+                  <th class="p-2.5 text-right">Credit (Receipt)</th>
+                </tr>
+              </thead>
+              <tbody id="vouchersGridBody" class="divide-y divide-slate-100"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. TALLY-STYLE PROFIT & LOSS (P&L) & CA AUDIT ENGINE -->
     <section id="accountingTab" class="space-y-6 hidden">
       <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
         <div class="flex flex-wrap justify-between items-center gap-3">
           <div>
-            <h2 class="text-lg font-bold text-slate-900 tracking-tight">Tally Accounting & CA Audit Registers</h2>
-            <p class="text-xs text-slate-500">Export audited GSTR-1 Excel reports for your Chartered Accountant.</p>
+            <h2 class="text-lg font-bold text-slate-900 tracking-tight">Tally Accounting, P&L & CA Audit Registers</h2>
+            <p class="text-xs text-slate-500">Live Trading, Profit & Loss account including Sales Returns & Operational Expenses.</p>
           </div>
           <div class="flex flex-wrap gap-1.5 text-xs font-semibold">
             <button onclick="setDateRange('today')" class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-slate-700">Today</button>
@@ -266,57 +426,52 @@
             </select>
           </div>
           <div class="flex items-end">
-            <button onclick="applyTallyFilter()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-1.5 rounded text-xs transition">Filter Records</button>
+            <button onclick="applyTallyFilter()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-1.5 rounded text-xs transition">Calculate P&L</button>
           </div>
         </div>
       </div>
 
-      <!-- Financial Metrics Ribbon -->
-      <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
-        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-          <div class="text-[10px] font-bold text-slate-400 uppercase">Gross Turnover</div>
-          <div id="statGrossTurnover" class="text-lg font-black text-slate-900 mt-1">₹0.00</div>
-          <div class="text-[10px] text-slate-500 mt-0.5" id="statVoucherCount">0 Invoices</div>
+      <!-- Tally Profit & Loss Statement Summary Card -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="bg-gradient-to-br from-indigo-900 to-slate-900 text-white p-4 rounded-2xl shadow">
+          <div class="text-[10px] uppercase font-bold text-indigo-300">Net Sales Turnover</div>
+          <div id="statNetTurnover" class="text-xl font-black mt-1">₹0.00</div>
+          <div class="text-[10px] text-slate-300 mt-1" id="statGrossVsReturn">Gross: ₹0 | Returns: ₹0</div>
         </div>
-        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-          <div class="text-[10px] font-bold text-slate-400 uppercase">Taxable Sales</div>
-          <div id="statTaxable" class="text-lg font-black text-slate-900 mt-1">₹0.00</div>
-          <div class="text-[10px] text-slate-500 mt-0.5">Net Base</div>
+        <div class="bg-gradient-to-br from-slate-900 to-blue-950 text-white p-4 rounded-2xl shadow">
+          <div class="text-[10px] uppercase font-bold text-blue-300">GST Output Payable</div>
+          <div id="statNetGST" class="text-xl font-black mt-1">₹0.00</div>
+          <div class="text-[10px] text-slate-300 mt-1" id="statGSTBreakdownText">CGST + SGST + IGST</div>
         </div>
-        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-          <div class="text-[10px] font-bold text-indigo-600 uppercase">Output GST</div>
-          <div id="statGSTOutput" class="text-lg font-black text-indigo-700 mt-1">₹0.00</div>
-          <div class="text-[10px] text-slate-500 mt-0.5">CGST + SGST</div>
+        <div class="bg-gradient-to-br from-slate-900 to-rose-950 text-white p-4 rounded-2xl shadow">
+          <div class="text-[10px] uppercase font-bold text-rose-300">Total Operating Expenses</div>
+          <div id="statTotalExpense" class="text-xl font-black mt-1">₹0.00</div>
+          <div class="text-[10px] text-slate-300 mt-1">Rent, Staff, Bills & Utilities</div>
         </div>
-        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-          <div class="text-[10px] font-bold text-emerald-600 uppercase">Cash Realized</div>
-          <div id="statCashRealized" class="text-lg font-black text-emerald-700 mt-1">₹0.00</div>
-          <div class="text-[10px] text-slate-500 mt-0.5">Liquid balance</div>
-        </div>
-        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-          <div class="text-[10px] font-bold text-amber-600 uppercase">Pending Udhar</div>
-          <div id="statReceivables" class="text-lg font-black text-amber-700 mt-1">₹0.00</div>
-          <div class="text-[10px] text-slate-500 mt-0.5">Debtors receivable</div>
+        <div class="bg-gradient-to-br from-emerald-900 to-slate-900 text-white p-4 rounded-2xl shadow">
+          <div class="text-[10px] uppercase font-bold text-emerald-300">Net Profit / Operating Margin</div>
+          <div id="statNetProfit" class="text-xl font-black mt-1">₹0.00</div>
+          <div class="text-[10px] text-slate-300 mt-1">Realized Net Earning</div>
         </div>
       </div>
 
       <!-- Action Panel: CA Exports -->
       <div class="bg-gradient-to-r from-slate-900 to-indigo-950 p-4 rounded-2xl text-white flex flex-wrap justify-between items-center gap-4 shadow-sm">
         <div>
-          <div class="font-bold text-sm tracking-wide">Chartered Accountant (CA) Tax Export Portal</div>
-          <div class="text-xs text-slate-300">Generate formatted .XLSX workbooks containing GSTR-1, HSN summaries, and Daybooks.</div>
+          <div class="font-bold text-sm tracking-wide">Chartered Accountant (CA) Multi-Sheet Audit Export</div>
+          <div class="text-xs text-slate-300">Generates comprehensive Excel workbooks (.xlsx) with Sales Register, Credit Notes (Returns), and Daybook Expenses.</div>
         </div>
         <div class="flex flex-wrap gap-2">
           <button onclick="exportToExcelCA()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3.5 py-2 rounded-lg shadow flex items-center gap-1.5 transition">
-            <span>📊 Download CA Excel Workbook (.xlsx)</span>
+            <span>📊 Download Comprehensive CA Audit Excel (.xlsx)</span>
           </button>
         </div>
       </div>
 
-      <!-- Ledger / Daybook Transaction Grid -->
+      <!-- Sales Register & Returns Grid -->
       <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div class="p-4 border-b bg-slate-50 flex justify-between items-center">
-          <h3 class="font-bold text-xs uppercase text-slate-700 tracking-wider">Daybook / Sales Register</h3>
+          <h3 class="font-bold text-xs uppercase text-slate-700 tracking-wider">Combined Sales & Credit Note Register</h3>
           <span class="text-xs text-slate-500" id="filteredRangeText">Period: Full View</span>
         </div>
         <div class="overflow-x-auto">
@@ -324,33 +479,33 @@
             <thead class="bg-slate-100 text-slate-600 font-bold border-b uppercase text-[10px]">
               <tr>
                 <th class="p-3">Date</th>
-                <th class="p-3">Inv No</th>
+                <th class="p-3">Doc Type</th>
+                <th class="p-3">Voucher No</th>
                 <th class="p-3">Customer & Particulars</th>
-                <th class="p-3">Ledger Head</th>
+                <th class="p-3">Ledger</th>
                 <th class="p-3 text-right">Taxable (₹)</th>
                 <th class="p-3 text-right">GST (₹)</th>
-                <th class="p-3 text-right">Debit (Amount ₹)</th>
-                <th class="p-3 text-center">Action</th>
+                <th class="p-3 text-right">Total Net (₹)</th>
               </tr>
             </thead>
-            <tbody id="accountingGridBody" class="divide-y divide-slate-100">
-              <tr>
-                <td colspan="8" class="text-center py-8 text-slate-400">Loading ledger data...</td>
-              </tr>
-            </tbody>
+            <tbody id="accountingGridBody" class="divide-y divide-slate-100"></tbody>
           </table>
         </div>
       </div>
     </section>
 
-    <!-- 3. STOCK & INVENTORY REGISTER -->
+    <!-- 5. STOCK & INVENTORY REGISTER (OWNER PROTECTED) -->
     <section id="inventoryTab" class="space-y-6 hidden">
       <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-        <h2 class="font-bold text-slate-900 text-sm uppercase tracking-wide">Stock Inward / Product Register</h2>
-        <div class="grid grid-cols-1 sm:grid-cols-5 gap-3">
-          <input type="text" id="stkModel" placeholder="Model Name (e.g. Redmi Note 13)" class="border rounded px-2.5 py-1.5 text-xs col-span-2">
-          <input type="text" id="stkIMEI" placeholder="Barcode / IMEI" class="border rounded px-2.5 py-1.5 text-xs font-mono">
-          <input type="number" id="stkCost" placeholder="Selling Price (₹)" class="border rounded px-2.5 py-1.5 text-xs font-bold">
+        <div class="flex justify-between items-center">
+          <h2 class="font-bold text-slate-900 text-sm uppercase tracking-wide">Stock Inward / New Device Register</h2>
+          <span class="text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-medium">🔒 Owner Protected Actions</span>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-6 gap-3">
+          <input type="text" id="stkModel" placeholder="Model Name (e.g. Redmi Note 13 5G)" class="border rounded px-2.5 py-1.5 text-xs col-span-2">
+          <input type="text" id="stkIMEI" placeholder="Barcode / IMEI / Serial" class="border rounded px-2.5 py-1.5 text-xs font-mono">
+          <input type="number" id="stkPurchaseCost" placeholder="Purchase Cost (₹)" class="border rounded px-2.5 py-1.5 text-xs font-bold text-slate-600">
+          <input type="number" id="stkCost" placeholder="Selling Price (₹)" class="border rounded px-2.5 py-1.5 text-xs font-bold text-emerald-700">
           <button onclick="addStockItem()" class="bg-indigo-600 text-white font-bold py-1.5 rounded text-xs hover:bg-indigo-700 transition">+ Add to Stock</button>
         </div>
       </div>
@@ -366,8 +521,10 @@
               <th class="p-3">#</th>
               <th class="p-3">Device / Item</th>
               <th class="p-3">Barcode / IMEI</th>
+              <th class="p-3 text-right">Purchase (₹)</th>
               <th class="p-3 text-right">Selling Price</th>
-              <th class="p-3 text-center">Action</th>
+              <th class="p-3 text-center">Stock Status</th>
+              <th class="p-3 text-center">Owner Controls</th>
             </tr>
           </thead>
           <tbody id="stockGridBody" class="divide-y divide-slate-100"></tbody>
@@ -375,21 +532,22 @@
       </div>
     </section>
 
-    <!-- 4. PERMANENT STORE REGISTER & LOCK (ONE-TIME ONLY) -->
+    <!-- 6. PERMANENT STORE REGISTER, MASTER PIN & FORGOT PIN -->
     <section id="settingsTab" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm max-w-2xl mx-auto space-y-4 hidden">
       <div class="border-b pb-3">
         <h2 class="font-bold text-slate-900 text-base flex items-center gap-2">
-          <span>🔒</span> Permanent Store Authorization & Lock
+          <span>🔒</span> Store Authorization, Master PIN & Security
         </h2>
-        <p class="text-xs text-slate-500">Store credentials and Trade Name can only be registered once to protect identity.</p>
+        <p class="text-xs text-slate-500">Configure your store identity, custom Master PIN, and self-recovery security question.</p>
       </div>
 
-      <div id="lockedWarningBanner" class="hidden bg-amber-50 border border-amber-300 p-3 rounded-xl text-xs text-amber-800 flex items-center gap-2 font-medium">
-        <span>⚠</span> <span>This store is permanently registered. To modify critical details, please enter the Master Workshop Secret Key.</span>
+      <div id="lockedWarningBanner" class="hidden bg-amber-50 border border-amber-300 p-3 rounded-xl text-xs text-amber-800 flex items-center justify-between font-medium">
+        <span>⚠ This store is permanently registered. Enter Master PIN to modify settings.</span>
+        <button onclick="promptForgotPIN()" class="text-indigo-600 hover:underline font-bold">Forgot PIN?</button>
       </div>
 
       <div>
-        <label class="block text-xs font-bold text-slate-700 mb-1">Registered Trade / Shop Name (Locked)</label>
+        <label class="block text-xs font-bold text-slate-700 mb-1">Registered Trade / Shop Name (Permanent)</label>
         <input type="text" id="cfgStoreName" placeholder="e.g. Maa Tara Telecom & Workshop" class="w-full border rounded px-3 py-2 text-xs font-bold text-slate-800 bg-slate-50">
       </div>
 
@@ -414,18 +572,38 @@
         <input type="file" id="cfgLogoFile" accept="image/*" class="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:bg-indigo-50 file:text-indigo-700">
       </div>
 
-      <div>
-        <label class="block text-xs font-bold text-slate-700 mb-1">Warranty & Service Policy</label>
-        <textarea id="cfgStoreTerms" rows="3" class="w-full border rounded px-3 py-2 text-xs"></textarea>
+      <!-- Security / Master PIN Section -->
+      <div class="border-t pt-3 space-y-3">
+        <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wide">Owner Security PIN & Recovery</h3>
+        
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-indigo-900 mb-1">Set Your Custom Master PIN</label>
+            <input type="password" id="cfgMasterPin" placeholder="4 to 6 digit secret PIN" class="w-full border border-indigo-300 rounded px-3 py-1.5 text-xs font-mono">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Security Question (For Recovery)</label>
+            <select id="cfgSecQuestion" class="w-full border rounded px-2.5 py-1.5 text-xs bg-white">
+              <option value="city">In what city or town was your shop opened?</option>
+              <option value="school">What was the name of your first school?</option>
+              <option value="pet">What is your favorite pet's or nickname?</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Secret Recovery Answer</label>
+          <input type="text" id="cfgSecAnswer" placeholder="Answer to reset PIN if forgotten" class="w-full border rounded px-3 py-1.5 text-xs">
+        </div>
       </div>
 
       <div id="unlockContainer" class="hidden pt-2 border-t">
-        <label class="block text-xs font-bold text-red-600 mb-1">Master Workshop Secret Passcode (To Unlock)</label>
-        <input type="password" id="adminSecretPass" placeholder="Enter workshop master PIN to edit locked store" class="w-full border border-red-300 rounded px-3 py-1.5 text-xs">
+        <label class="block text-xs font-bold text-red-600 mb-1">Current Master PIN (Required to Save Changes)</label>
+        <input type="password" id="adminSecretPass" placeholder="Enter your secret Master PIN" class="w-full border border-red-300 rounded px-3 py-1.5 text-xs font-mono">
       </div>
 
       <button id="saveStoreBtn" onclick="saveStoreSettings()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 rounded-xl text-xs transition shadow">
-        Register Store & Permanently Lock
+        Register Store, Set PIN & Lock
       </button>
     </section>
 
@@ -433,7 +611,7 @@
 
   <script>
     /* ==========================================================================
-       SMARTFIXPRO POS & TALLY SUITE JAVASCRIPT LOGIC
+       SMARTFIXPRO POS & TALLY CORE STATE
        ========================================================================== */
 
     const CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com';
@@ -445,22 +623,27 @@
     let html5QrCode = null;
     let isScannerOpen = false;
 
-    // Default Profile
+    // Default Store Profile
     let storeProfile = {
       name: "",
       phone: "+91 98320 12345",
       gstin: "19AAECR4821F1ZM",
       address: "Station Road, Chakdaha, Nadia, West Bengal - 741222",
       logo: "",
-      terms: "1. Warranty service strictly covered by Brand Authorized Service Centers.\n2. Goods once sold will not be returned.\n3. Physical & liquid damages void all warranties.",
-      isLocked: false
+      terms: "1. Warranty service strictly covered by Brand Authorized Service Centers.\n2. Goods once sold can be returned within 3 days subject to inspection.\n3. Physical & liquid damages void all warranties.",
+      isLocked: false,
+      masterPin: "1234",
+      secQuestion: "city",
+      secAnswer: "chakdaha"
     };
 
     let invoices = [];
+    let creditNotes = [];
+    let vouchers = [];
     let inventory = [];
     let activeLineItems = [];
 
-    // Financial Year Helper
+    // Helper: Financial Year calculation
     function getFinancialYear(dateObj = new Date()) {
       const year = dateObj.getFullYear();
       const month = dateObj.getMonth();
@@ -484,6 +667,7 @@
       document.getElementById('displayFY').innerText = currentFY.label;
       document.getElementById('invNo').value = `SFP-${currentFY.label.replace('FY ', '').replace('-', '')}-${Math.floor(1000 + Math.random() * 9000)}`;
       document.getElementById('invDate').value = new Date().toISOString().substring(0, 10);
+      document.getElementById('vchDate').value = new Date().toISOString().substring(0, 10);
 
       document.getElementById('filterFromDate').value = currentFY.start.toISOString().substring(0, 10);
       document.getElementById('filterToDate').value = currentFY.end.toISOString().substring(0, 10);
@@ -495,6 +679,12 @@
       const savedInvoices = localStorage.getItem('sfp_invoices');
       if (savedInvoices) invoices = JSON.parse(savedInvoices);
 
+      const savedCRN = localStorage.getItem('sfp_credit_notes');
+      if (savedCRN) creditNotes = JSON.parse(savedCRN);
+
+      const savedVouchers = localStorage.getItem('sfp_vouchers');
+      if (savedVouchers) vouchers = JSON.parse(savedVouchers);
+
       const savedStock = localStorage.getItem('sfp_stock');
       if (savedStock) inventory = JSON.parse(savedStock);
 
@@ -502,16 +692,20 @@
       renderLiveInvoicePreview();
       applyTallyFilter();
       renderStockTable();
+      renderCreditNotesTable();
+      renderVouchersTable();
 
-      // Keyboard Shortcuts
+      // Keyboard Functional Keys (F1 - F6)
       window.addEventListener('keydown', (e) => {
         if (e.key === 'F1') { e.preventDefault(); switchView('billingTab'); }
-        if (e.key === 'F2') { e.preventDefault(); switchView('accountingTab'); }
-        if (e.key === 'F3') { e.preventDefault(); switchView('inventoryTab'); }
-        if (e.key === 'F4') { e.preventDefault(); switchView('settingsTab'); }
+        if (e.key === 'F2') { e.preventDefault(); switchView('returnTab'); }
+        if (e.key === 'F3') { e.preventDefault(); switchView('vouchersTab'); }
+        if (e.key === 'F4') { e.preventDefault(); switchView('accountingTab'); }
+        if (e.key === 'F5') { e.preventDefault(); switchView('inventoryTab'); }
+        if (e.key === 'F6') { e.preventDefault(); switchView('settingsTab'); }
       });
 
-      // Google Identity
+      // Google Identity Services
       try {
         tokenClient = google.accounts.oauth2.initTokenClient({
           client_id: CLIENT_ID,
@@ -533,7 +727,7 @@
     }
 
     function switchView(tabId) {
-      ['billingTab', 'accountingTab', 'inventoryTab', 'settingsTab'].forEach(t => {
+      ['billingTab', 'returnTab', 'vouchersTab', 'accountingTab', 'inventoryTab', 'settingsTab'].forEach(t => {
         document.getElementById(t).classList.add('hidden');
         document.getElementById(`nav-${t}`).className = "tab-btn py-2.5 px-3 text-xs sm:text-sm font-semibold text-slate-400 hover:text-white border-b-2 border-transparent";
       });
@@ -544,7 +738,7 @@
     }
 
     /* ==========================================================================
-       STORE LOCK MECHANISM (ONE-TIME REGISTRATION)
+       STORE REGISTRATION, CUSTOM MASTER PIN & FORGOT PIN RECOVERY
        ========================================================================== */
 
     function enforceStoreLockState() {
@@ -556,7 +750,7 @@
         document.getElementById('cfgStoreName').classList.add('bg-slate-100', 'text-slate-500');
         document.getElementById('lockedWarningBanner').classList.remove('hidden');
         document.getElementById('unlockContainer').classList.remove('hidden');
-        document.getElementById('saveStoreBtn').innerText = "Update with Master Key";
+        document.getElementById('saveStoreBtn').innerText = "Update with Master PIN";
       } else {
         document.getElementById('cfgStoreName').value = storeProfile.name || "SmartFix Workshop & Telecom";
         document.getElementById('cfgStoreName').readOnly = false;
@@ -564,23 +758,39 @@
       document.getElementById('cfgStorePhone').value = storeProfile.phone;
       document.getElementById('cfgStoreGST').value = storeProfile.gstin;
       document.getElementById('cfgStoreAddress').value = storeProfile.address;
-      document.getElementById('cfgStoreTerms').value = storeProfile.terms;
+      document.getElementById('cfgMasterPin').value = storeProfile.masterPin || "";
+      document.getElementById('cfgSecQuestion').value = storeProfile.secQuestion || "city";
+      document.getElementById('cfgSecAnswer').value = storeProfile.secAnswer || "";
     }
 
     function saveStoreSettings() {
       if (storeProfile.isLocked) {
-        const pass = document.getElementById('adminSecretPass').value;
-        if (pass !== "SMARTFIX99") {
-          alert("Store is permanently locked! Invalid Master Workshop Passcode.");
+        const pass = document.getElementById('adminSecretPass').value.trim();
+        if (pass !== storeProfile.masterPin) {
+          alert("Unauthorized! Incorrect Master PIN.");
           return;
         }
+      }
+
+      const pin = document.getElementById('cfgMasterPin').value.trim();
+      const secAns = document.getElementById('cfgSecAnswer').value.trim();
+
+      if (!pin || pin.length < 4) {
+        alert("Please set a secure 4 to 6 digit Master PIN!");
+        return;
+      }
+      if (!secAns) {
+        alert("Please provide a secret recovery answer in case you forget your PIN!");
+        return;
       }
 
       storeProfile.name = document.getElementById('cfgStoreName').value.trim();
       storeProfile.phone = document.getElementById('cfgStorePhone').value.trim();
       storeProfile.gstin = document.getElementById('cfgStoreGST').value.trim();
       storeProfile.address = document.getElementById('cfgStoreAddress').value.trim();
-      storeProfile.terms = document.getElementById('cfgStoreTerms').value.trim();
+      storeProfile.masterPin = pin;
+      storeProfile.secQuestion = document.getElementById('cfgSecQuestion').value;
+      storeProfile.secAnswer = secAns.toLowerCase();
       storeProfile.isLocked = true;
 
       const logoFile = document.getElementById('cfgLogoFile').files[0];
@@ -600,12 +810,34 @@
       localStorage.setItem('sfp_store_profile', JSON.stringify(storeProfile));
       enforceStoreLockState();
       renderLiveInvoicePreview();
-      alert("Store successfully registered and locked!");
+      alert("Store & Master PIN successfully registered and locked!");
       switchView('billingTab');
     }
 
+    function promptForgotPIN() {
+      const qLabels = {
+        city: "In what city or town was your shop opened?",
+        school: "What was the name of your first school?",
+        pet: "What is your favorite pet's or nickname?"
+      };
+      const qText = qLabels[storeProfile.secQuestion] || "your secret question";
+
+      const ans = prompt(`RECOVERY CHECK: ${qText}`);
+      if (ans && ans.trim().toLowerCase() === storeProfile.secAnswer.toLowerCase()) {
+        const newPin = prompt("Correct Answer! Enter your NEW 4 to 6 digit Master PIN:");
+        if (newPin && newPin.length >= 4) {
+          storeProfile.masterPin = newPin.trim();
+          localStorage.setItem('sfp_store_profile', JSON.stringify(storeProfile));
+          alert(`PIN successfully updated! Your new PIN is: ${newPin}`);
+          enforceStoreLockState();
+        }
+      } else {
+        alert("Incorrect secret recovery answer!");
+      }
+    }
+
     /* ==========================================================================
-       BARCODE & HARDWARE SCANNER INTEGRATION
+       BARCODE SCANNER & DIRECT BILL ADDITION
        ========================================================================== */
 
     function toggleCameraScanner() {
@@ -645,14 +877,26 @@
     }
 
     function handleScannedCode(code) {
-      const matched = inventory.find(i => i.imei === code || i.model.toLowerCase().includes(code.toLowerCase()));
+      const matched = inventory.find(i => i.imei === code || i.model.toLowerCase() === code.toLowerCase());
+      
       if (matched) {
-        pushProductToBill(matched.model, matched.imei, 8517, 18, 1, matched.cost);
+        if (matched.status === "Sold") {
+          alert(`🚫 OUT OF STOCK: Item "${matched.model}" (IMEI: ${matched.imei}) is already marked as SOLD!`);
+          return;
+        }
+
+        const alreadyInCart = activeLineItems.some(i => i.imei === matched.imei);
+        if (alreadyInCart) {
+          alert(`Item (IMEI: ${matched.imei}) is already in the current invoice!`);
+          return;
+        }
+
+        pushProductToBill(matched.model, matched.imei, '8517', 18, 1, matched.cost, matched.purchaseCost || 0, matched.id);
       } else {
-        const gross = prompt(`Barcode/IMEI Scanned: "${code}". Enter Selling Price (₹):`, "15000");
-        if (gross && !isNaN(gross)) {
+        const gross = prompt(`Barcode/IMEI "${code}" not found in registered stock. Enter Price (₹):`, "15000");
+        if (gross && !isNaN(gross) && parseFloat(gross) > 0) {
           const model = prompt("Enter Device Name:", "Mobile Device");
-          pushProductToBill(model || "Mobile Phone", code, 8517, 18, 1, parseFloat(gross));
+          pushProductToBill(model || "Mobile Device", code, '8517', 18, 1, parseFloat(gross), 0, null);
         }
       }
     }
@@ -666,34 +910,36 @@
       const grossAmount = parseFloat(document.getElementById('itemPrice').value) || 0;
 
       if (!desc || grossAmount <= 0) {
-        alert("Enter a valid description and price.");
+        alert("Enter valid description and price.");
         return;
       }
 
-      pushProductToBill(desc, imei, hsn, gstRate, qty, grossAmount);
+      if (imei) {
+        const matched = inventory.find(i => i.imei === imei);
+        if (matched && matched.status === "Sold") {
+          alert(`🚫 Cannot Add: Device with IMEI "${imei}" is already SOLD!`);
+          return;
+        }
+      }
+
+      pushProductToBill(desc, imei, hsn, gstRate, qty, grossAmount, 0, null);
 
       document.getElementById('itemDesc').value = '';
       document.getElementById('itemIMEI').value = '';
       document.getElementById('itemPrice').value = '';
     }
 
-    function pushProductToBill(desc, imei, hsn, gstRate, qty, grossAmount) {
-      const taxableBase = grossAmount / (1 + (gstRate / 100));
-      const totalTax = grossAmount - taxableBase;
-      const cgst = totalTax / 2;
-      const sgst = totalTax / 2;
-
+    function pushProductToBill(desc, imei, hsn, gstRate, qty, grossAmount, purchaseCost, stockId) {
       activeLineItems.push({
         id: Date.now(),
+        stockId: stockId || null,
         desc,
         imei,
         hsn,
         gstRate,
         qty,
-        grossAmount,
-        taxableBase: Number(taxableBase.toFixed(2)),
-        cgst: Number(cgst.toFixed(2)),
-        sgst: Number(sgst.toFixed(2))
+        purchaseCost: parseFloat(purchaseCost) || 0,
+        grossAmount: parseFloat(grossAmount)
       });
 
       renderLiveInvoicePreview();
@@ -705,7 +951,7 @@
     }
 
     /* ==========================================================================
-       DYNAMIC A4 FITTING & INVOICE RENDERER (WITH DEBAPRIYA SARKAR FOOTER)
+       DYNAMIC A4 RENDERER & ACCURATE CGST / SGST / IGST MATH
        ========================================================================== */
 
     function applyInvoiceTheme(themeClass) {
@@ -723,35 +969,61 @@
       const custPhone = document.getElementById('custPhone').value.trim() || 'N/A';
       const custGSTIN = document.getElementById('custGSTIN').value.trim();
       const ledger = document.getElementById('paymentLedger').value;
+      const taxType = document.getElementById('gstTaxType').value;
 
-      let totalGross = activeLineItems.reduce((acc, it) => acc + (it.grossAmount * it.qty), 0);
-      let totalTaxable = activeLineItems.reduce((acc, it) => acc + (it.taxableBase * it.qty), 0);
-      let totalCGST = activeLineItems.reduce((acc, it) => acc + (it.cgst * it.qty), 0);
-      let totalSGST = activeLineItems.reduce((acc, it) => acc + (it.sgst * it.qty), 0);
+      let totalGross = 0;
+      let totalTaxable = 0;
+      let totalCGST = 0;
+      let totalSGST = 0;
+      let totalIGST = 0;
 
-      // Dynamic Row Spacing Calculation
       const rowPaddingClass = activeLineItems.length <= 2 ? 'py-4 px-3' : (activeLineItems.length <= 5 ? 'py-2.5 px-3' : 'py-1.5 px-2 text-[10px]');
 
-      let itemsRows = activeLineItems.map((item, idx) => `
-        <tr class="border-b border-slate-100">
-          <td class="${rowPaddingClass} text-center font-bold text-slate-400">${idx + 1}</td>
-          <td class="${rowPaddingClass}">
-            <div class="font-bold text-slate-900">${item.desc}</div>
-            ${item.imei ? `<div class="text-[9px] text-slate-500 font-mono mt-0.5">IMEI: <span class="bg-slate-100 font-bold px-1 rounded text-slate-700">${item.imei}</span></div>` : ''}
-          </td>
-          <td class="${rowPaddingClass} text-center font-mono text-[10px]">${item.hsn}</td>
-          <td class="${rowPaddingClass} text-center font-bold">${item.qty}</td>
-          <td class="${rowPaddingClass} text-right font-mono">₹${item.taxableBase.toFixed(2)}</td>
-          <td class="${rowPaddingClass} text-right font-mono">${item.gstRate}%</td>
-          <td class="${rowPaddingClass} text-right font-mono font-bold text-slate-900">₹${(item.grossAmount * item.qty).toFixed(2)}</td>
-          <td class="${rowPaddingClass} text-center no-print">
-            <button onclick="removeItem(${idx})" class="text-rose-500 hover:text-rose-700 font-bold">×</button>
-          </td>
-        </tr>
-      `).join('');
+      let itemsRows = activeLineItems.map((item, idx) => {
+        const lineTotal = item.grossAmount * item.qty;
+        const lineTaxable = lineTotal / (1 + (item.gstRate / 100));
+        const lineTaxAmount = lineTotal - lineTaxable;
+
+        let lineCGST = 0;
+        let lineSGST = 0;
+        let lineIGST = 0;
+
+        if (taxType === 'INTRA') {
+          lineCGST = lineTaxAmount / 2;
+          lineSGST = lineTaxAmount / 2;
+        } else {
+          lineIGST = lineTaxAmount;
+        }
+
+        totalGross += lineTotal;
+        totalTaxable += lineTaxable;
+        totalCGST += lineCGST;
+        totalSGST += lineSGST;
+        totalIGST += lineIGST;
+
+        return `
+          <tr class="border-b border-slate-100 group">
+            <td class="${rowPaddingClass} text-center font-bold text-slate-400">${idx + 1}</td>
+            <td class="${rowPaddingClass}">
+              <div class="font-bold text-slate-900">${item.desc}</div>
+              ${item.imei ? `<div class="text-[9px] text-slate-500 font-mono mt-0.5">IMEI: <span class="bg-slate-100 font-bold px-1 rounded text-slate-700">${item.imei}</span></div>` : ''}
+            </td>
+            <td class="${rowPaddingClass} text-center font-mono text-[10px]">${item.hsn}</td>
+            <td class="${rowPaddingClass} text-center font-bold">${item.qty}</td>
+            <td class="${rowPaddingClass} text-right font-mono">₹${lineTaxable.toFixed(2)}</td>
+            <td class="${rowPaddingClass} text-right font-mono">${item.gstRate}%</td>
+            <td class="${rowPaddingClass} text-right font-mono font-bold text-slate-900">
+              <div class="flex items-center justify-end gap-1.5">
+                <span>₹${lineTotal.toFixed(2)}</span>
+                <button onclick="removeItem(${idx})" title="Delete item" class="no-print opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-600 transition text-[10px] font-bold">🗑</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
 
       if (activeLineItems.length === 0) {
-        itemsRows = `<tr><td colspan="8" class="text-center py-16 text-slate-400">Scan Barcode or Add Products to fill this A4 Tax Invoice.</td></tr>`;
+        itemsRows = `<tr><td colspan="7" class="text-center py-16 text-slate-400">Scan Barcode or Add Products to fill this A4 Tax Invoice.</td></tr>`;
       }
 
       const invoiceHTML = `
@@ -770,7 +1042,7 @@
               </div>
             </div>
             <div class="text-right">
-              <span class="inline-block brand-bg text-white text-[9px] uppercase font-black px-2 py-0.5 rounded tracking-wider">ORIGINAL TAX INVOICE</span>
+              <span class="inline-block brand-bg text-white text-[9px] uppercase font-black px-2 py-0.5 rounded tracking-wider">TAX INVOICE (${taxType === 'INTRA' ? 'INTRA-STATE' : 'INTER-STATE'})</span>
               <div class="text-xs font-black font-mono mt-1 text-slate-900">${invNo}</div>
               <div class="text-[10px] text-slate-500">Date: ${invDate}</div>
             </div>
@@ -785,9 +1057,9 @@
               ${custGSTIN ? `<div class="text-slate-700 font-mono text-[10px]">GSTIN: <strong>${custGSTIN}</strong></div>` : ''}
             </div>
             <div class="text-right">
-              <div class="text-[9px] font-bold text-slate-500 uppercase">Payment Head</div>
+              <div class="text-[9px] font-bold text-slate-500 uppercase">Payment Ledger</div>
               <div class="font-bold text-emerald-800 text-xs">${ledger}</div>
-              <div class="text-[10px] text-slate-500">Status: Realized</div>
+              <div class="text-[10px] text-slate-500">Tax Type: ${taxType === 'INTRA' ? 'West Bengal / CGST+SGST' : 'Inter-State / IGST'}</div>
             </div>
           </div>
 
@@ -800,9 +1072,8 @@
                 <th class="py-1.5 px-2 text-center w-14">HSN</th>
                 <th class="py-1.5 px-2 text-center w-10">Qty</th>
                 <th class="py-1.5 px-2 text-right w-20">Taxable</th>
-                <th class="py-1.5 px-2 text-right w-12">GST</th>
-                <th class="py-1.5 px-2 text-right w-24">Total (₹)</th>
-                <th class="py-1.5 px-1 text-center w-6 no-print"></th>
+                <th class="py-1.5 px-2 text-right w-12">GST Rate</th>
+                <th class="py-1.5 px-2 text-right w-24">Total Amount (₹)</th>
               </tr>
             </thead>
             <tbody>
@@ -815,19 +1086,26 @@
         <div>
           <div class="grid grid-cols-2 gap-4 items-start mb-2 pt-2 border-t">
             <div class="border border-slate-200 rounded p-2 text-[9px]">
-              <div class="font-bold text-slate-700 uppercase mb-0.5">GST Tax Computation Summary</div>
+              <div class="font-bold text-slate-700 uppercase mb-0.5">Statutory GST Breakup (${taxType === 'INTRA' ? 'CGST + SGST' : 'IGST'})</div>
               <div class="flex justify-between py-0.5 text-slate-600 border-b">
                 <span>Taxable Amount:</span>
-                <span class="font-mono">₹${totalTaxable.toFixed(2)}</span>
+                <span class="font-mono font-semibold">₹${totalTaxable.toFixed(2)}</span>
               </div>
-              <div class="flex justify-between py-0.5 text-slate-600 border-b">
-                <span>Central GST (CGST):</span>
-                <span class="font-mono">₹${totalCGST.toFixed(2)}</span>
-              </div>
-              <div class="flex justify-between py-0.5 text-slate-600">
-                <span>State GST (SGST):</span>
-                <span class="font-mono">₹${totalSGST.toFixed(2)}</span>
-              </div>
+              ${taxType === 'INTRA' ? `
+                <div class="flex justify-between py-0.5 text-slate-600 border-b">
+                  <span>Central GST (CGST):</span>
+                  <span class="font-mono">₹${totalCGST.toFixed(2)}</span>
+                </div>
+                <div class="flex justify-between py-0.5 text-slate-600">
+                  <span>State GST (SGST):</span>
+                  <span class="font-mono">₹${totalSGST.toFixed(2)}</span>
+                </div>
+              ` : `
+                <div class="flex justify-between py-0.5 text-slate-600">
+                  <span>Integrated GST (IGST):</span>
+                  <span class="font-mono font-bold text-indigo-700">₹${totalIGST.toFixed(2)}</span>
+                </div>
+              `}
             </div>
 
             <div class="text-right space-y-1 text-xs">
@@ -836,8 +1114,8 @@
                 <span class="font-mono font-semibold">₹${totalTaxable.toFixed(2)}</span>
               </div>
               <div class="flex justify-between py-0.5 text-slate-600">
-                <span>Total Output Tax:</span>
-                <span class="font-mono font-semibold">₹${(totalCGST + totalSGST).toFixed(2)}</span>
+                <span>Total Tax Amount:</span>
+                <span class="font-mono font-semibold">₹${(totalCGST + totalSGST + totalIGST).toFixed(2)}</span>
               </div>
               <div class="flex justify-between py-1 border-t-2 brand-border text-base font-black brand-text">
                 <span>Grand Total:</span>
@@ -879,17 +1157,60 @@
         return;
       }
 
+      for (const item of activeLineItems) {
+        if (item.imei) {
+          const matched = inventory.find(i => i.imei === item.imei);
+          if (matched && matched.status === "Sold") {
+            alert(`Cannot complete invoice! Device with IMEI "${item.imei}" is already sold.`);
+            return;
+          }
+        }
+      }
+
       const invNo = document.getElementById('invNo').value;
       const invDate = document.getElementById('invDate').value;
       const custName = document.getElementById('custName').value.trim() || 'Cash Customer';
       const custPhone = document.getElementById('custPhone').value.trim() || 'N/A';
       const custGSTIN = document.getElementById('custGSTIN').value.trim();
       const ledger = document.getElementById('paymentLedger').value;
+      const taxType = document.getElementById('gstTaxType').value;
 
-      const totalGross = activeLineItems.reduce((acc, it) => acc + (it.grossAmount * it.qty), 0);
-      const totalTaxable = activeLineItems.reduce((acc, it) => acc + (it.taxableBase * it.qty), 0);
-      const totalCGST = activeLineItems.reduce((acc, it) => acc + (it.cgst * it.qty), 0);
-      const totalSGST = activeLineItems.reduce((acc, it) => acc + (it.sgst * it.qty), 0);
+      let totalGross = 0;
+      let totalTaxable = 0;
+      let totalCGST = 0;
+      let totalSGST = 0;
+      let totalIGST = 0;
+      let totalPurchaseCost = 0;
+
+      activeLineItems.forEach(item => {
+        const lineTotal = item.grossAmount * item.qty;
+        const lineTaxable = lineTotal / (1 + (item.gstRate / 100));
+        const lineTax = lineTotal - lineTaxable;
+
+        totalGross += lineTotal;
+        totalTaxable += lineTaxable;
+        totalPurchaseCost += (item.purchaseCost * item.qty);
+
+        if (taxType === 'INTRA') {
+          totalCGST += lineTax / 2;
+          totalSGST += lineTax / 2;
+        } else {
+          totalIGST += lineTax;
+        }
+
+        // Automatic Stock Deduction
+        if (item.imei) {
+          const matchedStock = inventory.find(i => i.imei === item.imei);
+          if (matchedStock) {
+            matchedStock.status = "Sold";
+            matchedStock.soldInvoice = invNo;
+            matchedStock.soldDate = invDate;
+          }
+        }
+      });
+
+      localStorage.setItem('sfp_stock', JSON.stringify(inventory));
+      renderStockTable();
 
       const invoiceRecord = {
         invoiceNo: invNo,
@@ -898,12 +1219,15 @@
         customerName: custName,
         customerPhone: custPhone,
         customerGSTIN: custGSTIN,
+        taxType: taxType,
         ledger: ledger,
         items: [...activeLineItems],
         totalTaxable: Number(totalTaxable.toFixed(2)),
         totalCGST: Number(totalCGST.toFixed(2)),
         totalSGST: Number(totalSGST.toFixed(2)),
+        totalIGST: Number(totalIGST.toFixed(2)),
         totalGross: Number(totalGross.toFixed(2)),
+        totalPurchaseCost: Number(totalPurchaseCost.toFixed(2)),
         theme: currentTheme,
         timestamp: new Date().toISOString()
       };
@@ -911,7 +1235,6 @@
       invoices.unshift(invoiceRecord);
       localStorage.setItem('sfp_invoices', JSON.stringify(invoices));
 
-      // Asynchronous Google Drive Sync
       if (accessToken) syncInvoiceToGoogleDrive(invoiceRecord);
 
       window.print();
@@ -923,7 +1246,264 @@
     }
 
     /* ==========================================================================
-       TALLY ACCOUNTING ENGINE & CA EXPORT
+       SALES RETURN & CREDIT NOTE (TALLY ENGINE)
+       ========================================================================== */
+
+    let activeReturnItem = null;
+
+    function searchForReturn() {
+      const q = document.getElementById('retSearchQuery').value.trim();
+      if (!q) { alert("Enter Invoice No or IMEI"); return; }
+
+      let foundInvoice = invoices.find(inv => inv.invoiceNo.toLowerCase() === q.toLowerCase());
+      let foundItem = null;
+
+      if (!foundInvoice) {
+        // Search by IMEI in invoices
+        for (const inv of invoices) {
+          const it = inv.items.find(i => i.imei === q);
+          if (it) {
+            foundInvoice = inv;
+            foundItem = it;
+            break;
+          }
+        }
+      } else {
+        foundItem = foundInvoice.items[0];
+      }
+
+      if (!foundInvoice || !foundItem) {
+        alert("No sold invoice found matching this search!");
+        return;
+      }
+
+      activeReturnItem = {
+        origInvoice: foundInvoice,
+        item: foundItem
+      };
+
+      document.getElementById('returnDetailsBox').classList.remove('hidden');
+      document.getElementById('retFoundTitle').innerText = `Matched Invoice: ${foundInvoice.invoiceNo}`;
+      document.getElementById('retCustName').innerText = foundInvoice.customerName;
+      document.getElementById('retOrigDate').innerText = foundInvoice.date;
+      document.getElementById('retItemDesc').innerText = foundItem.desc;
+      document.getElementById('retItemIMEI').innerText = foundItem.imei || 'N/A';
+      document.getElementById('retRefundAmount').innerText = `₹${(foundItem.grossAmount * foundItem.qty).toFixed(2)}`;
+    }
+
+    function finalizeCreditNote() {
+      if (!activeReturnItem) return;
+
+      const reason = document.getElementById('retReason').value;
+      const restock = document.getElementById('retRestockCheckbox').checked;
+      const currentFY = getFinancialYear();
+      const crnNo = `CRN-${currentFY.label.replace('FY ', '').replace('-', '')}-${Math.floor(1000 + Math.random() * 9000)}`;
+      const crnDate = new Date().toISOString().substring(0, 10);
+
+      const refundTotal = activeReturnItem.item.grossAmount * activeReturnItem.item.qty;
+      const refundTaxable = refundTotal / (1 + (activeReturnItem.item.gstRate / 100));
+      const refundTax = refundTotal - refundTaxable;
+
+      // Credit Note Record
+      const crnRecord = {
+        crnNo,
+        date: crnDate,
+        origInvoiceNo: activeReturnItem.origInvoice.invoiceNo,
+        customerName: activeReturnItem.origInvoice.customerName,
+        customerPhone: activeReturnItem.origInvoice.customerPhone,
+        itemDesc: activeReturnItem.item.desc,
+        imei: activeReturnItem.item.imei,
+        reason,
+        refundTaxable: Number(refundTaxable.toFixed(2)),
+        refundTax: Number(refundTax.toFixed(2)),
+        refundTotal: Number(refundTotal.toFixed(2))
+      };
+
+      creditNotes.unshift(crnRecord);
+      localStorage.setItem('sfp_credit_notes', JSON.stringify(creditNotes));
+
+      // Automatic Restock in Inventory
+      if (restock && activeReturnItem.item.imei) {
+        const stk = inventory.find(i => i.imei === activeReturnItem.item.imei);
+        if (stk) {
+          stk.status = "Available";
+          delete stk.soldInvoice;
+          delete stk.soldDate;
+        } else {
+          inventory.push({
+            id: Date.now(),
+            model: activeReturnItem.item.desc,
+            imei: activeReturnItem.item.imei,
+            cost: activeReturnItem.item.grossAmount,
+            purchaseCost: activeReturnItem.item.purchaseCost || 0,
+            status: "Available"
+          });
+        }
+        localStorage.setItem('sfp_stock', JSON.stringify(inventory));
+        renderStockTable();
+      }
+
+      alert(`Credit Note ${crnNo} successfully issued and stock restored!`);
+      document.getElementById('returnDetailsBox').classList.add('hidden');
+      document.getElementById('retSearchQuery').value = '';
+      activeReturnItem = null;
+      renderCreditNotesTable();
+    }
+
+    function renderCreditNotesTable() {
+      const tbody = document.getElementById('creditNoteGridBody');
+      if (creditNotes.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-slate-400">No sales returns recorded.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = creditNotes.map(crn => `
+        <tr class="hover:bg-slate-50">
+          <td class="p-2.5 font-bold text-rose-700 font-mono">${crn.crnNo}</td>
+          <td class="p-2.5 text-slate-600 font-mono">${crn.date}</td>
+          <td class="p-2.5 font-mono text-slate-800">${crn.origInvoiceNo}</td>
+          <td class="p-2.5 font-semibold text-slate-900">${crn.customerName}</td>
+          <td class="p-2.5 text-right font-mono text-rose-600">₹${crn.refundTax.toFixed(2)}</td>
+          <td class="p-2.5 text-right font-mono font-bold text-rose-700">₹${crn.refundTotal.toFixed(2)}</td>
+          <td class="p-2.5 text-center">
+            <button onclick='printCreditNoteSlip(${JSON.stringify(crn)})' class="text-xs bg-slate-200 hover:bg-slate-300 font-bold px-2 py-1 rounded">Print CRN</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function printCreditNoteSlip(crn) {
+      const invElement = document.getElementById('printableInvoice');
+      invElement.className = `theme-dark bg-white shadow-2xl border border-slate-200 text-xs text-slate-800 flex flex-col justify-between`;
+
+      invElement.innerHTML = `
+        <div>
+          <div class="flex justify-between items-start border-b-2 border-rose-600 pb-3 mb-3">
+            <div>
+              <h1 class="text-lg font-black text-rose-800 uppercase tracking-tight">${storeProfile.name || 'SMARTFIXPRO WORKSHOP'}</h1>
+              <p class="text-slate-500 text-[10px]">${storeProfile.address} | Phone: ${storeProfile.phone}</p>
+            </div>
+            <div class="text-right">
+              <span class="inline-block bg-rose-700 text-white text-[9px] uppercase font-black px-2.5 py-0.5 rounded tracking-wider">OFFICIAL CREDIT NOTE (RETURN)</span>
+              <div class="text-xs font-black font-mono mt-1 text-slate-900">${crn.crnNo}</div>
+              <div class="text-[10px] text-slate-500">Date: ${crn.date}</div>
+            </div>
+          </div>
+
+          <div class="bg-rose-50 border border-rose-200 p-3 rounded-lg mb-4 text-[11px]">
+            <div class="flex justify-between">
+              <div><strong>Billed Customer:</strong> ${crn.customerName} (Mob: ${crn.customerPhone})</div>
+              <div><strong>Against Original Invoice:</strong> ${crn.origInvoiceNo}</div>
+            </div>
+          </div>
+
+          <table class="w-full text-left border border-slate-200 rounded-lg overflow-hidden mb-4">
+            <thead class="bg-slate-800 text-white text-[9px] uppercase tracking-wider">
+              <tr>
+                <th class="p-2">Returned Particulars & IMEI</th>
+                <th class="p-2 text-right">Taxable Reversal</th>
+                <th class="p-2 text-right">Tax Reversal</th>
+                <th class="p-2 text-right">Total Refund (₹)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="border-b">
+                <td class="p-2.5">
+                  <div class="font-bold">${crn.itemDesc}</div>
+                  <div class="text-[10px] text-slate-500 font-mono">IMEI: ${crn.imei || 'N/A'} | Reason: ${crn.reason}</div>
+                </td>
+                <td class="p-2.5 text-right font-mono">₹${crn.refundTaxable.toFixed(2)}</td>
+                <td class="p-2.5 text-right font-mono">₹${crn.refundTax.toFixed(2)}</td>
+                <td class="p-2.5 text-right font-mono font-bold text-rose-700">₹${crn.refundTotal.toFixed(2)}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="border-t pt-4">
+          <div class="flex justify-between items-end">
+            <div class="text-[9px] text-slate-400">SmartFix Pro ERP | Sales Return Module</div>
+            <div class="border-t border-slate-400 w-36 text-center font-bold text-slate-700 pt-0.5">Authorized Signatory</div>
+          </div>
+        </div>
+      `;
+
+      window.print();
+      renderLiveInvoicePreview();
+    }
+
+    /* ==========================================================================
+       DAYBOOK & EXPENSE VOUCHER ENGINE
+       ========================================================================== */
+
+    function saveVoucher() {
+      const type = document.getElementById('vchType').value;
+      const date = document.getElementById('vchDate').value;
+      const category = document.getElementById('vchCategory').value.trim();
+      const account = document.getElementById('vchAccount').value;
+      const amount = parseFloat(document.getElementById('vchAmount').value) || 0;
+      const narration = document.getElementById('vchNarration').value.trim();
+
+      if (!category || amount <= 0) {
+        alert("Please enter a category and valid amount!");
+        return;
+      }
+
+      vouchers.unshift({
+        id: Date.now(),
+        type,
+        date,
+        category,
+        account,
+        amount,
+        narration
+      });
+
+      localStorage.setItem('sfp_vouchers', JSON.stringify(vouchers));
+      document.getElementById('vchCategory').value = '';
+      document.getElementById('vchAmount').value = '';
+      document.getElementById('vchNarration').value = '';
+
+      renderVouchersTable();
+      alert("Voucher recorded in Daybook!");
+    }
+
+    function renderVouchersTable() {
+      const tbody = document.getElementById('vouchersGridBody');
+      let totalExp = 0;
+
+      vouchers.forEach(v => {
+        if (v.type === 'EXPENSE') totalExp += v.amount;
+      });
+
+      document.getElementById('totalExpenseDisplay').innerText = `Total Expense: ₹${totalExp.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+
+      if (vouchers.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-slate-400">No daybook vouchers recorded.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = vouchers.map(v => `
+        <tr class="hover:bg-slate-50">
+          <td class="p-2.5 font-mono text-slate-600">${v.date}</td>
+          <td class="p-2.5 font-bold ${v.type === 'EXPENSE' ? 'text-rose-600' : 'text-emerald-600'} text-[10px]">${v.type}</td>
+          <td class="p-2.5">
+            <div class="font-bold text-slate-900">${v.category}</div>
+            <div class="text-[10px] text-slate-500">${v.narration || ''}</div>
+          </td>
+          <td class="p-2.5 font-semibold text-slate-700">${v.account}</td>
+          <td class="p-2.5 text-right font-mono ${v.type === 'EXPENSE' ? 'font-bold text-rose-600' : 'text-slate-300'}">
+            ${v.type === 'EXPENSE' ? '₹' + v.amount.toFixed(2) : '-'}
+          </td>
+          <td class="p-2.5 text-right font-mono ${v.type === 'RECEIPT' ? 'font-bold text-emerald-600' : 'text-slate-300'}">
+            ${v.type === 'RECEIPT' ? '₹' + v.amount.toFixed(2) : '-'}
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    /* ==========================================================================
+       TALLY P&L, AUDIT & CA MULTI-SHEET EXPORT
        ========================================================================== */
 
     function setDateRange(period) {
@@ -964,152 +1544,281 @@
 
       document.getElementById('filteredRangeText').innerText = `Period: ${fromStr} to ${toStr}`;
 
-      const filtered = invoices.filter(inv => {
+      // Filter Invoices
+      const filteredInvoices = invoices.filter(inv => {
         const d = new Date(inv.date);
-        const matchesDate = d >= fromDate && d <= toDate;
-        const matchesLedger = (ledger === 'ALL') || (inv.ledger === ledger);
-        return matchesDate && matchesLedger;
+        return d >= fromDate && d <= toDate && (ledger === 'ALL' || inv.ledger === ledger);
       });
 
-      let turnover = 0, taxable = 0, cgst = 0, sgst = 0, cash = 0, debtors = 0;
-
-      filtered.forEach(inv => {
-        turnover += inv.totalGross;
-        taxable += inv.totalTaxable;
-        cgst += inv.totalCGST;
-        sgst += inv.totalSGST;
-        if (inv.ledger === 'Cash-in-Hand') cash += inv.totalGross;
-        if (inv.ledger.includes('Credit') || inv.ledger.includes('Debtors')) debtors += inv.totalGross;
+      // Filter Credit Notes (Returns)
+      const filteredCRN = creditNotes.filter(crn => {
+        const d = new Date(crn.date);
+        return d >= fromDate && d <= toDate;
       });
 
-      document.getElementById('statGrossTurnover').innerText = `₹${turnover.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
-      document.getElementById('statVoucherCount').innerText = `${filtered.length} Vouchers`;
-      document.getElementById('statTaxable').innerText = `₹${taxable.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
-      document.getElementById('statGSTOutput').innerText = `₹${(cgst + sgst).toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
-      document.getElementById('statCashRealized').innerText = `₹${cash.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
-      document.getElementById('statReceivables').innerText = `₹${debtors.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+      // Filter Expenses
+      const filteredVouchers = vouchers.filter(v => {
+        const d = new Date(v.date);
+        return d >= fromDate && d <= toDate;
+      });
 
+      let grossSales = 0;
+      let salesTax = 0;
+      let totalPurchaseCost = 0;
+
+      filteredInvoices.forEach(i => {
+        grossSales += i.totalGross;
+        salesTax += (i.totalCGST + i.totalSGST + i.totalIGST);
+        totalPurchaseCost += (i.totalPurchaseCost || 0);
+      });
+
+      let totalReturns = 0;
+      let returnTax = 0;
+      filteredCRN.forEach(c => {
+        totalReturns += c.refundTotal;
+        returnTax += c.refundTax;
+      });
+
+      let totalExpenses = 0;
+      filteredVouchers.forEach(v => {
+        if (v.type === 'EXPENSE') totalExpenses += v.amount;
+      });
+
+      const netTurnover = grossSales - totalReturns;
+      const netGSTOutput = salesTax - returnTax;
+      const grossMargin = netTurnover - totalPurchaseCost;
+      const netProfit = grossMargin - totalExpenses;
+
+      document.getElementById('statNetTurnover').innerText = `₹${netTurnover.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+      document.getElementById('statGrossVsReturn').innerText = `Gross: ₹${grossSales.toFixed(0)} | Returns: -₹${totalReturns.toFixed(0)}`;
+      document.getElementById('statNetGST').innerText = `₹${netGSTOutput.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+      document.getElementById('statTotalExpense').innerText = `₹${totalExpenses.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+      document.getElementById('statNetProfit').innerText = `₹${netProfit.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+
+      // Combined Register Grid
       const tbody = document.getElementById('accountingGridBody');
-      if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-slate-400">No transactions recorded in this period.</td></tr>`;
+      const combined = [
+        ...filteredInvoices.map(i => ({ ...i, docType: 'SALES INVOICE' })),
+        ...filteredCRN.map(c => ({
+          date: c.date,
+          docType: 'CREDIT NOTE (RETURN)',
+          invoiceNo: c.crnNo,
+          customerName: c.customerName,
+          itemsSummary: `RETURN: ${c.itemDesc}`,
+          ledger: 'Sales Return A/c',
+          totalTaxable: -c.refundTaxable,
+          totalTax: -c.refundTax,
+          totalGross: -c.refundTotal
+        }))
+      ].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+      if (combined.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-slate-400">No accounting transactions in this timeframe.</td></tr>`;
         return;
       }
 
-      tbody.innerHTML = filtered.map(inv => `
-        <tr class="hover:bg-slate-50 transition">
-          <td class="p-3 font-mono text-slate-600">${inv.date}</td>
-          <td class="p-3 font-bold text-indigo-700 font-mono">${inv.invoiceNo}</td>
-          <td class="p-3">
-            <div class="font-bold text-slate-900">${inv.customerName}</div>
-            <div class="text-[10px] text-slate-500">${inv.items.map(i => i.desc).join(', ')}</div>
-          </td>
-          <td class="p-3 font-semibold text-slate-700">${inv.ledger}</td>
-          <td class="p-3 text-right font-mono">₹${inv.totalTaxable.toFixed(2)}</td>
-          <td class="p-3 text-right font-mono text-slate-500">₹${(inv.totalCGST + inv.totalSGST).toFixed(2)}</td>
-          <td class="p-3 text-right font-mono font-bold text-slate-900">₹${inv.totalGross.toFixed(2)}</td>
-          <td class="p-3 text-center">
-            <button onclick='reprintHistoric(${JSON.stringify(inv)})' class="text-xs bg-slate-200 hover:bg-slate-300 font-bold px-2 py-1 rounded">View/Print</button>
-          </td>
-        </tr>
-      `).join('');
+      tbody.innerHTML = combined.map(row => {
+        const isReturn = row.docType.includes('RETURN');
+        return `
+          <tr class="hover:bg-slate-50 transition ${isReturn ? 'bg-rose-50/40' : ''}">
+            <td class="p-3 font-mono text-slate-600">${row.date}</td>
+            <td class="p-3 font-bold text-[10px] ${isReturn ? 'text-rose-600' : 'text-indigo-600'}">${row.docType}</td>
+            <td class="p-3 font-mono font-bold text-slate-800">${row.invoiceNo}</td>
+            <td class="p-3">
+              <div class="font-bold text-slate-900">${row.customerName}</div>
+              <div class="text-[10px] text-slate-500">${row.itemsSummary || (row.items ? row.items.map(i => i.desc).join(', ') : '')}</div>
+            </td>
+            <td class="p-3 font-semibold text-slate-700">${row.ledger}</td>
+            <td class="p-3 text-right font-mono">₹${row.totalTaxable.toFixed(2)}</td>
+            <td class="p-3 text-right font-mono text-slate-500">₹${(row.totalTax || (row.totalCGST + row.totalSGST + row.totalIGST)).toFixed(2)}</td>
+            <td class="p-3 text-right font-mono font-bold ${isReturn ? 'text-rose-700' : 'text-slate-900'}">₹${row.totalGross.toFixed(2)}</td>
+          </tr>
+        `;
+      }).join('');
     }
 
+    // CA-Grade Multi-Sheet Excel Export (.xlsx)
     function exportToExcelCA() {
       const fromStr = document.getElementById('filterFromDate').value;
       const toStr = document.getElementById('filterToDate').value;
       const fromDate = fromStr ? new Date(fromStr) : new Date(2000, 0, 1);
       const toDate = toStr ? new Date(toStr + 'T23:59:59') : new Date(2099, 11, 31);
 
-      const records = invoices.filter(inv => {
-        const d = new Date(inv.date);
+      const fInvoices = invoices.filter(i => {
+        const d = new Date(i.date);
         return d >= fromDate && d <= toDate;
       });
 
-      if (records.length === 0) {
-        alert("No entries found to export!");
-        return;
-      }
+      const fReturns = creditNotes.filter(c => {
+        const d = new Date(c.date);
+        return d >= fromDate && d <= toDate;
+      });
 
-      const caData = records.map(r => ({
+      const fExpenses = vouchers.filter(v => {
+        const d = new Date(v.date);
+        return d >= fromDate && d <= toDate;
+      });
+
+      const wb = XLSX.utils.book_new();
+
+      // Sheet 1: GSTR-1 Sales Register
+      const salesSheetData = fInvoices.map(r => ({
         "Voucher Date": r.date,
         "Financial Year": r.financialYear,
         "Invoice Number": r.invoiceNo,
         "Customer Name": r.customerName,
         "Customer Mobile": r.customerPhone,
         "Customer GSTIN": r.customerGSTIN || "B2C Consumer",
+        "Tax Treatment": r.taxType === 'INTRA' ? 'Intra-State (CGST+SGST)' : 'Inter-State (IGST)',
         "Goods Summary": r.items.map(i => `${i.desc} [IMEI: ${i.imei || 'N/A'}]`).join(" | "),
         "HSN Code": r.items[0]?.hsn || "8517",
         "Payment Ledger": r.ledger,
         "Taxable Value (₹)": r.totalTaxable,
-        "CGST (₹)": r.totalCGST,
-        "SGST (₹)": r.totalSGST,
-        "IGST (₹)": 0.00,
+        "CGST (₹)": r.totalCGST || 0,
+        "SGST (₹)": r.totalSGST || 0,
+        "IGST (₹)": r.totalIGST || 0,
         "Total Value (₹)": r.totalGross
       }));
+      const wsSales = XLSX.utils.json_to_sheet(salesSheetData);
+      XLSX.utils.book_append_sheet(wb, wsSales, "GSTR1_Sales_Register");
 
-      const ws = XLSX.utils.json_to_sheet(caData);
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "GSTR1_Sales_Register");
-      XLSX.writeFile(wb, `SMARTFIXPRO_CA_Register_${fromStr}_to_${toStr}.xlsx`);
-    }
+      // Sheet 2: Credit Notes / Sales Returns
+      const returnSheetData = fReturns.map(c => ({
+        "CRN Number": c.crnNo,
+        "Return Date": c.date,
+        "Original Invoice": c.origInvoiceNo,
+        "Customer Name": c.customerName,
+        "Phone": c.customerPhone,
+        "Item Returned": c.itemDesc,
+        "IMEI": c.imei,
+        "Return Reason": c.reason,
+        "Reversed Taxable (₹)": c.refundTaxable,
+        "Reversed GST (₹)": c.refundTax,
+        "Total Refund (₹)": c.refundTotal
+      }));
+      const wsReturns = XLSX.utils.json_to_sheet(returnSheetData);
+      XLSX.utils.book_append_sheet(wb, wsReturns, "Credit_Notes_Returns");
 
-    function reprintHistoric(inv) {
-      document.getElementById('invNo').value = inv.invoiceNo;
-      document.getElementById('invDate').value = inv.date;
-      document.getElementById('custName').value = inv.customerName;
-      document.getElementById('custPhone').value = inv.customerPhone;
-      document.getElementById('custGSTIN').value = inv.customerGSTIN || '';
-      document.getElementById('paymentLedger').value = inv.ledger;
-      activeLineItems = inv.items;
-      applyInvoiceTheme(inv.theme || 'theme-blue');
-      switchView('billingTab');
+      // Sheet 3: Daybook & Expenses
+      const expenseSheetData = fExpenses.map(v => ({
+        "Date": v.date,
+        "Type": v.type,
+        "Category": v.category,
+        "Payment Ledger": v.account,
+        "Amount (₹)": v.amount,
+        "Narration": v.narration
+      }));
+      const wsExpense = XLSX.utils.json_to_sheet(expenseSheetData);
+      XLSX.utils.book_append_sheet(wb, wsExpense, "Daybook_Expenses");
+
+      XLSX.writeFile(wb, `SMARTFIXPRO_CA_Audit_Full_${fromStr}_to_${toStr}.xlsx`);
     }
 
     /* ==========================================================================
-       STOCK INVENTORY
+       OWNER-PROTECTED STOCK INVENTORY
        ========================================================================== */
 
     function addStockItem() {
       const model = document.getElementById('stkModel').value.trim();
       const imei = document.getElementById('stkIMEI').value.trim();
+      const purchaseCost = parseFloat(document.getElementById('stkPurchaseCost').value) || 0;
       const cost = parseFloat(document.getElementById('stkCost').value) || 0;
 
-      if (!model) { alert("Enter Model Name"); return; }
+      if (!model || cost <= 0) { alert("Enter valid Model Name and Selling Price."); return; }
 
-      inventory.push({ id: Date.now(), model, imei, cost });
+      if (imei && inventory.some(i => i.imei === imei && i.status !== "Sold")) {
+        alert("An active item with this IMEI already exists in stock!");
+        return;
+      }
+
+      inventory.push({ 
+        id: Date.now(), 
+        model, 
+        imei, 
+        purchaseCost,
+        cost, 
+        status: "Available" 
+      });
+
       localStorage.setItem('sfp_stock', JSON.stringify(inventory));
 
       document.getElementById('stkModel').value = '';
       document.getElementById('stkIMEI').value = '';
+      document.getElementById('stkPurchaseCost').value = '';
       document.getElementById('stkCost').value = '';
 
       renderStockTable();
     }
 
-    function renderStockTable() {
-      const tbody = document.getElementById('stockGridBody');
-      document.getElementById('stockCountDisplay').innerText = `${inventory.length} Devices`;
-
-      if (inventory.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="text-center py-6 text-slate-400">Stock is empty. Add new phones above.</td></tr>`;
+    function deleteStockItem(id) {
+      const pin = prompt("🔒 OWNER AUTHORIZATION: Enter Master PIN to delete stock:");
+      if (pin !== storeProfile.masterPin) {
+        alert("Unauthorized! Incorrect PIN.");
         return;
       }
 
-      tbody.innerHTML = inventory.map((stk, idx) => `
-        <tr class="hover:bg-slate-50">
-          <td class="p-3 text-slate-500 font-bold">${idx + 1}</td>
-          <td class="p-3 font-bold text-slate-900">${stk.model}</td>
-          <td class="p-3 font-mono text-slate-600">${stk.imei || 'N/A'}</td>
-          <td class="p-3 text-right font-mono font-semibold">₹${stk.cost.toLocaleString('en-IN')}</td>
-          <td class="p-3 text-center">
-            <button onclick="pushProductToBill('${stk.model}', '${stk.imei}', '8517', 18, 1, ${stk.cost}); switchView('billingTab');" class="text-xs bg-indigo-50 text-indigo-700 font-bold px-2 py-1 rounded hover:bg-indigo-100">Sell Now ⚡</button>
-          </td>
-        </tr>
-      `).join('');
+      inventory = inventory.filter(i => i.id !== id);
+      localStorage.setItem('sfp_stock', JSON.stringify(inventory));
+      renderStockTable();
+    }
+
+    function editStockPrice(id) {
+      const pin = prompt("🔒 OWNER AUTHORIZATION: Enter Master PIN to edit price:");
+      if (pin !== storeProfile.masterPin) {
+        alert("Unauthorized! Incorrect PIN.");
+        return;
+      }
+
+      const item = inventory.find(i => i.id === id);
+      if (item) {
+        const newCost = prompt(`Enter new selling price for ${item.model}:`, item.cost);
+        if (newCost && !isNaN(newCost) && parseFloat(newCost) > 0) {
+          item.cost = parseFloat(newCost);
+          localStorage.setItem('sfp_stock', JSON.stringify(inventory));
+          renderStockTable();
+        }
+      }
+    }
+
+    function renderStockTable() {
+      const tbody = document.getElementById('stockGridBody');
+      const inStockCount = inventory.filter(i => i.status !== "Sold").length;
+      document.getElementById('stockCountDisplay').innerText = `${inStockCount} Units Available (${inventory.length} Total Registered)`;
+
+      if (inventory.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-slate-400">Stock is empty. Register devices above.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = inventory.map((stk, idx) => {
+        const isSold = stk.status === "Sold";
+        return `
+          <tr class="hover:bg-slate-50 ${isSold ? 'bg-slate-50 opacity-60' : ''}">
+            <td class="p-3 text-slate-500 font-bold">${idx + 1}</td>
+            <td class="p-3 font-bold text-slate-900">${stk.model}</td>
+            <td class="p-3 font-mono text-slate-600">${stk.imei || 'N/A'}</td>
+            <td class="p-3 text-right font-mono text-slate-500">₹${(stk.purchaseCost || 0).toLocaleString('en-IN')}</td>
+            <td class="p-3 text-right font-mono font-semibold text-slate-900">₹${stk.cost.toLocaleString('en-IN')}</td>
+            <td class="p-3 text-center">
+              ${isSold 
+                ? `<span class="bg-red-100 text-red-700 text-[10px] font-bold px-2 py-0.5 rounded">SOLD (${stk.soldInvoice || 'Bill'})</span>` 
+                : `<span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded">Available</span>`
+              }
+            </td>
+            <td class="p-3 text-center space-x-1.5">
+              ${!isSold ? `
+                <button onclick="pushProductToBill('${stk.model}', '${stk.imei}', '8517', 18, 1,${stk.cost}, ${stk.purchaseCost \vert{}\vert{} 0},${stk.id}); switchView('billingTab');" class="text-xs bg-indigo-50 text-indigo-700 font-bold px-2 py-1 rounded hover:bg-indigo-100">Sell ⚡</button>
+                <button onclick="editStockPrice(${stk.id})" class="text-xs text-slate-600 hover:text-indigo-600 font-semibold px-1.5 py-1">✏</button>
+              ` : ''}
+              <button onclick="deleteStockItem(${stk.id})" class="text-xs text-red-500 hover:text-red-700 font-semibold px-1.5 py-1">🗑</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
     }
 
     /* ==========================================================================
-       GOOGLE DRIVE MULTI-TENANT SYNC
+       GOOGLE DRIVE MULTI-TENANT CLOUD SYNC
        ========================================================================== */
 
     async function syncInvoiceToGoogleDrive(record) {
