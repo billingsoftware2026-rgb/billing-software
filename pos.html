@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>SmartFix Pro - Tally-Grade ERP, Sales Return & POS</title>
   
   <!-- Tailwind CSS -->
@@ -77,15 +77,15 @@
     </div>
   </header>
 
-  <!-- Module Menu (100% Error-Proof Tab Buttons) -->
-  <nav class="bg-slate-900/90 border-b border-slate-800 shadow-sm no-print sticky top-[57px] z-40">
-    <div class="max-w-7xl mx-auto px-4 flex flex-wrap gap-1 sm:gap-2 py-1">
-      <button onclick="switchView('billingTab')" id="nav-billingTab" class="tab-btn py-2 px-3 text-xs sm:text-sm font-bold border-b-2 border-indigo-500 text-indigo-400 transition">Sales Invoice (F1)</button>
-      <button onclick="switchView('returnTab')" id="nav-returnTab" class="tab-btn py-2 px-3 text-xs sm:text-sm font-semibold text-slate-400 hover:text-white border-b-2 border-transparent transition">Sales Return / CRN (F2)</button>
-      <button onclick="switchView('vouchersTab')" id="nav-vouchersTab" class="tab-btn py-2 px-3 text-xs sm:text-sm font-semibold text-slate-400 hover:text-white border-b-2 border-transparent transition">Daybook & Expenses (F3)</button>
-      <button onclick="switchView('accountingTab')" id="nav-accountingTab" class="tab-btn py-2 px-3 text-xs sm:text-sm font-semibold text-slate-400 hover:text-white border-b-2 border-transparent transition">P&L & CA Audit (F4)</button>
-      <button onclick="switchView('inventoryTab')" id="nav-inventoryTab" class="tab-btn py-2 px-3 text-xs sm:text-sm font-semibold text-slate-400 hover:text-white border-b-2 border-transparent transition">Stock Register (F5)</button>
-      <button onclick="switchView('settingsTab')" id="nav-settingsTab" class="tab-btn py-2 px-3 text-xs sm:text-sm font-semibold text-slate-400 hover:text-white border-b-2 border-transparent transition">Store & Security (F6)</button>
+  <!-- Mobile-Optimized Tab Menu Bar -->
+  <nav class="bg-slate-900/95 border-b border-slate-800 shadow-sm no-print sticky top-[57px] z-40 overflow-x-auto">
+    <div class="max-w-7xl mx-auto px-2 flex whitespace-nowrap gap-1 py-1.5">
+      <button type="button" onclick="switchView('billingTab')" id="nav-billingTab" class="tab-btn py-2 px-3 text-xs sm:text-sm font-bold border-b-2 border-indigo-500 text-indigo-400 transition">Sales Invoice (F1)</button>
+      <button type="button" onclick="switchView('returnTab')" id="nav-returnTab" class="tab-btn py-2 px-3 text-xs sm:text-sm font-semibold text-slate-400 hover:text-white border-b-2 border-transparent transition">Sales Return / CRN (F2)</button>
+      <button type="button" onclick="switchView('vouchersTab')" id="nav-vouchersTab" class="tab-btn py-2 px-3 text-xs sm:text-sm font-semibold text-slate-400 hover:text-white border-b-2 border-transparent transition">Daybook & Expenses (F3)</button>
+      <button type="button" onclick="switchView('accountingTab')" id="nav-accountingTab" class="tab-btn py-2 px-3 text-xs sm:text-sm font-semibold text-slate-400 hover:text-white border-b-2 border-transparent transition">P&L & CA Audit (F4)</button>
+      <button type="button" onclick="switchView('inventoryTab')" id="nav-inventoryTab" class="tab-btn py-2 px-3 text-xs sm:text-sm font-semibold text-slate-400 hover:text-white border-b-2 border-transparent transition">Stock Register (F5)</button>
+      <button type="button" onclick="switchView('settingsTab')" id="nav-settingsTab" class="tab-btn py-2 px-3 text-xs sm:text-sm font-semibold text-slate-400 hover:text-white border-b-2 border-transparent transition">Store & Security (F6)</button>
     </div>
   </nav>
 
@@ -106,7 +106,7 @@
             <span class="text-xs font-bold text-indigo-900 flex items-center gap-1.5">
               <span>📷</span> Barcode / IMEI Fast Scanner
             </span>
-            <button onclick="toggleCameraScanner()" id="scannerToggleBtn" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-2.5 py-1 rounded transition">
+            <button type="button" onclick="toggleCameraScanner()" id="scannerToggleBtn" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-2.5 py-1 rounded transition">
               Open Camera Scanner
             </button>
           </div>
@@ -125,8 +125,8 @@
             <input type="text" id="invNo" class="w-full bg-slate-50 border border-slate-300 rounded px-2.5 py-1.5 text-xs font-mono font-bold text-indigo-900" readonly>
           </div>
           <div>
-            <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">Date</label>
-            <input type="date" id="invDate" onchange="renderLiveInvoicePreview()" class="w-full border border-slate-300 rounded px-2.5 py-1.5 text-xs">
+            <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">Date (Current / Backdate)</label>
+            <input type="date" id="invDate" onchange="onDateChanged()" class="w-full border border-slate-300 rounded px-2.5 py-1.5 text-xs font-semibold">
           </div>
         </div>
 
@@ -199,7 +199,7 @@
             </div>
           </div>
 
-          <button onclick="addManualItem()" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-1.5 rounded text-xs transition">+ Add Item</button>
+          <button type="button" onclick="addManualItem()" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-1.5 rounded text-xs transition">+ Add Item</button>
         </div>
 
         <div class="grid grid-cols-2 gap-3">
@@ -214,7 +214,7 @@
           </div>
           <div>
             <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">Print Action</label>
-            <button onclick="finalizeAndPrint()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-1.5 rounded text-xs shadow transition">
+            <button type="button" onclick="finalizeAndPrint()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-1.5 rounded text-xs shadow transition">
               💾 Save, Deduct Stock & Print
             </button>
           </div>
@@ -250,7 +250,7 @@
             <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">Search Sold Invoice / Barcode</label>
             <div class="flex gap-2">
               <input type="text" id="retSearchQuery" placeholder="Original Invoice No or IMEI" class="flex-1 border rounded px-3 py-1.5 text-xs font-mono">
-              <button onclick="searchForReturn()" class="bg-indigo-600 text-white font-bold px-3 py-1.5 rounded text-xs">Search</button>
+              <button type="button" onclick="searchForReturn()" class="bg-indigo-600 text-white font-bold px-3 py-1.5 rounded text-xs">Search</button>
             </div>
           </div>
 
@@ -288,7 +288,7 @@
               </label>
             </div>
 
-            <button onclick="finalizeCreditNote()" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-2 rounded-xl text-xs shadow transition">
+            <button type="button" onclick="finalizeCreditNote()" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-2 rounded-xl text-xs shadow transition">
               📄 Issue Official Credit Note (CRN) & Restock
             </button>
           </div>
@@ -360,7 +360,7 @@
             <input type="text" id="vchNarration" placeholder="Details about this payment or customer name" class="w-full border rounded px-2.5 py-1.5 text-xs">
           </div>
 
-          <button onclick="saveVoucher()" class="w-full bg-slate-900 hover:bg-black text-white font-bold py-2 rounded-xl text-xs transition">
+          <button type="button" onclick="saveVoucher()" class="w-full bg-slate-900 hover:bg-black text-white font-bold py-2 rounded-xl text-xs transition">
             + Record in Daybook
           </button>
         </div>
@@ -398,12 +398,12 @@
             <p class="text-xs text-slate-500">Live Trading, Profit & Loss account including Sales Returns & Operational Expenses.</p>
           </div>
           <div class="flex flex-wrap gap-1.5 text-xs font-semibold">
-            <button onclick="setDateRange('today')" class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-slate-700">Today</button>
-            <button onclick="setDateRange('month')" class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-slate-700">1 Month</button>
-            <button onclick="setDateRange('3months')" class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-slate-700">3 Months</button>
-            <button onclick="setDateRange('6months')" class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-slate-700">6 Months</button>
-            <button onclick="setDateRange('1year')" class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-slate-700">1 Year</button>
-            <button onclick="setDateRange('fy')" class="bg-indigo-50 text-indigo-700 border border-indigo-200 px-3 py-1.5 rounded font-bold">Financial Year</button>
+            <button type="button" onclick="setDateRange('today')" class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-slate-700">Today</button>
+            <button type="button" onclick="setDateRange('month')" class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-slate-700">1 Month</button>
+            <button type="button" onclick="setDateRange('3months')" class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-slate-700">3 Months</button>
+            <button type="button" onclick="setDateRange('6months')" class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-slate-700">6 Months</button>
+            <button type="button" onclick="setDateRange('1year')" class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-slate-700">1 Year</button>
+            <button type="button" onclick="setDateRange('fy')" class="bg-indigo-50 text-indigo-700 border border-indigo-200 px-3 py-1.5 rounded font-bold">Financial Year</button>
           </div>
         </div>
 
@@ -426,7 +426,7 @@
             </select>
           </div>
           <div class="flex items-end">
-            <button onclick="applyTallyFilter()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-1.5 rounded text-xs transition">Calculate P&L</button>
+            <button type="button" onclick="applyTallyFilter()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-1.5 rounded text-xs transition">Calculate P&L</button>
           </div>
         </div>
       </div>
@@ -436,7 +436,7 @@
         <div class="bg-gradient-to-br from-indigo-900 to-slate-900 text-white p-4 rounded-2xl shadow">
           <div class="text-[10px] uppercase font-bold text-indigo-300">Net Sales Turnover</div>
           <div id="statNetTurnover" class="text-xl font-black mt-1">₹0.00</div>
-          <div class="text-[10px] text-slate-300 mt-1" id="statGrossVsReturn">Gross: ₹0 | Returns: ₹0</div>
+          <div class="text-[10px] text-slate-300 mt-1" id="statGrossVsReturn">Gross: ₹0 | Returns: -₹0</div>
         </div>
         <div class="bg-gradient-to-br from-slate-900 to-blue-950 text-white p-4 rounded-2xl shadow">
           <div class="text-[10px] uppercase font-bold text-blue-300">GST Output Payable</div>
@@ -462,7 +462,7 @@
           <div class="text-xs text-slate-300">Generates comprehensive Excel workbooks (.xlsx) with Sales Register, Credit Notes (Returns), and Daybook Expenses.</div>
         </div>
         <div class="flex flex-wrap gap-2">
-          <button onclick="exportToExcelCA()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3.5 py-2 rounded-lg shadow flex items-center gap-1.5 transition">
+          <button type="button" onclick="exportToExcelCA()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3.5 py-2 rounded-lg shadow flex items-center gap-1.5 transition">
             <span>📊 Download Comprehensive CA Audit Excel (.xlsx)</span>
           </button>
         </div>
@@ -494,19 +494,21 @@
       </div>
     </section>
 
-    <!-- 5. STOCK & INVENTORY REGISTER -->
+    <!-- 5. STOCK & INVENTORY REGISTER (NOW TAP-FRIENDLY & EASY TO ADD) -->
     <section id="inventoryTab" class="tab-content space-y-6 hidden">
       <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
         <div class="flex justify-between items-center">
           <h2 class="font-bold text-slate-900 text-sm uppercase tracking-wide">Stock Inward / New Device Register</h2>
-          <span class="text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-medium">🔒 Owner Protected Actions</span>
+          <span class="text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-medium">🔒 Owner Protected</span>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-6 gap-3">
-          <input type="text" id="stkModel" placeholder="Model Name (e.g. Redmi Note 13 5G)" class="border rounded px-2.5 py-1.5 text-xs col-span-2">
-          <input type="text" id="stkIMEI" placeholder="Barcode / IMEI / Serial" class="border rounded px-2.5 py-1.5 text-xs font-mono">
-          <input type="number" id="stkPurchaseCost" placeholder="Purchase Cost (₹)" class="border rounded px-2.5 py-1.5 text-xs font-bold text-slate-600">
-          <input type="number" id="stkCost" placeholder="Selling Price (₹)" class="border rounded px-2.5 py-1.5 text-xs font-bold text-emerald-700">
-          <button onclick="addStockItem()" class="bg-indigo-600 text-white font-bold py-1.5 rounded text-xs hover:bg-indigo-700 transition">+ Add to Stock</button>
+          <input type="text" id="stkModel" placeholder="Model Name (e.g. Redmi Note 13 5G)" class="border rounded px-3 py-2 text-xs col-span-2">
+          <input type="text" id="stkIMEI" placeholder="Barcode / IMEI / Serial (Optional)" class="border rounded px-3 py-2 text-xs font-mono">
+          <input type="number" id="stkPurchaseCost" placeholder="Purchase Cost (₹)" class="border rounded px-3 py-2 text-xs font-bold text-slate-600">
+          <input type="number" id="stkCost" placeholder="Selling Price (₹) *" class="border rounded px-3 py-2 text-xs font-bold text-emerald-700">
+          <button type="button" onclick="addStockItem()" class="bg-indigo-600 text-white font-bold py-2 rounded-xl text-xs hover:bg-indigo-700 transition shadow">
+            + Add to Stock
+          </button>
         </div>
       </div>
 
@@ -515,20 +517,22 @@
           <h3 class="font-bold text-xs uppercase text-slate-700 tracking-wider">Live Inventory Register</h3>
           <span class="text-xs text-slate-500" id="stockCountDisplay">0 Units</span>
         </div>
-        <table class="w-full text-left text-xs border-collapse">
-          <thead class="bg-slate-100 text-slate-600 uppercase text-[10px]">
-            <tr>
-              <th class="p-3">#</th>
-              <th class="p-3">Device / Item</th>
-              <th class="p-3">Barcode / IMEI</th>
-              <th class="p-3 text-right">Purchase (₹)</th>
-              <th class="p-3 text-right">Selling Price</th>
-              <th class="p-3 text-center">Stock Status</th>
-              <th class="p-3 text-center">Owner Controls</th>
-            </tr>
-          </thead>
-          <tbody id="stockGridBody" class="divide-y divide-slate-100"></tbody>
-        </table>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead class="bg-slate-100 text-slate-600 uppercase text-[10px]">
+              <tr>
+                <th class="p-3">#</th>
+                <th class="p-3">Device / Item</th>
+                <th class="p-3">Barcode / IMEI</th>
+                <th class="p-3 text-right">Purchase (₹)</th>
+                <th class="p-3 text-right">Selling Price</th>
+                <th class="p-3 text-center">Stock Status</th>
+                <th class="p-3 text-center">Owner Controls</th>
+              </tr>
+            </thead>
+            <tbody id="stockGridBody" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
       </div>
     </section>
 
@@ -543,7 +547,7 @@
 
       <div id="lockedWarningBanner" class="hidden bg-amber-50 border border-amber-300 p-3 rounded-xl text-xs text-amber-800 flex items-center justify-between font-medium">
         <span>⚠ This store is permanently locked to prevent unauthorized changes.</span>
-        <button onclick="unlockStoreForEdit()" id="unlockBtn" class="bg-amber-600 text-white px-2.5 py-1 rounded text-xs font-bold hover:bg-amber-700">Unlock with PIN</button>
+        <button type="button" onclick="unlockStoreForEdit()" id="unlockBtn" class="bg-amber-600 text-white px-2.5 py-1 rounded text-xs font-bold hover:bg-amber-700">Unlock with PIN</button>
       </div>
 
       <div>
@@ -575,7 +579,7 @@
       <div class="border-t pt-3 space-y-3">
         <div class="flex justify-between items-center">
           <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wide">Owner Security PIN & Recovery</h3>
-          <button onclick="promptForgotPIN()" class="text-indigo-600 hover:underline text-xs font-bold">Forgot Master PIN?</button>
+          <button type="button" onclick="promptForgotPIN()" class="text-indigo-600 hover:underline text-xs font-bold">Forgot Master PIN?</button>
         </div>
         
         <div class="grid grid-cols-2 gap-3">
@@ -599,7 +603,7 @@
         </div>
       </div>
 
-      <button id="saveStoreBtn" onclick="saveStoreSettings()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 rounded-xl text-xs transition shadow">
+      <button type="button" id="saveStoreBtn" onclick="saveStoreSettings()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 rounded-xl text-xs transition shadow">
         Register Store, Set PIN & Lock
       </button>
     </section>
@@ -639,7 +643,15 @@
     let inventory = [];
     let activeLineItems = [];
 
-    // Financial Year Helper
+    // Format Date to YYYY-MM-DD
+    function formatDateToYYYYMMDD(d) {
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
+    // Financial Year Helper based on active bill date
     function getFinancialYear(dateObj = new Date()) {
       const year = dateObj.getFullYear();
       const month = dateObj.getMonth();
@@ -658,13 +670,25 @@
       }
     }
 
-    // Sequential Automatic Invoice Generator (SFP-2627-0001, SFP-2627-0002...)
-    function getNextSequentialInvoiceNo() {
-      const currentFY = getFinancialYear();
-      const fyPrefix = currentFY.label.replace('FY ', '').replace('-', '');
+    // Sequential Automatic Invoice Generator
+    function getNextSequentialInvoiceNo(targetDate = new Date()) {
+      const fy = getFinancialYear(targetDate);
+      const fyPrefix = fy.label.replace('FY ', '').replace('-', '');
       const count = invoices.length + 1;
       const serial = count.toString().padStart(4, '0');
       return `SFP-${fyPrefix}-${serial}`;
+    }
+
+    // When Date is changed manually (for Backdated Bills)
+    function onDateChanged() {
+      const dateVal = document.getElementById('invDate').value;
+      if (dateVal) {
+        const selectedDate = new Date(dateVal);
+        const fy = getFinancialYear(selectedDate);
+        document.getElementById('displayFY').innerText = fy.label;
+        document.getElementById('invNo').value = getNextSequentialInvoiceNo(selectedDate);
+      }
+      renderLiveInvoicePreview();
     }
 
     // 100% Robust Tab Navigation Engine
@@ -693,42 +717,49 @@
       if (tabId === 'inventoryTab') renderStockTable();
     }
 
-    window.addEventListener('DOMContentLoaded', () => {
+    // Guaranteed Initialization Function
+    function initApp() {
       try {
-        const currentFY = getFinancialYear();
+        const today = new Date();
+        const todayStr = formatDateToYYYYMMDD(today);
+        const currentFY = getFinancialYear(today);
+
+        // Load Cache safely
+        try {
+          const savedConfig = localStorage.getItem('sfp_store_profile');
+          if (savedConfig) storeProfile = JSON.parse(savedConfig);
+
+          const savedInvoices = localStorage.getItem('sfp_invoices');
+          if (savedInvoices) invoices = JSON.parse(savedInvoices);
+
+          const savedCRN = localStorage.getItem('sfp_credit_notes');
+          if (savedCRN) creditNotes = JSON.parse(savedCRN);
+
+          const savedVouchers = localStorage.getItem('sfp_vouchers');
+          if (savedVouchers) vouchers = JSON.parse(savedVouchers);
+
+          const savedStock = localStorage.getItem('sfp_stock');
+          if (savedStock) inventory = JSON.parse(savedStock);
+        } catch(e) {
+          console.warn("Storage read warning:", e);
+        }
+
         const displayFY = document.getElementById('displayFY');
         if (displayFY) displayFY.innerText = currentFY.label;
 
-        // Load Cache safely
-        const savedConfig = localStorage.getItem('sfp_store_profile');
-        if (savedConfig) storeProfile = JSON.parse(savedConfig);
-
-        const savedInvoices = localStorage.getItem('sfp_invoices');
-        if (savedInvoices) invoices = JSON.parse(savedInvoices);
-
-        const savedCRN = localStorage.getItem('sfp_credit_notes');
-        if (savedCRN) creditNotes = JSON.parse(savedCRN);
-
-        const savedVouchers = localStorage.getItem('sfp_vouchers');
-        if (savedVouchers) vouchers = JSON.parse(savedVouchers);
-
-        const savedStock = localStorage.getItem('sfp_stock');
-        if (savedStock) inventory = JSON.parse(savedStock);
-
-        // Populate next sequential invoice
-        const invNo = document.getElementById('invNo');
-        if (invNo) invNo.value = getNextSequentialInvoiceNo();
-
         const invDate = document.getElementById('invDate');
-        if (invDate) invDate.value = new Date().toISOString().substring(0, 10);
+        if (invDate) invDate.value = todayStr;
+
+        const invNo = document.getElementById('invNo');
+        if (invNo) invNo.value = getNextSequentialInvoiceNo(today);
 
         const vchDate = document.getElementById('vchDate');
-        if (vchDate) vchDate.value = new Date().toISOString().substring(0, 10);
+        if (vchDate) vchDate.value = todayStr;
 
         const fFrom = document.getElementById('filterFromDate');
         const fTo = document.getElementById('filterToDate');
-        if (fFrom) fFrom.value = currentFY.start.toISOString().substring(0, 10);
-        if (fTo) fTo.value = currentFY.end.toISOString().substring(0, 10);
+        if (fFrom) fFrom.value = formatDateToYYYYMMDD(currentFY.start);
+        if (fTo) fTo.value = formatDateToYYYYMMDD(currentFY.end);
 
         enforceStoreLockState();
         renderLiveInvoicePreview();
@@ -737,44 +768,55 @@
         renderVouchersTable();
         applyTallyFilter();
       } catch (err) {
-        console.error("Initialization warning:", err);
+        console.error("Initialization error:", err);
       }
+    }
 
-      // Keyboard Shortcut listener (F1 - F6)
-      window.addEventListener('keydown', (e) => {
-        if (e.key === 'F1') { e.preventDefault(); switchView('billingTab'); }
-        if (e.key === 'F2') { e.preventDefault(); switchView('returnTab'); }
-        if (e.key === 'F3') { e.preventDefault(); switchView('vouchersTab'); }
-        if (e.key === 'F4') { e.preventDefault(); switchView('accountingTab'); }
-        if (e.key === 'F5') { e.preventDefault(); switchView('inventoryTab'); }
-        if (e.key === 'F6') { e.preventDefault(); switchView('settingsTab'); }
-      });
+    // Auto-Run safely on Mobile and Desktop
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initApp);
+    } else {
+      initApp();
+    }
 
-      // Google Identity (Non-blocking)
-      try {
-        if (window.google && google.accounts && google.accounts.oauth2) {
-          tokenClient = google.accounts.oauth2.initTokenClient({
-            client_id: CLIENT_ID,
-            scope: SCOPES,
-            callback: (resp) => {
-              accessToken = resp.access_token;
-              document.getElementById('authStatusBadge')?.classList.remove('hidden');
-              const authBtn = document.getElementById('authBtn');
-              if (authBtn) {
-                authBtn.innerText = "Drive Synced ✓";
-                authBtn.className = "bg-emerald-700 text-xs px-3 py-1.5 rounded-md font-semibold text-white";
-              }
-            }
-          });
-        }
-      } catch (e) {
-        console.warn("Google SDK not active.");
-      }
+    // Keyboard Shortcuts
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'F1') { e.preventDefault(); switchView('billingTab'); }
+      if (e.key === 'F2') { e.preventDefault(); switchView('returnTab'); }
+      if (e.key === 'F3') { e.preventDefault(); switchView('vouchersTab'); }
+      if (e.key === 'F4') { e.preventDefault(); switchView('accountingTab'); }
+      if (e.key === 'F5') { e.preventDefault(); switchView('inventoryTab'); }
+      if (e.key === 'F6') { e.preventDefault(); switchView('settingsTab'); }
     });
 
+    // Google Identity (Non-blocking)
     function handleAuthClick() {
-      if (tokenClient) tokenClient.requestAccessToken();
-      else alert("Google Drive Client ID configured or running offline.");
+      if (tokenClient) {
+        tokenClient.requestAccessToken();
+      } else {
+        try {
+          if (window.google && google.accounts && google.accounts.oauth2) {
+            tokenClient = google.accounts.oauth2.initTokenClient({
+              client_id: CLIENT_ID,
+              scope: SCOPES,
+              callback: (resp) => {
+                accessToken = resp.access_token;
+                document.getElementById('authStatusBadge')?.classList.remove('hidden');
+                const authBtn = document.getElementById('authBtn');
+                if (authBtn) {
+                  authBtn.innerText = "Drive Synced ✓";
+                  authBtn.className = "bg-emerald-700 text-xs px-3 py-1.5 rounded-md font-semibold text-white";
+                }
+              }
+            });
+            tokenClient.requestAccessToken();
+          } else {
+            alert("Google Drive API Client ID configured or running offline.");
+          }
+        } catch(e) {
+          alert("Google Drive API service running in offline mode.");
+        }
+      }
     }
 
     /* ==========================================================================
@@ -1102,7 +1144,7 @@
             <td class="${rowPaddingClass} text-right font-mono font-bold text-slate-900">
               <div class="flex items-center justify-end gap-1.5">
                 <span>₹${lineTotal.toFixed(2)}</span>
-                <button onclick="removeItem(${idx})" title="Delete item" class="no-print opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-600 transition text-[10px] font-bold">🗑</button>
+                <button type="button" onclick="removeItem(${idx})" title="Delete item" class="no-print opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-600 transition text-[10px] font-bold">🗑</button>
               </div>
             </td>
           </tr>
@@ -1280,7 +1322,6 @@
           totalIGST += lineTax;
         }
 
-        // Automatic Stock Deduction (by IMEI or stockId)
         let matchedStock = null;
         if (item.stockId) {
           matchedStock = inventory.find(i => i.id === item.stockId);
@@ -1326,7 +1367,9 @@
       window.print();
 
       setTimeout(() => {
-        document.getElementById('invNo').value = getNextSequentialInvoiceNo();
+        const dateVal = document.getElementById('invDate').value;
+        const activeDate = dateVal ? new Date(dateVal) : new Date();
+        document.getElementById('invNo').value = getNextSequentialInvoiceNo(activeDate);
         activeLineItems = [];
         renderLiveInvoicePreview();
       }, 500);
@@ -1465,7 +1508,7 @@
           <td class="p-2.5 text-right font-mono text-rose-600">₹${crn.refundTax.toFixed(2)}</td>
           <td class="p-2.5 text-right font-mono font-bold text-rose-700">₹${crn.refundTotal.toFixed(2)}</td>
           <td class="p-2.5 text-center">
-            <button onclick='printCreditNoteSlip(${JSON.stringify(crn)})' class="text-xs bg-slate-200 hover:bg-slate-300 font-bold px-2 py-1 rounded">Print CRN</button>
+            <button type="button" onclick='printCreditNoteSlip(${JSON.stringify(crn)})' class="text-xs bg-slate-200 hover:bg-slate-300 font-bold px-2 py-1 rounded">Print CRN</button>
           </td>
         </tr>
       `).join('');
@@ -1641,8 +1684,8 @@
 
       const fFrom = document.getElementById('filterFromDate');
       const fTo = document.getElementById('filterToDate');
-      if (fFrom) fFrom.value = from.toISOString().substring(0, 10);
-      if (fTo) fTo.value = to.toISOString().substring(0, 10);
+      if (fFrom) fFrom.value = formatDateToYYYYMMDD(from);
+      if (fTo) fTo.value = formatDateToYYYYMMDD(to);
       applyTallyFilter();
     }
 
@@ -1845,7 +1888,14 @@
       const purchaseCost = parseFloat(document.getElementById('stkPurchaseCost').value) || 0;
       const cost = parseFloat(document.getElementById('stkCost').value) || 0;
 
-      if (!model || cost <= 0) { alert("Enter valid Model Name and Selling Price."); return; }
+      if (!model) { 
+        alert("Please enter the Device/Model Name."); 
+        return; 
+      }
+      if (cost <= 0) { 
+        alert("Please enter a valid Selling Price."); 
+        return; 
+      }
 
       if (imei && inventory.some(i => i.imei && i.imei.toLowerCase() === imei.toLowerCase() && i.status !== "Sold")) {
         alert("An active item with this IMEI already exists in stock!");
@@ -1869,6 +1919,7 @@
       document.getElementById('stkCost').value = '';
 
       renderStockTable();
+      alert(`Item "${model}" added to stock successfully!`);
     }
 
     function deleteStockItem(id) {
@@ -1929,12 +1980,12 @@
                 : `<span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded">Available</span>`
               }
             </td>
-            <td class="p-3 text-center space-x-1.5">
+            <td class="p-3 text-center space-x-1.5 whitespace-nowrap">
               ${!isSold ? `
-                <button onclick="pushProductToBill('${sanitizedModel}', '${stk.imei \vert{}\vert{} ''}', '8517', 18, 1,${stk.cost}, ${stk.purchaseCost \vert{}\vert{} 0},${stk.id}); switchView('billingTab');" class="text-xs bg-indigo-50 text-indigo-700 font-bold px-2 py-1 rounded hover:bg-indigo-100">Sell ⚡</button>
-                <button onclick="editStockPrice(${stk.id})" class="text-xs text-slate-600 hover:text-indigo-600 font-semibold px-1.5 py-1">✏</button>
+                <button type="button" onclick="pushProductToBill('${sanitizedModel}', '${stk.imei \vert{}\vert{} ''}', '8517', 18, 1,${stk.cost}, ${stk.purchaseCost \vert{}\vert{} 0},${stk.id}); switchView('billingTab');" class="text-xs bg-indigo-50 text-indigo-700 font-bold px-2 py-1 rounded hover:bg-indigo-100">Sell ⚡</button>
+                <button type="button" onclick="editStockPrice(${stk.id})" class="text-xs text-slate-600 hover:text-indigo-600 font-semibold px-1.5 py-1">✏</button>
               ` : ''}
-              <button onclick="deleteStockItem(${stk.id})" class="text-xs text-red-500 hover:text-red-700 font-semibold px-1.5 py-1">🗑</button>
+              <button type="button" onclick="deleteStockItem(${stk.id})" class="text-xs text-red-500 hover:text-red-700 font-semibold px-1.5 py-1">🗑</button>
             </td>
           </tr>
         `;
