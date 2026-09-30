@@ -77,22 +77,22 @@
     </div>
   </header>
 
-  <!-- Module Menu -->
-  <nav class="bg-slate-900/60 backdrop-blur border-b border-slate-800 shadow-sm no-print">
-    <div class="max-w-7xl mx-auto px-4 flex flex-wrap space-x-2 sm:space-x-3">
-      <button onclick="switchView('billingTab')" id="nav-billingTab" class="tab-btn py-2.5 px-3 text-xs sm:text-sm font-bold border-b-2 border-indigo-500 text-indigo-400">Sales Invoice (F1)</button>
-      <button onclick="switchView('returnTab')" id="nav-returnTab" class="tab-btn py-2.5 px-3 text-xs sm:text-sm font-semibold text-slate-400 hover:text-white border-b-2 border-transparent">Sales Return / Credit Note (F2)</button>
-      <button onclick="switchView('vouchersTab')" id="nav-vouchersTab" class="tab-btn py-2.5 px-3 text-xs sm:text-sm font-semibold text-slate-400 hover:text-white border-b-2 border-transparent">Daybook & Expenses (F3)</button>
-      <button onclick="switchView('accountingTab')" id="nav-accountingTab" class="tab-btn py-2.5 px-3 text-xs sm:text-sm font-semibold text-slate-400 hover:text-white border-b-2 border-transparent">P&L & CA Audit (F4)</button>
-      <button onclick="switchView('inventoryTab')" id="nav-inventoryTab" class="tab-btn py-2.5 px-3 text-xs sm:text-sm font-semibold text-slate-400 hover:text-white border-b-2 border-transparent">Stock Register (F5)</button>
-      <button onclick="switchView('settingsTab')" id="nav-settingsTab" class="tab-btn py-2.5 px-3 text-xs sm:text-sm font-semibold text-slate-400 hover:text-white border-b-2 border-transparent">Store Profile & Security (F6)</button>
+  <!-- Module Menu (100% Error-Proof Tab Buttons) -->
+  <nav class="bg-slate-900/90 border-b border-slate-800 shadow-sm no-print sticky top-[57px] z-40">
+    <div class="max-w-7xl mx-auto px-4 flex flex-wrap gap-1 sm:gap-2 py-1">
+      <button onclick="switchView('billingTab')" id="nav-billingTab" class="tab-btn py-2 px-3 text-xs sm:text-sm font-bold border-b-2 border-indigo-500 text-indigo-400 transition">Sales Invoice (F1)</button>
+      <button onclick="switchView('returnTab')" id="nav-returnTab" class="tab-btn py-2 px-3 text-xs sm:text-sm font-semibold text-slate-400 hover:text-white border-b-2 border-transparent transition">Sales Return / CRN (F2)</button>
+      <button onclick="switchView('vouchersTab')" id="nav-vouchersTab" class="tab-btn py-2 px-3 text-xs sm:text-sm font-semibold text-slate-400 hover:text-white border-b-2 border-transparent transition">Daybook & Expenses (F3)</button>
+      <button onclick="switchView('accountingTab')" id="nav-accountingTab" class="tab-btn py-2 px-3 text-xs sm:text-sm font-semibold text-slate-400 hover:text-white border-b-2 border-transparent transition">P&L & CA Audit (F4)</button>
+      <button onclick="switchView('inventoryTab')" id="nav-inventoryTab" class="tab-btn py-2 px-3 text-xs sm:text-sm font-semibold text-slate-400 hover:text-white border-b-2 border-transparent transition">Stock Register (F5)</button>
+      <button onclick="switchView('settingsTab')" id="nav-settingsTab" class="tab-btn py-2 px-3 text-xs sm:text-sm font-semibold text-slate-400 hover:text-white border-b-2 border-transparent transition">Store & Security (F6)</button>
     </div>
   </nav>
 
   <main class="max-w-7xl mx-auto px-4 py-6 no-print text-slate-800">
 
     <!-- 1. BILLING & POS COUNTER -->
-    <section id="billingTab" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <section id="billingTab" class="tab-content grid grid-cols-1 lg:grid-cols-12 gap-6">
       <div class="lg:col-span-5 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
         
         <div class="flex justify-between items-center border-b pb-2">
@@ -121,8 +121,8 @@
 
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">Invoice No</label>
-            <input type="text" id="invNo" class="w-full bg-slate-50 border border-slate-300 rounded px-2.5 py-1.5 text-xs font-mono font-bold" readonly>
+            <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">Invoice No (Auto)</label>
+            <input type="text" id="invNo" class="w-full bg-slate-50 border border-slate-300 rounded px-2.5 py-1.5 text-xs font-mono font-bold text-indigo-900" readonly>
           </div>
           <div>
             <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">Date</label>
@@ -236,7 +236,7 @@
     </section>
 
     <!-- 2. SALES RETURN & CREDIT NOTE -->
-    <section id="returnTab" class="space-y-6 hidden">
+    <section id="returnTab" class="tab-content space-y-6 hidden">
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div class="lg:col-span-5 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
           <div class="border-b pb-2">
@@ -261,7 +261,6 @@
               <div class="flex justify-between"><span class="text-slate-500">Customer:</span> <strong id="retCustName"></strong></div>
               <div class="flex justify-between"><span class="text-slate-500">Original Date:</span> <span id="retOrigDate"></span></div>
               
-              <!-- Item Selector for multi-item invoices -->
               <div class="pt-2">
                 <label class="block text-[10px] font-bold text-slate-700 uppercase mb-0.5">Select Item Being Returned:</label>
                 <select id="retItemSelector" onchange="onReturnItemSelected()" class="w-full border rounded px-2 py-1 text-xs bg-white font-semibold text-slate-800">
@@ -295,7 +294,6 @@
           </div>
         </div>
 
-        <!-- Credit Note History -->
         <div class="lg:col-span-7 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
           <h3 class="font-bold text-xs uppercase text-slate-700 tracking-wider mb-3">Issued Credit Notes (Sales Returns Register)</h3>
           <div class="overflow-x-auto">
@@ -319,7 +317,7 @@
     </section>
 
     <!-- 3. DAYBOOK, CASH DRAWER & EXPENSE VOUCHERS -->
-    <section id="vouchersTab" class="space-y-6 hidden">
+    <section id="vouchersTab" class="tab-content space-y-6 hidden">
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div class="lg:col-span-5 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
           <h2 class="font-bold text-slate-900 text-sm uppercase tracking-wide">Record Payment / Expense / Due Receipt</h2>
@@ -392,7 +390,7 @@
     </section>
 
     <!-- 4. TALLY-STYLE PROFIT & LOSS (P&L) & CA AUDIT ENGINE -->
-    <section id="accountingTab" class="space-y-6 hidden">
+    <section id="accountingTab" class="tab-content space-y-6 hidden">
       <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
         <div class="flex flex-wrap justify-between items-center gap-3">
           <div>
@@ -433,7 +431,7 @@
         </div>
       </div>
 
-      <!-- Tally Profit & Loss Statement Summary Card -->
+      <!-- Summary Cards -->
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div class="bg-gradient-to-br from-indigo-900 to-slate-900 text-white p-4 rounded-2xl shadow">
           <div class="text-[10px] uppercase font-bold text-indigo-300">Net Sales Turnover</div>
@@ -470,7 +468,7 @@
         </div>
       </div>
 
-      <!-- Sales Register & Returns Grid -->
+      <!-- Grid -->
       <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div class="p-4 border-b bg-slate-50 flex justify-between items-center">
           <h3 class="font-bold text-xs uppercase text-slate-700 tracking-wider">Combined Sales & Credit Note Register</h3>
@@ -497,7 +495,7 @@
     </section>
 
     <!-- 5. STOCK & INVENTORY REGISTER -->
-    <section id="inventoryTab" class="space-y-6 hidden">
+    <section id="inventoryTab" class="tab-content space-y-6 hidden">
       <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
         <div class="flex justify-between items-center">
           <h2 class="font-bold text-slate-900 text-sm uppercase tracking-wide">Stock Inward / New Device Register</h2>
@@ -535,7 +533,7 @@
     </section>
 
     <!-- 6. STORE REGISTRATION & SECURITY SETTINGS -->
-    <section id="settingsTab" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm max-w-2xl mx-auto space-y-4 hidden">
+    <section id="settingsTab" class="tab-content bg-white p-6 rounded-2xl border border-slate-200 shadow-sm max-w-2xl mx-auto space-y-4 hidden">
       <div class="border-b pb-3">
         <h2 class="font-bold text-slate-900 text-base flex items-center gap-2">
           <span>🔒</span> Store Authorization, Master PIN & Security
@@ -616,13 +614,12 @@
     const CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com';
     const SCOPES = 'https://www.googleapis.com/auth/drive.file';
 
-    let tokenClient;
+    let tokenClient = null;
     let accessToken = null;
     let currentTheme = 'theme-blue';
     let html5QrCode = null;
     let isScannerOpen = false;
 
-    // Default Store Profile
     let storeProfile = {
       name: "",
       phone: "+91 98320 12345",
@@ -642,6 +639,7 @@
     let inventory = [];
     let activeLineItems = [];
 
+    // Financial Year Helper
     function getFinancialYear(dateObj = new Date()) {
       const year = dateObj.getFullYear();
       const month = dateObj.getMonth();
@@ -660,38 +658,89 @@
       }
     }
 
-    window.addEventListener('DOMContentLoaded', () => {
+    // Sequential Automatic Invoice Generator (SFP-2627-0001, SFP-2627-0002...)
+    function getNextSequentialInvoiceNo() {
       const currentFY = getFinancialYear();
-      document.getElementById('displayFY').innerText = currentFY.label;
-      document.getElementById('invNo').value = `SFP-${currentFY.label.replace('FY ', '').replace('-', '')}-${Math.floor(1000 + Math.random() * 9000)}`;
-      document.getElementById('invDate').value = new Date().toISOString().substring(0, 10);
-      document.getElementById('vchDate').value = new Date().toISOString().substring(0, 10);
+      const fyPrefix = currentFY.label.replace('FY ', '').replace('-', '');
+      const count = invoices.length + 1;
+      const serial = count.toString().padStart(4, '0');
+      return `SFP-${fyPrefix}-${serial}`;
+    }
 
-      document.getElementById('filterFromDate').value = currentFY.start.toISOString().substring(0, 10);
-      document.getElementById('filterToDate').value = currentFY.end.toISOString().substring(0, 10);
+    // 100% Robust Tab Navigation Engine
+    function switchView(tabId) {
+      const allTabs = ['billingTab', 'returnTab', 'vouchersTab', 'accountingTab', 'inventoryTab', 'settingsTab'];
+      
+      allTabs.forEach(id => {
+        const sec = document.getElementById(id);
+        const btn = document.getElementById(`nav-${id}`);
+        if (sec) sec.classList.add('hidden');
+        if (btn) {
+          btn.className = "tab-btn py-2 px-3 text-xs sm:text-sm font-semibold text-slate-400 hover:text-white border-b-2 border-transparent transition";
+        }
+      });
 
-      const savedConfig = localStorage.getItem('sfp_store_profile');
-      if (savedConfig) storeProfile = JSON.parse(savedConfig);
+      const targetSec = document.getElementById(tabId);
+      const targetBtn = document.getElementById(`nav-${tabId}`);
+      if (targetSec) targetSec.classList.remove('hidden');
+      if (targetBtn) {
+        targetBtn.className = "tab-btn py-2 px-3 text-xs sm:text-sm font-bold border-b-2 border-indigo-500 text-indigo-400 transition";
+      }
 
-      const savedInvoices = localStorage.getItem('sfp_invoices');
-      if (savedInvoices) invoices = JSON.parse(savedInvoices);
+      if (tabId === 'accountingTab') applyTallyFilter();
+      if (tabId === 'returnTab') renderCreditNotesTable();
+      if (tabId === 'vouchersTab') renderVouchersTable();
+      if (tabId === 'inventoryTab') renderStockTable();
+    }
 
-      const savedCRN = localStorage.getItem('sfp_credit_notes');
-      if (savedCRN) creditNotes = JSON.parse(savedCRN);
+    window.addEventListener('DOMContentLoaded', () => {
+      try {
+        const currentFY = getFinancialYear();
+        const displayFY = document.getElementById('displayFY');
+        if (displayFY) displayFY.innerText = currentFY.label;
 
-      const savedVouchers = localStorage.getItem('sfp_vouchers');
-      if (savedVouchers) vouchers = JSON.parse(savedVouchers);
+        // Load Cache safely
+        const savedConfig = localStorage.getItem('sfp_store_profile');
+        if (savedConfig) storeProfile = JSON.parse(savedConfig);
 
-      const savedStock = localStorage.getItem('sfp_stock');
-      if (savedStock) inventory = JSON.parse(savedStock);
+        const savedInvoices = localStorage.getItem('sfp_invoices');
+        if (savedInvoices) invoices = JSON.parse(savedInvoices);
 
-      enforceStoreLockState();
-      renderLiveInvoicePreview();
-      applyTallyFilter();
-      renderStockTable();
-      renderCreditNotesTable();
-      renderVouchersTable();
+        const savedCRN = localStorage.getItem('sfp_credit_notes');
+        if (savedCRN) creditNotes = JSON.parse(savedCRN);
 
+        const savedVouchers = localStorage.getItem('sfp_vouchers');
+        if (savedVouchers) vouchers = JSON.parse(savedVouchers);
+
+        const savedStock = localStorage.getItem('sfp_stock');
+        if (savedStock) inventory = JSON.parse(savedStock);
+
+        // Populate next sequential invoice
+        const invNo = document.getElementById('invNo');
+        if (invNo) invNo.value = getNextSequentialInvoiceNo();
+
+        const invDate = document.getElementById('invDate');
+        if (invDate) invDate.value = new Date().toISOString().substring(0, 10);
+
+        const vchDate = document.getElementById('vchDate');
+        if (vchDate) vchDate.value = new Date().toISOString().substring(0, 10);
+
+        const fFrom = document.getElementById('filterFromDate');
+        const fTo = document.getElementById('filterToDate');
+        if (fFrom) fFrom.value = currentFY.start.toISOString().substring(0, 10);
+        if (fTo) fTo.value = currentFY.end.toISOString().substring(0, 10);
+
+        enforceStoreLockState();
+        renderLiveInvoicePreview();
+        renderStockTable();
+        renderCreditNotesTable();
+        renderVouchersTable();
+        applyTallyFilter();
+      } catch (err) {
+        console.error("Initialization warning:", err);
+      }
+
+      // Keyboard Shortcut listener (F1 - F6)
       window.addEventListener('keydown', (e) => {
         if (e.key === 'F1') { e.preventDefault(); switchView('billingTab'); }
         if (e.key === 'F2') { e.preventDefault(); switchView('returnTab'); }
@@ -701,6 +750,7 @@
         if (e.key === 'F6') { e.preventDefault(); switchView('settingsTab'); }
       });
 
+      // Google Identity (Non-blocking)
       try {
         if (window.google && google.accounts && google.accounts.oauth2) {
           tokenClient = google.accounts.oauth2.initTokenClient({
@@ -708,35 +758,27 @@
             scope: SCOPES,
             callback: (resp) => {
               accessToken = resp.access_token;
-              document.getElementById('authStatusBadge').classList.remove('hidden');
-              document.getElementById('authBtn').innerText = "Drive Synced ✓";
-              document.getElementById('authBtn').className = "bg-emerald-700 text-xs px-3 py-1.5 rounded-md font-semibold text-white";
+              document.getElementById('authStatusBadge')?.classList.remove('hidden');
+              const authBtn = document.getElementById('authBtn');
+              if (authBtn) {
+                authBtn.innerText = "Drive Synced ✓";
+                authBtn.className = "bg-emerald-700 text-xs px-3 py-1.5 rounded-md font-semibold text-white";
+              }
             }
           });
         }
       } catch (e) {
-        console.warn("Google SDK offline or client id unconfigured.");
+        console.warn("Google SDK not active.");
       }
     });
 
     function handleAuthClick() {
       if (tokenClient) tokenClient.requestAccessToken();
-      else alert("Google Drive API Client ID needs to be configured in pos.html.");
-    }
-
-    function switchView(tabId) {
-      ['billingTab', 'returnTab', 'vouchersTab', 'accountingTab', 'inventoryTab', 'settingsTab'].forEach(t => {
-        document.getElementById(t).classList.add('hidden');
-        document.getElementById(`nav-${t}`).className = "tab-btn py-2.5 px-3 text-xs sm:text-sm font-semibold text-slate-400 hover:text-white border-b-2 border-transparent";
-      });
-      document.getElementById(tabId).classList.remove('hidden');
-      document.getElementById(`nav-${tabId}`).className = "tab-btn py-2.5 px-3 text-xs sm:text-sm font-bold border-b-2 border-indigo-500 text-indigo-400";
-
-      if (tabId === 'accountingTab') applyTallyFilter();
+      else alert("Google Drive Client ID configured or running offline.");
     }
 
     /* ==========================================================================
-       STORE SETTINGS, LOCK & RECOVERY LOGIC (FIXED)
+       STORE SETTINGS & PIN RECOVERY
        ========================================================================== */
 
     function enforceStoreLockState() {
@@ -745,43 +787,57 @@
       const saveBtn = document.getElementById('saveStoreBtn');
 
       if (storeProfile.isLocked && storeProfile.name) {
-        document.getElementById('storeRegisteredBadge').classList.remove('hidden');
-        document.getElementById('lockedStoreNameDisplay').innerText = storeProfile.name;
-        nameInput.value = storeProfile.name;
-        nameInput.readOnly = true;
-        nameInput.classList.add('bg-slate-100', 'text-slate-500');
-        lockBanner.classList.remove('hidden');
-        saveBtn.innerText = "Locked (Unlock to Modify)";
-        saveBtn.disabled = true;
-        saveBtn.classList.replace('bg-indigo-600', 'bg-slate-400');
+        document.getElementById('storeRegisteredBadge')?.classList.remove('hidden');
+        const lockedDisp = document.getElementById('lockedStoreNameDisplay');
+        if (lockedDisp) lockedDisp.innerText = storeProfile.name;
+        if (nameInput) {
+          nameInput.value = storeProfile.name;
+          nameInput.readOnly = true;
+          nameInput.classList.add('bg-slate-100', 'text-slate-500');
+        }
+        if (lockBanner) lockBanner.classList.remove('hidden');
+        if (saveBtn) {
+          saveBtn.innerText = "Locked (Unlock to Modify)";
+          saveBtn.disabled = true;
+          saveBtn.classList.replace('bg-indigo-600', 'bg-slate-400');
+        }
       } else {
-        nameInput.value = storeProfile.name || "SmartFix Workshop & Telecom";
-        nameInput.readOnly = false;
-        nameInput.classList.remove('bg-slate-100', 'text-slate-500');
-        lockBanner.classList.add('hidden');
-        saveBtn.innerText = "Register Store, Set PIN & Lock";
-        saveBtn.disabled = false;
-        saveBtn.classList.replace('bg-slate-400', 'bg-indigo-600');
+        if (nameInput) {
+          nameInput.value = storeProfile.name || "SmartFix Workshop & Telecom";
+          nameInput.readOnly = false;
+          nameInput.classList.remove('bg-slate-100', 'text-slate-500');
+        }
+        if (lockBanner) lockBanner.classList.add('hidden');
+        if (saveBtn) {
+          saveBtn.innerText = "Register Store, Set PIN & Lock";
+          saveBtn.disabled = false;
+          saveBtn.classList.replace('bg-slate-400', 'bg-indigo-600');
+        }
       }
 
-      document.getElementById('cfgStorePhone').value = storeProfile.phone;
-      document.getElementById('cfgStoreGST').value = storeProfile.gstin;
-      document.getElementById('cfgStoreAddress').value = storeProfile.address;
-      document.getElementById('cfgMasterPin').value = storeProfile.masterPin || "";
-      document.getElementById('cfgSecQuestion').value = storeProfile.secQuestion || "city";
-      document.getElementById('cfgSecAnswer').value = storeProfile.secAnswer || "";
+      document.getElementById('cfgStorePhone').value = storeProfile.phone || '';
+      document.getElementById('cfgStoreGST').value = storeProfile.gstin || '';
+      document.getElementById('cfgStoreAddress').value = storeProfile.address || '';
+      document.getElementById('cfgMasterPin').value = storeProfile.masterPin || '';
+      document.getElementById('cfgSecQuestion').value = storeProfile.secQuestion || 'city';
+      document.getElementById('cfgSecAnswer').value = storeProfile.secAnswer || '';
     }
 
     function unlockStoreForEdit() {
       const pin = prompt("Enter Master PIN to unlock store details for modification:");
       if (pin && pin.trim() === storeProfile.masterPin) {
-        document.getElementById('cfgStoreName').readOnly = false;
-        document.getElementById('cfgStoreName').classList.remove('bg-slate-100', 'text-slate-500');
+        const nameInput = document.getElementById('cfgStoreName');
+        if (nameInput) {
+          nameInput.readOnly = false;
+          nameInput.classList.remove('bg-slate-100', 'text-slate-500');
+        }
         const saveBtn = document.getElementById('saveStoreBtn');
-        saveBtn.disabled = false;
-        saveBtn.innerText = "Save Changes & Re-lock";
-        saveBtn.classList.replace('bg-slate-400', 'bg-indigo-600');
-        document.getElementById('lockedWarningBanner').classList.add('hidden');
+        if (saveBtn) {
+          saveBtn.disabled = false;
+          saveBtn.innerText = "Save Changes & Re-lock";
+          saveBtn.classList.replace('bg-slate-400', 'bg-indigo-600');
+        }
+        document.getElementById('lockedWarningBanner')?.classList.add('hidden');
         alert("Store settings unlocked! You can now edit store information.");
       } else {
         alert("Incorrect Master PIN!");
@@ -854,7 +910,7 @@
     }
 
     /* ==========================================================================
-       BARCODE SCANNER & DIRECT BILL ADDITION (ROBUST LIFECYCLE)
+       BARCODE SCANNER & ITEM ADDITION
        ========================================================================== */
 
     async function toggleCameraScanner() {
@@ -990,15 +1046,17 @@
 
     function renderLiveInvoicePreview() {
       const invElement = document.getElementById('printableInvoice');
+      if (!invElement) return;
+
       invElement.className = `${currentTheme} bg-white shadow-2xl border border-slate-200 text-xs text-slate-800 flex flex-col justify-between`;
 
-      const invNo = document.getElementById('invNo').value;
-      const invDate = document.getElementById('invDate').value;
-      const custName = document.getElementById('custName').value.trim() || 'Cash Customer';
-      const custPhone = document.getElementById('custPhone').value.trim() || 'N/A';
-      const custGSTIN = document.getElementById('custGSTIN').value.trim();
-      const ledger = document.getElementById('paymentLedger').value;
-      const taxType = document.getElementById('gstTaxType').value;
+      const invNo = document.getElementById('invNo')?.value || '';
+      const invDate = document.getElementById('invDate')?.value || '';
+      const custName = document.getElementById('custName')?.value.trim() || 'Cash Customer';
+      const custPhone = document.getElementById('custPhone')?.value.trim() || 'N/A';
+      const custGSTIN = document.getElementById('custGSTIN')?.value.trim() || '';
+      const ledger = document.getElementById('paymentLedger')?.value || 'Cash-in-Hand';
+      const taxType = document.getElementById('gstTaxType')?.value || 'INTRA';
 
       let totalGross = 0;
       let totalTaxable = 0;
@@ -1175,10 +1233,6 @@
       invElement.innerHTML = invoiceHTML;
     }
 
-    /* ==========================================================================
-       FINALIZE & PRINT WITH ROBUST CLEANUP (FIXED)
-       ========================================================================== */
-
     function finalizeAndPrint() {
       if (activeLineItems.length === 0) {
         alert("Please add at least one line item!");
@@ -1269,20 +1323,17 @@
 
       if (accessToken) syncInvoiceToGoogleDrive(invoiceRecord);
 
-      // Trigger print without immediately wiping DOM
       window.print();
 
-      // Reset after print dialog
       setTimeout(() => {
-        const currentFY = getFinancialYear();
-        document.getElementById('invNo').value = `SFP-${currentFY.label.replace('FY ', '').replace('-', '')}-${Math.floor(1000 + Math.random() * 9000)}`;
+        document.getElementById('invNo').value = getNextSequentialInvoiceNo();
         activeLineItems = [];
         renderLiveInvoicePreview();
       }, 500);
     }
 
     /* ==========================================================================
-       SALES RETURN & CREDIT NOTE (MULTI-ITEM SELECTION FIXED)
+       SALES RETURN & CREDIT NOTE
        ========================================================================== */
 
     let activeReturnInvoice = null;
@@ -1314,7 +1365,6 @@
       document.getElementById('retCustName').innerText = foundInvoice.customerName;
       document.getElementById('retOrigDate').innerText = foundInvoice.date;
 
-      // Populate item dropdown
       const sel = document.getElementById('retItemSelector');
       sel.innerHTML = foundInvoice.items.map((it, idx) => `
         <option value="${idx}">${it.desc} ${it.imei ? '[IMEI: ' + it.imei + ']' : ''} - ₹${(it.grossAmount * it.qty).toFixed(2)}</option>
@@ -1343,7 +1393,8 @@
       const reason = document.getElementById('retReason').value;
       const restock = document.getElementById('retRestockCheckbox').checked;
       const currentFY = getFinancialYear();
-      const crnNo = `CRN-${currentFY.label.replace('FY ', '').replace('-', '')}-${Math.floor(1000 + Math.random() * 9000)}`;
+      const crnCount = creditNotes.length + 1;
+      const crnNo = `CRN-${currentFY.label.replace('FY ', '').replace('-', '')}-${crnCount.toString().padStart(4, '0')}`;
       const crnDate = new Date().toISOString().substring(0, 10);
 
       const refundTotal = item.grossAmount * item.qty;
@@ -1367,7 +1418,6 @@
       creditNotes.unshift(crnRecord);
       localStorage.setItem('sfp_credit_notes', JSON.stringify(creditNotes));
 
-      // Stock Restoration
       if (restock) {
         let stk = null;
         if (item.stockId) stk = inventory.find(i => i.id === item.stockId);
@@ -1400,6 +1450,7 @@
 
     function renderCreditNotesTable() {
       const tbody = document.getElementById('creditNoteGridBody');
+      if (!tbody) return;
       if (creditNotes.length === 0) {
         tbody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-slate-400">No sales returns recorded.</td></tr>`;
         return;
@@ -1422,6 +1473,8 @@
 
     function printCreditNoteSlip(crn) {
       const invElement = document.getElementById('printableInvoice');
+      if (!invElement) return;
+
       invElement.className = `theme-dark bg-white shadow-2xl border border-slate-200 text-xs text-slate-800 flex flex-col justify-between`;
 
       invElement.innerHTML = `
@@ -1468,10 +1521,17 @@
           </table>
         </div>
 
-        <div class="border-t pt-4">
-          <div class="flex justify-between items-end">
-            <div class="text-[9px] text-slate-400">SmartFix Pro ERP | Sales Return Module</div>
-            <div class="border-t border-slate-400 w-36 text-center font-bold text-slate-700 pt-0.5">Authorized Signatory</div>
+        <div>
+          <div class="border-t pt-4">
+            <div class="flex justify-between items-end">
+              <div class="text-[9px] text-slate-400">SmartFix Pro ERP | Sales Return Module</div>
+              <div class="border-t border-slate-400 w-36 text-center font-bold text-slate-700 pt-0.5">Authorized Signatory</div>
+            </div>
+          </div>
+
+          <div class="mt-3 pt-1.5 border-t border-slate-200 text-center text-[9px] text-slate-500 font-mono tracking-tight leading-tight">
+            <div>SmartFix Pro © 2026 | Mobile Workshop Management System</div>
+            <div class="font-semibold text-slate-600">Developed by Debapriya Sarkar</div>
           </div>
         </div>
       `;
@@ -1518,13 +1578,15 @@
 
     function renderVouchersTable() {
       const tbody = document.getElementById('vouchersGridBody');
+      if (!tbody) return;
       let totalExp = 0;
 
       vouchers.forEach(v => {
         if (v.type === 'EXPENSE') totalExp += v.amount;
       });
 
-      document.getElementById('totalExpenseDisplay').innerText = `Total Expense: ₹${totalExp.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+      const totalExpDisplay = document.getElementById('totalExpenseDisplay');
+      if (totalExpDisplay) totalExpDisplay.innerText = `Total Expense: ₹${totalExp.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
 
       if (vouchers.length === 0) {
         tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-slate-400">No daybook vouchers recorded.</td></tr>`;
@@ -1577,20 +1639,27 @@
         to = fy.end;
       }
 
-      document.getElementById('filterFromDate').value = from.toISOString().substring(0, 10);
-      document.getElementById('filterToDate').value = to.toISOString().substring(0, 10);
+      const fFrom = document.getElementById('filterFromDate');
+      const fTo = document.getElementById('filterToDate');
+      if (fFrom) fFrom.value = from.toISOString().substring(0, 10);
+      if (fTo) fTo.value = to.toISOString().substring(0, 10);
       applyTallyFilter();
     }
 
     function applyTallyFilter() {
-      const fromStr = document.getElementById('filterFromDate').value;
-      const toStr = document.getElementById('filterToDate').value;
-      const ledger = document.getElementById('filterLedger').value;
+      const fromInput = document.getElementById('filterFromDate');
+      const toInput = document.getElementById('filterToDate');
+      const ledgerInput = document.getElementById('filterLedger');
+
+      const fromStr = fromInput ? fromInput.value : '';
+      const toStr = toInput ? toInput.value : '';
+      const ledger = ledgerInput ? ledgerInput.value : 'ALL';
 
       const fromDate = fromStr ? new Date(fromStr) : new Date(2000, 0, 1);
       const toDate = toStr ? new Date(toStr + 'T23:59:59') : new Date(2099, 11, 31);
 
-      document.getElementById('filteredRangeText').innerText = `Period: ${fromStr} to ${toStr}`;
+      const rangeText = document.getElementById('filteredRangeText');
+      if (rangeText) rangeText.innerText = `Period: ${fromStr || 'Start'} to ${toStr || 'End'}`;
 
       const filteredInvoices = invoices.filter(inv => {
         const d = new Date(inv.date);
@@ -1612,7 +1681,7 @@
       let totalPurchaseCost = 0;
 
       filteredInvoices.forEach(i => {
-        grossSales += i.totalGross;
+        grossSales += i.totalGross || 0;
         salesTax += ((i.totalCGST || 0) + (i.totalSGST || 0) + (i.totalIGST || 0));
         totalPurchaseCost += (i.totalPurchaseCost || 0);
       });
@@ -1620,13 +1689,13 @@
       let totalReturns = 0;
       let returnTax = 0;
       filteredCRN.forEach(c => {
-        totalReturns += c.refundTotal;
-        returnTax += c.refundTax;
+        totalReturns += c.refundTotal || 0;
+        returnTax += c.refundTax || 0;
       });
 
       let totalExpenses = 0;
       filteredVouchers.forEach(v => {
-        if (v.type === 'EXPENSE') totalExpenses += v.amount;
+        if (v.type === 'EXPENSE') totalExpenses += v.amount || 0;
       });
 
       const netTurnover = grossSales - totalReturns;
@@ -1634,13 +1703,24 @@
       const grossMargin = netTurnover - totalPurchaseCost;
       const netProfit = grossMargin - totalExpenses;
 
-      document.getElementById('statNetTurnover').innerText = `₹${netTurnover.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
-      document.getElementById('statGrossVsReturn').innerText = `Gross: ₹${grossSales.toFixed(0)} | Returns: -₹${totalReturns.toFixed(0)}`;
-      document.getElementById('statNetGST').innerText = `₹${netGSTOutput.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
-      document.getElementById('statTotalExpense').innerText = `₹${totalExpenses.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
-      document.getElementById('statNetProfit').innerText = `₹${netProfit.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+      const statNetTurnover = document.getElementById('statNetTurnover');
+      if (statNetTurnover) statNetTurnover.innerText = `₹${netTurnover.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+
+      const statGrossVsReturn = document.getElementById('statGrossVsReturn');
+      if (statGrossVsReturn) statGrossVsReturn.innerText = `Gross: ₹${grossSales.toFixed(0)} | Returns: -₹${totalReturns.toFixed(0)}`;
+
+      const statNetGST = document.getElementById('statNetGST');
+      if (statNetGST) statNetGST.innerText = `₹${netGSTOutput.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+
+      const statTotalExpense = document.getElementById('statTotalExpense');
+      if (statTotalExpense) statTotalExpense.innerText = `₹${totalExpenses.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+
+      const statNetProfit = document.getElementById('statNetProfit');
+      if (statNetProfit) statNetProfit.innerText = `₹${netProfit.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
 
       const tbody = document.getElementById('accountingGridBody');
+      if (!tbody) return;
+
       const combined = [
         ...filteredInvoices.map(i => ({ ...i, docType: 'SALES INVOICE' })),
         ...filteredCRN.map(c => ({
@@ -1683,8 +1763,8 @@
     }
 
     function exportToExcelCA() {
-      const fromStr = document.getElementById('filterFromDate').value;
-      const toStr = document.getElementById('filterToDate').value;
+      const fromStr = document.getElementById('filterFromDate')?.value || '';
+      const toStr = document.getElementById('filterToDate')?.value || '';
       const fromDate = fromStr ? new Date(fromStr) : new Date(2000, 0, 1);
       const toDate = toStr ? new Date(toStr + 'T23:59:59') : new Date(2099, 11, 31);
 
@@ -1823,8 +1903,10 @@
 
     function renderStockTable() {
       const tbody = document.getElementById('stockGridBody');
+      if (!tbody) return;
       const inStockCount = inventory.filter(i => i.status !== "Sold").length;
-      document.getElementById('stockCountDisplay').innerText = `${inStockCount} Units Available (${inventory.length} Total Registered)`;
+      const stockDisp = document.getElementById('stockCountDisplay');
+      if (stockDisp) stockDisp.innerText = `${inStockCount} Units Available (${inventory.length} Total Registered)`;
 
       if (inventory.length === 0) {
         tbody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-slate-400">Stock is empty. Register devices above.</td></tr>`;
@@ -1833,6 +1915,7 @@
 
       tbody.innerHTML = inventory.map((stk, idx) => {
         const isSold = stk.status === "Sold";
+        const sanitizedModel = stk.model.replace(/'/g, "\\'");
         return `
           <tr class="hover:bg-slate-50 ${isSold ? 'bg-slate-50 opacity-60' : ''}">
             <td class="p-3 text-slate-500 font-bold">${idx + 1}</td>
@@ -1848,7 +1931,7 @@
             </td>
             <td class="p-3 text-center space-x-1.5">
               ${!isSold ? `
-                <button onclick="pushProductToBill('${stk.model.replace(/'/g, "\\'")}', '${stk.imei \vert{}\vert{} ''}', '8517', 18, 1,${stk.cost}, ${stk.purchaseCost \vert{}\vert{} 0},${stk.id}); switchView('billingTab');" class="text-xs bg-indigo-50 text-indigo-700 font-bold px-2 py-1 rounded hover:bg-indigo-100">Sell ⚡</button>
+                <button onclick="pushProductToBill('${sanitizedModel}', '${stk.imei \vert{}\vert{} ''}', '8517', 18, 1,${stk.cost}, ${stk.purchaseCost \vert{}\vert{} 0},${stk.id}); switchView('billingTab');" class="text-xs bg-indigo-50 text-indigo-700 font-bold px-2 py-1 rounded hover:bg-indigo-100">Sell ⚡</button>
                 <button onclick="editStockPrice(${stk.id})" class="text-xs text-slate-600 hover:text-indigo-600 font-semibold px-1.5 py-1">✏</button>
               ` : ''}
               <button onclick="deleteStockItem(${stk.id})" class="text-xs text-red-500 hover:text-red-700 font-semibold px-1.5 py-1">🗑</button>
