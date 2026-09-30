@@ -5,24 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>SmartFix Pro - Tally-Grade ERP, Sales Return & POS</title>
   
-  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Google Identity Services -->
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <!-- SheetJS for CA-Grade Multi-Sheet Excel Exports -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <!-- HTML5 QR Code & Barcode Scanner Engine -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
 
   <style>
-    /* A4 Print Engine */
     @media print {
       body * { visibility: hidden !important; }
       #printableInvoice, #printableInvoice * { visibility: visible !important; }
       #printableInvoice {
         position: absolute;
-        left: 0;
-        top: 0;
+        left: 0; top: 0;
         width: 210mm;
         margin: 0;
         padding: 10mm 14mm;
@@ -31,30 +24,27 @@
         print-color-adjust: exact;
       }
       .no-print { display: none !important; }
+      .overflow-x-auto { overflow: visible !important; }
       tr { page-break-inside: avoid; }
     }
 
-    /* Professional Themes */
-    .theme-blue { --pri: #1e3a8a; --sec: #2563eb; --accent: #f0f7ff; --border: #bfdbfe; }
-    .theme-dark { --pri: #0f172a; --sec: #334155; --accent: #f8fafc; --border: #cbd5e1; }
+    .theme-blue    { --pri: #1e3a8a; --sec: #2563eb; --accent: #f0f7ff; --border: #bfdbfe; }
+    .theme-dark    { --pri: #0f172a; --sec: #334155; --accent: #f8fafc; --border: #cbd5e1; }
     .theme-emerald { --pri: #064e3b; --sec: #059669; --accent: #ecfdf5; --border: #a7f3d0; }
-    .theme-purple { --pri: #4c1d95; --sec: #7c3aed; --accent: #f5f3ff; --border: #ddd6fe; }
+    .theme-purple  { --pri: #4c1d95; --sec: #7c3aed; --accent: #f5f3ff; --border: #ddd6fe; }
 
-    .brand-bg { background-color: var(--pri); }
-    .brand-text { color: var(--pri); }
-    .brand-accent { background-color: var(--accent); }
-    .brand-border { border-color: var(--border); }
+    .brand-bg    { background-color: var(--pri); }
+    .brand-text  { color: var(--pri); }
+    .brand-accent{ background-color: var(--accent); }
+    .brand-border{ border-color: var(--border); }
   </style>
 </head>
 <body class="bg-slate-950 font-sans text-slate-100 min-h-screen">
 
-  <!-- Top SMARTFIXPRO Navigation Bar -->
   <header class="bg-slate-900 border-b border-slate-800 shadow-md no-print sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-4 py-2.5 flex flex-wrap justify-between items-center gap-3">
       <div class="flex items-center space-x-3">
-        <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-500/30">
-          🔧
-        </div>
+        <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-500/30">🔧</div>
         <div>
           <div class="flex items-center gap-2">
             <span class="text-lg font-black tracking-tight text-white">SMARTFIX<span class="text-indigo-400">PRO</span></span>
@@ -68,7 +58,6 @@
         <div id="storeRegisteredBadge" class="hidden text-xs bg-slate-800 text-emerald-400 border border-slate-700 px-2.5 py-1 rounded-md flex items-center gap-1.5 font-medium">
           <span>🔒</span> <span id="lockedStoreNameDisplay">Verified Store</span>
         </div>
-        
         <button type="button" id="authBtn" onclick="handleAuthClick()" class="bg-indigo-600 hover:bg-indigo-700 text-xs px-3 py-1.5 rounded-md font-semibold transition flex items-center gap-1.5 text-white shadow">
           <span>Connect Google Drive</span>
         </button>
@@ -77,7 +66,6 @@
     </div>
   </header>
 
-  <!-- Mobile-Optimized Tab Menu Bar -->
   <nav class="bg-slate-900/95 border-b border-slate-800 shadow-sm no-print sticky top-[57px] z-40 overflow-x-auto">
     <div class="max-w-7xl mx-auto px-2 flex whitespace-nowrap gap-1 py-1.5">
       <button type="button" onclick="switchView('billingTab')" id="nav-billingTab" class="tab-btn py-2 px-3 text-xs sm:text-sm font-bold border-b-2 border-indigo-500 text-indigo-400 transition">Sales Invoice (F1)</button>
@@ -91,25 +79,19 @@
 
   <main class="max-w-7xl mx-auto px-4 py-6 no-print text-slate-800">
 
-    <!-- 1. BILLING & POS COUNTER -->
+    <!-- 1. BILLING -->
     <section id="billingTab" class="tab-panel">
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div class="lg:col-span-5 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-          
           <div class="flex justify-between items-center border-b pb-2">
             <h2 class="font-bold text-slate-900 text-sm uppercase tracking-wide">POS Sales Invoice</h2>
             <span class="text-xs bg-indigo-50 text-indigo-700 font-mono font-bold px-2 py-0.5 rounded" id="displayFY">FY 2026-27</span>
           </div>
 
-          <!-- Barcode Scanner Bar -->
           <div class="bg-indigo-50 border border-indigo-200 rounded-xl p-3 space-y-2">
             <div class="flex justify-between items-center">
-              <span class="text-xs font-bold text-indigo-900 flex items-center gap-1.5">
-                <span>📷</span> Barcode / IMEI Fast Scanner
-              </span>
-              <button type="button" onclick="toggleCameraScanner()" id="scannerToggleBtn" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-2.5 py-1 rounded transition">
-                Open Camera Scanner
-              </button>
+              <span class="text-xs font-bold text-indigo-900 flex items-center gap-1.5"><span>📷</span> Barcode / IMEI Fast Scanner</span>
+              <button type="button" onclick="toggleCameraScanner()" id="scannerToggleBtn" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-2.5 py-1 rounded transition">Open Camera Scanner</button>
             </div>
             <div id="cameraScannerWrapper" style="display: none;" class="overflow-hidden rounded-lg border border-indigo-300">
               <div id="reader" style="width: 100%;"></div>
@@ -167,15 +149,12 @@
             </select>
           </div>
 
-          <!-- Manual Line Item Input -->
           <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2">
             <div class="text-[10px] font-bold text-slate-700 uppercase flex justify-between">
               <span>Manual Product / Mobile Entry</span>
             </div>
-
             <input type="text" id="itemDesc" placeholder="Model Name (e.g. Vivo V40 5G 8/128)" class="w-full border border-slate-300 rounded px-2.5 py-1.5 text-xs">
             <input type="text" id="itemIMEI" placeholder="IMEI 1 & 2 / Serial Number" class="w-full border border-slate-300 rounded px-2.5 py-1.5 text-xs font-mono bg-amber-50/50">
-
             <div class="grid grid-cols-4 gap-2">
               <div>
                 <label class="block text-[9px] text-slate-500 font-bold mb-0.5">HSN</label>
@@ -199,7 +178,6 @@
                 <input type="number" id="itemPrice" placeholder="Price" class="w-full border rounded px-1.5 py-1 text-xs font-bold">
               </div>
             </div>
-
             <button type="button" onclick="addManualItem()" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-1.5 rounded text-xs transition">+ Add Item</button>
           </div>
 
@@ -215,36 +193,27 @@
             </div>
             <div>
               <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">Print Action</label>
-              <button type="button" onclick="finalizeAndPrint()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-1.5 rounded text-xs shadow transition">
-                💾 Save, Deduct Stock & Print
-              </button>
+              <button type="button" onclick="finalizeAndPrint()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-1.5 rounded text-xs shadow transition">💾 Save, Deduct Stock & Print</button>
             </div>
           </div>
-
         </div>
 
-        <!-- Live Dynamic A4 Preview Canvas -->
         <div class="lg:col-span-7 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center overflow-x-auto">
           <div class="w-full flex justify-between items-center mb-3">
             <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Dynamic A4 Page Fitting Preview</span>
             <span class="text-[11px] text-slate-500">Auto-scales margins for 1 or multiple items</span>
           </div>
-
-          <div id="printableInvoice" class="theme-blue bg-white shadow-2xl border border-slate-200 text-xs text-slate-800 flex flex-col justify-between" style="width: 210mm; min-height: 285mm; padding: 12mm 15mm;">
-            <!-- Dynamically populated invoice HTML -->
-          </div>
+          <div id="printableInvoice" class="theme-blue bg-white shadow-2xl border border-slate-200 text-xs text-slate-800 flex flex-col justify-between" style="width: 210mm; min-height: 285mm; padding: 12mm 15mm;"></div>
         </div>
       </div>
     </section>
 
-    <!-- 2. SALES RETURN & CREDIT NOTE -->
+    <!-- 2. RETURNS -->
     <section id="returnTab" class="tab-panel" style="display: none;">
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div class="lg:col-span-5 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
           <div class="border-b pb-2">
-            <h2 class="font-bold text-slate-900 text-sm uppercase tracking-wide text-rose-700 flex items-center gap-1.5">
-              <span>🔄</span> Issue Credit Note (Sales Return)
-            </h2>
+            <h2 class="font-bold text-slate-900 text-sm uppercase tracking-wide text-rose-700 flex items-center gap-1.5"><span>🔄</span> Issue Credit Note (Sales Return)</h2>
             <p class="text-[11px] text-slate-500">Enter original invoice no or IMEI to retrieve device and restock.</p>
           </div>
 
@@ -258,17 +227,13 @@
 
           <div id="returnDetailsBox" style="display: none;" class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-3">
             <div class="text-xs font-bold text-slate-800 border-b pb-1" id="retFoundTitle">Invoice Details</div>
-            
             <div class="space-y-1 text-[11px]">
               <div class="flex justify-between"><span class="text-slate-500">Customer:</span> <strong id="retCustName"></strong></div>
               <div class="flex justify-between"><span class="text-slate-500">Original Date:</span> <span id="retOrigDate"></span></div>
-              
               <div class="pt-2">
                 <label class="block text-[10px] font-bold text-slate-700 uppercase mb-0.5">Select Item Being Returned:</label>
-                <select id="retItemSelector" onchange="onReturnItemSelected()" class="w-full border rounded px-2 py-1 text-xs bg-white font-semibold text-slate-800">
-                </select>
+                <select id="retItemSelector" onchange="onReturnItemSelected()" class="w-full border rounded px-2 py-1 text-xs bg-white font-semibold text-slate-800"></select>
               </div>
-
               <div class="flex justify-between pt-1"><span class="text-slate-500">IMEI:</span> <span id="retItemIMEI" class="font-mono"></span></div>
               <div class="flex justify-between"><span class="text-slate-500">Refund Amount:</span> <strong id="retRefundAmount" class="text-rose-600 font-mono text-sm"></strong></div>
             </div>
@@ -290,9 +255,7 @@
               </label>
             </div>
 
-            <button type="button" onclick="finalizeCreditNote()" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-2 rounded-xl text-xs shadow transition">
-              📄 Issue Official Credit Note (CRN) & Restock
-            </button>
+            <button type="button" onclick="finalizeCreditNote()" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-2 rounded-xl text-xs shadow transition">📄 Issue Official Credit Note (CRN) & Restock</button>
           </div>
         </div>
 
@@ -318,7 +281,7 @@
       </div>
     </section>
 
-    <!-- 3. DAYBOOK, CASH DRAWER & EXPENSE VOUCHERS -->
+    <!-- 3. VOUCHERS -->
     <section id="vouchersTab" class="tab-panel" style="display: none;">
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div class="lg:col-span-5 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
@@ -340,7 +303,7 @@
 
           <div>
             <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">Account Head / Category</label>
-            <input type="text" id="vchCategory" placeholder="e.g. Shop Rent, Electricity, Staff Salary, Tea & Snacks" class="w-full border rounded px-2.5 py-1.5 text-xs">
+            <input type="text" id="vchCategory" placeholder="e.g. Shop Rent, Electricity, Staff Salary" class="w-full border rounded px-2.5 py-1.5 text-xs">
           </div>
 
           <div class="grid grid-cols-2 gap-3">
@@ -362,9 +325,7 @@
             <input type="text" id="vchNarration" placeholder="Details about this payment or customer name" class="w-full border rounded px-2.5 py-1.5 text-xs">
           </div>
 
-          <button type="button" onclick="saveVoucher()" class="w-full bg-slate-900 hover:bg-black text-white font-bold py-2 rounded-xl text-xs transition">
-            + Record in Daybook
-          </button>
+          <button type="button" onclick="saveVoucher()" class="w-full bg-slate-900 hover:bg-black text-white font-bold py-2 rounded-xl text-xs transition">+ Record in Daybook</button>
         </div>
 
         <div class="lg:col-span-7 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
@@ -391,7 +352,7 @@
       </div>
     </section>
 
-    <!-- 4. TALLY-STYLE PROFIT & LOSS (P&L) & CA AUDIT ENGINE -->
+    <!-- 4. ACCOUNTING -->
     <section id="accountingTab" class="tab-panel" style="display: none;">
       <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
         <div class="flex flex-wrap justify-between items-center gap-3">
@@ -424,6 +385,8 @@
               <option value="ALL">Consolidated All Accounts</option>
               <option value="Cash-in-Hand">Cash A/c</option>
               <option value="Bank / UPI">Bank / UPI Direct</option>
+              <option value="Card Payment">Card Payment</option>
+              <option value="Bajaj / EMI Finance">Bajaj / EMI Finance</option>
               <option value="Credit / Sundry Debtors">Sundry Debtors (Udhar)</option>
             </select>
           </div>
@@ -433,7 +396,6 @@
         </div>
       </div>
 
-      <!-- Summary Cards -->
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
         <div class="bg-gradient-to-br from-indigo-900 to-slate-900 text-white p-4 rounded-2xl shadow">
           <div class="text-[10px] uppercase font-bold text-indigo-300">Net Sales Turnover</div>
@@ -457,7 +419,22 @@
         </div>
       </div>
 
-      <!-- Action Panel: CA Exports -->
+      <!-- Debtors Summary -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+        <div class="bg-white border border-slate-200 p-4 rounded-2xl shadow-sm">
+          <div class="text-[10px] uppercase font-bold text-slate-500">Total Credit Sales (Udhar)</div>
+          <div id="statCreditSales" class="text-lg font-black mt-1 text-slate-900">₹0.00</div>
+        </div>
+        <div class="bg-white border border-slate-200 p-4 rounded-2xl shadow-sm">
+          <div class="text-[10px] uppercase font-bold text-slate-500">Total Receipts Collected</div>
+          <div id="statReceipts" class="text-lg font-black mt-1 text-emerald-700">₹0.00</div>
+        </div>
+        <div class="bg-amber-50 border border-amber-200 p-4 rounded-2xl shadow-sm">
+          <div class="text-[10px] uppercase font-bold text-amber-700">Outstanding Debtors Balance</div>
+          <div id="statDebtorsBalance" class="text-lg font-black mt-1 text-amber-800">₹0.00</div>
+        </div>
+      </div>
+
       <div class="bg-gradient-to-r from-slate-900 to-indigo-950 p-4 rounded-2xl text-white flex flex-wrap justify-between items-center gap-4 shadow-sm mt-4">
         <div>
           <div class="font-bold text-sm tracking-wide">Chartered Accountant (CA) Multi-Sheet Audit Export</div>
@@ -470,7 +447,6 @@
         </div>
       </div>
 
-      <!-- Grid -->
       <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mt-4">
         <div class="p-4 border-b bg-slate-50 flex justify-between items-center">
           <h3 class="font-bold text-xs uppercase text-slate-700 tracking-wider">Combined Sales & Credit Note Register</h3>
@@ -496,7 +472,7 @@
       </div>
     </section>
 
-    <!-- 5. STOCK & INVENTORY REGISTER -->
+    <!-- 5. STOCK -->
     <section id="inventoryTab" class="tab-panel" style="display: none;">
       <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
         <div class="flex justify-between items-center">
@@ -504,13 +480,11 @@
           <span class="text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-medium">🔒 Owner Protected</span>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-6 gap-3">
-          <input type="text" id="stkModel" placeholder="Model Name (e.g. Redmi Note 13 5G) *" class="border rounded px-3 py-2 text-xs col-span-2">
+          <input type="text" id="stkModel" placeholder="Model Name *" class="border rounded px-3 py-2 text-xs col-span-2">
           <input type="text" id="stkIMEI" placeholder="Barcode / IMEI / Serial (Optional)" class="border rounded px-3 py-2 text-xs font-mono">
           <input type="number" id="stkPurchaseCost" placeholder="Purchase Cost (₹)" class="border rounded px-3 py-2 text-xs font-bold text-slate-600">
           <input type="number" id="stkCost" placeholder="Selling Price (₹) *" class="border rounded px-3 py-2 text-xs font-bold text-emerald-700">
-          <button type="button" onclick="addStockItem()" class="bg-indigo-600 text-white font-bold py-2 rounded-xl text-xs hover:bg-indigo-700 transition shadow">
-            + Add to Stock
-          </button>
+          <button type="button" onclick="addStockItem()" class="bg-indigo-600 text-white font-bold py-2 rounded-xl text-xs hover:bg-indigo-700 transition shadow">+ Add to Stock</button>
         </div>
       </div>
 
@@ -538,13 +512,11 @@
       </div>
     </section>
 
-    <!-- 6. STORE REGISTRATION & SECURITY SETTINGS -->
+    <!-- 6. SETTINGS -->
     <section id="settingsTab" class="tab-panel" style="display: none;">
       <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm max-w-2xl mx-auto space-y-4">
         <div class="border-b pb-3">
-          <h2 class="font-bold text-slate-900 text-base flex items-center gap-2">
-            <span>🔒</span> Store Authorization, Master PIN & Security
-          </h2>
+          <h2 class="font-bold text-slate-900 text-base flex items-center gap-2"><span>🔒</span> Store Authorization, Master PIN & Security</h2>
           <p class="text-xs text-slate-500">Configure store identity, custom Master PIN, and self-recovery security question.</p>
         </div>
 
@@ -575,7 +547,7 @@
         </div>
 
         <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">Store Logo</label>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Store Logo (auto-resized for storage safety)</label>
           <input type="file" id="cfgLogoFile" accept="image/*" class="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:bg-indigo-50 file:text-indigo-700">
         </div>
 
@@ -584,7 +556,7 @@
             <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wide">Owner Security PIN & Recovery</h3>
             <button type="button" onclick="promptForgotPIN()" class="text-indigo-600 hover:underline text-xs font-bold">Forgot Master PIN?</button>
           </div>
-          
+
           <div class="grid grid-cols-2 gap-3">
             <div>
               <label class="block text-xs font-bold text-indigo-900 mb-1">Set Master PIN (4 to 6 Digits)</label>
@@ -615,14 +587,9 @@
   </main>
 
   <script>
-    /* ==========================================================================
-       SMARTFIXPRO POS & TALLY CORE STATE
-       ========================================================================== */
-
-    const CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com';
-    const SCOPES = 'https://www.googleapis.com/auth/drive.file';
-
-    window.tokenClient = null;
+    /* =====================================================================
+       CORE STATE
+       ===================================================================== */
     window.accessToken = null;
     window.currentTheme = 'theme-blue';
     window.html5QrCode = null;
@@ -646,8 +613,11 @@
     window.vouchers = [];
     window.inventory = [];
     window.activeLineItems = [];
+    window.activeReturnInvoice = null;
 
-    // Format Date to YYYY-MM-DD
+    /* =====================================================================
+       UTILITIES
+       ===================================================================== */
     window.formatDateToYYYYMMDD = function(d) {
       const year = d.getFullYear();
       const month = String(d.getMonth() + 1).padStart(2, '0');
@@ -655,7 +625,6 @@
       return `${year}-${month}-${day}`;
     };
 
-    // Financial Year Helper based on active bill date
     window.getFinancialYear = function(dateObj = new Date()) {
       const year = dateObj.getFullYear();
       const month = dateObj.getMonth();
@@ -674,16 +643,36 @@
       }
     };
 
-    // Sequential Automatic Invoice Generator
+    // FY-wise sequential invoice number
     window.getNextSequentialInvoiceNo = function(targetDate = new Date()) {
       const fy = window.getFinancialYear(targetDate);
       const fyPrefix = fy.label.replace('FY ', '').replace('-', '');
-      const count = (window.invoices ? window.invoices.length : 0) + 1;
-      const serial = count.toString().padStart(4, '0');
-      return `SFP-${fyPrefix}-${serial}`;
+      const prefix = `SFP-${fyPrefix}-`;
+      let maxSerial = 0;
+      (window.invoices || []).forEach(inv => {
+        if (inv.invoiceNo && inv.invoiceNo.startsWith(prefix)) {
+          const serial = parseInt(inv.invoiceNo.substring(prefix.length), 10) || 0;
+          if (serial > maxSerial) maxSerial = serial;
+        }
+      });
+      return `${prefix}${(maxSerial + 1).toString().padStart(4, '0')}`;
     };
 
-    // When Date is changed manually (for Backdated Bills)
+    // FY-wise sequential CRN number
+    window.getNextSequentialCRNNo = function(targetDate = new Date()) {
+      const fy = window.getFinancialYear(targetDate);
+      const fyPrefix = fy.label.replace('FY ', '').replace('-', '');
+      const prefix = `CRN-${fyPrefix}-`;
+      let maxSerial = 0;
+      (window.creditNotes || []).forEach(c => {
+        if (c.crnNo && c.crnNo.startsWith(prefix)) {
+          const serial = parseInt(c.crnNo.substring(prefix.length), 10) || 0;
+          if (serial > maxSerial) maxSerial = serial;
+        }
+      });
+      return `${prefix}${(maxSerial + 1).toString().padStart(4, '0')}`;
+    };
+
     window.onDateChanged = function() {
       const dateVal = document.getElementById('invDate').value;
       if (dateVal) {
@@ -698,16 +687,38 @@
       window.renderLiveInvoicePreview();
     };
 
-    // 100% Robust Instant Tab Navigation Engine
+    // Resize image before storing to localStorage
+    window.resizeImageFile = function(file, maxDim = 400) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let w = img.width, h = img.height;
+            if (w > h && w > maxDim) { h = Math.round(h * maxDim / w); w = maxDim; }
+            else if (h > maxDim) { w = Math.round(w * maxDim / h); h = maxDim; }
+            canvas.width = w; canvas.height = h;
+            canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+            resolve(canvas.toDataURL('image/jpeg', 0.85));
+          };
+          img.onerror = () => resolve('');
+          img.src = e.target.result;
+        };
+        reader.onerror = () => resolve('');
+        reader.readAsDataURL(file);
+      });
+    };
+
+    /* =====================================================================
+       INIT
+       ===================================================================== */
     window.switchView = function(tabId) {
       const allTabs = ['billingTab', 'returnTab', 'vouchersTab', 'accountingTab', 'inventoryTab', 'settingsTab'];
-      
       allTabs.forEach(id => {
         const sec = document.getElementById(id);
         const btn = document.getElementById(`nav-${id}`);
-        if (sec) {
-          sec.style.display = (id === tabId) ? 'block' : 'none';
-        }
+        if (sec) sec.style.display = (id === tabId) ? 'block' : 'none';
         if (btn) {
           if (id === tabId) {
             btn.className = "tab-btn py-2 px-3 text-xs sm:text-sm font-bold border-b-2 border-indigo-500 text-indigo-400 transition";
@@ -716,21 +727,18 @@
           }
         }
       });
-
       if (tabId === 'accountingTab') window.applyTallyFilter();
       if (tabId === 'returnTab') window.renderCreditNotesTable();
       if (tabId === 'vouchersTab') window.renderVouchersTable();
       if (tabId === 'inventoryTab') window.renderStockTable();
     };
 
-    // Guaranteed Initialization Function
     window.initApp = function() {
       try {
         const today = new Date();
         const todayStr = window.formatDateToYYYYMMDD(today);
         const currentFY = window.getFinancialYear(today);
 
-        // Safe defensive loading from LocalStorage
         try {
           const savedConfig = localStorage.getItem('sfp_store_profile');
           if (savedConfig) window.storeProfile = Object.assign(window.storeProfile, JSON.parse(savedConfig));
@@ -740,19 +748,16 @@
             const parsed = JSON.parse(savedInvoices);
             window.invoices = Array.isArray(parsed) ? parsed : [];
           }
-
           const savedCRN = localStorage.getItem('sfp_credit_notes');
           if (savedCRN) {
             const parsed = JSON.parse(savedCRN);
             window.creditNotes = Array.isArray(parsed) ? parsed : [];
           }
-
           const savedVouchers = localStorage.getItem('sfp_vouchers');
           if (savedVouchers) {
             const parsed = JSON.parse(savedVouchers);
             window.vouchers = Array.isArray(parsed) ? parsed : [];
           }
-
           const savedStock = localStorage.getItem('sfp_stock');
           if (savedStock) {
             const parsed = JSON.parse(savedStock);
@@ -790,47 +795,22 @@
       }
     };
 
-    // Auto-Run immediately
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', window.initApp);
     } else {
       window.initApp();
     }
 
-    // Google Identity (Non-blocking)
+    /* =====================================================================
+       GOOGLE DRIVE (placeholder — client ID যোগ করুন পরে)
+       ===================================================================== */
     window.handleAuthClick = function() {
-      if (window.tokenClient) {
-        window.tokenClient.requestAccessToken();
-      } else {
-        try {
-          if (window.google && google.accounts && google.accounts.oauth2) {
-            window.tokenClient = google.accounts.oauth2.initTokenClient({
-              client_id: CLIENT_ID,
-              scope: SCOPES,
-              callback: (resp) => {
-                window.accessToken = resp.access_token;
-                document.getElementById('authStatusBadge')?.classList.remove('hidden');
-                const authBtn = document.getElementById('authBtn');
-                if (authBtn) {
-                  authBtn.innerText = "Drive Synced ✓";
-                  authBtn.className = "bg-emerald-700 text-xs px-3 py-1.5 rounded-md font-semibold text-white";
-                }
-              }
-            });
-            window.tokenClient.requestAccessToken();
-          } else {
-            alert("Google Drive API client is running in offline mode.");
-          }
-        } catch(e) {
-          alert("Google Drive API service running offline.");
-        }
-      }
+      alert("Google Drive sync এখনো কনফিগার করা হয়নি। পরে CLIENT_ID বসিয়ে চালু করা যাবে।\n\nএই মুহূর্তে সব ডেটা ব্রাউজারের localStorage-এ সংরক্ষিত হচ্ছে।");
     };
 
-    /* ==========================================================================
-       STORE SETTINGS & PIN RECOVERY
-       ========================================================================== */
-
+    /* =====================================================================
+       STORE SETTINGS
+       ===================================================================== */
     window.enforceStoreLockState = function() {
       const nameInput = document.getElementById('cfgStoreName');
       const lockBanner = document.getElementById('lockedWarningBanner');
@@ -895,18 +875,12 @@
       }
     };
 
-    window.saveStoreSettings = function() {
+    window.saveStoreSettings = async function() {
       const pin = document.getElementById('cfgMasterPin').value.trim();
       const secAns = document.getElementById('cfgSecAnswer').value.trim();
 
-      if (!pin || pin.length < 4) {
-        alert("Please set a secure 4 to 6 digit Master PIN!");
-        return;
-      }
-      if (!secAns) {
-        alert("Please provide a secret recovery answer!");
-        return;
-      }
+      if (!pin || pin.length < 4) { alert("Please set a secure 4 to 6 digit Master PIN!"); return; }
+      if (!secAns) { alert("Please provide a secret recovery answer!"); return; }
 
       window.storeProfile.name = document.getElementById('cfgStoreName').value.trim();
       window.storeProfile.phone = document.getElementById('cfgStorePhone').value.trim();
@@ -919,19 +893,23 @@
 
       const logoFile = document.getElementById('cfgLogoFile').files[0];
       if (logoFile) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          window.storeProfile.logo = e.target.result;
-          window.persistProfile();
-        };
-        reader.readAsDataURL(logoFile);
-      } else {
-        window.persistProfile();
+        try {
+          const resized = await window.resizeImageFile(logoFile, 400);
+          if (resized) window.storeProfile.logo = resized;
+        } catch(e) {
+          console.warn("Logo resize failed:", e);
+        }
       }
+
+      window.persistProfile();
     };
 
     window.persistProfile = function() {
-      localStorage.setItem('sfp_store_profile', JSON.stringify(window.storeProfile));
+      try {
+        localStorage.setItem('sfp_store_profile', JSON.stringify(window.storeProfile));
+      } catch(e) {
+        alert("Storage quota exceeded! Try a smaller logo.");
+      }
       window.enforceStoreLockState();
       window.renderLiveInvoicePreview();
       alert("Store & Master PIN successfully registered and locked!");
@@ -945,13 +923,12 @@
         pet: "What is your favorite pet's or nickname?"
       };
       const qText = qLabels[window.storeProfile.secQuestion] || "your secret question";
-
       const ans = prompt(`RECOVERY CHECK: ${qText}`);
       if (ans && ans.trim().toLowerCase() === window.storeProfile.secAnswer.toLowerCase()) {
         const newPin = prompt("Correct Answer! Enter your NEW 4 to 6 digit Master PIN:");
         if (newPin && newPin.length >= 4) {
           window.storeProfile.masterPin = newPin.trim();
-          localStorage.setItem('sfp_store_profile', JSON.stringify(window.storeProfile));
+          try { localStorage.setItem('sfp_store_profile', JSON.stringify(window.storeProfile)); } catch(e) {}
           alert(`PIN successfully updated! Your new PIN is: ${newPin}`);
           window.enforceStoreLockState();
         }
@@ -960,20 +937,16 @@
       }
     };
 
-    /* ==========================================================================
-       BARCODE SCANNER & ITEM ADDITION
-       ========================================================================== */
-
+    /* =====================================================================
+       BARCODE SCANNER
+       ===================================================================== */
     window.toggleCameraScanner = async function() {
       const wrapper = document.getElementById('cameraScannerWrapper');
       const btn = document.getElementById('scannerToggleBtn');
 
       if (window.isScannerOpen) {
         if (window.html5QrCode) {
-          try {
-            await window.html5QrCode.stop();
-            await window.html5QrCode.clear();
-          } catch(e) {}
+          try { await window.html5QrCode.stop(); await window.html5QrCode.clear(); } catch(e) {}
           window.html5QrCode = null;
         }
         if (wrapper) wrapper.style.display = 'none';
@@ -987,9 +960,7 @@
           await window.html5QrCode.start(
             { facingMode: "environment" },
             { fps: 10, qrbox: { width: 280, height: 160 } },
-            (decodedText) => {
-              window.handleScannedCode(decodedText);
-            },
+            (decodedText) => { window.handleScannedCode(decodedText); },
             () => {}
           );
           window.isScannerOpen = true;
@@ -1005,28 +976,26 @@
     window.handleBarcodeEnter = function(event) {
       if (event.key === 'Enter') {
         const code = event.target.value.trim();
-        if (code) {
-          window.handleScannedCode(code);
-          event.target.value = '';
-        }
+        if (code) { window.handleScannedCode(code); event.target.value = ''; }
       }
     };
 
     window.handleScannedCode = function(code) {
-      const matched = window.inventory.find(i => (i.imei && i.imei.toLowerCase() === code.toLowerCase()) || i.model.toLowerCase() === code.toLowerCase());
-      
+      const matched = window.inventory.find(i =>
+        (i.imei && i.imei.toLowerCase() === code.toLowerCase()) ||
+        i.model.toLowerCase() === code.toLowerCase()
+      );
+
       if (matched) {
         if (matched.status === "Sold") {
           alert(`🚫 OUT OF STOCK: Item "${matched.model}" (IMEI: ${matched.imei}) is already marked as SOLD!`);
           return;
         }
-
         const alreadyInCart = window.activeLineItems.some(i => i.stockId === matched.id || (matched.imei && i.imei === matched.imei));
         if (alreadyInCart) {
           alert(`Item (IMEI: ${matched.imei || matched.model}) is already in current invoice!`);
           return;
         }
-
         window.pushProductToBill(matched.model, matched.imei, '8517', 18, 1, matched.cost, matched.purchaseCost || 0, matched.id);
       } else {
         const gross = prompt(`Barcode/IMEI "${code}" not found in registered stock. Enter Selling Price (₹):`, "15000");
@@ -1045,10 +1014,7 @@
       const qty = parseInt(document.getElementById('itemQty').value) || 1;
       const grossAmount = parseFloat(document.getElementById('itemPrice').value) || 0;
 
-      if (!desc || grossAmount <= 0) {
-        alert("Enter valid description and price.");
-        return;
-      }
+      if (!desc || grossAmount <= 0) { alert("Enter valid description and price."); return; }
 
       if (imei) {
         const matched = window.inventory.find(i => i.imei && i.imei.toLowerCase() === imei.toLowerCase());
@@ -1058,7 +1024,16 @@
         }
       }
 
-      window.pushProductToBill(desc, imei, hsn, gstRate, qty, grossAmount, 0, null);
+      // Link to stock if IMEI matches available stock
+      let stockId = null, purchaseCost = 0;
+      if (imei) {
+        const available = window.inventory.find(i =>
+          i.imei && i.imei.toLowerCase() === imei.toLowerCase() && i.status !== "Sold"
+        );
+        if (available) { stockId = available.id; purchaseCost = available.purchaseCost || 0; }
+      }
+
+      window.pushProductToBill(desc, imei, hsn, gstRate, qty, grossAmount, purchaseCost, stockId);
 
       document.getElementById('itemDesc').value = '';
       document.getElementById('itemIMEI').value = '';
@@ -1069,15 +1044,13 @@
       window.activeLineItems.push({
         id: Date.now() + Math.random(),
         stockId: stockId || null,
-        desc,
-        imei,
-        hsn,
+        desc, imei, hsn,
         gstRate,
         qty: parseInt(qty) || 1,
         purchaseCost: parseFloat(purchaseCost) || 0,
-        grossAmount: parseFloat(grossAmount)
+        grossAmount: parseFloat(grossAmount),
+        returned: false
       });
-
       window.renderLiveInvoicePreview();
     };
 
@@ -1086,10 +1059,17 @@
       window.renderLiveInvoicePreview();
     };
 
-    /* ==========================================================================
-       DYNAMIC A4 RENDERER & ACCURATE CGST / SGST / IGST MATH
-       ========================================================================== */
+    // Sell from Stock helper (fixes the \vert{}\vert{} bug)
+    window.sellFromStock = function(id) {
+      const stk = window.inventory.find(i => i.id === id);
+      if (!stk || stk.status === "Sold") return;
+      window.pushProductToBill(stk.model, stk.imei || '', '8517', 18, 1, stk.cost, stk.purchaseCost || 0, stk.id);
+      window.switchView('billingTab');
+    };
 
+    /* =====================================================================
+       LIVE A4 PREVIEW
+       ===================================================================== */
     window.applyInvoiceTheme = function(themeClass) {
       window.currentTheme = themeClass;
       window.renderLiveInvoicePreview();
@@ -1109,29 +1089,19 @@
       const ledger = document.getElementById('paymentLedger')?.value || 'Cash-in-Hand';
       const taxType = document.getElementById('gstTaxType')?.value || 'INTRA';
 
-      let totalGross = 0;
-      let totalTaxable = 0;
-      let totalCGST = 0;
-      let totalSGST = 0;
-      let totalIGST = 0;
+      let totalGross = 0, totalTaxable = 0, totalCGST = 0, totalSGST = 0, totalIGST = 0;
 
-      const rowPaddingClass = window.activeLineItems.length <= 2 ? 'py-4 px-3' : (window.activeLineItems.length <= 5 ? 'py-2.5 px-3' : 'py-1.5 px-2 text-[10px]');
+      const rowPaddingClass = window.activeLineItems.length <= 2 ? 'py-4 px-3'
+        : (window.activeLineItems.length <= 5 ? 'py-2.5 px-3' : 'py-1.5 px-2 text-[10px]');
 
       let itemsRows = window.activeLineItems.map((item, idx) => {
         const lineTotal = item.grossAmount * item.qty;
         const lineTaxable = lineTotal / (1 + (item.gstRate / 100));
         const lineTaxAmount = lineTotal - lineTaxable;
 
-        let lineCGST = 0;
-        let lineSGST = 0;
-        let lineIGST = 0;
-
-        if (taxType === 'INTRA') {
-          lineCGST = lineTaxAmount / 2;
-          lineSGST = lineTaxAmount / 2;
-        } else {
-          lineIGST = lineTaxAmount;
-        }
+        let lineCGST = 0, lineSGST = 0, lineIGST = 0;
+        if (taxType === 'INTRA') { lineCGST = lineTaxAmount / 2; lineSGST = lineTaxAmount / 2; }
+        else { lineIGST = lineTaxAmount; }
 
         totalGross += lineTotal;
         totalTaxable += lineTaxable;
@@ -1195,7 +1165,7 @@
             <div class="text-right">
               <div class="text-[9px] font-bold text-slate-500 uppercase">Payment Ledger</div>
               <div class="font-bold text-emerald-800 text-xs">${ledger}</div>
-              <div class="text-[10px] text-slate-500">Tax Type: ${taxType === 'INTRA' ? 'CGST + SGST (West Bengal)' : 'IGST (Inter-State)'}</div>
+              <div class="text-[10px] text-slate-500">Tax Type: ${taxType === 'INTRA' ? 'CGST + SGST' : 'IGST (Inter-State)'}</div>
             </div>
           </div>
 
@@ -1208,19 +1178,17 @@
                 <th class="py-1.5 px-2 text-center w-10">Qty</th>
                 <th class="py-1.5 px-2 text-right w-20">Taxable</th>
                 <th class="py-1.5 px-2 text-right w-12">GST Rate</th>
-                <th class="py-1.5 px-2 text-right w-24">Total Amount (₹)</th>
+                <th class="py-1.5 px-2 text-right w-24">Total (₹)</th>
               </tr>
             </thead>
-            <tbody>
-              ${itemsRows}
-            </tbody>
+            <tbody>${itemsRows}</tbody>
           </table>
         </div>
 
         <div>
           <div class="grid grid-cols-2 gap-4 items-start mb-2 pt-2 border-t">
             <div class="border border-slate-200 rounded p-2 text-[9px]">
-              <div class="font-bold text-slate-700 uppercase mb-0.5">Statutory GST Breakup (${taxType === 'INTRA' ? 'CGST + SGST' : 'IGST'})</div>
+              <div class="font-bold text-slate-700 uppercase mb-0.5">Statutory GST Breakup</div>
               <div class="flex justify-between py-0.5 text-slate-600 border-b">
                 <span>Taxable Amount:</span>
                 <span class="font-mono font-semibold">₹${totalTaxable.toFixed(2)}</span>
@@ -1248,7 +1216,7 @@
                 <span class="font-mono font-semibold">₹${totalTaxable.toFixed(2)}</span>
               </div>
               <div class="flex justify-between py-0.5 text-slate-600">
-                <span>Total Tax Amount:</span>
+                <span>Total Tax:</span>
                 <span class="font-mono font-semibold">₹${(totalCGST + totalSGST + totalIGST).toFixed(2)}</span>
               </div>
               <div class="flex justify-between py-1 border-t-2 brand-border text-base font-black brand-text">
@@ -1261,14 +1229,12 @@
           <div class="border-t pt-2">
             <div class="grid grid-cols-2 gap-4 text-[9px] text-slate-500">
               <div>
-                <div class="font-bold uppercase tracking-wider text-slate-700 mb-0.5">Terms & Warranty Conditions:</div>
+                <div class="font-bold uppercase tracking-wider text-slate-700 mb-0.5">Terms & Warranty:</div>
                 <p class="whitespace-pre-line leading-tight">${window.storeProfile.terms}</p>
               </div>
               <div class="text-right flex flex-col justify-end items-end">
                 <div class="h-6"></div>
-                <div class="border-t border-slate-400 w-36 text-center font-bold text-slate-700 pt-0.5">
-                  Authorized Signatory
-                </div>
+                <div class="border-t border-slate-400 w-36 text-center font-bold text-slate-700 pt-0.5">Authorized Signatory</div>
               </div>
             </div>
           </div>
@@ -1277,13 +1243,15 @@
             <div>SmartFix Pro © 2026 | Mobile Workshop Management System</div>
             <div class="font-semibold text-slate-600">Developed by Debapriya Sarkar</div>
           </div>
-
         </div>
       `;
 
       invElement.innerHTML = invoiceHTML;
     };
 
+    /* =====================================================================
+       FINALIZE INVOICE
+       ===================================================================== */
     window.finalizeAndPrint = function() {
       if (window.activeLineItems.length === 0) {
         alert("Please add at least one line item!");
@@ -1308,12 +1276,7 @@
       const ledger = document.getElementById('paymentLedger').value;
       const taxType = document.getElementById('gstTaxType').value;
 
-      let totalGross = 0;
-      let totalTaxable = 0;
-      let totalCGST = 0;
-      let totalSGST = 0;
-      let totalIGST = 0;
-      let totalPurchaseCost = 0;
+      let totalGross = 0, totalTaxable = 0, totalCGST = 0, totalSGST = 0, totalIGST = 0, totalPurchaseCost = 0;
 
       window.activeLineItems.forEach(item => {
         const lineTotal = item.grossAmount * item.qty;
@@ -1324,20 +1287,12 @@
         totalTaxable += lineTaxable;
         totalPurchaseCost += (item.purchaseCost * item.qty);
 
-        if (taxType === 'INTRA') {
-          totalCGST += lineTax / 2;
-          totalSGST += lineTax / 2;
-        } else {
-          totalIGST += lineTax;
-        }
+        if (taxType === 'INTRA') { totalCGST += lineTax / 2; totalSGST += lineTax / 2; }
+        else { totalIGST += lineTax; }
 
-        // Automatic Stock Deduction (by IMEI or stockId)
         let matchedStock = null;
-        if (item.stockId) {
-          matchedStock = window.inventory.find(i => i.id === item.stockId);
-        } else if (item.imei) {
-          matchedStock = window.inventory.find(i => i.imei && i.imei.toLowerCase() === item.imei.toLowerCase());
-        }
+        if (item.stockId) matchedStock = window.inventory.find(i => i.id === item.stockId);
+        else if (item.imei) matchedStock = window.inventory.find(i => i.imei && i.imei.toLowerCase() === item.imei.toLowerCase());
 
         if (matchedStock) {
           matchedStock.status = "Sold";
@@ -1346,7 +1301,7 @@
         }
       });
 
-      localStorage.setItem('sfp_stock', JSON.stringify(window.inventory));
+      try { localStorage.setItem('sfp_stock', JSON.stringify(window.inventory)); } catch(e) {}
       window.renderStockTable();
 
       const invoiceRecord = {
@@ -1356,8 +1311,7 @@
         customerName: custName,
         customerPhone: custPhone,
         customerGSTIN: custGSTIN,
-        taxType: taxType,
-        ledger: ledger,
+        taxType, ledger,
         items: JSON.parse(JSON.stringify(window.activeLineItems)),
         totalTaxable: Number(totalTaxable.toFixed(2)),
         totalCGST: Number(totalCGST.toFixed(2)),
@@ -1370,27 +1324,36 @@
       };
 
       window.invoices.unshift(invoiceRecord);
-      localStorage.setItem('sfp_invoices', JSON.stringify(window.invoices));
+      try { localStorage.setItem('sfp_invoices', JSON.stringify(window.invoices)); } catch(e) {
+        alert("Storage full! Export data to Excel and clear old records.");
+      }
 
-      if (window.accessToken) window.syncInvoiceToGoogleDrive(invoiceRecord);
+      // Print then reset AFTER print dialog closes
+      let handled = false;
+      const afterPrintHandler = () => {
+        if (handled) return;
+        handled = true;
+        window.removeEventListener('afterprint', afterPrintHandler);
 
-      window.print();
-
-      setTimeout(() => {
         const dateVal = document.getElementById('invDate').value;
         const activeDate = dateVal ? new Date(dateVal) : new Date();
         document.getElementById('invNo').value = window.getNextSequentialInvoiceNo(activeDate);
+        document.getElementById('custName').value = '';
+        document.getElementById('custPhone').value = '';
+        document.getElementById('custGSTIN').value = '';
         window.activeLineItems = [];
         window.renderLiveInvoicePreview();
-      }, 500);
+      };
+      window.addEventListener('afterprint', afterPrintHandler);
+      // Fallback if afterprint doesn't fire
+      setTimeout(() => { if (!handled) afterPrintHandler(); }, 3000);
+
+      window.print();
     };
 
-    /* ==========================================================================
-       SALES RETURN & CREDIT NOTE
-       ========================================================================== */
-
-    window.activeReturnInvoice = null;
-
+    /* =====================================================================
+       SALES RETURN / CREDIT NOTE
+       ===================================================================== */
     window.searchForReturn = function() {
       const q = document.getElementById('retSearchQuery').value.trim().toLowerCase();
       if (!q) { alert("Enter Invoice No or IMEI"); return; }
@@ -1400,17 +1363,11 @@
       if (!foundInvoice) {
         for (const inv of window.invoices) {
           const it = inv.items.find(i => i.imei && i.imei.toLowerCase() === q);
-          if (it) {
-            foundInvoice = inv;
-            break;
-          }
+          if (it) { foundInvoice = inv; break; }
         }
       }
 
-      if (!foundInvoice) {
-        alert("No sold invoice found matching this search query!");
-        return;
-      }
+      if (!foundInvoice) { alert("No sold invoice found matching this search query!"); return; }
 
       window.activeReturnInvoice = foundInvoice;
       const box = document.getElementById('returnDetailsBox');
@@ -1421,9 +1378,11 @@
       document.getElementById('retOrigDate').innerText = foundInvoice.date;
 
       const sel = document.getElementById('retItemSelector');
-      sel.innerHTML = foundInvoice.items.map((it, idx) => `
-        <option value="${idx}">${it.desc} ${it.imei ? '[IMEI: ' + it.imei + ']' : ''} - ₹${(it.grossAmount * it.qty).toFixed(2)}</option>
-      `).join('');
+      // Mark already-returned items and disable them
+      sel.innerHTML = foundInvoice.items.map((it, idx) => {
+        const tag = it.returned ? ' — [ALREADY RETURNED]' : '';
+        return `<option value="${idx}" ${it.returned ? 'disabled' : ''}>${it.desc} ${it.imei ? '[IMEI: ' + it.imei + ']' : ''} - ₹${(it.grossAmount * it.qty).toFixed(2)}${tag}</option>`;
+      }).join('');
 
       window.onReturnItemSelected();
     };
@@ -1445,12 +1404,15 @@
       const item = window.activeReturnInvoice.items[idx];
       if (!item) return;
 
+      if (item.returned) { alert("This item has already been returned!"); return; }
+
       const reason = document.getElementById('retReason').value;
       const restock = document.getElementById('retRestockCheckbox').checked;
-      const currentFY = window.getFinancialYear();
-      const crnCount = (window.creditNotes ? window.creditNotes.length : 0) + 1;
-      const crnNo = `CRN-${currentFY.label.replace('FY ', '').replace('-', '')}-${crnCount.toString().padStart(4, '0')}`;
-      const crnDate = new Date().toISOString().substring(0, 10);
+
+      // Local-time date (fixes UTC timezone bug)
+      const now = new Date();
+      const crnDate = window.formatDateToYYYYMMDD(now);
+      const crnNo = window.getNextSequentialCRNNo(now);
 
       const refundTotal = item.grossAmount * item.qty;
       const refundTaxable = refundTotal / (1 + (item.gstRate / 100));
@@ -1471,7 +1433,11 @@
       };
 
       window.creditNotes.unshift(crnRecord);
-      localStorage.setItem('sfp_credit_notes', JSON.stringify(window.creditNotes));
+      try { localStorage.setItem('sfp_credit_notes', JSON.stringify(window.creditNotes)); } catch(e) {}
+
+      // Mark item as returned on the original invoice (prevents double-return)
+      item.returned = true;
+      try { localStorage.setItem('sfp_invoices', JSON.stringify(window.invoices)); } catch(e) {}
 
       if (restock) {
         let stk = null;
@@ -1492,11 +1458,11 @@
             status: "Available"
           });
         }
-        localStorage.setItem('sfp_stock', JSON.stringify(window.inventory));
+        try { localStorage.setItem('sfp_stock', JSON.stringify(window.inventory)); } catch(e) {}
         window.renderStockTable();
       }
 
-      alert(`Credit Note ${crnNo} successfully issued and stock restored!`);
+      alert(`Credit Note ${crnNo} successfully issued!`);
       const box = document.getElementById('returnDetailsBox');
       if (box) box.style.display = 'none';
       document.getElementById('retSearchQuery').value = '';
@@ -1511,8 +1477,7 @@
         tbody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-slate-400">No sales returns recorded.</td></tr>`;
         return;
       }
-
-      tbody.innerHTML = window.creditNotes.map(crn => `
+      tbody.innerHTML = window.creditNotes.map((crn, i) => `
         <tr class="hover:bg-slate-50">
           <td class="p-2.5 font-bold text-rose-700 font-mono">${crn.crnNo}</td>
           <td class="p-2.5 text-slate-600 font-mono">${crn.date}</td>
@@ -1521,10 +1486,14 @@
           <td class="p-2.5 text-right font-mono text-rose-600">₹${crn.refundTax.toFixed(2)}</td>
           <td class="p-2.5 text-right font-mono font-bold text-rose-700">₹${crn.refundTotal.toFixed(2)}</td>
           <td class="p-2.5 text-center">
-            <button type="button" onclick='printCreditNoteSlip(${JSON.stringify(crn)})' class="text-xs bg-slate-200 hover:bg-slate-300 font-bold px-2 py-1 rounded">Print CRN</button>
+            <button type="button" onclick="printCreditNoteByIndex(${i})" class="text-xs bg-slate-200 hover:bg-slate-300 font-bold px-2 py-1 rounded">Print CRN</button>
           </td>
         </tr>
       `).join('');
+    };
+
+    window.printCreditNoteByIndex = function(i) {
+      window.printCreditNoteSlip(window.creditNotes[i]);
     };
 
     window.printCreditNoteSlip = function(crn) {
@@ -1541,7 +1510,7 @@
               <p class="text-slate-500 text-[10px]">${window.storeProfile.address} | Phone: ${window.storeProfile.phone}</p>
             </div>
             <div class="text-right">
-              <span class="inline-block bg-rose-700 text-white text-[9px] uppercase font-black px-2.5 py-0.5 rounded tracking-wider">OFFICIAL CREDIT NOTE (RETURN)</span>
+              <span class="inline-block bg-rose-700 text-white text-[9px] uppercase font-black px-2.5 py-0.5 rounded tracking-wider">OFFICIAL CREDIT NOTE</span>
               <div class="text-xs font-black font-mono mt-1 text-slate-900">${crn.crnNo}</div>
               <div class="text-[10px] text-slate-500">Date: ${crn.date}</div>
             </div>
@@ -1584,7 +1553,6 @@
               <div class="border-t border-slate-400 w-36 text-center font-bold text-slate-700 pt-0.5">Authorized Signatory</div>
             </div>
           </div>
-
           <div class="mt-3 pt-1.5 border-t border-slate-200 text-center text-[9px] text-slate-500 font-mono tracking-tight leading-tight">
             <div>SmartFix Pro © 2026 | Mobile Workshop Management System</div>
             <div class="font-semibold text-slate-600">Developed by Debapriya Sarkar</div>
@@ -1592,14 +1560,22 @@
         </div>
       `;
 
+      let handled = false;
+      const afterPrintHandler = () => {
+        if (handled) return;
+        handled = true;
+        window.removeEventListener('afterprint', afterPrintHandler);
+        window.renderLiveInvoicePreview();
+      };
+      window.addEventListener('afterprint', afterPrintHandler);
+      setTimeout(() => { if (!handled) afterPrintHandler(); }, 3000);
+
       window.print();
-      setTimeout(window.renderLiveInvoicePreview, 500);
     };
 
-    /* ==========================================================================
-       DAYBOOK & EXPENSE VOUCHER ENGINE
-       ========================================================================== */
-
+    /* =====================================================================
+       VOUCHERS
+       ===================================================================== */
     window.saveVoucher = function() {
       const type = document.getElementById('vchType').value;
       const date = document.getElementById('vchDate').value;
@@ -1608,22 +1584,11 @@
       const amount = parseFloat(document.getElementById('vchAmount').value) || 0;
       const narration = document.getElementById('vchNarration').value.trim();
 
-      if (!category || amount <= 0) {
-        alert("Please enter a category and valid amount!");
-        return;
-      }
+      if (!category || amount <= 0) { alert("Please enter a category and valid amount!"); return; }
 
-      window.vouchers.unshift({
-        id: Date.now(),
-        type,
-        date,
-        category,
-        account,
-        amount,
-        narration
-      });
+      window.vouchers.unshift({ id: Date.now(), type, date, category, account, amount, narration });
+      try { localStorage.setItem('sfp_vouchers', JSON.stringify(window.vouchers)); } catch(e) {}
 
-      localStorage.setItem('sfp_vouchers', JSON.stringify(window.vouchers));
       document.getElementById('vchCategory').value = '';
       document.getElementById('vchAmount').value = '';
       document.getElementById('vchNarration').value = '';
@@ -1636,12 +1601,7 @@
       const tbody = document.getElementById('vouchersGridBody');
       if (!tbody) return;
       let totalExp = 0;
-
-      if (window.vouchers) {
-        window.vouchers.forEach(v => {
-          if (v.type === 'EXPENSE') totalExp += v.amount;
-        });
-      }
+      (window.vouchers || []).forEach(v => { if (v.type === 'EXPENSE') totalExp += v.amount; });
 
       const totalExpDisplay = document.getElementById('totalExpenseDisplay');
       if (totalExpDisplay) totalExpDisplay.innerText = `Total Expense: ₹${totalExp.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
@@ -1670,27 +1630,24 @@
       `).join('');
     };
 
-    /* ==========================================================================
-       TALLY P&L, AUDIT & CA MULTI-SHEET EXPORT
-       ========================================================================== */
-
+    /* =====================================================================
+       P&L, AUDIT & EXCEL EXPORT
+       ===================================================================== */
     window.setDateRange = function(period) {
       const today = new Date();
       let from = new Date();
       let to = new Date();
 
       if (period === 'today') {
+        // same
       } else if (period === 'month') {
         from = new Date(today.getFullYear(), today.getMonth(), 1);
       } else if (period === '3months') {
-        from = new Date();
-        from.setMonth(today.getMonth() - 3);
+        from = new Date(); from.setMonth(today.getMonth() - 3);
       } else if (period === '6months') {
-        from = new Date();
-        from.setMonth(today.getMonth() - 6);
+        from = new Date(); from.setMonth(today.getMonth() - 6);
       } else if (period === '1year') {
-        from = new Date();
-        from.setFullYear(today.getFullYear() - 1);
+        from = new Date(); from.setFullYear(today.getFullYear() - 1);
       } else if (period === 'fy') {
         const fy = window.getFinancialYear(today);
         from = fy.start;
@@ -1705,56 +1662,44 @@
     };
 
     window.applyTallyFilter = function() {
-      const fromInput = document.getElementById('filterFromDate');
-      const toInput = document.getElementById('filterToDate');
-      const ledgerInput = document.getElementById('filterLedger');
+      const fromStr = document.getElementById('filterFromDate')?.value || '';
+      const toStr = document.getElementById('filterToDate')?.value || '';
+      const ledger = document.getElementById('filterLedger')?.value || 'ALL';
 
-      const fromStr = fromInput ? fromInput.value : '';
-      const toStr = toInput ? toInput.value : '';
-      const ledger = ledgerInput ? ledgerInput.value : 'ALL';
-
-      const fromDate = fromStr ? new Date(fromStr) : new Date(2000, 0, 1);
+      const fromDate = fromStr ? new Date(fromStr + 'T00:00:00') : new Date(2000, 0, 1);
       const toDate = toStr ? new Date(toStr + 'T23:59:59') : new Date(2099, 11, 31);
 
       const rangeText = document.getElementById('filteredRangeText');
       if (rangeText) rangeText.innerText = `Period: ${fromStr || 'Start'} to ${toStr || 'End'}`;
 
       const filteredInvoices = (window.invoices || []).filter(inv => {
-        const d = new Date(inv.date);
+        const d = new Date(inv.date + 'T12:00:00');
         return d >= fromDate && d <= toDate && (ledger === 'ALL' || inv.ledger === ledger);
       });
-
       const filteredCRN = (window.creditNotes || []).filter(crn => {
-        const d = new Date(crn.date);
+        const d = new Date(crn.date + 'T12:00:00');
         return d >= fromDate && d <= toDate;
       });
-
       const filteredVouchers = (window.vouchers || []).filter(v => {
-        const d = new Date(v.date);
+        const d = new Date(v.date + 'T12:00:00');
         return d >= fromDate && d <= toDate;
       });
 
-      let grossSales = 0;
-      let salesTax = 0;
-      let totalPurchaseCost = 0;
-
+      let grossSales = 0, salesTax = 0, totalPurchaseCost = 0;
       filteredInvoices.forEach(i => {
         grossSales += i.totalGross || 0;
         salesTax += ((i.totalCGST || 0) + (i.totalSGST || 0) + (i.totalIGST || 0));
         totalPurchaseCost += (i.totalPurchaseCost || 0);
       });
 
-      let totalReturns = 0;
-      let returnTax = 0;
+      let totalReturns = 0, returnTax = 0;
       filteredCRN.forEach(c => {
         totalReturns += c.refundTotal || 0;
         returnTax += c.refundTax || 0;
       });
 
       let totalExpenses = 0;
-      filteredVouchers.forEach(v => {
-        if (v.type === 'EXPENSE') totalExpenses += v.amount || 0;
-      });
+      filteredVouchers.forEach(v => { if (v.type === 'EXPENSE') totalExpenses += v.amount || 0; });
 
       const netTurnover = grossSales - totalReturns;
       const netGSTOutput = salesTax - returnTax;
@@ -1763,24 +1708,42 @@
 
       const statNetTurnover = document.getElementById('statNetTurnover');
       if (statNetTurnover) statNetTurnover.innerText = `₹${netTurnover.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
-
       const statGrossVsReturn = document.getElementById('statGrossVsReturn');
       if (statGrossVsReturn) statGrossVsReturn.innerText = `Gross: ₹${grossSales.toFixed(0)} | Returns: -₹${totalReturns.toFixed(0)}`;
-
       const statNetGST = document.getElementById('statNetGST');
       if (statNetGST) statNetGST.innerText = `₹${netGSTOutput.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
-
       const statTotalExpense = document.getElementById('statTotalExpense');
       if (statTotalExpense) statTotalExpense.innerText = `₹${totalExpenses.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
-
       const statNetProfit = document.getElementById('statNetProfit');
       if (statNetProfit) statNetProfit.innerText = `₹${netProfit.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+
+      // Debtors tracking
+      let creditSales = 0, receiptsCollected = 0;
+      (window.invoices || []).forEach(i => {
+        const d = new Date(i.date + 'T12:00:00');
+        if (d >= fromDate && d <= toDate && i.ledger === 'Credit / Sundry Debtors') {
+          creditSales += i.totalGross;
+        }
+      });
+      (window.vouchers || []).forEach(v => {
+        const d = new Date(v.date + 'T12:00:00');
+        if (d >= fromDate && d <= toDate && v.type === 'RECEIPT') {
+          receiptsCollected += v.amount;
+        }
+      });
+
+      const statCreditSales = document.getElementById('statCreditSales');
+      if (statCreditSales) statCreditSales.innerText = `₹${creditSales.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+      const statReceipts = document.getElementById('statReceipts');
+      if (statReceipts) statReceipts.innerText = `₹${receiptsCollected.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+      const statDebtorsBalance = document.getElementById('statDebtorsBalance');
+      if (statDebtorsBalance) statDebtorsBalance.innerText = `₹${(creditSales - receiptsCollected).toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
 
       const tbody = document.getElementById('accountingGridBody');
       if (!tbody) return;
 
       const combined = [
-        ...filteredInvoices.map(i => ({ ...i, docType: 'SALES INVOICE' })),
+        ...filteredInvoices.map(i => ({ ...i, docType: 'SALES INVOICE', itemsSummary: (i.items || []).map(x => x.desc).join(', ') })),
         ...filteredCRN.map(c => ({
           date: c.date,
           docType: 'CREDIT NOTE (RETURN)',
@@ -1809,7 +1772,7 @@
             <td class="p-3 font-mono font-bold text-slate-800">${row.invoiceNo}</td>
             <td class="p-3">
               <div class="font-bold text-slate-900">${row.customerName}</div>
-              <div class="text-[10px] text-slate-500">${row.itemsSummary || (row.items ? row.items.map(i => i.desc).join(', ') : '')}</div>
+              <div class="text-[10px] text-slate-500">${row.itemsSummary || ''}</div>
             </td>
             <td class="p-3 font-semibold text-slate-700">${row.ledger}</td>
             <td class="p-3 text-right font-mono">₹${row.totalTaxable.toFixed(2)}</td>
@@ -1823,21 +1786,19 @@
     window.exportToExcelCA = function() {
       const fromStr = document.getElementById('filterFromDate')?.value || '';
       const toStr = document.getElementById('filterToDate')?.value || '';
-      const fromDate = fromStr ? new Date(fromStr) : new Date(2000, 0, 1);
+      const fromDate = fromStr ? new Date(fromStr + 'T00:00:00') : new Date(2000, 0, 1);
       const toDate = toStr ? new Date(toStr + 'T23:59:59') : new Date(2099, 11, 31);
 
       const fInvoices = (window.invoices || []).filter(i => {
-        const d = new Date(i.date);
+        const d = new Date(i.date + 'T12:00:00');
         return d >= fromDate && d <= toDate;
       });
-
       const fReturns = (window.creditNotes || []).filter(c => {
-        const d = new Date(c.date);
+        const d = new Date(c.date + 'T12:00:00');
         return d >= fromDate && d <= toDate;
       });
-
       const fExpenses = (window.vouchers || []).filter(v => {
-        const d = new Date(v.date);
+        const d = new Date(v.date + 'T12:00:00');
         return d >= fromDate && d <= toDate;
       });
 
@@ -1851,8 +1812,8 @@
         "Customer Mobile": r.customerPhone,
         "Customer GSTIN": r.customerGSTIN || "B2C Consumer",
         "Tax Treatment": r.taxType === 'INTRA' ? 'Intra-State (CGST+SGST)' : 'Inter-State (IGST)',
-        "Goods Summary": r.items.map(i => `${i.desc} [IMEI: ${i.imei || 'N/A'}]`).join(" | "),
-        "HSN Code": r.items[0]?.hsn || "8517",
+        "Goods Summary": (r.items || []).map(i => `${i.desc} [IMEI: ${i.imei || 'N/A'}]`).join(" | "),
+        "HSN Code": r.items?.[0]?.hsn || "8517",
         "Payment Ledger": r.ledger,
         "Taxable Value (₹)": r.totalTaxable,
         "CGST (₹)": r.totalCGST || 0,
@@ -1860,8 +1821,7 @@
         "IGST (₹)": r.totalIGST || 0,
         "Total Value (₹)": r.totalGross
       }));
-      const wsSales = XLSX.utils.json_to_sheet(salesSheetData);
-      XLSX.utils.book_append_sheet(wb, wsSales, "GSTR1_Sales_Register");
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(salesSheetData), "GSTR1_Sales_Register");
 
       const returnSheetData = fReturns.map(c => ({
         "CRN Number": c.crnNo,
@@ -1876,8 +1836,7 @@
         "Reversed GST (₹)": c.refundTax,
         "Total Refund (₹)": c.refundTotal
       }));
-      const wsReturns = XLSX.utils.json_to_sheet(returnSheetData);
-      XLSX.utils.book_append_sheet(wb, wsReturns, "Credit_Notes_Returns");
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(returnSheetData), "Credit_Notes_Returns");
 
       const expenseSheetData = fExpenses.map(v => ({
         "Date": v.date,
@@ -1887,46 +1846,30 @@
         "Amount (₹)": v.amount,
         "Narration": v.narration
       }));
-      const wsExpense = XLSX.utils.json_to_sheet(expenseSheetData);
-      XLSX.utils.book_append_sheet(wb, wsExpense, "Daybook_Expenses");
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(expenseSheetData), "Daybook_Expenses");
 
-      XLSX.writeFile(wb, `SMARTFIXPRO_CA_Audit_Full_${fromStr}_to_${toStr}.xlsx`);
+      XLSX.writeFile(wb, `SMARTFIXPRO_CA_Audit_${fromStr || 'start'}_to_${toStr || 'end'}.xlsx`);
     };
 
-    /* ==========================================================================
-       OWNER-PROTECTED STOCK INVENTORY
-       ========================================================================== */
-
+    /* =====================================================================
+       STOCK
+       ===================================================================== */
     window.addStockItem = function() {
       const model = document.getElementById('stkModel').value.trim();
       const imei = document.getElementById('stkIMEI').value.trim();
       const purchaseCost = parseFloat(document.getElementById('stkPurchaseCost').value) || 0;
       const cost = parseFloat(document.getElementById('stkCost').value) || 0;
 
-      if (!model) { 
-        alert("Please enter the Device/Model Name."); 
-        return; 
-      }
-      if (cost <= 0) { 
-        alert("Please enter a valid Selling Price."); 
-        return; 
-      }
+      if (!model) { alert("Please enter the Device/Model Name."); return; }
+      if (cost <= 0) { alert("Please enter a valid Selling Price."); return; }
 
       if (imei && window.inventory.some(i => i.imei && i.imei.toLowerCase() === imei.toLowerCase() && i.status !== "Sold")) {
         alert("An active item with this IMEI already exists in stock!");
         return;
       }
 
-      window.inventory.push({ 
-        id: Date.now(), 
-        model, 
-        imei, 
-        purchaseCost,
-        cost, 
-        status: "Available" 
-      });
-
-      localStorage.setItem('sfp_stock', JSON.stringify(window.inventory));
+      window.inventory.push({ id: Date.now(), model, imei, purchaseCost, cost, status: "Available" });
+      try { localStorage.setItem('sfp_stock', JSON.stringify(window.inventory)); } catch(e) {}
 
       document.getElementById('stkModel').value = '';
       document.getElementById('stkIMEI').value = '';
@@ -1939,29 +1882,21 @@
 
     window.deleteStockItem = function(id) {
       const pin = prompt("🔒 OWNER AUTHORIZATION: Enter Master PIN to delete stock:");
-      if (pin !== window.storeProfile.masterPin) {
-        alert("Unauthorized! Incorrect PIN.");
-        return;
-      }
-
+      if (pin !== window.storeProfile.masterPin) { alert("Unauthorized! Incorrect PIN."); return; }
       window.inventory = window.inventory.filter(i => i.id !== id);
-      localStorage.setItem('sfp_stock', JSON.stringify(window.inventory));
+      try { localStorage.setItem('sfp_stock', JSON.stringify(window.inventory)); } catch(e) {}
       window.renderStockTable();
     };
 
     window.editStockPrice = function(id) {
       const pin = prompt("🔒 OWNER AUTHORIZATION: Enter Master PIN to edit price:");
-      if (pin !== window.storeProfile.masterPin) {
-        alert("Unauthorized! Incorrect PIN.");
-        return;
-      }
-
+      if (pin !== window.storeProfile.masterPin) { alert("Unauthorized! Incorrect PIN."); return; }
       const item = window.inventory.find(i => i.id === id);
       if (item) {
         const newCost = prompt(`Enter new selling price for ${item.model}:`, item.cost);
         if (newCost && !isNaN(newCost) && parseFloat(newCost) > 0) {
           item.cost = parseFloat(newCost);
-          localStorage.setItem('sfp_stock', JSON.stringify(window.inventory));
+          try { localStorage.setItem('sfp_stock', JSON.stringify(window.inventory)); } catch(e) {}
           window.renderStockTable();
         }
       }
@@ -1981,7 +1916,6 @@
 
       tbody.innerHTML = window.inventory.map((stk, idx) => {
         const isSold = stk.status === "Sold";
-        const sanitizedModel = stk.model.replace(/'/g, "\\'");
         return `
           <tr class="hover:bg-slate-50 ${isSold ? 'bg-slate-50 opacity-60' : ''}">
             <td class="p-3 text-slate-500 font-bold">${idx + 1}</td>
@@ -1990,14 +1924,14 @@
             <td class="p-3 text-right font-mono text-slate-500">₹${(stk.purchaseCost || 0).toLocaleString('en-IN')}</td>
             <td class="p-3 text-right font-mono font-semibold text-slate-900">₹${stk.cost.toLocaleString('en-IN')}</td>
             <td class="p-3 text-center">
-              ${isSold 
-                ? `<span class="bg-red-100 text-red-700 text-[10px] font-bold px-2 py-0.5 rounded">SOLD (${stk.soldInvoice || 'Bill'})</span>` 
+              ${isSold
+                ? `<span class="bg-red-100 text-red-700 text-[10px] font-bold px-2 py-0.5 rounded">SOLD (${stk.soldInvoice || 'Bill'})</span>`
                 : `<span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded">Available</span>`
               }
             </td>
             <td class="p-3 text-center space-x-1.5 whitespace-nowrap">
               ${!isSold ? `
-                <button type="button" onclick="pushProductToBill('${sanitizedModel}', '${stk.imei \vert{}\vert{} ''}', '8517', 18, 1,${stk.cost}, ${stk.purchaseCost \vert{}\vert{} 0},${stk.id}); switchView('billingTab');" class="text-xs bg-indigo-50 text-indigo-700 font-bold px-2 py-1 rounded hover:bg-indigo-100">Sell ⚡</button>
+                <button type="button" onclick="sellFromStock(${stk.id})" class="text-xs bg-indigo-50 text-indigo-700 font-bold px-2 py-1 rounded hover:bg-indigo-100">Sell ⚡</button>
                 <button type="button" onclick="editStockPrice(${stk.id})" class="text-xs text-slate-600 hover:text-indigo-600 font-semibold px-1.5 py-1">✏</button>
               ` : ''}
               <button type="button" onclick="deleteStockItem(${stk.id})" class="text-xs text-red-500 hover:text-red-700 font-semibold px-1.5 py-1">🗑</button>
@@ -2005,68 +1939,6 @@
           </tr>
         `;
       }).join('');
-    };
-
-    /* ==========================================================================
-       GOOGLE DRIVE MULTI-TENANT CLOUD SYNC
-       ========================================================================== */
-
-    window.syncInvoiceToGoogleDrive = async function(record) {
-      try {
-        const rootFolderId = await window.getOrCreateDriveFolder('SMARTFIXPRO_Cloud_POS');
-        const monthFolderId = await window.getOrCreateDriveFolder(new Date().toISOString().slice(0, 7), rootFolderId);
-
-        const metadata = {
-          name: `${record.invoiceNo}.json`,
-          parents: [monthFolderId],
-          mimeType: 'application/json'
-        };
-
-        const boundary = 'smartfix_boundary_345';
-        const body =
-          `\r\n--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n` +
-          JSON.stringify(metadata) +
-          `\r\n--${boundary}\r\nContent-Type: application/json\r\n\r\n` +
-          JSON.stringify(record, null, 2) +
-          `\r\n--${boundary}--`;
-
-        fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${window.accessToken}`,
-            'Content-Type': `multipart/related; boundary=${boundary}`
-          },
-          body: body
-        });
-      } catch (err) {
-        console.warn("Drive sync error:", err);
-      }
-    };
-
-    window.getOrCreateDriveFolder = async function(folderName, parentId = null) {
-      let q = `name = '${folderName}' and mimeType = 'application/vnd.google-apps.folder' and trashed = false`;
-      if (parentId) q += ` and '${parentId}' in parents`;
-
-      const searchRes = await fetch(`https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}`, {
-        headers: { 'Authorization': `Bearer ${window.accessToken}` }
-      });
-      const data = await searchRes.json();
-      if (data.files && data.files.length > 0) return data.files[0].id;
-
-      const createRes = await fetch('https://www.googleapis.com/drive/v3/files', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${window.accessToken}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          name: folderName,
-          mimeType: 'application/vnd.google-apps.folder',
-          parents: parentId ? [parentId] : []
-        })
-      });
-      const folder = await createRes.json();
-      return folder.id;
     };
   </script>
 </body>
