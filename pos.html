@@ -77,7 +77,7 @@
     </div>
   </header>
 
-  <!-- Module Menu (Tally Quick Functional Keys) -->
+  <!-- Module Menu -->
   <nav class="bg-slate-900/60 backdrop-blur border-b border-slate-800 shadow-sm no-print">
     <div class="max-w-7xl mx-auto px-4 flex flex-wrap space-x-2 sm:space-x-3">
       <button onclick="switchView('billingTab')" id="nav-billingTab" class="tab-btn py-2.5 px-3 text-xs sm:text-sm font-bold border-b-2 border-indigo-500 text-indigo-400">Sales Invoice (F1)</button>
@@ -93,8 +93,6 @@
 
     <!-- 1. BILLING & POS COUNTER -->
     <section id="billingTab" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-      
-      <!-- Input Form -->
       <div class="lg:col-span-5 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
         
         <div class="flex justify-between items-center border-b pb-2">
@@ -128,7 +126,7 @@
           </div>
           <div>
             <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">Date</label>
-            <input type="date" id="invDate" class="w-full border border-slate-300 rounded px-2.5 py-1.5 text-xs">
+            <input type="date" id="invDate" onchange="renderLiveInvoicePreview()" class="w-full border border-slate-300 rounded px-2.5 py-1.5 text-xs">
           </div>
         </div>
 
@@ -237,10 +235,9 @@
       </div>
     </section>
 
-    <!-- 2. SALES RETURN & CREDIT NOTE (TALLY CORE MODULE) -->
+    <!-- 2. SALES RETURN & CREDIT NOTE -->
     <section id="returnTab" class="space-y-6 hidden">
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <!-- Return Form -->
         <div class="lg:col-span-5 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
           <div class="border-b pb-2">
             <h2 class="font-bold text-slate-900 text-sm uppercase tracking-wide text-rose-700 flex items-center gap-1.5">
@@ -263,15 +260,22 @@
             <div class="space-y-1 text-[11px]">
               <div class="flex justify-between"><span class="text-slate-500">Customer:</span> <strong id="retCustName"></strong></div>
               <div class="flex justify-between"><span class="text-slate-500">Original Date:</span> <span id="retOrigDate"></span></div>
-              <div class="flex justify-between"><span class="text-slate-500">Item Sold:</span> <span id="retItemDesc" class="font-bold"></span></div>
-              <div class="flex justify-between"><span class="text-slate-500">IMEI:</span> <span id="retItemIMEI" class="font-mono"></span></div>
+              
+              <!-- Item Selector for multi-item invoices -->
+              <div class="pt-2">
+                <label class="block text-[10px] font-bold text-slate-700 uppercase mb-0.5">Select Item Being Returned:</label>
+                <select id="retItemSelector" onchange="onReturnItemSelected()" class="w-full border rounded px-2 py-1 text-xs bg-white font-semibold text-slate-800">
+                </select>
+              </div>
+
+              <div class="flex justify-between pt-1"><span class="text-slate-500">IMEI:</span> <span id="retItemIMEI" class="font-mono"></span></div>
               <div class="flex justify-between"><span class="text-slate-500">Refund Amount:</span> <strong id="retRefundAmount" class="text-rose-600 font-mono text-sm"></strong></div>
             </div>
 
             <div>
               <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">Reason for Return</label>
               <select id="retReason" class="w-full border rounded px-2.5 py-1.5 text-xs bg-white">
-                <option value="Defective / Handset Replacement">Defective / Factory Fault</option>
+                <option value="Defective / Factory Fault">Defective / Factory Fault</option>
                 <option value="Customer Dissatisfaction">Customer Returned / Order Cancelled</option>
                 <option value="Wrong Model Delivered">Wrong Model Delivered</option>
               </select>
@@ -281,7 +285,7 @@
               <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">Restock Action</label>
               <label class="flex items-center gap-2 text-xs text-slate-700">
                 <input type="checkbox" id="retRestockCheckbox" checked class="rounded">
-                <span>Automatically add IMEI back to Live Inventory (Available)</span>
+                <span>Automatically add back to Live Stock (Available)</span>
               </label>
             </div>
 
@@ -317,7 +321,6 @@
     <!-- 3. DAYBOOK, CASH DRAWER & EXPENSE VOUCHERS -->
     <section id="vouchersTab" class="space-y-6 hidden">
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <!-- Expense & Receipt Form -->
         <div class="lg:col-span-5 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
           <h2 class="font-bold text-slate-900 text-sm uppercase tracking-wide">Record Payment / Expense / Due Receipt</h2>
 
@@ -345,7 +348,7 @@
               <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">Paid Via / Received In</label>
               <select id="vchAccount" class="w-full border rounded px-2.5 py-1.5 text-xs bg-white">
                 <option value="Cash-in-Hand">Cash A/c (Cash Drawer)</option>
-                <option value="Bank / UPI">Bank / UPI (HDFC/SBI)</option>
+                <option value="Bank / UPI">Bank / UPI</option>
               </select>
             </div>
             <div>
@@ -364,7 +367,6 @@
           </button>
         </div>
 
-        <!-- Voucher Ledger Table -->
         <div class="lg:col-span-7 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
           <div class="flex justify-between items-center mb-3">
             <h3 class="font-bold text-xs uppercase text-slate-700 tracking-wider">Expense & Receipt Register</h3>
@@ -494,7 +496,7 @@
       </div>
     </section>
 
-    <!-- 5. STOCK & INVENTORY REGISTER (OWNER PROTECTED) -->
+    <!-- 5. STOCK & INVENTORY REGISTER -->
     <section id="inventoryTab" class="space-y-6 hidden">
       <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
         <div class="flex justify-between items-center">
@@ -532,22 +534,22 @@
       </div>
     </section>
 
-    <!-- 6. PERMANENT STORE REGISTER, MASTER PIN & FORGOT PIN -->
+    <!-- 6. STORE REGISTRATION & SECURITY SETTINGS -->
     <section id="settingsTab" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm max-w-2xl mx-auto space-y-4 hidden">
       <div class="border-b pb-3">
         <h2 class="font-bold text-slate-900 text-base flex items-center gap-2">
           <span>🔒</span> Store Authorization, Master PIN & Security
         </h2>
-        <p class="text-xs text-slate-500">Configure your store identity, custom Master PIN, and self-recovery security question.</p>
+        <p class="text-xs text-slate-500">Configure store identity, custom Master PIN, and self-recovery security question.</p>
       </div>
 
       <div id="lockedWarningBanner" class="hidden bg-amber-50 border border-amber-300 p-3 rounded-xl text-xs text-amber-800 flex items-center justify-between font-medium">
-        <span>⚠ This store is permanently registered. Enter Master PIN to modify settings.</span>
-        <button onclick="promptForgotPIN()" class="text-indigo-600 hover:underline font-bold">Forgot PIN?</button>
+        <span>⚠ This store is permanently locked to prevent unauthorized changes.</span>
+        <button onclick="unlockStoreForEdit()" id="unlockBtn" class="bg-amber-600 text-white px-2.5 py-1 rounded text-xs font-bold hover:bg-amber-700">Unlock with PIN</button>
       </div>
 
       <div>
-        <label class="block text-xs font-bold text-slate-700 mb-1">Registered Trade / Shop Name (Permanent)</label>
+        <label class="block text-xs font-bold text-slate-700 mb-1">Registered Trade / Shop Name</label>
         <input type="text" id="cfgStoreName" placeholder="e.g. Maa Tara Telecom & Workshop" class="w-full border rounded px-3 py-2 text-xs font-bold text-slate-800 bg-slate-50">
       </div>
 
@@ -572,17 +574,19 @@
         <input type="file" id="cfgLogoFile" accept="image/*" class="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:bg-indigo-50 file:text-indigo-700">
       </div>
 
-      <!-- Security / Master PIN Section -->
       <div class="border-t pt-3 space-y-3">
-        <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wide">Owner Security PIN & Recovery</h3>
+        <div class="flex justify-between items-center">
+          <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wide">Owner Security PIN & Recovery</h3>
+          <button onclick="promptForgotPIN()" class="text-indigo-600 hover:underline text-xs font-bold">Forgot Master PIN?</button>
+        </div>
         
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-xs font-bold text-indigo-900 mb-1">Set Your Custom Master PIN</label>
-            <input type="password" id="cfgMasterPin" placeholder="4 to 6 digit secret PIN" class="w-full border border-indigo-300 rounded px-3 py-1.5 text-xs font-mono">
+            <label class="block text-xs font-bold text-indigo-900 mb-1">Set Master PIN (4 to 6 Digits)</label>
+            <input type="password" id="cfgMasterPin" placeholder="Secret PIN" class="w-full border border-indigo-300 rounded px-3 py-1.5 text-xs font-mono">
           </div>
           <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Security Question (For Recovery)</label>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Security Question</label>
             <select id="cfgSecQuestion" class="w-full border rounded px-2.5 py-1.5 text-xs bg-white">
               <option value="city">In what city or town was your shop opened?</option>
               <option value="school">What was the name of your first school?</option>
@@ -595,11 +599,6 @@
           <label class="block text-xs font-bold text-slate-700 mb-1">Secret Recovery Answer</label>
           <input type="text" id="cfgSecAnswer" placeholder="Answer to reset PIN if forgotten" class="w-full border rounded px-3 py-1.5 text-xs">
         </div>
-      </div>
-
-      <div id="unlockContainer" class="hidden pt-2 border-t">
-        <label class="block text-xs font-bold text-red-600 mb-1">Current Master PIN (Required to Save Changes)</label>
-        <input type="password" id="adminSecretPass" placeholder="Enter your secret Master PIN" class="w-full border border-red-300 rounded px-3 py-1.5 text-xs font-mono">
       </div>
 
       <button id="saveStoreBtn" onclick="saveStoreSettings()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 rounded-xl text-xs transition shadow">
@@ -643,7 +642,6 @@
     let inventory = [];
     let activeLineItems = [];
 
-    // Helper: Financial Year calculation
     function getFinancialYear(dateObj = new Date()) {
       const year = dateObj.getFullYear();
       const month = dateObj.getMonth();
@@ -672,7 +670,6 @@
       document.getElementById('filterFromDate').value = currentFY.start.toISOString().substring(0, 10);
       document.getElementById('filterToDate').value = currentFY.end.toISOString().substring(0, 10);
 
-      // Hydrate local cache
       const savedConfig = localStorage.getItem('sfp_store_profile');
       if (savedConfig) storeProfile = JSON.parse(savedConfig);
 
@@ -695,7 +692,6 @@
       renderCreditNotesTable();
       renderVouchersTable();
 
-      // Keyboard Functional Keys (F1 - F6)
       window.addEventListener('keydown', (e) => {
         if (e.key === 'F1') { e.preventDefault(); switchView('billingTab'); }
         if (e.key === 'F2') { e.preventDefault(); switchView('returnTab'); }
@@ -705,25 +701,27 @@
         if (e.key === 'F6') { e.preventDefault(); switchView('settingsTab'); }
       });
 
-      // Google Identity Services
       try {
-        tokenClient = google.accounts.oauth2.initTokenClient({
-          client_id: CLIENT_ID,
-          scope: SCOPES,
-          callback: (resp) => {
-            accessToken = resp.access_token;
-            document.getElementById('authStatusBadge').classList.remove('hidden');
-            document.getElementById('authBtn').innerText = "Drive Synced ✓";
-            document.getElementById('authBtn').className = "bg-emerald-700 text-xs px-3 py-1.5 rounded-md font-semibold text-white";
-          }
-        });
+        if (window.google && google.accounts && google.accounts.oauth2) {
+          tokenClient = google.accounts.oauth2.initTokenClient({
+            client_id: CLIENT_ID,
+            scope: SCOPES,
+            callback: (resp) => {
+              accessToken = resp.access_token;
+              document.getElementById('authStatusBadge').classList.remove('hidden');
+              document.getElementById('authBtn').innerText = "Drive Synced ✓";
+              document.getElementById('authBtn').className = "bg-emerald-700 text-xs px-3 py-1.5 rounded-md font-semibold text-white";
+            }
+          });
+        }
       } catch (e) {
-        console.warn("Google GIS SDK loaded in offline mode.");
+        console.warn("Google SDK offline or client id unconfigured.");
       }
     });
 
     function handleAuthClick() {
       if (tokenClient) tokenClient.requestAccessToken();
+      else alert("Google Drive API Client ID needs to be configured in pos.html.");
     }
 
     function switchView(tabId) {
@@ -738,23 +736,34 @@
     }
 
     /* ==========================================================================
-       STORE REGISTRATION, CUSTOM MASTER PIN & FORGOT PIN RECOVERY
+       STORE SETTINGS, LOCK & RECOVERY LOGIC (FIXED)
        ========================================================================== */
 
     function enforceStoreLockState() {
+      const nameInput = document.getElementById('cfgStoreName');
+      const lockBanner = document.getElementById('lockedWarningBanner');
+      const saveBtn = document.getElementById('saveStoreBtn');
+
       if (storeProfile.isLocked && storeProfile.name) {
         document.getElementById('storeRegisteredBadge').classList.remove('hidden');
         document.getElementById('lockedStoreNameDisplay').innerText = storeProfile.name;
-        document.getElementById('cfgStoreName').value = storeProfile.name;
-        document.getElementById('cfgStoreName').readOnly = true;
-        document.getElementById('cfgStoreName').classList.add('bg-slate-100', 'text-slate-500');
-        document.getElementById('lockedWarningBanner').classList.remove('hidden');
-        document.getElementById('unlockContainer').classList.remove('hidden');
-        document.getElementById('saveStoreBtn').innerText = "Update with Master PIN";
+        nameInput.value = storeProfile.name;
+        nameInput.readOnly = true;
+        nameInput.classList.add('bg-slate-100', 'text-slate-500');
+        lockBanner.classList.remove('hidden');
+        saveBtn.innerText = "Locked (Unlock to Modify)";
+        saveBtn.disabled = true;
+        saveBtn.classList.replace('bg-indigo-600', 'bg-slate-400');
       } else {
-        document.getElementById('cfgStoreName').value = storeProfile.name || "SmartFix Workshop & Telecom";
-        document.getElementById('cfgStoreName').readOnly = false;
+        nameInput.value = storeProfile.name || "SmartFix Workshop & Telecom";
+        nameInput.readOnly = false;
+        nameInput.classList.remove('bg-slate-100', 'text-slate-500');
+        lockBanner.classList.add('hidden');
+        saveBtn.innerText = "Register Store, Set PIN & Lock";
+        saveBtn.disabled = false;
+        saveBtn.classList.replace('bg-slate-400', 'bg-indigo-600');
       }
+
       document.getElementById('cfgStorePhone').value = storeProfile.phone;
       document.getElementById('cfgStoreGST').value = storeProfile.gstin;
       document.getElementById('cfgStoreAddress').value = storeProfile.address;
@@ -763,15 +772,23 @@
       document.getElementById('cfgSecAnswer').value = storeProfile.secAnswer || "";
     }
 
-    function saveStoreSettings() {
-      if (storeProfile.isLocked) {
-        const pass = document.getElementById('adminSecretPass').value.trim();
-        if (pass !== storeProfile.masterPin) {
-          alert("Unauthorized! Incorrect Master PIN.");
-          return;
-        }
+    function unlockStoreForEdit() {
+      const pin = prompt("Enter Master PIN to unlock store details for modification:");
+      if (pin && pin.trim() === storeProfile.masterPin) {
+        document.getElementById('cfgStoreName').readOnly = false;
+        document.getElementById('cfgStoreName').classList.remove('bg-slate-100', 'text-slate-500');
+        const saveBtn = document.getElementById('saveStoreBtn');
+        saveBtn.disabled = false;
+        saveBtn.innerText = "Save Changes & Re-lock";
+        saveBtn.classList.replace('bg-slate-400', 'bg-indigo-600');
+        document.getElementById('lockedWarningBanner').classList.add('hidden');
+        alert("Store settings unlocked! You can now edit store information.");
+      } else {
+        alert("Incorrect Master PIN!");
       }
+    }
 
+    function saveStoreSettings() {
       const pin = document.getElementById('cfgMasterPin').value.trim();
       const secAns = document.getElementById('cfgSecAnswer').value.trim();
 
@@ -780,7 +797,7 @@
         return;
       }
       if (!secAns) {
-        alert("Please provide a secret recovery answer in case you forget your PIN!");
+        alert("Please provide a secret recovery answer!");
         return;
       }
 
@@ -837,32 +854,44 @@
     }
 
     /* ==========================================================================
-       BARCODE SCANNER & DIRECT BILL ADDITION
+       BARCODE SCANNER & DIRECT BILL ADDITION (ROBUST LIFECYCLE)
        ========================================================================== */
 
-    function toggleCameraScanner() {
+    async function toggleCameraScanner() {
       const wrapper = document.getElementById('cameraScannerWrapper');
+      const btn = document.getElementById('scannerToggleBtn');
+
       if (isScannerOpen) {
         if (html5QrCode) {
-          html5QrCode.stop().then(() => {
-            wrapper.classList.add('hidden');
-            isScannerOpen = false;
-            document.getElementById('scannerToggleBtn').innerText = "Open Camera Scanner";
-          });
+          try {
+            await html5QrCode.stop();
+            await html5QrCode.clear();
+          } catch(e) {}
+          html5QrCode = null;
         }
+        wrapper.classList.add('hidden');
+        btn.innerText = "Open Camera Scanner";
+        isScannerOpen = false;
       } else {
         wrapper.classList.remove('hidden');
-        document.getElementById('scannerToggleBtn').innerText = "Close Scanner";
-        html5QrCode = new Html5Qrcode("reader");
-        html5QrCode.start(
-          { facingMode: "environment" },
-          { fps: 10, qrbox: { width: 300, height: 180 } },
-          (decodedText) => {
-            handleScannedCode(decodedText);
-          },
-          () => {}
-        ).catch(() => alert("Camera permission denied or camera not found."));
-        isScannerOpen = true;
+        btn.innerText = "Close Scanner";
+        try {
+          html5QrCode = new Html5Qrcode("reader");
+          await html5QrCode.start(
+            { facingMode: "environment" },
+            { fps: 10, qrbox: { width: 280, height: 160 } },
+            (decodedText) => {
+              handleScannedCode(decodedText);
+            },
+            () => {}
+          );
+          isScannerOpen = true;
+        } catch (err) {
+          alert("Camera access denied or camera not found.");
+          wrapper.classList.add('hidden');
+          btn.innerText = "Open Camera Scanner";
+          isScannerOpen = false;
+        }
       }
     }
 
@@ -877,7 +906,7 @@
     }
 
     function handleScannedCode(code) {
-      const matched = inventory.find(i => i.imei === code || i.model.toLowerCase() === code.toLowerCase());
+      const matched = inventory.find(i => (i.imei && i.imei.toLowerCase() === code.toLowerCase()) || i.model.toLowerCase() === code.toLowerCase());
       
       if (matched) {
         if (matched.status === "Sold") {
@@ -885,17 +914,17 @@
           return;
         }
 
-        const alreadyInCart = activeLineItems.some(i => i.imei === matched.imei);
+        const alreadyInCart = activeLineItems.some(i => i.stockId === matched.id || (matched.imei && i.imei === matched.imei));
         if (alreadyInCart) {
-          alert(`Item (IMEI: ${matched.imei}) is already in the current invoice!`);
+          alert(`Item (IMEI: ${matched.imei || matched.model}) is already in current invoice!`);
           return;
         }
 
         pushProductToBill(matched.model, matched.imei, '8517', 18, 1, matched.cost, matched.purchaseCost || 0, matched.id);
       } else {
-        const gross = prompt(`Barcode/IMEI "${code}" not found in registered stock. Enter Price (₹):`, "15000");
+        const gross = prompt(`Barcode/IMEI "${code}" not found in registered stock. Enter Selling Price (₹):`, "15000");
         if (gross && !isNaN(gross) && parseFloat(gross) > 0) {
-          const model = prompt("Enter Device Name:", "Mobile Device");
+          const model = prompt("Enter Device/Product Name:", "Mobile Device");
           pushProductToBill(model || "Mobile Device", code, '8517', 18, 1, parseFloat(gross), 0, null);
         }
       }
@@ -915,7 +944,7 @@
       }
 
       if (imei) {
-        const matched = inventory.find(i => i.imei === imei);
+        const matched = inventory.find(i => i.imei && i.imei.toLowerCase() === imei.toLowerCase());
         if (matched && matched.status === "Sold") {
           alert(`🚫 Cannot Add: Device with IMEI "${imei}" is already SOLD!`);
           return;
@@ -931,13 +960,13 @@
 
     function pushProductToBill(desc, imei, hsn, gstRate, qty, grossAmount, purchaseCost, stockId) {
       activeLineItems.push({
-        id: Date.now(),
+        id: Date.now() + Math.random(),
         stockId: stockId || null,
         desc,
         imei,
         hsn,
         gstRate,
-        qty,
+        qty: parseInt(qty) || 1,
         purchaseCost: parseFloat(purchaseCost) || 0,
         grossAmount: parseFloat(grossAmount)
       });
@@ -1028,7 +1057,6 @@
 
       const invoiceHTML = `
         <div>
-          <!-- Header -->
           <div class="flex justify-between items-start border-b-2 brand-border pb-3 mb-3">
             <div class="flex items-start space-x-3">
               ${storeProfile.logo ? `<img src="${storeProfile.logo}" class="h-14 w-auto object-contain rounded">` : ''}
@@ -1048,7 +1076,6 @@
             </div>
           </div>
 
-          <!-- Customer Info -->
           <div class="grid grid-cols-2 gap-3 brand-accent p-2.5 rounded-lg border brand-border mb-3 text-[11px]">
             <div>
               <div class="text-[9px] font-bold text-slate-500 uppercase">Customer Details</div>
@@ -1059,11 +1086,10 @@
             <div class="text-right">
               <div class="text-[9px] font-bold text-slate-500 uppercase">Payment Ledger</div>
               <div class="font-bold text-emerald-800 text-xs">${ledger}</div>
-              <div class="text-[10px] text-slate-500">Tax Type: ${taxType === 'INTRA' ? 'West Bengal / CGST+SGST' : 'Inter-State / IGST'}</div>
+              <div class="text-[10px] text-slate-500">Tax Type: ${taxType === 'INTRA' ? 'CGST + SGST (West Bengal)' : 'IGST (Inter-State)'}</div>
             </div>
           </div>
 
-          <!-- Product Table -->
           <table class="w-full text-left border border-slate-200 rounded-lg overflow-hidden mb-3">
             <thead class="brand-bg text-white text-[9px] uppercase tracking-wider">
               <tr>
@@ -1082,7 +1108,6 @@
           </table>
         </div>
 
-        <!-- Dynamic Footer with Tax Computation & Credits -->
         <div>
           <div class="grid grid-cols-2 gap-4 items-start mb-2 pt-2 border-t">
             <div class="border border-slate-200 rounded p-2 text-[9px]">
@@ -1139,7 +1164,6 @@
             </div>
           </div>
 
-          <!-- SMARTFIX PRO OFFICIAL SYSTEM CREDIT FOOTER -->
           <div class="mt-3 pt-1.5 border-t border-slate-200 text-center text-[9px] text-slate-500 font-mono tracking-tight leading-tight">
             <div>SmartFix Pro © 2026 | Mobile Workshop Management System</div>
             <div class="font-semibold text-slate-600">Developed by Debapriya Sarkar</div>
@@ -1151,6 +1175,10 @@
       invElement.innerHTML = invoiceHTML;
     }
 
+    /* ==========================================================================
+       FINALIZE & PRINT WITH ROBUST CLEANUP (FIXED)
+       ========================================================================== */
+
     function finalizeAndPrint() {
       if (activeLineItems.length === 0) {
         alert("Please add at least one line item!");
@@ -1159,7 +1187,7 @@
 
       for (const item of activeLineItems) {
         if (item.imei) {
-          const matched = inventory.find(i => i.imei === item.imei);
+          const matched = inventory.find(i => i.imei && i.imei.toLowerCase() === item.imei.toLowerCase());
           if (matched && matched.status === "Sold") {
             alert(`Cannot complete invoice! Device with IMEI "${item.imei}" is already sold.`);
             return;
@@ -1198,14 +1226,18 @@
           totalIGST += lineTax;
         }
 
-        // Automatic Stock Deduction
-        if (item.imei) {
-          const matchedStock = inventory.find(i => i.imei === item.imei);
-          if (matchedStock) {
-            matchedStock.status = "Sold";
-            matchedStock.soldInvoice = invNo;
-            matchedStock.soldDate = invDate;
-          }
+        // Automatic Stock Deduction (by IMEI or stockId)
+        let matchedStock = null;
+        if (item.stockId) {
+          matchedStock = inventory.find(i => i.id === item.stockId);
+        } else if (item.imei) {
+          matchedStock = inventory.find(i => i.imei && i.imei.toLowerCase() === item.imei.toLowerCase());
+        }
+
+        if (matchedStock) {
+          matchedStock.status = "Sold";
+          matchedStock.soldInvoice = invNo;
+          matchedStock.soldDate = invDate;
         }
       });
 
@@ -1221,7 +1253,7 @@
         customerGSTIN: custGSTIN,
         taxType: taxType,
         ledger: ledger,
-        items: [...activeLineItems],
+        items: JSON.parse(JSON.stringify(activeLineItems)),
         totalTaxable: Number(totalTaxable.toFixed(2)),
         totalCGST: Number(totalCGST.toFixed(2)),
         totalSGST: Number(totalSGST.toFixed(2)),
@@ -1237,62 +1269,76 @@
 
       if (accessToken) syncInvoiceToGoogleDrive(invoiceRecord);
 
+      // Trigger print without immediately wiping DOM
       window.print();
 
-      const currentFY = getFinancialYear();
-      document.getElementById('invNo').value = `SFP-${currentFY.label.replace('FY ', '').replace('-', '')}-${Math.floor(1000 + Math.random() * 9000)}`;
-      activeLineItems = [];
-      renderLiveInvoicePreview();
+      // Reset after print dialog
+      setTimeout(() => {
+        const currentFY = getFinancialYear();
+        document.getElementById('invNo').value = `SFP-${currentFY.label.replace('FY ', '').replace('-', '')}-${Math.floor(1000 + Math.random() * 9000)}`;
+        activeLineItems = [];
+        renderLiveInvoicePreview();
+      }, 500);
     }
 
     /* ==========================================================================
-       SALES RETURN & CREDIT NOTE (TALLY ENGINE)
+       SALES RETURN & CREDIT NOTE (MULTI-ITEM SELECTION FIXED)
        ========================================================================== */
 
-    let activeReturnItem = null;
+    let activeReturnInvoice = null;
 
     function searchForReturn() {
-      const q = document.getElementById('retSearchQuery').value.trim();
+      const q = document.getElementById('retSearchQuery').value.trim().toLowerCase();
       if (!q) { alert("Enter Invoice No or IMEI"); return; }
 
-      let foundInvoice = invoices.find(inv => inv.invoiceNo.toLowerCase() === q.toLowerCase());
-      let foundItem = null;
+      let foundInvoice = invoices.find(inv => inv.invoiceNo.toLowerCase() === q);
 
       if (!foundInvoice) {
-        // Search by IMEI in invoices
         for (const inv of invoices) {
-          const it = inv.items.find(i => i.imei === q);
+          const it = inv.items.find(i => i.imei && i.imei.toLowerCase() === q);
           if (it) {
             foundInvoice = inv;
-            foundItem = it;
             break;
           }
         }
-      } else {
-        foundItem = foundInvoice.items[0];
       }
 
-      if (!foundInvoice || !foundItem) {
-        alert("No sold invoice found matching this search!");
+      if (!foundInvoice) {
+        alert("No sold invoice found matching this search query!");
         return;
       }
 
-      activeReturnItem = {
-        origInvoice: foundInvoice,
-        item: foundItem
-      };
-
+      activeReturnInvoice = foundInvoice;
       document.getElementById('returnDetailsBox').classList.remove('hidden');
       document.getElementById('retFoundTitle').innerText = `Matched Invoice: ${foundInvoice.invoiceNo}`;
       document.getElementById('retCustName').innerText = foundInvoice.customerName;
       document.getElementById('retOrigDate').innerText = foundInvoice.date;
-      document.getElementById('retItemDesc').innerText = foundItem.desc;
-      document.getElementById('retItemIMEI').innerText = foundItem.imei || 'N/A';
-      document.getElementById('retRefundAmount').innerText = `₹${(foundItem.grossAmount * foundItem.qty).toFixed(2)}`;
+
+      // Populate item dropdown
+      const sel = document.getElementById('retItemSelector');
+      sel.innerHTML = foundInvoice.items.map((it, idx) => `
+        <option value="${idx}">${it.desc} ${it.imei ? '[IMEI: ' + it.imei + ']' : ''} - ₹${(it.grossAmount * it.qty).toFixed(2)}</option>
+      `).join('');
+
+      onReturnItemSelected();
+    }
+
+    function onReturnItemSelected() {
+      if (!activeReturnInvoice) return;
+      const idx = parseInt(document.getElementById('retItemSelector').value) || 0;
+      const item = activeReturnInvoice.items[idx];
+      if (item) {
+        document.getElementById('retItemIMEI').innerText = item.imei || 'N/A';
+        document.getElementById('retRefundAmount').innerText = `₹${(item.grossAmount * item.qty).toFixed(2)}`;
+      }
     }
 
     function finalizeCreditNote() {
-      if (!activeReturnItem) return;
+      if (!activeReturnInvoice) return;
+
+      const idx = parseInt(document.getElementById('retItemSelector').value) || 0;
+      const item = activeReturnInvoice.items[idx];
+      if (!item) return;
 
       const reason = document.getElementById('retReason').value;
       const restock = document.getElementById('retRestockCheckbox').checked;
@@ -1300,19 +1346,18 @@
       const crnNo = `CRN-${currentFY.label.replace('FY ', '').replace('-', '')}-${Math.floor(1000 + Math.random() * 9000)}`;
       const crnDate = new Date().toISOString().substring(0, 10);
 
-      const refundTotal = activeReturnItem.item.grossAmount * activeReturnItem.item.qty;
-      const refundTaxable = refundTotal / (1 + (activeReturnItem.item.gstRate / 100));
+      const refundTotal = item.grossAmount * item.qty;
+      const refundTaxable = refundTotal / (1 + (item.gstRate / 100));
       const refundTax = refundTotal - refundTaxable;
 
-      // Credit Note Record
       const crnRecord = {
         crnNo,
         date: crnDate,
-        origInvoiceNo: activeReturnItem.origInvoice.invoiceNo,
-        customerName: activeReturnItem.origInvoice.customerName,
-        customerPhone: activeReturnItem.origInvoice.customerPhone,
-        itemDesc: activeReturnItem.item.desc,
-        imei: activeReturnItem.item.imei,
+        origInvoiceNo: activeReturnInvoice.invoiceNo,
+        customerName: activeReturnInvoice.customerName,
+        customerPhone: activeReturnInvoice.customerPhone,
+        itemDesc: item.desc,
+        imei: item.imei,
         reason,
         refundTaxable: Number(refundTaxable.toFixed(2)),
         refundTax: Number(refundTax.toFixed(2)),
@@ -1322,9 +1367,12 @@
       creditNotes.unshift(crnRecord);
       localStorage.setItem('sfp_credit_notes', JSON.stringify(creditNotes));
 
-      // Automatic Restock in Inventory
-      if (restock && activeReturnItem.item.imei) {
-        const stk = inventory.find(i => i.imei === activeReturnItem.item.imei);
+      // Stock Restoration
+      if (restock) {
+        let stk = null;
+        if (item.stockId) stk = inventory.find(i => i.id === item.stockId);
+        else if (item.imei) stk = inventory.find(i => i.imei && i.imei.toLowerCase() === item.imei.toLowerCase());
+
         if (stk) {
           stk.status = "Available";
           delete stk.soldInvoice;
@@ -1332,10 +1380,10 @@
         } else {
           inventory.push({
             id: Date.now(),
-            model: activeReturnItem.item.desc,
-            imei: activeReturnItem.item.imei,
-            cost: activeReturnItem.item.grossAmount,
-            purchaseCost: activeReturnItem.item.purchaseCost || 0,
+            model: item.desc,
+            imei: item.imei || '',
+            cost: item.grossAmount,
+            purchaseCost: item.purchaseCost || 0,
             status: "Available"
           });
         }
@@ -1346,7 +1394,7 @@
       alert(`Credit Note ${crnNo} successfully issued and stock restored!`);
       document.getElementById('returnDetailsBox').classList.add('hidden');
       document.getElementById('retSearchQuery').value = '';
-      activeReturnItem = null;
+      activeReturnInvoice = null;
       renderCreditNotesTable();
     }
 
@@ -1429,7 +1477,7 @@
       `;
 
       window.print();
-      renderLiveInvoicePreview();
+      setTimeout(renderLiveInvoicePreview, 500);
     }
 
     /* ==========================================================================
@@ -1544,19 +1592,16 @@
 
       document.getElementById('filteredRangeText').innerText = `Period: ${fromStr} to ${toStr}`;
 
-      // Filter Invoices
       const filteredInvoices = invoices.filter(inv => {
         const d = new Date(inv.date);
         return d >= fromDate && d <= toDate && (ledger === 'ALL' || inv.ledger === ledger);
       });
 
-      // Filter Credit Notes (Returns)
       const filteredCRN = creditNotes.filter(crn => {
         const d = new Date(crn.date);
         return d >= fromDate && d <= toDate;
       });
 
-      // Filter Expenses
       const filteredVouchers = vouchers.filter(v => {
         const d = new Date(v.date);
         return d >= fromDate && d <= toDate;
@@ -1568,7 +1613,7 @@
 
       filteredInvoices.forEach(i => {
         grossSales += i.totalGross;
-        salesTax += (i.totalCGST + i.totalSGST + i.totalIGST);
+        salesTax += ((i.totalCGST || 0) + (i.totalSGST || 0) + (i.totalIGST || 0));
         totalPurchaseCost += (i.totalPurchaseCost || 0);
       });
 
@@ -1595,7 +1640,6 @@
       document.getElementById('statTotalExpense').innerText = `₹${totalExpenses.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
       document.getElementById('statNetProfit').innerText = `₹${netProfit.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
 
-      // Combined Register Grid
       const tbody = document.getElementById('accountingGridBody');
       const combined = [
         ...filteredInvoices.map(i => ({ ...i, docType: 'SALES INVOICE' })),
@@ -1619,6 +1663,7 @@
 
       tbody.innerHTML = combined.map(row => {
         const isReturn = row.docType.includes('RETURN');
+        const taxVal = row.totalTax !== undefined ? row.totalTax : ((row.totalCGST || 0) + (row.totalSGST || 0) + (row.totalIGST || 0));
         return `
           <tr class="hover:bg-slate-50 transition ${isReturn ? 'bg-rose-50/40' : ''}">
             <td class="p-3 font-mono text-slate-600">${row.date}</td>
@@ -1630,14 +1675,13 @@
             </td>
             <td class="p-3 font-semibold text-slate-700">${row.ledger}</td>
             <td class="p-3 text-right font-mono">₹${row.totalTaxable.toFixed(2)}</td>
-            <td class="p-3 text-right font-mono text-slate-500">₹${(row.totalTax || (row.totalCGST + row.totalSGST + row.totalIGST)).toFixed(2)}</td>
+            <td class="p-3 text-right font-mono text-slate-500">₹${taxVal.toFixed(2)}</td>
             <td class="p-3 text-right font-mono font-bold ${isReturn ? 'text-rose-700' : 'text-slate-900'}">₹${row.totalGross.toFixed(2)}</td>
           </tr>
         `;
       }).join('');
     }
 
-    // CA-Grade Multi-Sheet Excel Export (.xlsx)
     function exportToExcelCA() {
       const fromStr = document.getElementById('filterFromDate').value;
       const toStr = document.getElementById('filterToDate').value;
@@ -1661,7 +1705,6 @@
 
       const wb = XLSX.utils.book_new();
 
-      // Sheet 1: GSTR-1 Sales Register
       const salesSheetData = fInvoices.map(r => ({
         "Voucher Date": r.date,
         "Financial Year": r.financialYear,
@@ -1682,7 +1725,6 @@
       const wsSales = XLSX.utils.json_to_sheet(salesSheetData);
       XLSX.utils.book_append_sheet(wb, wsSales, "GSTR1_Sales_Register");
 
-      // Sheet 2: Credit Notes / Sales Returns
       const returnSheetData = fReturns.map(c => ({
         "CRN Number": c.crnNo,
         "Return Date": c.date,
@@ -1699,7 +1741,6 @@
       const wsReturns = XLSX.utils.json_to_sheet(returnSheetData);
       XLSX.utils.book_append_sheet(wb, wsReturns, "Credit_Notes_Returns");
 
-      // Sheet 3: Daybook & Expenses
       const expenseSheetData = fExpenses.map(v => ({
         "Date": v.date,
         "Type": v.type,
@@ -1726,7 +1767,7 @@
 
       if (!model || cost <= 0) { alert("Enter valid Model Name and Selling Price."); return; }
 
-      if (imei && inventory.some(i => i.imei === imei && i.status !== "Sold")) {
+      if (imei && inventory.some(i => i.imei && i.imei.toLowerCase() === imei.toLowerCase() && i.status !== "Sold")) {
         alert("An active item with this IMEI already exists in stock!");
         return;
       }
@@ -1807,7 +1848,7 @@
             </td>
             <td class="p-3 text-center space-x-1.5">
               ${!isSold ? `
-                <button onclick="pushProductToBill('${stk.model}', '${stk.imei}', '8517', 18, 1,${stk.cost}, ${stk.purchaseCost \vert{}\vert{} 0},${stk.id}); switchView('billingTab');" class="text-xs bg-indigo-50 text-indigo-700 font-bold px-2 py-1 rounded hover:bg-indigo-100">Sell ⚡</button>
+                <button onclick="pushProductToBill('${stk.model.replace(/'/g, "\\'")}', '${stk.imei \vert{}\vert{} ''}', '8517', 18, 1,${stk.cost}, ${stk.purchaseCost \vert{}\vert{} 0},${stk.id}); switchView('billingTab');" class="text-xs bg-indigo-50 text-indigo-700 font-bold px-2 py-1 rounded hover:bg-indigo-100">Sell ⚡</button>
                 <button onclick="editStockPrice(${stk.id})" class="text-xs text-slate-600 hover:text-indigo-600 font-semibold px-1.5 py-1">✏</button>
               ` : ''}
               <button onclick="deleteStockItem(${stk.id})" class="text-xs text-red-500 hover:text-red-700 font-semibold px-1.5 py-1">🗑</button>
