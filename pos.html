@@ -7,6 +7,7 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+
 <style>
 /* 100% Android Chrome & Desktop Guaranteed 1-Page A4 Print Engine */
 @media screen {
@@ -16,7 +17,7 @@
 @media print {
   @page {
     size: A4 portrait;
-    margin: 5mm;
+    margin: 4mm;
   }
   html, body {
     margin: 0 !important;
@@ -26,18 +27,16 @@
     width: 100% !important;
     height: auto !important;
   }
-  /* Hide complete UI during print */
   header, nav, main, .no-print {
     display: none !important;
   }
-  /* Show only the isolated clean print container */
   #isolatedPrintContainer {
     display: block !important;
     position: static !important;
     width: 100% !important;
     max-width: 200mm !important;
     margin: 0 auto !important;
-    padding: 2mm 4mm !important;
+    padding: 2mm 3mm !important;
     box-sizing: border-box !important;
     page-break-after: avoid !important;
     page-break-inside: avoid !important;
@@ -47,19 +46,22 @@
   tr { page-break-inside: avoid !important; }
 }
 
-.theme-blue{--pri:#1e3a8a;--sec:#2563eb;--accent:#f0f7ff;--border:#bfdbfe;}
-.theme-dark{--pri:#0f172a;--sec:#334155;--accent:#f8fafc;--border:#cbd5e1;}
-.theme-emerald{--pri:#064e3b;--sec:#059669;--accent:#ecfdf5;--border:#a7f3d0;}
-.theme-purple{--pri:#4c1d95;--sec:#7c3aed;--accent:#f5f3ff;--border:#ddd6fe;}
-.brand-bg{background-color:var(--pri);}
-.brand-text{color:var(--pri);}
-.brand-accent{background-color:var(--accent);}
-.brand-border{border-color:var(--border);}
+/* Classic Vyapar / GST Bordered Invoice Styling */
+.inv-grid-table {
+  border-collapse: collapse;
+  width: 100%;
+}
+.inv-grid-table th, .inv-grid-table td {
+  border: 1px solid #0284c7;
+}
+.inv-box-border {
+  border: 1px solid #0284c7;
+}
 </style>
 </head>
 <body class="bg-slate-950 font-sans text-slate-100 min-h-screen">
 
-<!-- Isolated Clean Container for 100% Reliable Mobile/Desktop Printing -->
+<!-- Isolated Clean Container for Guaranteed 1-Page A4 Printing -->
 <div id="isolatedPrintContainer"></div>
 
 <header class="bg-slate-900 border-b border-slate-800 shadow-md no-print sticky top-0 z-50">
@@ -71,7 +73,7 @@
           <span class="text-lg font-black tracking-tight text-white">SMARTFIX<span class="text-indigo-400">PRO</span></span>
           <span class="text-[10px] bg-indigo-950 text-indigo-300 font-mono px-2 py-0.5 rounded border border-indigo-800">TALLY ERP & POS</span>
         </div>
-        <p class="text-[10px] text-slate-400">Lead Dev: Debapriya Sarkar | Multi-Printer POS</p>
+        <p class="text-[10px] text-slate-400">Lead Dev: Debapriya Sarkar | Pro GST Invoice</p>
       </div>
     </div>
     <div class="flex items-center space-x-2 flex-wrap">
@@ -117,7 +119,7 @@
           <input type="text" id="invNo" class="w-full bg-slate-50 border rounded px-2.5 py-1.5 text-xs font-mono font-bold text-indigo-900" readonly>
         </div>
         <div>
-          <label class="block text-[10px] font-bold uppercase mb-1 text-slate-600">Date (Current/Backdate)</label>
+          <label class="block text-[10px] font-bold uppercase mb-1 text-slate-600">Date</label>
           <input type="date" id="invDate" onchange="onDateChanged()" class="w-full border rounded px-2.5 py-1.5 text-xs font-semibold">
         </div>
       </div>
@@ -126,61 +128,67 @@
       <div class="grid grid-cols-2 gap-3">
         <div>
           <label class="block text-[10px] font-bold uppercase mb-1 text-slate-600">Customer Name</label>
-          <input type="text" id="custName" list="customerList" oninput="renderLiveInvoicePreview()" placeholder="Client Name" class="w-full border rounded px-2.5 py-1.5 text-xs"><datalist id="customerList"></datalist>
+          <input type="text" id="custName" list="customerList" oninput="renderLiveInvoicePreview()" placeholder="Ronak Panchal" class="w-full border rounded px-2.5 py-1.5 text-xs"><datalist id="customerList"></datalist>
         </div>
         <div>
-          <label class="block text-[10px] font-bold uppercase mb-1 text-slate-600">Phone Number</label>
-          <input type="tel" id="custPhone" oninput="renderLiveInvoicePreview()" placeholder="Mobile No" class="w-full border rounded px-2.5 py-1.5 text-xs">
+          <label class="block text-[10px] font-bold uppercase mb-1 text-slate-600">Customer Address / City</label>
+          <input type="text" id="custAddress" oninput="renderLiveInvoicePreview()" placeholder="Chakdaha, Nadia" class="w-full border rounded px-2.5 py-1.5 text-xs">
         </div>
       </div>
 
       <div class="grid grid-cols-2 gap-3">
         <div>
-          <label class="block text-[10px] font-bold uppercase mb-1 text-slate-600">GSTIN (Optional)</label>
-          <input type="text" id="custGSTIN" oninput="renderLiveInvoicePreview()" placeholder="B2B GSTIN" class="w-full border rounded px-2.5 py-1.5 text-xs font-mono uppercase">
+          <label class="block text-[10px] font-bold uppercase mb-1 text-slate-600">Phone Number</label>
+          <input type="tel" id="custPhone" oninput="renderLiveInvoicePreview()" placeholder="Mobile No" class="w-full border rounded px-2.5 py-1.5 text-xs">
         </div>
         <div>
+          <label class="block text-[10px] font-bold uppercase mb-1 text-slate-600">Customer GSTIN (B2B)</label>
+          <input type="text" id="custGSTIN" oninput="renderLiveInvoicePreview()" placeholder="Optional" class="w-full border rounded px-2.5 py-1.5 text-xs font-mono uppercase">
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
           <label class="block text-[10px] font-bold uppercase mb-1 text-slate-600">GST Treatment</label>
-          <select id="gstTaxType" onchange="renderLiveInvoicePreview()" class="w-full border border-indigo-300 rounded px-2.5 py-1.5 text-xs bg-indigo-50 font-semibold text-indigo-900">
+          <select id="gstTaxType" onchange="renderLiveInvoicePreview()" class="w-full border border-sky-400 rounded px-2.5 py-1.5 text-xs bg-sky-50 font-semibold text-sky-900">
             <option value="INTRA">Intra-State (CGST + SGST)</option>
             <option value="INTER">Inter-State (IGST 100%)</option>
           </select>
         </div>
+        <div>
+          <label class="block text-[10px] font-bold uppercase mb-1 text-slate-600">Payment Mode</label>
+          <select id="paymentLedger" onchange="renderLiveInvoicePreview()" class="w-full border rounded px-2.5 py-1.5 text-xs bg-white font-medium">
+            <option value="Cash-in-Hand">Cash A/c (Counter)</option>
+            <option value="Bank / UPI">UPI / QR Payment</option>
+            <option value="Card Payment">Debit / Credit Card</option>
+            <option value="Bajaj / EMI Finance">Bajaj Finance / Loan</option>
+            <option value="Credit / Sundry Debtors">Udhar (Sundry Debtors)</option>
+          </select>
+        </div>
       </div>
 
-      <div>
-        <label class="block text-[10px] font-bold uppercase mb-1 text-slate-600">Payment Method</label>
-        <select id="paymentLedger" onchange="renderLiveInvoicePreview()" class="w-full border rounded px-2.5 py-1.5 text-xs bg-white font-medium">
-          <option value="Cash-in-Hand">Cash A/c (Counter)</option>
-          <option value="Bank / UPI">UPI / QR Payment</option>
-          <option value="Card Payment">Debit / Credit Card</option>
-          <option value="Bajaj / EMI Finance">Bajaj Finance / Loan</option>
-          <option value="Credit / Sundry Debtors">Udhar (Sundry Debtors)</option>
-        </select>
-      </div>
-
-      <!-- ITEM ENTRY SECTION (SCANNER + AUTO FILL PRODUCT) -->
+      <!-- ITEM ENTRY SECTION -->
       <div class="border-t pt-3 space-y-3">
         <div class="flex justify-between items-center">
           <span class="text-xs font-bold text-slate-800 uppercase tracking-wide">📦 Add Product / Scan Barcode</span>
-          <span class="text-[10px] text-indigo-600 font-semibold">USB Scanner & Camera Auto-Fill</span>
+          <span class="text-[10px] text-sky-700 font-semibold">USB Scanner & Camera Auto-Fill</span>
         </div>
 
-        <div class="bg-indigo-50 border border-indigo-200 rounded-xl p-3 space-y-2">
+        <div class="bg-sky-50 border border-sky-200 rounded-xl p-3 space-y-2">
           <div class="flex justify-between items-center">
-            <span class="text-xs font-bold text-indigo-900">📷 Scan Barcode / USB Scanner Input</span>
-            <button type="button" onclick="toggleCameraScanner()" id="scannerToggleBtn" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-2.5 py-1 rounded transition">Open Camera</button>
+            <span class="text-xs font-bold text-sky-900">📷 Scan Barcode / USB Input</span>
+            <button type="button" onclick="toggleCameraScanner()" id="scannerToggleBtn" class="text-xs bg-sky-600 hover:bg-sky-700 text-white font-bold px-2.5 py-1 rounded transition">Open Camera</button>
           </div>
-          <div id="cameraScannerWrapper" style="display:none;" class="overflow-hidden rounded-lg border border-indigo-300">
+          <div id="cameraScannerWrapper" style="display:none;" class="overflow-hidden rounded-lg border border-sky-300">
             <div id="reader" style="width:100%;"></div>
           </div>
           <div class="relative">
-            <input type="text" id="barcodeQuickInput" onkeydown="handleBarcodeEnter(event)" placeholder="Scan Barcode / USB Scanner or type IMEI & Enter..." class="w-full bg-white border border-indigo-300 rounded px-3 py-1.5 text-xs font-mono font-bold text-slate-800">
-            <span class="absolute right-2 top-1.5 text-[10px] text-indigo-500 font-bold">Auto-Add</span>
+            <input type="text" id="barcodeQuickInput" onkeydown="handleBarcodeEnter(event)" placeholder="Scan Barcode / USB Scanner or type IMEI & Enter..." class="w-full bg-white border border-sky-300 rounded px-3 py-1.5 text-xs font-mono font-bold text-slate-800">
+            <span class="absolute right-2 top-1.5 text-[10px] text-sky-600 font-bold">Auto-Add</span>
           </div>
         </div>
 
-        <!-- Manual or Auto-Populated Line Entry -->
+        <!-- Line Item Form -->
         <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2">
           <div class="grid grid-cols-2 gap-2">
             <div>
@@ -189,12 +197,12 @@
             </div>
             <div>
               <label class="block text-[9px] text-slate-500 font-bold mb-0.5">Model / Product Name</label>
-              <input type="text" id="itemDesc" placeholder="e.g. Oppo A15 3/32" class="w-full border rounded px-2.5 py-1.5 text-xs font-semibold">
+              <input type="text" id="itemDesc" placeholder="e.g. iPhone 15 Pro Max" class="w-full border rounded px-2.5 py-1.5 text-xs font-semibold">
             </div>
           </div>
           <div class="grid grid-cols-4 gap-2">
             <div>
-              <label class="block text-[9px] text-slate-500 font-bold">HSN</label>
+              <label class="block text-[9px] text-slate-500 font-bold">HSN / SAC</label>
               <input type="text" id="itemHSN" value="8517" class="w-full border rounded px-1.5 py-1 text-xs font-mono">
             </div>
             <div>
@@ -208,7 +216,7 @@
               <input type="number" id="itemQty" value="1" min="1" class="w-full border rounded px-1.5 py-1 text-xs text-center font-bold">
             </div>
             <div>
-              <label class="block text-[9px] text-slate-500 font-bold">Gross Price ₹</label>
+              <label class="block text-[9px] text-slate-500 font-bold">Rate (Gross ₹)</label>
               <input type="number" id="itemPrice" placeholder="Final Price" class="w-full border rounded px-1.5 py-1 text-xs font-bold text-slate-900">
             </div>
           </div>
@@ -216,11 +224,11 @@
         </div>
       </div>
 
-      <!-- Extra Cash Discount Field (Shopkeeper Discount Feature) -->
+      <!-- Extra Cash Discount -->
       <div class="bg-amber-50/70 border border-amber-200 rounded-xl p-3">
         <div class="flex items-center justify-between gap-3">
           <div>
-            <label class="block text-[10px] font-bold uppercase text-amber-900">Extra Cash Discount (₹)</label>
+            <label class="block text-[10px] font-bold uppercase text-amber-900">Special Discount (₹)</label>
             <span class="text-[9px] text-amber-700">Flat discount off total bill</span>
           </div>
           <div class="w-36">
@@ -229,27 +237,22 @@
         </div>
       </div>
 
-      <!-- One-Click Primary Action -->
+      <!-- Save & Print Button -->
       <div class="pt-2 border-t">
-        <button type="button" onclick="finalizeAndPrint()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl text-sm shadow transition flex items-center justify-center gap-2">
-          <span>🖨️ Save & Print Invoice (1-Page A4)</span>
+        <button type="button" onclick="finalizeAndPrint()" class="w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-3 rounded-xl text-sm shadow transition flex items-center justify-center gap-2">
+          <span>🖨️ Save & Print GST Invoice (A4 1-Page)</span>
         </button>
       </div>
     </div>
 
     <!-- Live Preview Screen -->
     <div class="lg:col-span-7 bg-white p-5 rounded-2xl border shadow-sm flex flex-col items-center overflow-x-auto">
-      <div class="w-full flex justify-between items-center mb-3">
-        <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Live Invoice Print Preview (A4 Size)</span>
-        <select id="invoiceTheme" onchange="applyInvoiceTheme(this.value)" class="border rounded px-2 py-0.5 text-xs bg-white text-slate-700">
-          <option value="theme-blue">Sapphire Blue</option>
-          <option value="theme-dark">Deep Slate</option>
-          <option value="theme-emerald">Royal Emerald</option>
-          <option value="theme-purple">Majestic Purple</option>
-        </select>
+      <div class="w-full flex justify-between items-center mb-2">
+        <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Live GST Tax Invoice Preview (A4 Standard)</span>
+        <button type="button" onclick="window.print()" class="text-xs bg-slate-100 hover:bg-slate-200 font-bold px-3 py-1 rounded">Quick Print</button>
       </div>
-      <!-- Fixed Auto-Fit Sheet (Prevents Blank 2nd Page) -->
-      <div id="printableInvoice" class="theme-blue bg-white shadow-xl border text-xs text-slate-800 flex flex-col justify-between" style="width:100%; max-width:200mm; padding:6mm 8mm;"></div>
+      <!-- Fixed Auto-Fit Sheet matching user's reference image -->
+      <div id="printableInvoice" class="bg-white shadow-xl text-xs text-slate-900 flex flex-col justify-between" style="width:100%; max-width:200mm; padding:6mm 7mm;"></div>
     </div>
   </div>
 </section>
@@ -296,7 +299,7 @@
   </div>
 </section>
 
-<!-- 3. PURCHASE (WITH MULTI-IMEI BULK SCANNER SUPPORT) -->
+<!-- 3. PURCHASE WITH MULTI-IMEI BULK SCANNER -->
 <section id="purchaseTab" class="tab-panel" style="display:none;">
   <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
     <div class="lg:col-span-5 bg-white p-5 rounded-2xl border shadow-sm space-y-3">
@@ -314,13 +317,12 @@
         <div><label class="block text-[10px] font-bold uppercase mb-1">GSTIN</label><input type="text" id="purGSTIN" class="w-full border rounded px-2.5 py-1.5 text-xs font-mono uppercase"></div>
       </div>
 
-      <!-- Multi-IMEI Bulk Purchase Entry (Requested Feature) -->
       <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 space-y-2">
         <div class="flex justify-between items-center">
           <span class="text-[10px] font-bold text-amber-900 uppercase">⚡ Bulk Purchase (Multiple IMEIs)</span>
           <span class="text-[9px] text-amber-700">Scan 15 IMEIs at once</span>
         </div>
-        <input type="text" id="purItemModel" placeholder="Model Name (e.g. Oppo A15)" class="w-full border rounded px-2.5 py-1.5 text-xs font-bold bg-white">
+        <input type="text" id="purItemModel" placeholder="Model Name (e.g. iPhone 15 Pro Max)" class="w-full border rounded px-2.5 py-1.5 text-xs font-bold bg-white">
         
         <div>
           <label class="block text-[9px] font-bold text-amber-800 mb-0.5">Scan/Enter Multiple IMEIs (Separate by newline or space):</label>
@@ -587,7 +589,6 @@
       <span class="text-xs bg-amber-100 text-amber-800 px-2.5 py-0.5 rounded font-bold">🔒 Owner Protected</span>
     </div>
 
-    <!-- Batch Multi-IMEI Entry Box -->
     <div class="bg-indigo-50/70 border border-indigo-200 rounded-xl p-4 space-y-3">
       <div class="flex justify-between items-center">
         <span class="text-xs font-bold text-indigo-950 uppercase">⚡ Bulk Inward: 1 Model, Multiple IMEIs (e.g. 15 Phones at once)</span>
@@ -596,7 +597,7 @@
       <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
         <div class="sm:col-span-2">
           <label class="block text-[10px] font-bold uppercase mb-1 text-slate-600">Model Name *</label>
-          <input type="text" id="stkModel" placeholder="e.g. Oppo A15 3/32" class="w-full border rounded px-3 py-2 text-xs font-bold bg-white">
+          <input type="text" id="stkModel" placeholder="e.g. iPhone 15 Pro Max" class="w-full border rounded px-3 py-2 text-xs font-bold bg-white">
         </div>
         <div>
           <label class="block text-[10px] font-bold uppercase mb-1 text-slate-600">Purchase Cost ₹</label>
@@ -632,25 +633,63 @@
   </div>
 </section>
 
-<!-- 9. SETTINGS -->
+<!-- 9. SETTINGS (STORE PROFILE, BANK DETAILS & UPI) -->
 <section id="settingsTab" class="tab-panel" style="display:none;">
   <div class="bg-white p-6 rounded-2xl border shadow-sm max-w-2xl mx-auto space-y-4">
-    <h2 class="font-bold text-base">🔒 Store Settings & Security</h2>
+    <h2 class="font-bold text-base">🔒 Store Settings, Bank Details & Security</h2>
     <div id="lockedWarningBanner" style="display:none;" class="bg-amber-50 border border-amber-300 p-3 rounded-xl text-xs text-amber-800 flex items-center justify-between">
       <span>⚠ Store locked.</span>
       <button type="button" onclick="unlockStoreForEdit()" class="bg-amber-600 text-white px-2.5 py-1 rounded text-xs font-bold">Unlock with PIN</button>
     </div>
-    <input type="text" id="cfgStoreName" placeholder="Shop Name" class="w-full border rounded px-3 py-2 text-xs font-bold bg-slate-50">
-    <div class="grid grid-cols-2 gap-3">
-      <input type="text" id="cfgStoreGST" placeholder="GSTIN" class="w-full border rounded px-3 py-2 text-xs font-mono uppercase">
-      <input type="tel" id="cfgStorePhone" placeholder="Phone" class="w-full border rounded px-3 py-2 text-xs">
+    
+    <div>
+      <label class="block text-xs font-bold text-slate-700 mb-1">Registered Trade / Shop Name</label>
+      <input type="text" id="cfgStoreName" placeholder="e.g. Shree Mobile Shop" class="w-full border rounded px-3 py-2 text-xs font-bold bg-slate-50">
     </div>
-    <textarea id="cfgStoreAddress" rows="2" placeholder="Address" class="w-full border rounded px-3 py-2 text-xs"></textarea>
-    <textarea id="cfgStoreTerms" rows="3" placeholder="Terms & Warranty" class="w-full border rounded px-3 py-2 text-xs"></textarea>
+
+    <div class="grid grid-cols-2 gap-3">
+      <div>
+        <label class="block text-xs font-bold text-slate-700 mb-1">State & GSTIN</label>
+        <input type="text" id="cfgStoreGST" placeholder="26CORPP3939N1ZA" class="w-full border rounded px-3 py-2 text-xs font-mono uppercase">
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-slate-700 mb-1">Contact Phone</label>
+        <input type="tel" id="cfgStorePhone" placeholder="Phone" class="w-full border rounded px-3 py-2 text-xs">
+      </div>
+    </div>
+    
+    <div>
+      <label class="block text-xs font-bold text-slate-700 mb-1">Store Address</label>
+      <textarea id="cfgStoreAddress" rows="2" placeholder="Address" class="w-full border rounded px-3 py-2 text-xs"></textarea>
+    </div>
+
+    <!-- Bank Coordinates & UPI (For Invoice Display) -->
+    <div class="border-t pt-3 space-y-3">
+      <h3 class="text-xs font-bold uppercase text-sky-800">Bank Details & UPI ID (Appears on Invoice)</h3>
+      <div class="grid grid-cols-2 gap-3">
+        <input type="text" id="cfgBankName" placeholder="Bank Name (e.g. ICICI Bank)" class="border rounded px-3 py-1.5 text-xs font-semibold">
+        <input type="text" id="cfgBankBranch" placeholder="Branch (e.g. Surate)" class="border rounded px-3 py-1.5 text-xs">
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <input type="text" id="cfgBankAcc" placeholder="Account Number" class="border rounded px-3 py-1.5 text-xs font-mono">
+        <input type="text" id="cfgBankIFSC" placeholder="IFSC Code (e.g. ICIC045F)" class="border rounded px-3 py-1.5 text-xs font-mono uppercase">
+      </div>
+      <div>
+        <label class="block text-[10px] font-bold text-slate-600 mb-0.5">UPI ID (For Dynamic QR Code on Bill):</label>
+        <input type="text" id="cfgUpiId" placeholder="e.g. ifox@icici" class="w-full border rounded px-3 py-1.5 text-xs font-mono">
+      </div>
+    </div>
+
+    <div>
+      <label class="block text-xs font-bold text-slate-700 mb-1">Invoice Terms & Conditions</label>
+      <textarea id="cfgStoreTerms" rows="3" placeholder="Terms & Warranty" class="w-full border rounded px-3 py-2 text-xs"></textarea>
+    </div>
+    
     <div>
       <label class="block text-xs font-bold mb-1">Store Logo</label>
       <input type="file" id="cfgLogoFile" accept="image/*" class="w-full text-xs file:mr-3 file:py-1.5 file:px-3 file:rounded file:border-0 file:bg-indigo-50 file:text-indigo-700">
     </div>
+
     <div class="border-t pt-3 space-y-3">
       <div class="flex justify-between items-center">
         <h3 class="text-xs font-bold uppercase">Master PIN & Recovery</h3>
@@ -686,9 +725,10 @@ window.isScannerBusy = false;
 window.currentBook = 'cash';
 
 window.storeProfile = {
-  name:"", phone:"+91 98320 12345", gstin:"19AAECR4821F1ZM",
-  address:"Station Road, Chakdaha, Nadia, WB - 741222", logo:"",
-  terms:"1. Warranty by Brand Authorized Service Centers.\n2. Goods returnable within 3 days subject to inspection.\n3. Physical/liquid damage voids warranty.",
+  name:"Shree Mobile Shop", phone:"Ph: 111 2222 3333", gstin:"26CORPP3939N1ZA",
+  address:"G/458, Basant Lok Comm, Vasant Vihar, Tardeo Road, Maharashtra - 400001", logo:"",
+  bankName:"ICICI Bank", bankBranch:"Surate", bankAcc:"2715500356", bankIFSC:"ICIC045F", upiId:"ifox@icici",
+  terms:"1. Subject to Maharashtra Jurisdiction.\n2. Our Responsibility Ceases as soon as goods leaves our Premises.\n3. Goods once sold will not taken back.\n4. Delivery Ex-Premises.",
   isLocked:false, masterPin:"1234", secQuestion:"city", secAnswer:"chakdaha"
 };
 
@@ -702,6 +742,27 @@ window.auditLog = [];
 window.activeLineItems = [];
 window.activePurchaseLines = [];
 window.activeReturnInvoice = null;
+
+/* ============================================================
+   NUMBER TO WORDS CONVERTER (INDIAN RUPEES SYSTEM)
+   ============================================================ */
+function numberToWords(num) {
+  const a = ['', 'ONE ', 'TWO ', 'THREE ', 'FOUR ', 'FIVE ', 'SIX ', 'SEVEN ', 'EIGHT ', 'NINE ', 'TEN ', 'ELEVEN ', 'TWELVE ', 'THIRTEEN ', 'FOURTEEN ', 'FIFTEEN ', 'SIXTEEN ', 'SEVENTEEN ', 'EIGHTEEN ', 'NINETEEN '];
+  const b = ['', '', 'TWENTY ', 'THIRTY ', 'FORTY ', 'FIFTY ', 'SIXTY ', 'SEVENTY ', 'EIGHTY ', 'NINETY '];
+
+  let n = ('000000000' + Math.floor(num)).substr(-9);
+  let match = n.match(/^(\d{2})(\d{2})(\d{2})(\d{1})(\d{2})$/);
+  if (!match) return '';
+
+  let str = '';
+  str += (match[1] != 0) ? (a[Number(match[1])] || b[match[1][0]] + a[match[1][1]]) + 'CRORE ' : '';
+  str += (match[2] != 0) ? (a[Number(match[2])] || b[match[2][0]] + a[match[2][1]]) + 'LAKH ' : '';
+  str += (match[3] != 0) ? (a[Number(match[3])] || b[match[3][0]] + a[match[3][1]]) + 'THOUSAND ' : '';
+  str += (match[4] != 0) ? (a[Number(match[4])] || b[match[4][0]] + a[match[4][1]]) + 'HUNDRED ' : '';
+  str += (match[5] != 0) ? ((str != '') ? 'AND ' : '') + (a[Number(match[5])] || b[match[5][0]] + a[match[5][1]]) + 'RUPEES ONLY' : 'RUPEES ONLY';
+
+  return str.trim();
+}
 
 /* ============================================================
    UTILITIES
@@ -768,7 +829,7 @@ function resizeImage(file, maxDim){
 function money(n){ return '₹'+(parseFloat(n)||0).toLocaleString('en-IN',{minimumFractionDigits:2, maximumFractionDigits:2}); }
 
 /* ============================================================
-   AUTO-LOOKUP STOCK WHEN IMEI IS ENTERED (ZERO MANUAL TYPING)
+   AUTO-LOOKUP STOCK WHEN IMEI IS ENTERED
    ============================================================ */
 function lookupStockByIMEI(val){
   val = val.trim();
@@ -878,13 +939,18 @@ function enforceStoreLockState(){
     if(lb) lb.style.display='flex';
     if(sb){ sb.innerText="Locked (Unlock to Modify)"; sb.disabled=true; sb.classList.remove('bg-indigo-600'); sb.classList.add('bg-slate-400'); }
   } else {
-    if(ni){ ni.value=storeProfile.name||"SmartFix Workshop"; ni.readOnly=false; ni.classList.remove('bg-slate-100','text-slate-500'); }
+    if(ni){ ni.value=storeProfile.name||"Shree Mobile Shop"; ni.readOnly=false; ni.classList.remove('bg-slate-100','text-slate-500'); }
     if(lb) lb.style.display='none';
     if(sb){ sb.innerText="Register Store & Lock"; sb.disabled=false; sb.classList.remove('bg-slate-400'); sb.classList.add('bg-indigo-600'); }
   }
   document.getElementById('cfgStorePhone').value=storeProfile.phone||'';
   document.getElementById('cfgStoreGST').value=storeProfile.gstin||'';
   document.getElementById('cfgStoreAddress').value=storeProfile.address||'';
+  document.getElementById('cfgBankName').value=storeProfile.bankName||'';
+  document.getElementById('cfgBankBranch').value=storeProfile.bankBranch||'';
+  document.getElementById('cfgBankAcc').value=storeProfile.bankAcc||'';
+  document.getElementById('cfgBankIFSC').value=storeProfile.bankIFSC||'';
+  document.getElementById('cfgUpiId').value=storeProfile.upiId||'';
   document.getElementById('cfgStoreTerms').value=storeProfile.terms||'';
   document.getElementById('cfgMasterPin').value=storeProfile.masterPin||'';
   document.getElementById('cfgSecQuestion').value=storeProfile.secQuestion||'city';
@@ -909,6 +975,11 @@ async function saveStoreSettings(){
   storeProfile.phone=document.getElementById('cfgStorePhone').value.trim();
   storeProfile.gstin=document.getElementById('cfgStoreGST').value.trim();
   storeProfile.address=document.getElementById('cfgStoreAddress').value.trim();
+  storeProfile.bankName=document.getElementById('cfgBankName').value.trim();
+  storeProfile.bankBranch=document.getElementById('cfgBankBranch').value.trim();
+  storeProfile.bankAcc=document.getElementById('cfgBankAcc').value.trim();
+  storeProfile.bankIFSC=document.getElementById('cfgBankIFSC').value.trim();
+  storeProfile.upiId=document.getElementById('cfgUpiId').value.trim();
   storeProfile.terms=document.getElementById('cfgStoreTerms').value.trim();
   storeProfile.masterPin=pin;
   storeProfile.secQuestion=document.getElementById('cfgSecQuestion').value;
@@ -936,7 +1007,7 @@ function promptForgotPIN(){
 }
 
 /* ============================================================
-   BARCODE SCANNER (AUTO-ADD & USB SCANNER COMPATIBLE)
+   BARCODE SCANNER
    ============================================================ */
 async function toggleCameraScanner(){
   if(window.isScannerBusy) return;
@@ -1020,110 +1091,271 @@ function sellFromStock(id){
 function applyInvoiceTheme(t){ currentTheme=t; renderLiveInvoicePreview(); }
 
 /* ============================================================
-   LIVE PREVIEW & A4 1-PAGE ENGINE
+   LIVE PREVIEW MATCHING USER'S EXACT REFERENCE INVOICE DESIGN
    ============================================================ */
 function renderLiveInvoicePreview(){
   const el=document.getElementById('printableInvoice'); if(!el) return;
-  el.className=currentTheme+" bg-white shadow-xl border text-xs text-slate-800 flex flex-col justify-between";
-  const invNo=document.getElementById('invNo').value;
-  const invDate=document.getElementById('invDate').value;
-  const custName=document.getElementById('custName').value.trim()||'Cash Customer';
-  const custPhone=document.getElementById('custPhone').value.trim()||'N/A';
-  const custGSTIN=document.getElementById('custGSTIN').value.trim();
-  const ledger=document.getElementById('paymentLedger').value;
-  const taxType=document.getElementById('gstTaxType').value;
-  const discount=parseFloat(document.getElementById('extraDiscount')?.value)||0;
+  
+  const invNo=document.getElementById('invNo')?.value || '47';
+  const invDate=document.getElementById('invDate')?.value || fmtDate(new Date());
+  const custName=document.getElementById('custName')?.value.trim() || 'Ronak Panchal';
+  const custAddress=document.getElementById('custAddress')?.value.trim() || 'Gujarat';
+  const custPhone=document.getElementById('custPhone')?.value.trim() || '-';
+  const custGSTIN=document.getElementById('custGSTIN')?.value.trim() || '-';
+  const taxType=document.getElementById('gstTaxType')?.value || 'INTRA';
+  const discount=parseFloat(document.getElementById('extraDiscount')?.value) || 0;
 
-  let tG=0,tT=0,tC=0,tS=0,tI=0;
+  // Format Date to DD-MMM-YYYY (e.g., 28-Feb-2024)
+  let dObj = new Date(invDate);
+  const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const formattedDateStr = `${String(dObj.getDate()).padStart(2, '0')}-${monthNames[dObj.getMonth()]}-${dObj.getFullYear()}`;
 
-  let rows=activeLineItems.map((it,idx)=>{
-    const lt=it.grossAmount*it.qty, ltx=lt/(1+it.gstRate/100), ltxa=lt-ltx;
-    let c=0,s=0,ig=0;
-    if(taxType==='INTRA'){ c=ltxa/2; s=ltxa/2; } else { ig=ltxa; }
-    tG+=lt; tT+=ltx; tC+=c; tS+=s; tI+=ig;
-    return '<tr class="border-b border-slate-100 group">'+
-      '<td class="py-1 px-2 text-center font-bold text-slate-400">'+(idx+1)+'</td>'+
-      '<td class="py-1 px-2"><div class="font-bold text-slate-900">'+it.desc+'</div>'+(it.imei?'<div class="text-[9px] text-slate-500 font-mono">IMEI: '+it.imei+'</div>':'')+'</td>'+
-      '<td class="py-1 px-2 text-center font-mono text-[10px]">'+it.hsn+'</td>'+
-      '<td class="py-1 px-2 text-center font-bold">'+it.qty+'</td>'+
-      '<td class="py-1 px-2 text-right font-mono">₹'+ltx.toFixed(2)+'</td>'+
-      '<td class="py-1 px-2 text-right font-mono">'+it.gstRate+'%</td>'+
-      '<td class="py-1 px-2 text-right font-mono font-bold">'+
-        '<div class="flex items-center justify-end gap-1.5"><span>₹'+lt.toFixed(2)+'</span>'+
-        '<button type="button" onclick="removeItem('+idx+')" class="no-print opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-600 text-[10px]">🗑</button></div>'+
-      '</td></tr>';
+  let tG=0, tT=0, tTax=0, totalQty=0;
+
+  let rows = activeLineItems.map((it, idx) => {
+    const lineTotal = it.grossAmount * it.qty;
+    const lineTaxable = lineTotal / (1 + it.gstRate / 100);
+    const lineTax = lineTotal - lineTaxable;
+    const ratePerUnit = lineTaxable / it.qty;
+
+    tG += lineTotal;
+    tT += lineTaxable;
+    tTax += lineTax;
+    totalQty += it.qty;
+
+    return `
+      <tr>
+        <td class="p-1.5 text-center font-bold text-slate-700">${idx + 1}</td>
+        <td class="p-1.5">
+          <div class="font-bold text-slate-900">${it.desc}</div>
+          ${it.imei ? `<div class="text-[10px] text-slate-600 font-mono tracking-wider italic">IMEI ${it.imei}</div>` : ''}
+        </td>
+        <td class="p-1.5 text-center font-mono text-[11px]">${it.hsn}</td>
+        <td class="p-1.5 text-center font-bold">${it.qty} NOS</td>
+        <td class="p-1.5 text-right font-mono">${ratePerUnit.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+        <td class="p-1.5 text-right font-mono font-semibold">${lineTaxable.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+        <td class="p-1.5 text-center font-mono text-[10px]">
+          <div>${it.gstRate}%</div>
+          <div class="font-semibold text-slate-700">${lineTax.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+        </td>
+        <td class="p-1.5 text-right font-mono font-bold text-slate-900">
+          <div class="flex items-center justify-end gap-1">
+            <span>${lineTotal.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+            <button type="button" onclick="removeItem(${idx})" class="no-print text-red-500 hover:text-red-700 font-bold ml-1 text-[11px]">✕</button>
+          </div>
+        </td>
+      </tr>
+    `;
   }).join('');
-  if(activeLineItems.length===0) rows='<tr><td colspan="7" class="text-center py-8 text-slate-400">Scan or add items.</td></tr>';
+
+  if(activeLineItems.length === 0) {
+    rows = `
+      <tr>
+        <td colspan="8" class="text-center py-10 text-slate-400 italic">No products added. Scan barcode or type IMEI above.</td>
+      </tr>
+    `;
+  }
 
   const finalPayable = Math.max(0, tG - discount);
+  const totalInWords = numberToWords(finalPayable);
 
-  el.innerHTML=
-    '<div>'+
-      '<div class="flex justify-between items-start border-b-2 brand-border pb-2 mb-2">'+
-        '<div class="flex items-start space-x-2.5">'+
-          (storeProfile.logo?'<img src="'+storeProfile.logo+'" class="h-10 w-auto object-contain rounded">':'')+
-          '<div>'+
-            '<h1 class="text-base font-black brand-text uppercase tracking-tight">'+(storeProfile.name||'SMARTFIXPRO WORKSHOP')+'</h1>'+
-            '<p class="text-slate-500 text-[10px] max-w-sm leading-tight mt-0.5">'+storeProfile.address+'</p>'+
-            '<div class="flex flex-wrap gap-2 text-[10px] text-slate-700 mt-0.5">'+
-              '<span>Phone: <strong>'+storeProfile.phone+'</strong></span>'+
-              '<span>GSTIN: <strong class="font-mono">'+storeProfile.gstin+'</strong></span>'+
-            '</div>'+
-          '</div>'+
-        '</div>'+
-        '<div class="text-right">'+
-          '<span class="inline-block brand-bg text-white text-[9px] uppercase font-black px-2 py-0.5 rounded">TAX INVOICE ('+taxType+')</span>'+
-          '<div class="text-xs font-black font-mono mt-0.5">'+invNo+'</div>'+
-          '<div class="text-[10px] text-slate-500">Date: '+invDate+'</div>'+
-        '</div>'+
-      '</div>'+
-      '<div class="grid grid-cols-2 gap-2 brand-accent p-2 rounded-lg border brand-border mb-2 text-[11px]">'+
-        '<div>'+
-          '<div class="text-[9px] font-bold text-slate-500 uppercase">Customer</div>'+
-          '<div class="font-bold text-slate-900 text-xs">'+custName+'</div>'+
-          '<div class="text-slate-600">Mob: '+custPhone+'</div>'+
-          (custGSTIN?'<div class="font-mono text-[10px]">GSTIN: <strong>'+custGSTIN+'</strong></div>':'')+
-        '</div>'+
-        '<div class="text-right">'+
-          '<div class="text-[9px] font-bold text-slate-500 uppercase">Payment Mode</div>'+
-          '<div class="font-bold text-emerald-800 text-xs">'+ledger+'</div>'+
-        '</div>'+
-      '</div>'+
-      '<table class="w-full text-left border rounded-lg overflow-hidden mb-2">'+
-        '<thead class="brand-bg text-white text-[9px] uppercase tracking-wider"><tr>'+
-          '<th class="py-1 px-2 text-center w-8">#</th><th class="py-1 px-2">Description</th><th class="py-1 px-2 text-center w-14">HSN</th>'+
-          '<th class="py-1 px-2 text-center w-10">Qty</th><th class="py-1 px-2 text-right w-20">Taxable</th><th class="py-1 px-2 text-right w-12">GST</th><th class="py-1 px-2 text-right w-24">Total</th>'+
-        '</tr></thead><tbody>'+rows+'</tbody>'+
-      '</table>'+
-    '</div>'+
-    '<div>'+
-      '<div class="grid grid-cols-2 gap-3 mb-2 pt-1 border-t">'+
-        '<div class="border rounded p-1.5 text-[9px]">'+
-          '<div class="font-bold text-slate-700 uppercase mb-0.5">GST Tax Computation Breakup</div>'+
-          '<div class="flex justify-between py-0.5 border-b"><span>Taxable:</span><span class="font-mono">₹'+tT.toFixed(2)+'</span></div>'+
-          (taxType==='INTRA'
-            ?'<div class="flex justify-between py-0.5 border-b"><span>CGST:</span><span class="font-mono">₹'+tC.toFixed(2)+'</span></div>'+
-             '<div class="flex justify-between py-0.5"><span>SGST:</span><span class="font-mono">₹'+tS.toFixed(2)+'</span></div>'
-            :'<div class="flex justify-between py-0.5"><span>IGST:</span><span class="font-mono font-bold text-indigo-700">₹'+tI.toFixed(2)+'</span></div>')+
-        '</div>'+
-        '<div class="text-right space-y-0.5 text-xs">'+
-          '<div class="flex justify-between py-0.5"><span>Sub Total:</span><span class="font-mono">₹'+tG.toFixed(2)+'</span></div>'+
-          (discount > 0 ? '<div class="flex justify-between py-0.5 text-rose-600 font-bold"><span>Special Discount:</span><span class="font-mono">-₹'+discount.toFixed(2)+'</span></div>' : '')+
-          '<div class="flex justify-between py-0.5 text-slate-500"><span>Combined Output Tax:</span><span class="font-mono">₹'+(tC+tS+tI).toFixed(2)+'</span></div>'+
-          '<div class="flex justify-between py-1 border-t-2 brand-border text-sm font-black brand-text"><span>Total Payable:</span><span class="font-mono">₹'+finalPayable.toFixed(2)+'</span></div>'+
-        '</div>'+
-      '</div>'+
-      '<div class="border-t pt-1">'+
-        '<div class="grid grid-cols-2 gap-4 text-[9px] text-slate-500">'+
-          '<div><div class="font-bold uppercase text-slate-700 mb-0.5">Terms:</div><p class="whitespace-pre-line leading-tight">'+storeProfile.terms+'</p></div>'+
-          '<div class="text-right flex flex-col justify-end items-end">'+
-            '<div class="h-4"></div>'+
-            '<div class="border-t border-slate-400 w-36 text-center font-bold text-slate-700 pt-0.5">Authorized Signatory</div>'+
-          '</div>'+
-        '</div>'+
-      '</div>'+
-      '<div class="mt-1.5 pt-1 border-t text-center text-[9px] text-slate-500 font-mono">SmartFix Pro © 2026 | Developed by Debapriya Sarkar</div>'+
-    '</div>';
+  // Dynamic UPI QR Code URL
+  const upiUri = `upi://pay?pa=${encodeURIComponent(storeProfile.upiId || 'ifox@icici')}&pn=${encodeURIComponent(storeProfile.name || 'Shop')}&am=${finalPayable.toFixed(2)}&cu=INR`;
+  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=110x110&data=${encodeURIComponent(upiUri)}`;
+
+  el.innerHTML = `
+    <div class="p-1">
+      <!-- HEADER matching image: Left: Shop info, Right: Brand Logos Strip -->
+      <div class="flex justify-between items-start pb-2">
+        <div class="flex items-start space-x-3">
+          ${storeProfile.logo ? `<img src="${storeProfile.logo}" class="h-14 w-auto object-contain">` : `
+            <div class="w-12 h-12 bg-sky-600 rounded-lg flex flex-col items-center justify-center text-white font-bold text-xs shadow">
+              <span>📱</span>
+              <span class="text-[7px] uppercase tracking-tighter">Shop</span>
+            </div>
+          `}
+          <div>
+            <h1 class="text-2xl font-black text-sky-800 tracking-tight leading-none">${storeProfile.name || 'Shree Mobile Shop'}</h1>
+            <p class="text-[11px] text-slate-600 mt-1 max-w-sm leading-tight">${storeProfile.address}</p>
+            <p class="text-[11px] font-bold text-slate-800 mt-0.5">${storeProfile.phone}</p>
+          </div>
+        </div>
+
+        <!-- Official Smartphone Brands Logo Strip (Apple, Samsung, Mi, Vivo, Oppo etc.) -->
+        <div class="flex flex-col items-end">
+          <div class="grid grid-cols-6 gap-1.5 text-center text-[8px] font-bold text-slate-600">
+            <span class="bg-slate-100 border px-1.5 py-0.5 rounded">Apple</span>
+            <span class="bg-slate-100 border px-1.5 py-0.5 rounded">SAMSUNG</span>
+            <span class="bg-amber-100 text-amber-800 border px-1.5 py-0.5 rounded">mi</span>
+            <span class="bg-rose-100 text-rose-800 border px-1.5 py-0.5 rounded">OnePlus</span>
+            <span class="bg-slate-100 border px-1.5 py-0.5 rounded">Google</span>
+            <span class="bg-emerald-100 text-emerald-800 border px-1.5 py-0.5 rounded">oppo</span>
+            <span class="bg-rose-50 text-rose-700 border px-1.5 py-0.5 rounded">HUAWEI</span>
+            <span class="bg-sky-100 text-sky-800 border px-1.5 py-0.5 rounded">vivo</span>
+            <span class="bg-blue-100 text-blue-800 border px-1.5 py-0.5 rounded">NOKIA</span>
+            <span class="bg-slate-100 border px-1.5 py-0.5 rounded">ASUS</span>
+            <span class="bg-slate-100 border px-1.5 py-0.5 rounded">SONY</span>
+            <span class="bg-cyan-100 text-cyan-800 border px-1.5 py-0.5 rounded">HONOR</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tagline Promotional Banner Bar -->
+      <div class="border-y border-sky-600 py-1 text-center font-bold text-[10px] text-slate-800 bg-sky-50/50 mb-2">
+        Get All Your Desired Smart Phones From Apple To Vivo On Huge Discounts And Easy EMI
+      </div>
+
+      <!-- GSTIN & TAX INVOICE METADATA BAR -->
+      <div class="inv-box-border mb-0">
+        <div class="grid grid-cols-12 border-b border-sky-600 font-bold bg-sky-50/70 p-1.5 text-xs">
+          <div class="col-span-5 text-slate-900 font-black tracking-wide">
+            GSTIN : <span class="font-mono text-sky-900">${storeProfile.gstin}</span>
+          </div>
+          <div class="col-span-4 text-center text-sm font-black text-sky-800 uppercase tracking-wider">
+            TAX INVOICE
+          </div>
+          <div class="col-span-3 text-right text-[10px] font-black uppercase text-slate-700">
+            ORIGINAL FOR RECIPIENT
+          </div>
+        </div>
+
+        <!-- Customer & Invoice Date 2-Column Split -->
+        <div class="grid grid-cols-12 text-[11px]">
+          <!-- Customer Detail (Left) -->
+          <div class="col-span-6 border-r border-sky-600 p-2 space-y-0.5">
+            <div class="font-bold text-sky-800 text-[10px] uppercase border-b border-sky-200 pb-0.5 mb-1">Customer Detail</div>
+            <div class="flex"><span class="w-16 font-semibold text-slate-600">Name:</span> <strong class="text-slate-900">${custName}</strong></div>
+            <div class="flex"><span class="w-16 font-semibold text-slate-600">Address:</span> <span class="text-slate-700">${custAddress}</span></div>
+            <div class="flex"><span class="w-16 font-semibold text-slate-600">PHONE:</span> <span class="text-slate-700">${custPhone}</span></div>
+            <div class="flex"><span class="w-16 font-semibold text-slate-600">GSTIN:</span> <span class="font-mono text-slate-700">${custGSTIN || '-'}</span></div>
+            <div class="flex"><span class="w-16 font-semibold text-slate-600">Place of Supply:</span> <span class="text-slate-700">${custAddress || 'West Bengal ( 19 )'}</span></div>
+          </div>
+
+          <!-- Invoice No & Date (Right) -->
+          <div class="col-span-6 p-2 space-y-1">
+            <div class="flex justify-between border-b border-sky-200 pb-1">
+              <span class="font-semibold text-slate-600">Invoice No.:</span>
+              <strong class="font-mono text-slate-900 text-xs">${invNo}</strong>
+            </div>
+            <div class="flex justify-between">
+              <span class="font-semibold text-slate-600">Invoice Date:</span>
+              <strong class="font-mono text-slate-900">${formattedDateStr}</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MAIN PRODUCT GRID TABLE -->
+      <table class="inv-grid-table text-[11px] mb-0">
+        <thead class="bg-sky-100/70 text-slate-800 font-bold text-[10px] uppercase tracking-tight">
+          <tr>
+            <th class="p-1.5 text-center w-8">Sr. No.</th>
+            <th class="p-1.5 text-left">Name of Product / Service</th>
+            <th class="p-1.5 text-center w-16">HSN / SAC</th>
+            <th class="p-1.5 text-center w-12">Qty</th>
+            <th class="p-1.5 text-right w-20">Rate</th>
+            <th class="p-1.5 text-right w-24">Taxable Value</th>
+            <th class="p-1.5 text-center w-20">${taxType === 'INTRA' ? 'CGST / SGST' : 'IGST'}</th>
+            <th class="p-1.5 text-right w-24">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows}
+        </tbody>
+        <tfoot class="font-bold bg-sky-50 text-[11px]">
+          <tr>
+            <td colspan="3" class="p-1.5 text-right uppercase">Total:</td>
+            <td class="p-1.5 text-center font-mono">${totalQty}</td>
+            <td class="p-1.5"></td>
+            <td class="p-1.5 text-right font-mono">${tT.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+            <td class="p-1.5 text-center font-mono">${tTax.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+            <td class="p-1.5 text-right font-mono font-black text-slate-900">${tG.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+          </tr>
+        </tfoot>
+      </table>
+
+      <!-- SUMMARY & FOOTER SECTION -->
+      <div class="inv-box-border text-[11px] mb-1">
+        <div class="grid grid-cols-12">
+          <!-- Left Bottom: In Words, Bank Details, QR & Terms -->
+          <div class="col-span-7 border-r border-sky-600 p-2 flex flex-col justify-between space-y-2">
+            <!-- Total In Words -->
+            <div>
+              <div class="text-[9px] font-bold text-slate-500 uppercase">Total in words</div>
+              <div class="font-black text-slate-900 uppercase text-[10px] tracking-tight mt-0.5 leading-tight">${totalInWords}</div>
+            </div>
+
+            <!-- Bank Coordinates & Live Dynamic QR Code -->
+            <div class="border-t border-sky-200 pt-1.5 flex justify-between items-center">
+              <div class="space-y-0.5 text-[10px]">
+                <div class="font-bold text-sky-800 uppercase">Bank Details</div>
+                <div><span class="text-slate-500">Name:</span> <strong class="text-slate-800">${storeProfile.bankName}</strong></div>
+                <div><span class="text-slate-500">Branch:</span> <span class="text-slate-700">${storeProfile.bankBranch}</span></div>
+                <div><span class="text-slate-500">Acc. Number:</span> <span class="font-mono text-slate-900 font-bold">${storeProfile.bankAcc}</span></div>
+                <div><span class="text-slate-500">IFSC:</span> <span class="font-mono text-slate-800 font-bold">${storeProfile.bankIFSC}</span></div>
+                <div><span class="text-slate-500">UPI ID:</span> <span class="font-mono text-sky-700 font-bold">${storeProfile.upiId}</span></div>
+              </div>
+
+              <!-- UPI Pay QR Code -->
+              <div class="flex flex-col items-center pr-2">
+                <img src="${qrCodeUrl}" alt="UPI QR" class="w-20 h-20 border border-slate-300 p-0.5 rounded shadow-sm">
+                <span class="text-[9px] font-bold text-sky-800 mt-0.5">Pay using UPI</span>
+              </div>
+            </div>
+
+            <!-- Terms and Conditions -->
+            <div class="border-t border-sky-200 pt-1 text-[9px] text-slate-600">
+              <div class="font-bold text-slate-800 uppercase">Terms and Conditions</div>
+              <p class="whitespace-pre-line leading-tight mt-0.5">${storeProfile.terms}</p>
+            </div>
+          </div>
+
+          <!-- Right Bottom: Calculations, Grand Total & Signatory -->
+          <div class="col-span-5 flex flex-col justify-between">
+            <div class="divide-y divide-sky-200 text-[11px]">
+              <div class="flex justify-between p-1.5 font-semibold">
+                <span>Taxable Amount</span>
+                <span class="font-mono">${tT.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+              </div>
+              ${discount > 0 ? `
+                <div class="flex justify-between p-1.5 font-bold text-rose-600">
+                  <span>Special Discount</span>
+                  <span class="font-mono">-₹${discount.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                </div>
+              ` : ''}
+              <div class="flex justify-between p-1.5">
+                <span>Add : ${taxType === 'INTRA' ? 'CGST + SGST' : 'IGST'}</span>
+                <span class="font-mono font-semibold">${tTax.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+              </div>
+              <div class="flex justify-between p-1.5 font-semibold text-slate-700">
+                <span>Total Tax</span>
+                <span class="font-mono">${tTax.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+              </div>
+              <div class="flex justify-between p-2 font-black text-sm bg-sky-100 text-sky-950">
+                <span>Total Amount After Tax</span>
+                <span class="font-mono">₹${finalPayable.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+              </div>
+            </div>
+
+            <div class="p-2 text-right">
+              <span class="text-[10px] text-slate-400 font-bold block">(E & O.E.)</span>
+              <p class="text-[9px] text-slate-500 mt-1">Certified that the particulars given above are true and correct.</p>
+              <div class="font-bold text-[11px] text-slate-800 mt-0.5">For ${storeProfile.name || 'Shree Mobile Shop'}</div>
+              <div class="h-10"></div>
+              <div class="border-t border-slate-400 w-36 ml-auto text-center font-bold text-slate-700 text-[10px] pt-0.5">
+                Authorised Signatory
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Official Footer Credits -->
+      <div class="text-center text-[9px] text-slate-500 font-mono tracking-tight pt-1">
+        SmartFix Pro © 2026 | Developed by Debapriya Sarkar
+      </div>
+    </div>
+  `;
 }
 
 /* ============================================================
@@ -1227,7 +1459,6 @@ function reprintInvoice(invNo){
   applyInvoiceTheme(inv.theme || 'theme-blue');
   switchView('billingTab');
 
-  // Populate print container for instant reprinting
   setTimeout(()=>{
     const printBox = document.getElementById('isolatedPrintContainer');
     printBox.innerHTML = document.getElementById('printableInvoice').innerHTML;
@@ -1354,7 +1585,7 @@ function renderCreditNotesTable(){
     '<td class="p-2.5 font-semibold">'+c.customerName+'</td>'+
     '<td class="p-2.5 text-right font-mono text-rose-600">₹'+c.refundTax.toFixed(2)+'</td>'+
     '<td class="p-2.5 text-right font-mono font-bold text-rose-700">₹'+c.refundTotal.toFixed(2)+'</td>'+
-    '<td class="p-2.5 text-center"><button type="button" onclick="printCRN('+i+')" class="text-xs bg-slate-200 hover:bg-slate-300 font-bold px-2 py-1 rounded">Print</button></td>'+
+    '<td class="p-2.5 text-center"><button onclick="printCRN('+i+')" class="text-xs bg-slate-200 hover:bg-slate-300 font-bold px-2 py-1 rounded">Print</button></td>'+
   '</tr>').join('');
 }
 function printCRN(i){ printCRNSlip(creditNotes[i]); }
@@ -1366,7 +1597,7 @@ function printCRNSlip(crn){
       '<div class="flex justify-between items-start border-b-2 border-rose-600 pb-2.5 mb-2.5">'+
         '<div><h1 class="text-base font-black text-rose-800 uppercase">'+(storeProfile.name||'SMARTFIXPRO')+'</h1>'+
         '<p class="text-slate-500 text-[10px]">'+storeProfile.address+' | '+storeProfile.phone+'</p></div>'+
-        '<div class="text-right"><span class="inline-block bg-rose-700 text-white text-[9px] uppercase font-black px-2 py-0.5 rounded">CREDIT NOTE</span>'+
+        '<div class="text-right"><span class="inline-block bg-rose-700 text-white text-[9px] uppercase font-black px-2.5 py-0.5 rounded">CREDIT NOTE</span>'+
         '<div class="text-xs font-black font-mono mt-0.5">'+crn.crnNo+'</div>'+
         '<div class="text-[10px] text-slate-500">Date: '+crn.date+'</div></div>'+
       '</div>'+
@@ -1414,19 +1645,16 @@ function addPurchaseLine(){
 
   if(!mdl||cost<=0){ alert("Enter model and cost price."); return; }
 
-  // Extract multiple IMEIs from textarea
   let imeiList = [];
   if(rawBatch){
     imeiList = rawBatch.split(/[\n,\s]+/).map(s=>s.trim()).filter(Boolean);
   }
 
   if(imeiList.length > 0){
-    // Batch items (e.g. 15 phones)
     imeiList.forEach(imei=>{
       activePurchaseLines.push({ model:mdl, imei, qty:1, cost, sell, gstRate:gst });
     });
   } else {
-    // Single item without IMEI
     activePurchaseLines.push({ model:mdl, imei:'', qty:1, cost, sell, gstRate:gst });
   }
 
@@ -1523,7 +1751,7 @@ function renderPurchaseTable(){
     '<td class="p-2.5 text-right font-mono font-bold">₹'+p.totalCost.toFixed(2)+'</td>'+
     '<td class="p-2.5 text-center space-x-1">'+
       '<button type="button" onclick="viewPurchase('+i+')" class="text-xs bg-slate-100 px-2 py-1 rounded font-bold">👁</button>'+
-      '<button type="button" onclick="deletePurchase('+i+')" class="text-xs bg-red-100 text-red-700 px-2 py-1 rounded font-bold">🗑</button>'+
+      '<button type="button" onclick="deletePurchase('+i+')" class="text-xs bg-red-100 text-red-700 font-bold px-2 py-1 rounded">🗑</button>'+
     '</td></tr>').join('');
 }
 function viewPurchase(i){
@@ -2077,7 +2305,7 @@ function renderTrialBalance(){
       else if(v.account==='Bank / UPI') accounts['Bank / UPI'].cr += v.amount;
     } else if(v.type==='RECEIPT'){
       if(v.account==='Cash-in-Hand') accounts['Cash-in-Hand'].dr += v.amount;
-      else if(v.account==='Bank / UPI') accounts['Bank / UPI'].cr += v.amount;
+      else if(v.account==='Bank / UPI') accounts['Bank / UPI'].dr += v.amount;
       accounts['Sundry Debtors'].cr += v.amount;
     } else if(v.type==='CONTRA'){
       if(v.fromAccount==='Cash-in-Hand') accounts['Cash-in-Hand'].cr += v.amount;
