@@ -9,7 +9,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
 
 <style>
-/* 100% Android Chrome & Desktop Guaranteed 1-Page A4 Print Engine */
+/* 100% Android Chrome & Desktop Guaranteed 1-Page A4 Full-Length Print Engine */
 @media screen {
   #isolatedPrintContainer { display: none !important; }
 }
@@ -25,16 +25,20 @@
     background: #fff !important;
     color: #000 !important;
     width: 100% !important;
-    height: auto !important;
+    height: 100% !important;
   }
   header, nav, main, .no-print {
     display: none !important;
   }
   #isolatedPrintContainer {
-    display: block !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
     position: static !important;
     width: 100% !important;
-    max-width: 200mm !important;
+    max-width: 202mm !important;
+    min-height: 285mm !important;
+    height: 285mm !important;
     margin: 0 auto !important;
     padding: 2mm 3mm !important;
     box-sizing: border-box !important;
@@ -46,7 +50,7 @@
   tr { page-break-inside: avoid !important; }
 }
 
-/* Classic Vyapar / GST Bordered Invoice Styling */
+/* Classic Vyapar / GST Bordered Invoice Table Styling */
 .inv-grid-table {
   border-collapse: collapse;
   width: 100%;
@@ -61,7 +65,7 @@
 </head>
 <body class="bg-slate-950 font-sans text-slate-100 min-h-screen">
 
-<!-- Isolated Clean Container for Guaranteed 1-Page A4 Printing -->
+<!-- Isolated Clean Container for Guaranteed 1-Page A4 Full-Length Printing -->
 <div id="isolatedPrintContainer"></div>
 
 <header class="bg-slate-900 border-b border-slate-800 shadow-md no-print sticky top-0 z-50">
@@ -248,11 +252,11 @@
     <!-- Live Preview Screen -->
     <div class="lg:col-span-7 bg-white p-5 rounded-2xl border shadow-sm flex flex-col items-center overflow-x-auto">
       <div class="w-full flex justify-between items-center mb-2">
-        <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Live GST Tax Invoice Preview (A4 Standard)</span>
-        <button type="button" onclick="window.print()" class="text-xs bg-slate-100 hover:bg-slate-200 font-bold px-3 py-1 rounded">Quick Print</button>
+        <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Live GST Tax Invoice Preview (A4 Full Length)</span>
+        <button type="button" onclick="finalizeAndPrint()" class="text-xs bg-sky-600 hover:bg-sky-700 text-white font-bold px-3 py-1 rounded">Quick Print</button>
       </div>
-      <!-- Fixed Auto-Fit Sheet matching user's reference image -->
-      <div id="printableInvoice" class="bg-white shadow-xl text-xs text-slate-900 flex flex-col justify-between" style="width:100%; max-width:200mm; padding:6mm 7mm;"></div>
+      <!-- Fixed Auto-Fit Sheet matching user's exact demo bill -->
+      <div id="printableInvoice" class="bg-white shadow-xl text-xs text-slate-900 flex flex-col justify-between" style="width:100%; max-width:202mm; min-height:282mm; padding:6mm 7mm; box-sizing:border-box;"></div>
     </div>
   </div>
 </section>
@@ -299,7 +303,7 @@
   </div>
 </section>
 
-<!-- 3. PURCHASE WITH MULTI-IMEI BULK SCANNER -->
+<!-- 3. PURCHASE -->
 <section id="purchaseTab" class="tab-panel" style="display:none;">
   <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
     <div class="lg:col-span-5 bg-white p-5 rounded-2xl border shadow-sm space-y-3">
@@ -633,7 +637,7 @@
   </div>
 </section>
 
-<!-- 9. SETTINGS (STORE PROFILE, BANK DETAILS & UPI) -->
+<!-- 9. SETTINGS -->
 <section id="settingsTab" class="tab-panel" style="display:none;">
   <div class="bg-white p-6 rounded-2xl border shadow-sm max-w-2xl mx-auto space-y-4">
     <h2 class="font-bold text-base">🔒 Store Settings, Bank Details & Security</h2>
@@ -663,7 +667,7 @@
       <textarea id="cfgStoreAddress" rows="2" placeholder="Address" class="w-full border rounded px-3 py-2 text-xs"></textarea>
     </div>
 
-    <!-- Bank Coordinates & UPI (For Invoice Display) -->
+    <!-- Bank Coordinates & UPI -->
     <div class="border-t pt-3 space-y-3">
       <h3 class="text-xs font-bold uppercase text-sky-800">Bank Details & UPI ID (Appears on Invoice)</h3>
       <div class="grid grid-cols-2 gap-3">
@@ -744,7 +748,7 @@ window.activePurchaseLines = [];
 window.activeReturnInvoice = null;
 
 /* ============================================================
-   NUMBER TO WORDS CONVERTER (INDIAN RUPEES SYSTEM)
+   NUMBER TO WORDS CONVERTER
    ============================================================ */
 function numberToWords(num) {
   const a = ['', 'ONE ', 'TWO ', 'THREE ', 'FOUR ', 'FIVE ', 'SIX ', 'SEVEN ', 'EIGHT ', 'NINE ', 'TEN ', 'ELEVEN ', 'TWELVE ', 'THIRTEEN ', 'FOURTEEN ', 'FIFTEEN ', 'SIXTEEN ', 'SEVENTEEN ', 'EIGHTEEN ', 'NINETEEN '];
@@ -1092,6 +1096,7 @@ function applyInvoiceTheme(t){ currentTheme=t; renderLiveInvoicePreview(); }
 
 /* ============================================================
    LIVE PREVIEW MATCHING USER'S EXACT REFERENCE INVOICE DESIGN
+   WITH FULL-PAGE VERTICAL GRID AUTO-EXPANDER (NO BLANK BOTTOM)
    ============================================================ */
 function renderLiveInvoicePreview(){
   const el=document.getElementById('printableInvoice'); if(!el) return;
@@ -1105,14 +1110,14 @@ function renderLiveInvoicePreview(){
   const taxType=document.getElementById('gstTaxType')?.value || 'INTRA';
   const discount=parseFloat(document.getElementById('extraDiscount')?.value) || 0;
 
-  // Format Date to DD-MMM-YYYY (e.g., 28-Feb-2024)
   let dObj = new Date(invDate);
   const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   const formattedDateStr = `${String(dObj.getDate()).padStart(2, '0')}-${monthNames[dObj.getMonth()]}-${dObj.getFullYear()}`;
 
   let tG=0, tT=0, tTax=0, totalQty=0;
 
-  let rows = activeLineItems.map((it, idx) => {
+  // Render Product Items
+  let productRows = activeLineItems.map((it, idx) => {
     const lineTotal = it.grossAmount * it.qty;
     const lineTaxable = lineTotal / (1 + it.gstRate / 100);
     const lineTax = lineTotal - lineTaxable;
@@ -1124,21 +1129,21 @@ function renderLiveInvoicePreview(){
     totalQty += it.qty;
 
     return `
-      <tr>
-        <td class="p-1.5 text-center font-bold text-slate-700">${idx + 1}</td>
-        <td class="p-1.5">
+      <tr style="height: 14mm;">
+        <td class="p-1 text-center font-bold text-slate-700 align-top">${idx + 1}</td>
+        <td class="p-1 align-top">
           <div class="font-bold text-slate-900">${it.desc}</div>
-          ${it.imei ? `<div class="text-[10px] text-slate-600 font-mono tracking-wider italic">IMEI ${it.imei}</div>` : ''}
+          ${it.imei ? `<div class="text-[10px] text-slate-600 font-mono italic">IMEI ${it.imei}</div>` : ''}
         </td>
-        <td class="p-1.5 text-center font-mono text-[11px]">${it.hsn}</td>
-        <td class="p-1.5 text-center font-bold">${it.qty} NOS</td>
-        <td class="p-1.5 text-right font-mono">${ratePerUnit.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-        <td class="p-1.5 text-right font-mono font-semibold">${lineTaxable.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-        <td class="p-1.5 text-center font-mono text-[10px]">
+        <td class="p-1 text-center font-mono text-[11px] align-top">${it.hsn}</td>
+        <td class="p-1 text-center font-bold align-top">${it.qty} NOS</td>
+        <td class="p-1 text-right font-mono align-top">${ratePerUnit.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+        <td class="p-1 text-right font-mono font-semibold align-top">${lineTaxable.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+        <td class="p-1 text-center font-mono text-[10px] align-top">
           <div>${it.gstRate}%</div>
           <div class="font-semibold text-slate-700">${lineTax.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
         </td>
-        <td class="p-1.5 text-right font-mono font-bold text-slate-900">
+        <td class="p-1 text-right font-mono font-bold text-slate-900 align-top">
           <div class="flex items-center justify-end gap-1">
             <span>${lineTotal.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
             <button type="button" onclick="removeItem(${idx})" class="no-print text-red-500 hover:text-red-700 font-bold ml-1 text-[11px]">✕</button>
@@ -1148,10 +1153,21 @@ function renderLiveInvoicePreview(){
     `;
   }).join('');
 
-  if(activeLineItems.length === 0) {
-    rows = `
-      <tr>
-        <td colspan="8" class="text-center py-10 text-slate-400 italic">No products added. Scan barcode or type IMEI above.</td>
+  // Auto-Expanding Empty Rows with Vertical Grid lines (Fills middle page area exactly like demo bill!)
+  const minRows = 7;
+  const emptyRowsCount = Math.max(0, minRows - activeLineItems.length);
+  let emptySpacerRows = '';
+  for(let r = 0; r < emptyRowsCount; r++) {
+    emptySpacerRows += `
+      <tr style="height: 12mm;">
+        <td class="p-1">&nbsp;</td>
+        <td class="p-1">&nbsp;</td>
+        <td class="p-1">&nbsp;</td>
+        <td class="p-1">&nbsp;</td>
+        <td class="p-1">&nbsp;</td>
+        <td class="p-1">&nbsp;</td>
+        <td class="p-1">&nbsp;</td>
+        <td class="p-1">&nbsp;</td>
       </tr>
     `;
   }
@@ -1164,202 +1180,209 @@ function renderLiveInvoicePreview(){
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=110x110&data=${encodeURIComponent(upiUri)}`;
 
   el.innerHTML = `
-    <div class="p-1">
-      <!-- HEADER matching image: Left: Shop info, Right: Brand Logos Strip -->
-      <div class="flex justify-between items-start pb-2">
-        <div class="flex items-start space-x-3">
-          ${storeProfile.logo ? `<img src="${storeProfile.logo}" class="h-14 w-auto object-contain">` : `
-            <div class="w-12 h-12 bg-sky-600 rounded-lg flex flex-col items-center justify-center text-white font-bold text-xs shadow">
-              <span>📱</span>
-              <span class="text-[7px] uppercase tracking-tighter">Shop</span>
-            </div>
-          `}
-          <div>
-            <h1 class="text-2xl font-black text-sky-800 tracking-tight leading-none">${storeProfile.name || 'Shree Mobile Shop'}</h1>
-            <p class="text-[11px] text-slate-600 mt-1 max-w-sm leading-tight">${storeProfile.address}</p>
-            <p class="text-[11px] font-bold text-slate-800 mt-0.5">${storeProfile.phone}</p>
-          </div>
-        </div>
-
-        <!-- Official Smartphone Brands Logo Strip (Apple, Samsung, Mi, Vivo, Oppo etc.) -->
-        <div class="flex flex-col items-end">
-          <div class="grid grid-cols-6 gap-1.5 text-center text-[8px] font-bold text-slate-600">
-            <span class="bg-slate-100 border px-1.5 py-0.5 rounded">Apple</span>
-            <span class="bg-slate-100 border px-1.5 py-0.5 rounded">SAMSUNG</span>
-            <span class="bg-amber-100 text-amber-800 border px-1.5 py-0.5 rounded">mi</span>
-            <span class="bg-rose-100 text-rose-800 border px-1.5 py-0.5 rounded">OnePlus</span>
-            <span class="bg-slate-100 border px-1.5 py-0.5 rounded">Google</span>
-            <span class="bg-emerald-100 text-emerald-800 border px-1.5 py-0.5 rounded">oppo</span>
-            <span class="bg-rose-50 text-rose-700 border px-1.5 py-0.5 rounded">HUAWEI</span>
-            <span class="bg-sky-100 text-sky-800 border px-1.5 py-0.5 rounded">vivo</span>
-            <span class="bg-blue-100 text-blue-800 border px-1.5 py-0.5 rounded">NOKIA</span>
-            <span class="bg-slate-100 border px-1.5 py-0.5 rounded">ASUS</span>
-            <span class="bg-slate-100 border px-1.5 py-0.5 rounded">SONY</span>
-            <span class="bg-cyan-100 text-cyan-800 border px-1.5 py-0.5 rounded">HONOR</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Tagline Promotional Banner Bar -->
-      <div class="border-y border-sky-600 py-1 text-center font-bold text-[10px] text-slate-800 bg-sky-50/50 mb-2">
-        Get All Your Desired Smart Phones From Apple To Vivo On Huge Discounts And Easy EMI
-      </div>
-
-      <!-- GSTIN & TAX INVOICE METADATA BAR -->
-      <div class="inv-box-border mb-0">
-        <div class="grid grid-cols-12 border-b border-sky-600 font-bold bg-sky-50/70 p-1.5 text-xs">
-          <div class="col-span-5 text-slate-900 font-black tracking-wide">
-            GSTIN : <span class="font-mono text-sky-900">${storeProfile.gstin}</span>
-          </div>
-          <div class="col-span-4 text-center text-sm font-black text-sky-800 uppercase tracking-wider">
-            TAX INVOICE
-          </div>
-          <div class="col-span-3 text-right text-[10px] font-black uppercase text-slate-700">
-            ORIGINAL FOR RECIPIENT
-          </div>
-        </div>
-
-        <!-- Customer & Invoice Date 2-Column Split -->
-        <div class="grid grid-cols-12 text-[11px]">
-          <!-- Customer Detail (Left) -->
-          <div class="col-span-6 border-r border-sky-600 p-2 space-y-0.5">
-            <div class="font-bold text-sky-800 text-[10px] uppercase border-b border-sky-200 pb-0.5 mb-1">Customer Detail</div>
-            <div class="flex"><span class="w-16 font-semibold text-slate-600">Name:</span> <strong class="text-slate-900">${custName}</strong></div>
-            <div class="flex"><span class="w-16 font-semibold text-slate-600">Address:</span> <span class="text-slate-700">${custAddress}</span></div>
-            <div class="flex"><span class="w-16 font-semibold text-slate-600">PHONE:</span> <span class="text-slate-700">${custPhone}</span></div>
-            <div class="flex"><span class="w-16 font-semibold text-slate-600">GSTIN:</span> <span class="font-mono text-slate-700">${custGSTIN || '-'}</span></div>
-            <div class="flex"><span class="w-16 font-semibold text-slate-600">Place of Supply:</span> <span class="text-slate-700">${custAddress || 'West Bengal ( 19 )'}</span></div>
-          </div>
-
-          <!-- Invoice No & Date (Right) -->
-          <div class="col-span-6 p-2 space-y-1">
-            <div class="flex justify-between border-b border-sky-200 pb-1">
-              <span class="font-semibold text-slate-600">Invoice No.:</span>
-              <strong class="font-mono text-slate-900 text-xs">${invNo}</strong>
-            </div>
-            <div class="flex justify-between">
-              <span class="font-semibold text-slate-600">Invoice Date:</span>
-              <strong class="font-mono text-slate-900">${formattedDateStr}</strong>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- MAIN PRODUCT GRID TABLE -->
-      <table class="inv-grid-table text-[11px] mb-0">
-        <thead class="bg-sky-100/70 text-slate-800 font-bold text-[10px] uppercase tracking-tight">
-          <tr>
-            <th class="p-1.5 text-center w-8">Sr. No.</th>
-            <th class="p-1.5 text-left">Name of Product / Service</th>
-            <th class="p-1.5 text-center w-16">HSN / SAC</th>
-            <th class="p-1.5 text-center w-12">Qty</th>
-            <th class="p-1.5 text-right w-20">Rate</th>
-            <th class="p-1.5 text-right w-24">Taxable Value</th>
-            <th class="p-1.5 text-center w-20">${taxType === 'INTRA' ? 'CGST / SGST' : 'IGST'}</th>
-            <th class="p-1.5 text-right w-24">Total</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${rows}
-        </tbody>
-        <tfoot class="font-bold bg-sky-50 text-[11px]">
-          <tr>
-            <td colspan="3" class="p-1.5 text-right uppercase">Total:</td>
-            <td class="p-1.5 text-center font-mono">${totalQty}</td>
-            <td class="p-1.5"></td>
-            <td class="p-1.5 text-right font-mono">${tT.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-            <td class="p-1.5 text-center font-mono">${tTax.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-            <td class="p-1.5 text-right font-mono font-black text-slate-900">${tG.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-          </tr>
-        </tfoot>
-      </table>
-
-      <!-- SUMMARY & FOOTER SECTION -->
-      <div class="inv-box-border text-[11px] mb-1">
-        <div class="grid grid-cols-12">
-          <!-- Left Bottom: In Words, Bank Details, QR & Terms -->
-          <div class="col-span-7 border-r border-sky-600 p-2 flex flex-col justify-between space-y-2">
-            <!-- Total In Words -->
+    <!-- FULL A4 VERTICAL FLEX CONTAINER (Eliminates bottom empty gap) -->
+    <div class="flex flex-col justify-between h-full min-h-[278mm]">
+      
+      <!-- TOP PORTION: HEADER + BRANDS + TAX INVOICE METADATA + PRODUCT TABLE -->
+      <div>
+        <!-- HEADER: Left: Shop info, Right: Brand Logos Strip -->
+        <div class="flex justify-between items-start pb-2">
+          <div class="flex items-start space-x-3">
+            ${storeProfile.logo ? `<img src="${storeProfile.logo}" class="h-12 w-auto object-contain">` : `
+              <div class="w-10 h-10 bg-sky-600 rounded-lg flex flex-col items-center justify-center text-white font-bold text-xs shadow">
+                <span>📱</span>
+                <span class="text-[7px] uppercase tracking-tighter">Shop</span>
+              </div>
+            `}
             <div>
-              <div class="text-[9px] font-bold text-slate-500 uppercase">Total in words</div>
-              <div class="font-black text-slate-900 uppercase text-[10px] tracking-tight mt-0.5 leading-tight">${totalInWords}</div>
-            </div>
-
-            <!-- Bank Coordinates & Live Dynamic QR Code -->
-            <div class="border-t border-sky-200 pt-1.5 flex justify-between items-center">
-              <div class="space-y-0.5 text-[10px]">
-                <div class="font-bold text-sky-800 uppercase">Bank Details</div>
-                <div><span class="text-slate-500">Name:</span> <strong class="text-slate-800">${storeProfile.bankName}</strong></div>
-                <div><span class="text-slate-500">Branch:</span> <span class="text-slate-700">${storeProfile.bankBranch}</span></div>
-                <div><span class="text-slate-500">Acc. Number:</span> <span class="font-mono text-slate-900 font-bold">${storeProfile.bankAcc}</span></div>
-                <div><span class="text-slate-500">IFSC:</span> <span class="font-mono text-slate-800 font-bold">${storeProfile.bankIFSC}</span></div>
-                <div><span class="text-slate-500">UPI ID:</span> <span class="font-mono text-sky-700 font-bold">${storeProfile.upiId}</span></div>
-              </div>
-
-              <!-- UPI Pay QR Code -->
-              <div class="flex flex-col items-center pr-2">
-                <img src="${qrCodeUrl}" alt="UPI QR" class="w-20 h-20 border border-slate-300 p-0.5 rounded shadow-sm">
-                <span class="text-[9px] font-bold text-sky-800 mt-0.5">Pay using UPI</span>
-              </div>
-            </div>
-
-            <!-- Terms and Conditions -->
-            <div class="border-t border-sky-200 pt-1 text-[9px] text-slate-600">
-              <div class="font-bold text-slate-800 uppercase">Terms and Conditions</div>
-              <p class="whitespace-pre-line leading-tight mt-0.5">${storeProfile.terms}</p>
+              <h1 class="text-xl font-black text-sky-800 tracking-tight leading-none">${storeProfile.name || 'Shree Mobile Shop'}</h1>
+              <p class="text-[10px] text-slate-600 mt-1 max-w-sm leading-tight">${storeProfile.address}</p>
+              <p class="text-[10px] font-bold text-slate-800 mt-0.5">${storeProfile.phone}</p>
             </div>
           </div>
 
-          <!-- Right Bottom: Calculations, Grand Total & Signatory -->
-          <div class="col-span-5 flex flex-col justify-between">
-            <div class="divide-y divide-sky-200 text-[11px]">
-              <div class="flex justify-between p-1.5 font-semibold">
-                <span>Taxable Amount</span>
-                <span class="font-mono">${tT.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
-              </div>
-              ${discount > 0 ? `
-                <div class="flex justify-between p-1.5 font-bold text-rose-600">
-                  <span>Special Discount</span>
-                  <span class="font-mono">-₹${discount.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
-                </div>
-              ` : ''}
-              <div class="flex justify-between p-1.5">
-                <span>Add : ${taxType === 'INTRA' ? 'CGST + SGST' : 'IGST'}</span>
-                <span class="font-mono font-semibold">${tTax.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
-              </div>
-              <div class="flex justify-between p-1.5 font-semibold text-slate-700">
-                <span>Total Tax</span>
-                <span class="font-mono">${tTax.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
-              </div>
-              <div class="flex justify-between p-2 font-black text-sm bg-sky-100 text-sky-950">
-                <span>Total Amount After Tax</span>
-                <span class="font-mono">₹${finalPayable.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
-              </div>
+          <!-- Official Smartphone Brands Logo Strip -->
+          <div class="flex flex-col items-end">
+            <div class="grid grid-cols-6 gap-1.5 text-center text-[8px] font-bold text-slate-600">
+              <span class="bg-slate-100 border px-1.5 py-0.5 rounded">Apple</span>
+              <span class="bg-slate-100 border px-1.5 py-0.5 rounded">SAMSUNG</span>
+              <span class="bg-amber-100 text-amber-800 border px-1.5 py-0.5 rounded">mi</span>
+              <span class="bg-rose-100 text-rose-800 border px-1.5 py-0.5 rounded">OnePlus</span>
+              <span class="bg-slate-100 border px-1.5 py-0.5 rounded">Google</span>
+              <span class="bg-emerald-100 text-emerald-800 border px-1.5 py-0.5 rounded">oppo</span>
+              <span class="bg-rose-50 text-rose-700 border px-1.5 py-0.5 rounded">HUAWEI</span>
+              <span class="bg-sky-100 text-sky-800 border px-1.5 py-0.5 rounded">vivo</span>
+              <span class="bg-blue-100 text-blue-800 border px-1.5 py-0.5 rounded">NOKIA</span>
+              <span class="bg-slate-100 border px-1.5 py-0.5 rounded">ASUS</span>
+              <span class="bg-slate-100 border px-1.5 py-0.5 rounded">SONY</span>
+              <span class="bg-cyan-100 text-cyan-800 border px-1.5 py-0.5 rounded">HONOR</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tagline Promotional Banner Bar -->
+        <div class="border-y border-sky-600 py-0.5 text-center font-bold text-[9px] text-slate-800 bg-sky-50/50 mb-1.5">
+          Get All Your Desired Smart Phones From Apple To Vivo On Huge Discounts And Easy EMI
+        </div>
+
+        <!-- GSTIN & TAX INVOICE METADATA BAR -->
+        <div class="inv-box-border mb-0">
+          <div class="grid grid-cols-12 border-b border-sky-600 font-bold bg-sky-50/70 p-1 text-xs">
+            <div class="col-span-5 text-slate-900 font-black tracking-wide text-[11px]">
+              GSTIN : <span class="font-mono text-sky-900">${storeProfile.gstin}</span>
+            </div>
+            <div class="col-span-4 text-center text-xs font-black text-sky-800 uppercase tracking-wider">
+              TAX INVOICE
+            </div>
+            <div class="col-span-3 text-right text-[9px] font-black uppercase text-slate-700">
+              ORIGINAL FOR RECIPIENT
+            </div>
+          </div>
+
+          <!-- Customer & Invoice Date 2-Column Split -->
+          <div class="grid grid-cols-12 text-[10px]">
+            <div class="col-span-6 border-r border-sky-600 p-1.5 space-y-0.5">
+              <div class="font-bold text-sky-800 text-[9px] uppercase border-b border-sky-200 pb-0.5 mb-0.5">Customer Detail</div>
+              <div class="flex"><span class="w-14 font-semibold text-slate-600">Name:</span> <strong class="text-slate-900">${custName}</strong></div>
+              <div class="flex"><span class="w-14 font-semibold text-slate-600">Address:</span> <span class="text-slate-700">${custAddress}</span></div>
+              <div class="flex"><span class="w-14 font-semibold text-slate-600">PHONE:</span> <span class="text-slate-700">${custPhone}</span></div>
+              <div class="flex"><span class="w-14 font-semibold text-slate-600">GSTIN:</span> <span class="font-mono text-slate-700">${custGSTIN || '-'}</span></div>
+              <div class="flex"><span class="w-14 font-semibold text-slate-600">Place of Supply:</span> <span class="text-slate-700">${custAddress || 'West Bengal ( 19 )'}</span></div>
             </div>
 
-            <div class="p-2 text-right">
-              <span class="text-[10px] text-slate-400 font-bold block">(E & O.E.)</span>
-              <p class="text-[9px] text-slate-500 mt-1">Certified that the particulars given above are true and correct.</p>
-              <div class="font-bold text-[11px] text-slate-800 mt-0.5">For ${storeProfile.name || 'Shree Mobile Shop'}</div>
-              <div class="h-10"></div>
-              <div class="border-t border-slate-400 w-36 ml-auto text-center font-bold text-slate-700 text-[10px] pt-0.5">
-                Authorised Signatory
+            <div class="col-span-6 p-1.5 space-y-1">
+              <div class="flex justify-between border-b border-sky-200 pb-0.5">
+                <span class="font-semibold text-slate-600">Invoice No.:</span>
+                <strong class="font-mono text-slate-900 text-xs">${invNo}</strong>
+              </div>
+              <div class="flex justify-between">
+                <span class="font-semibold text-slate-600">Invoice Date:</span>
+                <strong class="font-mono text-slate-900">${formattedDateStr}</strong>
               </div>
             </div>
           </div>
         </div>
+
+        <!-- MAIN PRODUCT GRID TABLE WITH EXTENDED VERTICAL BORDERS -->
+        <table class="inv-grid-table text-[10px] mb-0">
+          <thead class="bg-sky-100/70 text-slate-800 font-bold text-[9px] uppercase tracking-tight">
+            <tr>
+              <th class="p-1 text-center w-8">Sr. No.</th>
+              <th class="p-1 text-left">Name of Product / Service</th>
+              <th class="p-1 text-center w-14">HSN / SAC</th>
+              <th class="p-1 text-center w-10">Qty</th>
+              <th class="p-1 text-right w-16">Rate</th>
+              <th class="p-1 text-right w-20">Taxable Value</th>
+              <th class="p-1 text-center w-16">${taxType === 'INTRA' ? 'CGST / SGST' : 'IGST'}</th>
+              <th class="p-1 text-right w-20">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${productRows}
+            ${emptySpacerRows}
+          </tbody>
+          <tfoot class="font-bold bg-sky-50 text-[10px]">
+            <tr>
+              <td colspan="3" class="p-1 text-right uppercase">Total:</td>
+              <td class="p-1 text-center font-mono">${totalQty}</td>
+              <td class="p-1"></td>
+              <td class="p-1 text-right font-mono">${tT.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+              <td class="p-1 text-center font-mono">${tTax.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+              <td class="p-1 text-right font-mono font-black text-slate-900">${tG.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+            </tr>
+          </tfoot>
+        </table>
       </div>
 
-      <!-- Official Footer Credits -->
-      <div class="text-center text-[9px] text-slate-500 font-mono tracking-tight pt-1">
-        SmartFix Pro © 2026 | Developed by Debapriya Sarkar
+      <!-- BOTTOM PORTION: IN WORDS + BANK DETAILS + QR + SUMMARY + SIGNATORY -->
+      <div class="mt-auto">
+        <div class="inv-box-border text-[10px] mb-1">
+          <div class="grid grid-cols-12">
+            <!-- Left Bottom: In Words, Bank Details, QR & Terms -->
+            <div class="col-span-7 border-r border-sky-600 p-2 flex flex-col justify-between space-y-1.5">
+              <!-- Total In Words -->
+              <div>
+                <div class="text-[8px] font-bold text-slate-500 uppercase">Total in words</div>
+                <div class="font-black text-slate-900 uppercase text-[9px] tracking-tight leading-tight">${totalInWords}</div>
+              </div>
+
+              <!-- Bank Coordinates & Live Dynamic QR Code -->
+              <div class="border-t border-sky-200 pt-1 flex justify-between items-center">
+                <div class="space-y-0.5 text-[9px]">
+                  <div class="font-bold text-sky-800 uppercase">Bank Details</div>
+                  <div><span class="text-slate-500">Name:</span> <strong class="text-slate-800">${storeProfile.bankName}</strong></div>
+                  <div><span class="text-slate-500">Branch:</span> <span class="text-slate-700">${storeProfile.bankBranch}</span></div>
+                  <div><span class="text-slate-500">Acc. Number:</span> <span class="font-mono text-slate-900 font-bold">${storeProfile.bankAcc}</span></div>
+                  <div><span class="text-slate-500">IFSC:</span> <span class="font-mono text-slate-800 font-bold">${storeProfile.bankIFSC}</span></div>
+                  <div><span class="text-slate-500">UPI ID:</span> <span class="font-mono text-sky-700 font-bold">${storeProfile.upiId}</span></div>
+                </div>
+
+                <!-- UPI Pay QR Code -->
+                <div class="flex flex-col items-center pr-2">
+                  <img src="${qrCodeUrl}" alt="UPI QR" class="w-16 h-16 border border-slate-300 p-0.5 rounded shadow-sm">
+                  <span class="text-[8px] font-bold text-sky-800 mt-0.5">Pay using UPI</span>
+                </div>
+              </div>
+
+              <!-- Terms and Conditions -->
+              <div class="border-t border-sky-200 pt-1 text-[8px] text-slate-600">
+                <div class="font-bold text-slate-800 uppercase">Terms and Conditions</div>
+                <p class="whitespace-pre-line leading-tight mt-0.5">${storeProfile.terms}</p>
+              </div>
+            </div>
+
+            <!-- Right Bottom: Calculations, Grand Total & Signatory -->
+            <div class="col-span-5 flex flex-col justify-between">
+              <div class="divide-y divide-sky-200 text-[10px]">
+                <div class="flex justify-between p-1 font-semibold">
+                  <span>Taxable Amount</span>
+                  <span class="font-mono">${tT.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                </div>
+                ${discount > 0 ? `
+                  <div class="flex justify-between p-1 font-bold text-rose-600">
+                    <span>Special Discount</span>
+                    <span class="font-mono">-₹${discount.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                  </div>
+                ` : ''}
+                <div class="flex justify-between p-1">
+                  <span>Add : ${taxType === 'INTRA' ? 'CGST + SGST' : 'IGST'}</span>
+                  <span class="font-mono font-semibold">${tTax.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                </div>
+                <div class="flex justify-between p-1 font-semibold text-slate-700">
+                  <span>Total Tax</span>
+                  <span class="font-mono">${tTax.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                </div>
+                <div class="flex justify-between p-1.5 font-black text-sm bg-sky-100 text-sky-950">
+                  <span>Total Amount After Tax</span>
+                  <span class="font-mono">₹${finalPayable.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                </div>
+              </div>
+
+              <div class="p-1.5 text-right">
+                <span class="text-[9px] text-slate-400 font-bold block">(E & O.E.)</span>
+                <p class="text-[8px] text-slate-500 mt-0.5">Certified that the particulars given above are true and correct.</p>
+                <div class="font-bold text-[10px] text-slate-800 mt-0.5">For ${storeProfile.name || 'Shree Mobile Shop'}</div>
+                <div class="h-8"></div>
+                <div class="border-t border-slate-400 w-32 ml-auto text-center font-bold text-slate-700 text-[9px] pt-0.5">
+                  Authorised Signatory
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Official Footer Credits -->
+        <div class="text-center text-[8px] text-slate-500 font-mono tracking-tight pb-0.5">
+          SmartFix Pro © 2026 | Developed by Debapriya Sarkar
+        </div>
       </div>
+
     </div>
   `;
 }
 
 /* ============================================================
-   FINALIZE & GUARANTEED 1-PAGE PRINT ENGINE
+   FINALIZE & 1-PAGE A4 GUARANTEED PRINT
    ============================================================ */
 function finalizeAndPrint(){
   if(activeLineItems.length===0){ alert("Add at least one item!"); return; }
@@ -1418,7 +1441,7 @@ function finalizeAndPrint(){
   logAudit('INVOICE_CREATE', invNo+' | '+custName+' | ₹'+finalPayable.toFixed(2));
   refreshPartyDatalists();
 
-  // COPY HTML TO THE ISOLATED PRINT CONTAINER (Fixes Android Chrome Blank Print)
+  // Populate isolated print box
   const printBox = document.getElementById('isolatedPrintContainer');
   printBox.innerHTML = document.getElementById('printableInvoice').innerHTML;
 
@@ -1585,44 +1608,47 @@ function renderCreditNotesTable(){
     '<td class="p-2.5 font-semibold">'+c.customerName+'</td>'+
     '<td class="p-2.5 text-right font-mono text-rose-600">₹'+c.refundTax.toFixed(2)+'</td>'+
     '<td class="p-2.5 text-right font-mono font-bold text-rose-700">₹'+c.refundTotal.toFixed(2)+'</td>'+
-    '<td class="p-2.5 text-center"><button onclick="printCRN('+i+')" class="text-xs bg-slate-200 hover:bg-slate-300 font-bold px-2 py-1 rounded">Print</button></td>'+
+    '<td class="p-2.5 text-center"><button type="button" onclick="printCRN('+i+')" class="text-xs bg-slate-200 hover:bg-slate-300 font-bold px-2 py-1 rounded">Print</button></td>'+
   '</tr>').join('');
 }
 function printCRN(i){ printCRNSlip(creditNotes[i]); }
 function printCRNSlip(crn){
   const el=document.getElementById('printableInvoice');
   el.className='theme-dark bg-white shadow-xl border text-xs text-slate-800 flex flex-col justify-between';
-  el.innerHTML=
-    '<div>'+
-      '<div class="flex justify-between items-start border-b-2 border-rose-600 pb-2.5 mb-2.5">'+
-        '<div><h1 class="text-base font-black text-rose-800 uppercase">'+(storeProfile.name||'SMARTFIXPRO')+'</h1>'+
-        '<p class="text-slate-500 text-[10px]">'+storeProfile.address+' | '+storeProfile.phone+'</p></div>'+
-        '<div class="text-right"><span class="inline-block bg-rose-700 text-white text-[9px] uppercase font-black px-2.5 py-0.5 rounded">CREDIT NOTE</span>'+
-        '<div class="text-xs font-black font-mono mt-0.5">'+crn.crnNo+'</div>'+
-        '<div class="text-[10px] text-slate-500">Date: '+crn.date+'</div></div>'+
-      '</div>'+
-      '<div class="bg-rose-50 border border-rose-200 p-2.5 rounded-lg mb-3 text-[11px]">'+
-        '<div class="flex justify-between"><div><strong>Customer:</strong> '+crn.customerName+'</div>'+
-        '<div><strong>Against:</strong> '+crn.origInvoiceNo+'</div></div>'+
-      '</div>'+
-      '<table class="w-full text-left border rounded-lg overflow-hidden mb-3">'+
-        '<thead class="bg-slate-800 text-white text-[9px] uppercase"><tr>'+
-          '<th class="p-1.5">Item & IMEI</th><th class="p-1.5 text-right">Taxable Rev</th><th class="p-1.5 text-right">Tax Rev</th><th class="p-1.5 text-right">Refund ₹</th>'+
-        '</tr></thead><tbody><tr>'+
-          '<td class="p-2"><div class="font-bold">'+crn.itemDesc+'</div><div class="text-[10px] text-slate-500 font-mono">IMEI: '+(crn.imei||'N/A')+'</div><div class="text-[10px] text-slate-500">Reason: '+crn.reason+'</div></td>'+
-          '<td class="p-2 text-right font-mono">₹'+crn.refundTaxable.toFixed(2)+'</td>'+
-          '<td class="p-2 text-right font-mono">₹'+crn.refundTax.toFixed(2)+'</td>'+
-          '<td class="p-2 text-right font-mono font-bold text-rose-700">₹'+crn.refundTotal.toFixed(2)+'</td>'+
-        '</tr></tbody>'+
-      '</table>'+
-    '</div>'+
-    '<div>'+
-      '<div class="border-t pt-2 flex justify-between items-end">'+
-        '<div class="text-[9px] text-slate-400">SmartFix Pro ERP</div>'+
-        '<div class="border-t border-slate-400 w-36 text-center font-bold text-slate-700 pt-0.5">Authorized Signatory</div>'+
-      '</div>'+
-      '<div class="mt-2 pt-1 border-t text-center text-[9px] text-slate-500 font-mono">SmartFix Pro © 2026 | Developed by Debapriya Sarkar</div>'+
-    '</div>';
+  el.innerHTML = `
+    <div class="flex flex-col justify-between h-full min-h-[275mm]">
+      <div>
+        <div class="flex justify-between items-start border-b-2 border-rose-600 pb-2.5 mb-2.5">
+          <div><h1 class="text-base font-black text-rose-800 uppercase">${storeProfile.name || 'SMARTFIXPRO'}</h1>
+          <p class="text-slate-500 text-[10px]">${storeProfile.address} | ${storeProfile.phone}</p></div>
+          <div class="text-right"><span class="inline-block bg-rose-700 text-white text-[9px] uppercase font-black px-2.5 py-0.5 rounded">CREDIT NOTE</span>
+          <div class="text-xs font-black font-mono mt-0.5">${crn.crnNo}</div>
+          <div class="text-[10px] text-slate-500">Date: ${crn.date}</div></div>
+        </div>
+        <div class="bg-rose-50 border border-rose-200 p-2.5 rounded-lg mb-3 text-[11px]">
+          <div class="flex justify-between"><div><strong>Customer:</strong> ${crn.customerName}</div>
+          <div><strong>Against:</strong> ${crn.origInvoiceNo}</div></div>
+        </div>
+        <table class="w-full text-left border rounded-lg overflow-hidden mb-3">
+          <thead class="bg-slate-800 text-white text-[9px] uppercase"><tr>
+            <th class="p-1.5">Item & IMEI</th><th class="p-1.5 text-right">Taxable Rev</th><th class="p-1.5 text-right">Tax Rev</th><th class="p-1.5 text-right">Refund ₹</th>
+          </tr></thead><tbody><tr>
+            <td class="p-2"><div class="font-bold">${crn.itemDesc}</div><div class="text-[10px] text-slate-500 font-mono">IMEI: ${crn.imei || 'N/A'}</div><div class="text-[10px] text-slate-500">Reason: ${crn.reason}</div></td>
+            <td class="p-2 text-right font-mono">₹${crn.refundTaxable.toFixed(2)}</td>
+            <td class="p-2 text-right font-mono">₹${crn.refundTax.toFixed(2)}</td>
+            <td class="p-2 text-right font-mono font-bold text-rose-700">₹${crn.refundTotal.toFixed(2)}</td>
+          </tr></tbody>
+        </table>
+      </div>
+      <div class="mt-auto">
+        <div class="border-t pt-2 flex justify-between items-end">
+          <div class="text-[9px] text-slate-400">SmartFix Pro ERP</div>
+          <div class="border-t border-slate-400 w-36 text-center font-bold text-slate-700 pt-0.5">Authorized Signatory</div>
+        </div>
+        <div class="mt-2 pt-1 border-t text-center text-[9px] text-slate-500 font-mono">SmartFix Pro © 2026 | Developed by Debapriya Sarkar</div>
+      </div>
+    </div>
+  `;
 
   const printBox = document.getElementById('isolatedPrintContainer');
   printBox.innerHTML = el.innerHTML;
