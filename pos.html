@@ -8,14 +8,57 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
 <style>
+/* 100% Guaranteed 1-Page Print Engine for A4 and Thermal */
 @media print {
-  body * { visibility: hidden !important; }
-  #printableInvoice, #printableInvoice * { visibility: visible !important; }
-  #printableInvoice { position:absolute; left:0; top:0; width:210mm; margin:0; padding:10mm 14mm; background:white !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  @page {
+    size: A4 portrait;
+    margin: 5mm;
+  }
+  body, html {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: white !important;
+    color: black !important;
+    width: 100% !important;
+    height: auto !important;
+  }
+  body * {
+    visibility: hidden !important;
+  }
+  #printableInvoice, #printableInvoice * {
+    visibility: visible !important;
+  }
+  #printableInvoice {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    max-width: 200mm !important;
+    min-height: auto !important;
+    height: auto !important;
+    margin: 0 auto !important;
+    padding: 4mm 6mm !important;
+    border: none !important;
+    box-shadow: none !important;
+    page-break-after: avoid !important;
+    page-break-inside: avoid !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  /* Thermal Mode Overrides */
+  body.print-thermal @page {
+    size: 80mm auto;
+    margin: 2mm;
+  }
+  body.print-thermal #printableInvoice {
+    max-width: 76mm !important;
+    font-size: 10px !important;
+    padding: 2mm !important;
+  }
   .no-print { display: none !important; }
-  .overflow-x-auto { overflow: visible !important; }
-  tr { page-break-inside: avoid; }
+  tr { page-break-inside: avoid !important; }
 }
+
 .theme-blue{--pri:#1e3a8a;--sec:#2563eb;--accent:#f0f7ff;--border:#bfdbfe;}
 .theme-dark{--pri:#0f172a;--sec:#334155;--accent:#f8fafc;--border:#cbd5e1;}
 .theme-emerald{--pri:#064e3b;--sec:#059669;--accent:#ecfdf5;--border:#a7f3d0;}
@@ -31,13 +74,13 @@
 <header class="bg-slate-900 border-b border-slate-800 shadow-md no-print sticky top-0 z-50">
   <div class="max-w-7xl mx-auto px-4 py-2.5 flex flex-wrap justify-between items-center gap-3">
     <div class="flex items-center space-x-3">
-      <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center font-bold text-white">🔧</div>
+      <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-500/30">🔧</div>
       <div>
         <div class="flex items-center gap-2">
           <span class="text-lg font-black tracking-tight text-white">SMARTFIX<span class="text-indigo-400">PRO</span></span>
           <span class="text-[10px] bg-indigo-950 text-indigo-300 font-mono px-2 py-0.5 rounded border border-indigo-800">TALLY ERP & POS</span>
         </div>
-        <p class="text-[10px] text-slate-400">Lead Dev: Debapriya Sarkar</p>
+        <p class="text-[10px] text-slate-400">Lead Dev: Debapriya Sarkar | Multi-Printer POS</p>
       </div>
     </div>
     <div class="flex items-center space-x-2 flex-wrap">
@@ -67,7 +110,7 @@
 
 <main class="max-w-7xl mx-auto px-4 py-6 no-print text-slate-800">
 
-<!-- SALES -->
+<!-- 1. SALES -->
 <section id="billingTab" class="tab-panel">
   <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
     <div class="lg:col-span-5 bg-white p-5 rounded-2xl border shadow-sm space-y-4">
@@ -75,74 +118,152 @@
         <h2 class="font-bold text-slate-900 text-sm uppercase">POS Sales Invoice</h2>
         <span class="text-xs bg-indigo-50 text-indigo-700 font-mono font-bold px-2 py-0.5 rounded" id="displayFY">FY</span>
       </div>
-      <div class="bg-indigo-50 border border-indigo-200 rounded-xl p-3 space-y-2">
-        <div class="flex justify-between items-center">
-          <span class="text-xs font-bold text-indigo-900">📷 Barcode / IMEI Scanner</span>
-          <button type="button" onclick="toggleCameraScanner()" id="scannerToggleBtn" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-2.5 py-1 rounded">Open Camera</button>
+
+      <!-- Invoice Info -->
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-[10px] font-bold uppercase mb-1 text-slate-600">Invoice No (Auto)</label>
+          <input type="text" id="invNo" class="w-full bg-slate-50 border rounded px-2.5 py-1.5 text-xs font-mono font-bold text-indigo-900" readonly>
         </div>
-        <div id="cameraScannerWrapper" style="display:none;" class="overflow-hidden rounded-lg border border-indigo-300"><div id="reader" style="width:100%;"></div></div>
-        <input type="text" id="barcodeQuickInput" onkeydown="handleBarcodeEnter(event)" placeholder="Scan / Type IMEI + ENTER..." class="w-full bg-white border border-indigo-300 rounded px-3 py-1.5 text-xs font-mono">
+        <div>
+          <label class="block text-[10px] font-bold uppercase mb-1 text-slate-600">Date (Current/Backdate)</label>
+          <input type="date" id="invDate" onchange="onDateChanged()" class="w-full border rounded px-2.5 py-1.5 text-xs font-semibold">
+        </div>
       </div>
+
+      <!-- Customer Details -->
       <div class="grid grid-cols-2 gap-3">
-        <div><label class="block text-[10px] font-bold uppercase mb-1">Invoice No</label><input type="text" id="invNo" class="w-full bg-slate-50 border rounded px-2.5 py-1.5 text-xs font-mono font-bold text-indigo-900" readonly></div>
-        <div><label class="block text-[10px] font-bold uppercase mb-1">Date</label><input type="date" id="invDate" onchange="onDateChanged()" class="w-full border rounded px-2.5 py-1.5 text-xs font-semibold"></div>
+        <div>
+          <label class="block text-[10px] font-bold uppercase mb-1 text-slate-600">Customer Name</label>
+          <input type="text" id="custName" list="customerList" oninput="renderLiveInvoicePreview()" placeholder="Client Name" class="w-full border rounded px-2.5 py-1.5 text-xs"><datalist id="customerList"></datalist>
+        </div>
+        <div>
+          <label class="block text-[10px] font-bold uppercase mb-1 text-slate-600">Phone Number</label>
+          <input type="tel" id="custPhone" oninput="renderLiveInvoicePreview()" placeholder="Mobile No" class="w-full border rounded px-2.5 py-1.5 text-xs">
+        </div>
       </div>
+
       <div class="grid grid-cols-2 gap-3">
-        <div><label class="block text-[10px] font-bold uppercase mb-1">Customer</label><input type="text" id="custName" list="customerList" oninput="renderLiveInvoicePreview()" class="w-full border rounded px-2.5 py-1.5 text-xs"><datalist id="customerList"></datalist></div>
-        <div><label class="block text-[10px] font-bold uppercase mb-1">Phone</label><input type="tel" id="custPhone" oninput="renderLiveInvoicePreview()" class="w-full border rounded px-2.5 py-1.5 text-xs"></div>
-      </div>
-      <div class="grid grid-cols-2 gap-3">
-        <div><label class="block text-[10px] font-bold uppercase mb-1">GSTIN</label><input type="text" id="custGSTIN" oninput="renderLiveInvoicePreview()" class="w-full border rounded px-2.5 py-1.5 text-xs font-mono uppercase"></div>
-        <div><label class="block text-[10px] font-bold uppercase mb-1">GST Type</label>
+        <div>
+          <label class="block text-[10px] font-bold uppercase mb-1 text-slate-600">GSTIN (Optional)</label>
+          <input type="text" id="custGSTIN" oninput="renderLiveInvoicePreview()" placeholder="B2B GSTIN" class="w-full border rounded px-2.5 py-1.5 text-xs font-mono uppercase">
+        </div>
+        <div>
+          <label class="block text-[10px] font-bold uppercase mb-1 text-slate-600">GST Treatment</label>
           <select id="gstTaxType" onchange="renderLiveInvoicePreview()" class="w-full border border-indigo-300 rounded px-2.5 py-1.5 text-xs bg-indigo-50 font-semibold text-indigo-900">
-            <option value="INTRA">Intra (CGST+SGST)</option><option value="INTER">Inter (IGST)</option>
+            <option value="INTRA">Intra-State (CGST + SGST)</option>
+            <option value="INTER">Inter-State (IGST 100%)</option>
           </select>
         </div>
       </div>
-      <div><label class="block text-[10px] font-bold uppercase mb-1">Payment Ledger</label>
-        <select id="paymentLedger" onchange="renderLiveInvoicePreview()" class="w-full border rounded px-2.5 py-1.5 text-xs bg-white">
-          <option value="Cash-in-Hand">Cash A/c</option>
-          <option value="Bank / UPI">UPI / QR</option>
-          <option value="Card Payment">Card</option>
-          <option value="Bajaj / EMI Finance">Bajaj EMI</option>
-          <option value="Credit / Sundry Debtors">Udhar (Debtors)</option>
+
+      <div>
+        <label class="block text-[10px] font-bold uppercase mb-1 text-slate-600">Payment Method</label>
+        <select id="paymentLedger" onchange="renderLiveInvoicePreview()" class="w-full border rounded px-2.5 py-1.5 text-xs bg-white font-medium">
+          <option value="Cash-in-Hand">Cash A/c (Counter)</option>
+          <option value="Bank / UPI">UPI / QR Payment</option>
+          <option value="Card Payment">Debit / Credit Card</option>
+          <option value="Bajaj / EMI Finance">Bajaj Finance / Loan</option>
+          <option value="Credit / Sundry Debtors">Udhar (Sundry Debtors)</option>
         </select>
       </div>
-      <div class="bg-slate-50 p-3 rounded-xl border space-y-2">
-        <div class="text-[10px] font-bold text-slate-700 uppercase">Manual Product Entry</div>
-        <input type="text" id="itemDesc" placeholder="Model Name" class="w-full border rounded px-2.5 py-1.5 text-xs">
-        <input type="text" id="itemIMEI" placeholder="IMEI / Serial" class="w-full border rounded px-2.5 py-1.5 text-xs font-mono bg-amber-50/50">
-        <div class="grid grid-cols-4 gap-2">
-          <div><label class="block text-[9px] text-slate-500 font-bold">HSN</label><input type="text" id="itemHSN" value="8517" class="w-full border rounded px-1.5 py-1 text-xs font-mono"></div>
-          <div><label class="block text-[9px] text-slate-500 font-bold">GST%</label>
-            <select id="itemGSTRate" class="w-full border rounded px-1 py-1 text-xs bg-white"><option>18</option><option>12</option><option>28</option><option>0</option></select>
-          </div>
-          <div><label class="block text-[9px] text-slate-500 font-bold">Qty</label><input type="number" id="itemQty" value="1" min="1" class="w-full border rounded px-1 py-1 text-xs text-center"></div>
-          <div><label class="block text-[9px] text-slate-500 font-bold">Gross ₹</label><input type="number" id="itemPrice" class="w-full border rounded px-1.5 py-1 text-xs font-bold"></div>
+
+      <!-- ITEM ENTRY SECTION: SCANNER + SMART AUTO-LOOKUP -->
+      <div class="border-t pt-3 space-y-3">
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-bold text-slate-800 uppercase tracking-wide">📦 Add Product / Scan Barcode</span>
+          <span class="text-[10px] text-indigo-600 font-semibold">USB Scanner & Camera Ready</span>
         </div>
-        <button type="button" onclick="addManualItem()" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-1.5 rounded text-xs">+ Add Item</button>
+
+        <!-- Integrated Barcode & IMEI Scanner (Direct Scan & Add) -->
+        <div class="bg-indigo-50 border border-indigo-200 rounded-xl p-3 space-y-2">
+          <div class="flex justify-between items-center">
+            <span class="text-xs font-bold text-indigo-900">📷 Scan IMEI or Barcode to Add</span>
+            <button type="button" onclick="toggleCameraScanner()" id="scannerToggleBtn" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-2.5 py-1 rounded transition">Open Camera</button>
+          </div>
+          <div id="cameraScannerWrapper" style="display:none;" class="overflow-hidden rounded-lg border border-indigo-300">
+            <div id="reader" style="width:100%;"></div>
+          </div>
+          <div class="relative">
+            <input type="text" id="barcodeQuickInput" onkeydown="handleBarcodeEnter(event)" placeholder="Scan Barcode / USB Scanner or type IMEI & Enter..." class="w-full bg-white border border-indigo-300 rounded px-3 py-1.5 text-xs font-mono font-bold text-slate-800">
+            <span class="absolute right-2 top-1.5 text-[10px] text-indigo-500 font-bold">Auto-Add</span>
+          </div>
+        </div>
+
+        <!-- Manual or Auto-Populated Line Entry -->
+        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2">
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-[9px] text-slate-500 font-bold mb-0.5">IMEI / Serial (Auto-detects Stock)</label>
+              <input type="text" id="itemIMEI" oninput="lookupStockByIMEI(this.value)" placeholder="Type/Scan IMEI..." class="w-full border rounded px-2.5 py-1.5 text-xs font-mono bg-yellow-50/60 font-bold">
+            </div>
+            <div>
+              <label class="block text-[9px] text-slate-500 font-bold mb-0.5">Model / Product Name</label>
+              <input type="text" id="itemDesc" placeholder="e.g. Oppo A15 3/32" class="w-full border rounded px-2.5 py-1.5 text-xs font-semibold">
+            </div>
+          </div>
+          <div class="grid grid-cols-4 gap-2">
+            <div>
+              <label class="block text-[9px] text-slate-500 font-bold">HSN</label>
+              <input type="text" id="itemHSN" value="8517" class="w-full border rounded px-1.5 py-1 text-xs font-mono">
+            </div>
+            <div>
+              <label class="block text-[9px] text-slate-500 font-bold">GST%</label>
+              <select id="itemGSTRate" class="w-full border rounded px-1 py-1 text-xs bg-white font-medium">
+                <option value="18">18%</option><option value="12">12%</option><option value="28">28%</option><option value="0">0%</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[9px] text-slate-500 font-bold">Qty</label>
+              <input type="number" id="itemQty" value="1" min="1" class="w-full border rounded px-1.5 py-1 text-xs text-center font-bold">
+            </div>
+            <div>
+              <label class="block text-[9px] text-slate-500 font-bold">Gross Price ₹</label>
+              <input type="number" id="itemPrice" placeholder="Final Price" class="w-full border rounded px-1.5 py-1 text-xs font-bold text-slate-900">
+            </div>
+          </div>
+          <button type="button" onclick="addManualItem()" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-1.5 rounded text-xs transition">+ Add to Invoice</button>
+        </div>
       </div>
-      <div class="grid grid-cols-2 gap-3">
-        <div><label class="block text-[10px] font-bold uppercase mb-1">Theme</label>
-          <select id="invoiceTheme" onchange="applyInvoiceTheme(this.value)" class="w-full border rounded px-2.5 py-1.5 text-xs bg-white">
-            <option value="theme-blue">Sapphire</option><option value="theme-dark">Slate</option><option value="theme-emerald">Emerald</option><option value="theme-purple">Purple</option>
+
+      <!-- Print Mode & Action -->
+      <div class="grid grid-cols-2 gap-3 pt-2 border-t">
+        <div>
+          <label class="block text-[10px] font-bold uppercase mb-1 text-slate-600">Printer Format</label>
+          <select id="printFormatSelector" onchange="togglePrinterFormat(this.value)" class="w-full border rounded px-2.5 py-1.5 text-xs bg-white font-semibold text-slate-800">
+            <option value="A4">A4 Laser / Inkjet (Full Page)</option>
+            <option value="Thermal">80mm POS Thermal Slip</option>
           </select>
         </div>
-        <div><label class="block text-[10px] font-bold uppercase mb-1">Action</label>
-          <button type="button" onclick="finalizeAndPrint()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-1.5 rounded text-xs shadow">💾 Save & Print</button>
+        <div>
+          <label class="block text-[10px] font-bold uppercase mb-1 text-slate-600">Action</label>
+          <button type="button" onclick="finalizeAndPrint()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-1.5 rounded text-xs shadow transition flex items-center justify-center gap-1.5">
+            <span>💾 Save & Print</span>
+          </button>
         </div>
       </div>
     </div>
+
+    <!-- Live Preview Screen -->
     <div class="lg:col-span-7 bg-white p-5 rounded-2xl border shadow-sm flex flex-col items-center overflow-x-auto">
       <div class="w-full flex justify-between items-center mb-3">
-        <span class="text-xs font-bold uppercase tracking-wider text-slate-400">A4 Invoice Preview</span>
+        <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Live Invoice Print Preview</span>
+        <div class="flex items-center gap-2">
+          <select id="invoiceTheme" onchange="applyInvoiceTheme(this.value)" class="border rounded px-2 py-0.5 text-xs bg-white text-slate-700">
+            <option value="theme-blue">Sapphire Blue</option>
+            <option value="theme-dark">Deep Slate</option>
+            <option value="theme-emerald">Royal Emerald</option>
+            <option value="theme-purple">Majestic Purple</option>
+          </select>
+        </div>
       </div>
-      <div id="printableInvoice" class="theme-blue bg-white shadow-2xl border text-xs text-slate-800 flex flex-col justify-between" style="width:210mm;min-height:285mm;padding:12mm 15mm;"></div>
+      <!-- Fixed Auto-Fit Sheet (Prevents Blank 2nd Page) -->
+      <div id="printableInvoice" class="theme-blue bg-white shadow-xl border text-xs text-slate-800 flex flex-col justify-between" style="width:100%; max-width:200mm; padding:8mm 10mm;"></div>
     </div>
   </div>
 </section>
 
-<!-- RETURN -->
+<!-- 2. RETURN / CREDIT NOTE -->
 <section id="returnTab" class="tab-panel" style="display:none;">
   <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
     <div class="lg:col-span-5 bg-white p-5 rounded-2xl border shadow-sm space-y-4">
@@ -160,7 +281,7 @@
             <label class="block text-[10px] font-bold uppercase mb-0.5">Select Item:</label>
             <select id="retItemSelector" onchange="onReturnItemSelected()" class="w-full border rounded px-2 py-1 text-xs bg-white font-semibold"></select>
           </div>
-          <div class="flex justify-between"><span class="text-slate-500">IMEI:</span> <span id="retItemIMEI" class="font-mono"></span></div>
+          <div class="flex justify-between pt-1"><span class="text-slate-500">IMEI:</span> <span id="retItemIMEI" class="font-mono"></span></div>
           <div class="flex justify-between"><span class="text-slate-500">Refund:</span> <strong id="retRefundAmount" class="text-rose-600 font-mono text-sm"></strong></div>
         </div>
         <div>
@@ -184,7 +305,7 @@
   </div>
 </section>
 
-<!-- PURCHASE -->
+<!-- 3. PURCHASE -->
 <section id="purchaseTab" class="tab-panel" style="display:none;">
   <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
     <div class="lg:col-span-5 bg-white p-5 rounded-2xl border shadow-sm space-y-3">
@@ -237,7 +358,7 @@
   </div>
 </section>
 
-<!-- VOUCHERS -->
+<!-- 4. VOUCHERS -->
 <section id="vouchersTab" class="tab-panel" style="display:none;">
   <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
     <div class="lg:col-span-5 bg-white p-5 rounded-2xl border shadow-sm space-y-3">
@@ -292,7 +413,7 @@
   </div>
 </section>
 
-<!-- P&L -->
+<!-- 5. P&L & ACCOUNTING -->
 <section id="accountingTab" class="tab-panel" style="display:none;">
   <div class="bg-white p-5 rounded-2xl border shadow-sm space-y-4">
     <div class="flex flex-wrap justify-between items-center gap-3">
@@ -355,7 +476,7 @@
   </div>
 </section>
 
-<!-- BOOKS -->
+<!-- 6. BOOKS -->
 <section id="booksTab" class="tab-panel" style="display:none;">
   <div class="bg-white p-5 rounded-2xl border shadow-sm space-y-4">
     <div class="flex flex-wrap justify-between items-center gap-3">
@@ -418,7 +539,7 @@
   </div>
 </section>
 
-<!-- PARTIES -->
+<!-- 7. PARTIES -->
 <section id="partiesTab" class="tab-panel" style="display:none;">
   <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
     <div class="lg:col-span-4 bg-white p-5 rounded-2xl border shadow-sm space-y-3">
@@ -448,25 +569,50 @@
   </div>
 </section>
 
-<!-- STOCK -->
+<!-- 8. STOCK WITH BATCH MULTI-IMEI INWARD -->
 <section id="inventoryTab" class="tab-panel" style="display:none;">
-  <div class="bg-white p-5 rounded-2xl border shadow-sm space-y-3">
-    <div class="flex justify-between items-center">
-      <h2 class="font-bold text-sm uppercase">Stock Inward</h2>
-      <span class="text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded">🔒 Owner Protected</span>
+  <div class="bg-white p-5 rounded-2xl border shadow-sm space-y-4">
+    <div class="flex justify-between items-center border-b pb-2">
+      <h2 class="font-bold text-sm uppercase text-slate-900">📦 Stock Register & Multi-IMEI Bulk Inward</h2>
+      <span class="text-xs bg-amber-100 text-amber-800 px-2.5 py-0.5 rounded font-bold">🔒 Owner Protected</span>
     </div>
-    <div class="grid grid-cols-1 sm:grid-cols-6 gap-3">
-      <input type="text" id="stkModel" placeholder="Model Name *" class="border rounded px-3 py-2 text-xs col-span-2">
-      <input type="text" id="stkIMEI" placeholder="IMEI / Serial" class="border rounded px-3 py-2 text-xs font-mono">
-      <input type="number" id="stkPurchaseCost" placeholder="Purchase ₹" class="border rounded px-3 py-2 text-xs font-bold text-slate-600">
-      <input type="number" id="stkCost" placeholder="Selling ₹ *" class="border rounded px-3 py-2 text-xs font-bold text-emerald-700">
-      <button type="button" onclick="addStockItem()" class="bg-indigo-600 text-white font-bold py-2 rounded-xl text-xs hover:bg-indigo-700 shadow">+ Add</button>
+
+    <!-- Batch Multi-IMEI Entry Box (User requested feature) -->
+    <div class="bg-indigo-50/70 border border-indigo-200 rounded-xl p-4 space-y-3">
+      <div class="flex justify-between items-center">
+        <span class="text-xs font-bold text-indigo-950 uppercase">⚡ Bulk Inward: 1 Model, Multiple IMEIs (e.g. 15 Phones at once)</span>
+        <span class="text-[10px] text-indigo-600 font-semibold">Scan repeatedly with USB or Camera Scanner</span>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+        <div class="sm:col-span-2">
+          <label class="block text-[10px] font-bold uppercase mb-1 text-slate-600">Model Name *</label>
+          <input type="text" id="stkModel" placeholder="e.g. Oppo A15 3/32" class="w-full border rounded px-3 py-2 text-xs font-bold bg-white">
+        </div>
+        <div>
+          <label class="block text-[10px] font-bold uppercase mb-1 text-slate-600">Purchase Cost ₹</label>
+          <input type="number" id="stkPurchaseCost" placeholder="Cost" class="w-full border rounded px-3 py-2 text-xs font-bold text-slate-700 bg-white">
+        </div>
+        <div>
+          <label class="block text-[10px] font-bold uppercase mb-1 text-slate-600">Selling Price ₹ *</label>
+          <input type="number" id="stkCost" placeholder="Sell Price" class="w-full border rounded px-3 py-2 text-xs font-bold text-emerald-700 bg-white">
+        </div>
+      </div>
+      <div>
+        <label class="block text-[10px] font-bold uppercase mb-1 text-slate-700">Scan Multiple IMEIs here (Separated by Newline, Space or Comma):</label>
+        <textarea id="stkBatchIMEIs" rows="2" placeholder="Scan IMEIs one after another... e.g.&#10;864210987654321&#10;864210987654322&#10;864210987654323" class="w-full border rounded px-3 py-2 text-xs font-mono bg-white"></textarea>
+      </div>
+      <div class="flex gap-2">
+        <button type="button" onclick="addStockItem()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 rounded-xl text-xs transition shadow">
+          + Inward Single / Batch Stock Now
+        </button>
+      </div>
     </div>
   </div>
+
   <div class="bg-white rounded-2xl border shadow-sm overflow-hidden mt-4">
     <div class="p-4 border-b bg-slate-50 flex justify-between items-center">
-      <h3 class="font-bold text-xs uppercase text-slate-700">Live Inventory</h3>
-      <span class="text-xs text-slate-500" id="stockCountDisplay">0 Units</span>
+      <h3 class="font-bold text-xs uppercase text-slate-700">Live Inventory Register</h3>
+      <span class="text-xs text-slate-500 font-bold" id="stockCountDisplay">0 Units</span>
     </div>
     <div class="overflow-x-auto"><table class="w-full text-left text-xs border-collapse">
       <thead class="bg-slate-100 text-slate-600 uppercase text-[10px]"><tr>
@@ -476,7 +622,7 @@
   </div>
 </section>
 
-<!-- SETTINGS -->
+<!-- 9. SETTINGS -->
 <section id="settingsTab" class="tab-panel" style="display:none;">
   <div class="bg-white p-6 rounded-2xl border shadow-sm max-w-2xl mx-auto space-y-4">
     <h2 class="font-bold text-base">🔒 Store Settings & Security</h2>
@@ -524,8 +670,10 @@
    STATE
    ============================================================ */
 window.currentTheme = 'theme-blue';
+window.currentPrintFormat = 'A4';
 window.html5QrCode = null;
 window.isScannerOpen = false;
+window.isScannerBusy = false;
 window.currentBook = 'cash';
 
 window.storeProfile = {
@@ -609,7 +757,33 @@ function resizeImage(file, maxDim){
   });
 }
 function money(n){ return '₹'+(parseFloat(n)||0).toLocaleString('en-IN',{minimumFractionDigits:2, maximumFractionDigits:2}); }
-function moneyInt(n){ return '₹'+Math.round(parseFloat(n)||0).toLocaleString('en-IN'); }
+
+/* ============================================================
+   TOGGLE PRINTER FORMAT (A4 vs THERMAL 80mm)
+   ============================================================ */
+function togglePrinterFormat(fmt){
+  window.currentPrintFormat = fmt;
+  if(fmt==='Thermal'){
+    document.body.classList.add('print-thermal');
+  } else {
+    document.body.classList.remove('print-thermal');
+  }
+  renderLiveInvoicePreview();
+}
+
+/* ============================================================
+   AUTO-LOOKUP STOCK WHEN IMEI IS ENTERED (ZERO MANUAL TYPING)
+   ============================================================ */
+function lookupStockByIMEI(val){
+  val = val.trim();
+  if(!val) return;
+  const matched = inventory.find(i=>i.imei && i.imei.toLowerCase()===val.toLowerCase() && i.status!=="Sold");
+  if(matched){
+    document.getElementById('itemDesc').value = matched.model;
+    document.getElementById('itemPrice').value = matched.cost;
+    document.getElementById('itemQty').value = 1;
+  }
+}
 
 /* ============================================================
    INIT & NAV
@@ -686,7 +860,7 @@ function onDateChanged(){
   if(dv){
     const parts=dv.split('-');
     if(parts.length===3){
-      const sd=new Date(parseInt(parts[0]),parseInt(parts[1])-1,parseInt(parts[2]));
+      const sd=new Date(parseInt(parts[0],10),parseInt(parts[1],10)-1,parseInt(parts[2],10));
       document.getElementById('displayFY').innerText=getFY(sd).label;
       document.getElementById('invNo').value=nextInvoiceNo(sd);
     }
@@ -722,7 +896,8 @@ function enforceStoreLockState(){
 }
 function unlockStoreForEdit(){
   const pin=prompt("Enter Master PIN:");
-  if(pin && pin.trim()===storeProfile.masterPin){
+  if(!pin) return;
+  if(pin.trim()===storeProfile.masterPin){
     document.getElementById('cfgStoreName').readOnly=false;
     document.getElementById('cfgStoreName').classList.remove('bg-slate-100','text-slate-500');
     const sb=document.getElementById('saveStoreBtn'); sb.disabled=false; sb.innerText="Save Changes & Re-lock"; sb.classList.remove('bg-slate-400'); sb.classList.add('bg-indigo-600');
@@ -765,21 +940,31 @@ function promptForgotPIN(){
 }
 
 /* ============================================================
-   BARCODE SCANNER
+   BARCODE SCANNER (AUTO-ADD & USB SCANNER COMPATIBLE)
    ============================================================ */
 async function toggleCameraScanner(){
+  if(window.isScannerBusy) return;
+  window.isScannerBusy = true;
   const wrapper=document.getElementById('cameraScannerWrapper'), btn=document.getElementById('scannerToggleBtn');
-  if(isScannerOpen){
-    try{ if(html5QrCode){ await html5QrCode.stop(); await html5QrCode.clear(); html5QrCode=null; } }catch(e){}
-    wrapper.style.display='none'; btn.innerText="Open Camera"; isScannerOpen=false;
-  } else {
-    wrapper.style.display='block'; btn.innerText="Close Scanner";
-    try{
+  try{
+    if(isScannerOpen){
+      if(html5QrCode){
+        try{ await html5QrCode.stop(); await html5QrCode.clear(); }catch(e){}
+        html5QrCode=null;
+      }
+      wrapper.style.display='none'; btn.innerText="Open Camera"; isScannerOpen=false;
+    } else {
+      wrapper.style.display='block'; btn.innerText="Close Scanner";
       html5QrCode=new Html5Qrcode("reader");
       await html5QrCode.start({facingMode:"environment"},{fps:10,qrbox:{width:280,height:160}},
         (t)=>handleScannedCode(t), ()=>{});
       isScannerOpen=true;
-    }catch(e){ alert("Camera denied."); wrapper.style.display='none'; btn.innerText="Open Camera"; isScannerOpen=false; }
+    }
+  }catch(e){
+    alert("Camera access denied or camera not found.");
+    wrapper.style.display='none'; btn.innerText="Open Camera"; isScannerOpen=false; html5QrCode=null;
+  }finally{
+    window.isScannerBusy = false;
   }
 }
 function handleBarcodeEnter(e){
@@ -792,7 +977,7 @@ function handleScannedCode(code){
     if(activeLineItems.some(i=>i.stockId===m.id)){ alert("Already in cart!"); return; }
     pushProductToBill(m.model, m.imei, '8517', 18, 1, m.cost, m.purchaseCost||0, m.id);
   } else {
-    const gp=prompt('"'+code+'" not in stock. Selling ₹:',"15000");
+    const gp=prompt('"'+code+'" not found in stock. Enter Selling Price ₹:',"15000");
     if(gp && !isNaN(gp) && parseFloat(gp)>0){
       const mdl=prompt("Model Name:","Mobile Device");
       pushProductToBill(mdl||"Device", code, '8517', 18, 1, parseFloat(gp), 0, null);
@@ -801,14 +986,14 @@ function handleScannedCode(code){
 }
 
 /* ============================================================
-   CART
+   CART & BILLING
    ============================================================ */
 function addManualItem(){
   const desc=document.getElementById('itemDesc').value.trim();
   const imei=document.getElementById('itemIMEI').value.trim();
   const hsn=document.getElementById('itemHSN').value.trim()||'8517';
   const gstRate=parseFloat(document.getElementById('itemGSTRate').value)||18;
-  const qty=parseInt(document.getElementById('itemQty').value)||1;
+  const qty=parseInt(document.getElementById('itemQty').value, 10)||1;
   const gross=parseFloat(document.getElementById('itemPrice').value)||0;
   if(!desc||gross<=0){ alert("Enter description and price."); return; }
   if(imei){
@@ -826,7 +1011,7 @@ function addManualItem(){
   document.getElementById('itemPrice').value='';
 }
 function pushProductToBill(desc,imei,hsn,gstRate,qty,gross,pc,stockId){
-  activeLineItems.push({ id:Date.now()+Math.random(), stockId:stockId||null, desc, imei, hsn, gstRate, qty:parseInt(qty)||1, purchaseCost:parseFloat(pc)||0, grossAmount:parseFloat(gross), returned:false });
+  activeLineItems.push({ id:Date.now()+Math.random(), stockId:stockId||null, desc, imei, hsn, gstRate, qty:parseInt(qty,10)||1, purchaseCost:parseFloat(pc)||0, grossAmount:parseFloat(gross), returned:false });
   renderLiveInvoicePreview();
 }
 function removeItem(i){ activeLineItems.splice(i,1); renderLiveInvoicePreview(); }
@@ -839,11 +1024,11 @@ function sellFromStock(id){
 function applyInvoiceTheme(t){ currentTheme=t; renderLiveInvoicePreview(); }
 
 /* ============================================================
-   LIVE PREVIEW
+   LIVE PREVIEW (A4 & THERMAL SLIP ENGINE)
    ============================================================ */
 function renderLiveInvoicePreview(){
   const el=document.getElementById('printableInvoice'); if(!el) return;
-  el.className=currentTheme+" bg-white shadow-2xl border text-xs text-slate-800 flex flex-col justify-between";
+  el.className=currentTheme+" bg-white shadow-xl border text-xs text-slate-800 flex flex-col justify-between";
   const invNo=document.getElementById('invNo').value;
   const invDate=document.getElementById('invDate').value;
   const custName=document.getElementById('custName').value.trim()||'Cash Customer';
@@ -853,35 +1038,35 @@ function renderLiveInvoicePreview(){
   const taxType=document.getElementById('gstTaxType').value;
 
   let tG=0,tT=0,tC=0,tS=0,tI=0;
-  const pad = activeLineItems.length<=2?'py-4 px-3':(activeLineItems.length<=5?'py-2.5 px-3':'py-1.5 px-2 text-[10px]');
+
   let rows=activeLineItems.map((it,idx)=>{
     const lt=it.grossAmount*it.qty, ltx=lt/(1+it.gstRate/100), ltxa=lt-ltx;
     let c=0,s=0,ig=0;
     if(taxType==='INTRA'){ c=ltxa/2; s=ltxa/2; } else { ig=ltxa; }
     tG+=lt; tT+=ltx; tC+=c; tS+=s; tI+=ig;
-    return '<tr class="border-b group">'+
-      '<td class="'+pad+' text-center font-bold text-slate-400">'+(idx+1)+'</td>'+
-      '<td class="'+pad+'"><div class="font-bold text-slate-900">'+it.desc+'</div>'+(it.imei?'<div class="text-[9px] text-slate-500 font-mono mt-0.5">IMEI: '+it.imei+'</div>':'')+'</td>'+
-      '<td class="'+pad+' text-center font-mono text-[10px]">'+it.hsn+'</td>'+
-      '<td class="'+pad+' text-center font-bold">'+it.qty+'</td>'+
-      '<td class="'+pad+' text-right font-mono">₹'+ltx.toFixed(2)+'</td>'+
-      '<td class="'+pad+' text-right font-mono">'+it.gstRate+'%</td>'+
-      '<td class="'+pad+' text-right font-mono font-bold">'+
+    return '<tr class="border-b border-slate-100 group">'+
+      '<td class="py-1.5 px-2 text-center font-bold text-slate-400">'+(idx+1)+'</td>'+
+      '<td class="py-1.5 px-2"><div class="font-bold text-slate-900">'+it.desc+'</div>'+(it.imei?'<div class="text-[9px] text-slate-500 font-mono">IMEI: '+it.imei+'</div>':'')+'</td>'+
+      '<td class="py-1.5 px-2 text-center font-mono text-[10px]">'+it.hsn+'</td>'+
+      '<td class="py-1.5 px-2 text-center font-bold">'+it.qty+'</td>'+
+      '<td class="py-1.5 px-2 text-right font-mono">₹'+ltx.toFixed(2)+'</td>'+
+      '<td class="py-1.5 px-2 text-right font-mono">'+it.gstRate+'%</td>'+
+      '<td class="py-1.5 px-2 text-right font-mono font-bold">'+
         '<div class="flex items-center justify-end gap-1.5"><span>₹'+lt.toFixed(2)+'</span>'+
         '<button type="button" onclick="removeItem('+idx+')" class="no-print opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-600 text-[10px]">🗑</button></div>'+
       '</td></tr>';
   }).join('');
-  if(activeLineItems.length===0) rows='<tr><td colspan="7" class="text-center py-16 text-slate-400">Scan or add items.</td></tr>';
+  if(activeLineItems.length===0) rows='<tr><td colspan="7" class="text-center py-10 text-slate-400">Scan or add items.</td></tr>';
 
   el.innerHTML=
     '<div>'+
-      '<div class="flex justify-between items-start border-b-2 brand-border pb-3 mb-3">'+
-        '<div class="flex items-start space-x-3">'+
-          (storeProfile.logo?'<img src="'+storeProfile.logo+'" class="h-14 w-auto object-contain rounded">':'')+
+      '<div class="flex justify-between items-start border-b-2 brand-border pb-2.5 mb-2.5">'+
+        '<div class="flex items-start space-x-2.5">'+
+          (storeProfile.logo?'<img src="'+storeProfile.logo+'" class="h-12 w-auto object-contain rounded">':'')+
           '<div>'+
-            '<h1 class="text-lg font-black brand-text uppercase tracking-tight">'+(storeProfile.name||'SMARTFIXPRO WORKSHOP')+'</h1>'+
+            '<h1 class="text-base font-black brand-text uppercase tracking-tight">'+(storeProfile.name||'SMARTFIXPRO WORKSHOP')+'</h1>'+
             '<p class="text-slate-500 text-[10px] max-w-sm leading-tight mt-0.5">'+storeProfile.address+'</p>'+
-            '<div class="flex flex-wrap gap-2 text-[10px] text-slate-700 mt-1">'+
+            '<div class="flex flex-wrap gap-2 text-[10px] text-slate-700 mt-0.5">'+
               '<span>Phone: <strong>'+storeProfile.phone+'</strong></span>'+
               '<span>GSTIN: <strong class="font-mono">'+storeProfile.gstin+'</strong></span>'+
             '</div>'+
@@ -889,11 +1074,11 @@ function renderLiveInvoicePreview(){
         '</div>'+
         '<div class="text-right">'+
           '<span class="inline-block brand-bg text-white text-[9px] uppercase font-black px-2 py-0.5 rounded">TAX INVOICE ('+taxType+')</span>'+
-          '<div class="text-xs font-black font-mono mt-1">'+invNo+'</div>'+
+          '<div class="text-xs font-black font-mono mt-0.5">'+invNo+'</div>'+
           '<div class="text-[10px] text-slate-500">Date: '+invDate+'</div>'+
         '</div>'+
       '</div>'+
-      '<div class="grid grid-cols-2 gap-3 brand-accent p-2.5 rounded-lg border brand-border mb-3 text-[11px]">'+
+      '<div class="grid grid-cols-2 gap-2 brand-accent p-2 rounded-lg border brand-border mb-2.5 text-[11px]">'+
         '<div>'+
           '<div class="text-[9px] font-bold text-slate-500 uppercase">Customer</div>'+
           '<div class="font-bold text-slate-900 text-xs">'+custName+'</div>'+
@@ -901,43 +1086,43 @@ function renderLiveInvoicePreview(){
           (custGSTIN?'<div class="font-mono text-[10px]">GSTIN: <strong>'+custGSTIN+'</strong></div>':'')+
         '</div>'+
         '<div class="text-right">'+
-          '<div class="text-[9px] font-bold text-slate-500 uppercase">Payment</div>'+
+          '<div class="text-[9px] font-bold text-slate-500 uppercase">Payment Head</div>'+
           '<div class="font-bold text-emerald-800 text-xs">'+ledger+'</div>'+
         '</div>'+
       '</div>'+
-      '<table class="w-full text-left border rounded-lg overflow-hidden mb-3">'+
+      '<table class="w-full text-left border rounded-lg overflow-hidden mb-2.5">'+
         '<thead class="brand-bg text-white text-[9px] uppercase tracking-wider"><tr>'+
-          '<th class="py-1.5 px-2 text-center w-8">#</th><th class="py-1.5 px-2">Description</th><th class="py-1.5 px-2 text-center w-14">HSN</th>'+
-          '<th class="py-1.5 px-2 text-center w-10">Qty</th><th class="py-1.5 px-2 text-right w-20">Taxable</th><th class="py-1.5 px-2 text-right w-12">GST</th><th class="py-1.5 px-2 text-right w-24">Total</th>'+
+          '<th class="py-1 px-2 text-center w-8">#</th><th class="py-1 px-2">Description</th><th class="py-1 px-2 text-center w-14">HSN</th>'+
+          '<th class="py-1 px-2 text-center w-10">Qty</th><th class="py-1 px-2 text-right w-20">Taxable</th><th class="py-1 px-2 text-right w-12">GST</th><th class="py-1 px-2 text-right w-24">Total</th>'+
         '</tr></thead><tbody>'+rows+'</tbody>'+
       '</table>'+
     '</div>'+
     '<div>'+
-      '<div class="grid grid-cols-2 gap-4 mb-2 pt-2 border-t">'+
-        '<div class="border rounded p-2 text-[9px]">'+
-          '<div class="font-bold text-slate-700 uppercase mb-0.5">GST Breakup</div>'+
+      '<div class="grid grid-cols-2 gap-3 mb-2 pt-2 border-t">'+
+        '<div class="border rounded p-1.5 text-[9px]">'+
+          '<div class="font-bold text-slate-700 uppercase mb-0.5">GST Tax Computation Breakup</div>'+
           '<div class="flex justify-between py-0.5 border-b"><span>Taxable:</span><span class="font-mono">₹'+tT.toFixed(2)+'</span></div>'+
           (taxType==='INTRA'
             ?'<div class="flex justify-between py-0.5 border-b"><span>CGST:</span><span class="font-mono">₹'+tC.toFixed(2)+'</span></div>'+
              '<div class="flex justify-between py-0.5"><span>SGST:</span><span class="font-mono">₹'+tS.toFixed(2)+'</span></div>'
             :'<div class="flex justify-between py-0.5"><span>IGST:</span><span class="font-mono font-bold text-indigo-700">₹'+tI.toFixed(2)+'</span></div>')+
         '</div>'+
-        '<div class="text-right space-y-1 text-xs">'+
-          '<div class="flex justify-between py-0.5"><span>Taxable:</span><span class="font-mono">₹'+tT.toFixed(2)+'</span></div>'+
-          '<div class="flex justify-between py-0.5"><span>Tax:</span><span class="font-mono">₹'+(tC+tS+tI).toFixed(2)+'</span></div>'+
-          '<div class="flex justify-between py-1 border-t-2 brand-border text-base font-black brand-text"><span>Grand Total:</span><span class="font-mono">₹'+tG.toFixed(2)+'</span></div>'+
+        '<div class="text-right space-y-0.5 text-xs">'+
+          '<div class="flex justify-between py-0.5"><span>Taxable Value:</span><span class="font-mono">₹'+tT.toFixed(2)+'</span></div>'+
+          '<div class="flex justify-between py-0.5"><span>Combined Output Tax:</span><span class="font-mono">₹'+(tC+tS+tI).toFixed(2)+'</span></div>'+
+          '<div class="flex justify-between py-1 border-t-2 brand-border text-sm font-black brand-text"><span>Total Payable:</span><span class="font-mono">₹'+tG.toFixed(2)+'</span></div>'+
         '</div>'+
       '</div>'+
-      '<div class="border-t pt-2">'+
+      '<div class="border-t pt-1.5">'+
         '<div class="grid grid-cols-2 gap-4 text-[9px] text-slate-500">'+
           '<div><div class="font-bold uppercase text-slate-700 mb-0.5">Terms:</div><p class="whitespace-pre-line leading-tight">'+storeProfile.terms+'</p></div>'+
           '<div class="text-right flex flex-col justify-end items-end">'+
-            '<div class="h-6"></div>'+
+            '<div class="h-5"></div>'+
             '<div class="border-t border-slate-400 w-36 text-center font-bold text-slate-700 pt-0.5">Authorized Signatory</div>'+
           '</div>'+
         '</div>'+
       '</div>'+
-      '<div class="mt-3 pt-1.5 border-t text-center text-[9px] text-slate-500 font-mono">SmartFix Pro © 2026 | Dev: Debapriya Sarkar</div>'+
+      '<div class="mt-2 pt-1 border-t text-center text-[9px] text-slate-500 font-mono">SmartFix Pro © 2026 | Developed by Debapriya Sarkar</div>'+
     '</div>';
 }
 
@@ -1015,10 +1200,28 @@ function finalizeAndPrint(){
 }
 
 /* ============================================================
-   EDIT / DELETE INVOICE
+   REPRINT / EDIT / DELETE INVOICE
    ============================================================ */
+function reprintInvoice(invNo){
+  const inv=invoices.find(i=>i.invoiceNo===invNo);
+  if(!inv){ alert("Invoice not found!"); return; }
+  
+  document.getElementById('invNo').value = inv.invoiceNo;
+  document.getElementById('invDate').value = inv.date;
+  document.getElementById('custName').value = inv.customerName;
+  document.getElementById('custPhone').value = inv.customerPhone;
+  document.getElementById('custGSTIN').value = inv.customerGSTIN || '';
+  document.getElementById('paymentLedger').value = inv.ledger;
+  document.getElementById('gstTaxType').value = inv.taxType || 'INTRA';
+  activeLineItems = JSON.parse(JSON.stringify(inv.items || []));
+  applyInvoiceTheme(inv.theme || 'theme-blue');
+  switchView('billingTab');
+  setTimeout(()=>window.print(), 300);
+}
+
 function editInvoice(invNo){
   const pin=prompt("🔒 Master PIN to EDIT:");
+  if(!pin) return;
   if(pin!==storeProfile.masterPin){ alert("Unauthorized!"); return; }
   const inv=invoices.find(i=>i.invoiceNo===invNo);
   if(!inv){ alert("Invoice not found!"); return; }
@@ -1036,8 +1239,10 @@ function editInvoice(invNo){
   applyTallyFilter();
   alert("Invoice updated!");
 }
+
 function deleteInvoice(invNo){
   const pin=prompt("🔒 Master PIN to DELETE:");
+  if(!pin) return;
   if(pin!==storeProfile.masterPin){ alert("Unauthorized!"); return; }
   const inv=invoices.find(i=>i.invoiceNo===invNo);
   if(!inv){ alert("Invoice not found!"); return; }
@@ -1082,7 +1287,7 @@ function searchForReturn(){
 }
 function onReturnItemSelected(){
   if(!activeReturnInvoice) return;
-  const idx=parseInt(document.getElementById('retItemSelector').value)||0;
+  const idx=parseInt(document.getElementById('retItemSelector').value, 10)||0;
   const it=activeReturnInvoice.items[idx];
   if(it){
     document.getElementById('retItemIMEI').innerText=it.imei||'N/A';
@@ -1091,7 +1296,7 @@ function onReturnItemSelected(){
 }
 function finalizeCreditNote(){
   if(!activeReturnInvoice) return;
-  const idx=parseInt(document.getElementById('retItemSelector').value)||0;
+  const idx=parseInt(document.getElementById('retItemSelector').value, 10)||0;
   const it=activeReturnInvoice.items[idx];
   if(!it) return;
   if(it.returned){ alert("Already returned!"); return; }
@@ -1139,37 +1344,37 @@ function renderCreditNotesTable(){
 function printCRN(i){ printCRNSlip(creditNotes[i]); }
 function printCRNSlip(crn){
   const el=document.getElementById('printableInvoice');
-  el.className='theme-dark bg-white shadow-2xl border text-xs text-slate-800 flex flex-col justify-between';
+  el.className='theme-dark bg-white shadow-xl border text-xs text-slate-800 flex flex-col justify-between';
   el.innerHTML=
     '<div>'+
-      '<div class="flex justify-between items-start border-b-2 border-rose-600 pb-3 mb-3">'+
-        '<div><h1 class="text-lg font-black text-rose-800 uppercase">'+(storeProfile.name||'SMARTFIXPRO')+'</h1>'+
+      '<div class="flex justify-between items-start border-b-2 border-rose-600 pb-2.5 mb-2.5">'+
+        '<div><h1 class="text-base font-black text-rose-800 uppercase">'+(storeProfile.name||'SMARTFIXPRO')+'</h1>'+
         '<p class="text-slate-500 text-[10px]">'+storeProfile.address+' | '+storeProfile.phone+'</p></div>'+
         '<div class="text-right"><span class="inline-block bg-rose-700 text-white text-[9px] uppercase font-black px-2.5 py-0.5 rounded">CREDIT NOTE</span>'+
-        '<div class="text-xs font-black font-mono mt-1">'+crn.crnNo+'</div>'+
+        '<div class="text-xs font-black font-mono mt-0.5">'+crn.crnNo+'</div>'+
         '<div class="text-[10px] text-slate-500">Date: '+crn.date+'</div></div>'+
       '</div>'+
-      '<div class="bg-rose-50 border border-rose-200 p-3 rounded-lg mb-4 text-[11px]">'+
+      '<div class="bg-rose-50 border border-rose-200 p-2.5 rounded-lg mb-3 text-[11px]">'+
         '<div class="flex justify-between"><div><strong>Customer:</strong> '+crn.customerName+'</div>'+
         '<div><strong>Against:</strong> '+crn.origInvoiceNo+'</div></div>'+
       '</div>'+
-      '<table class="w-full text-left border rounded-lg overflow-hidden mb-4">'+
+      '<table class="w-full text-left border rounded-lg overflow-hidden mb-3">'+
         '<thead class="bg-slate-800 text-white text-[9px] uppercase"><tr>'+
-          '<th class="p-2">Item & IMEI</th><th class="p-2 text-right">Taxable Rev</th><th class="p-2 text-right">Tax Rev</th><th class="p-2 text-right">Refund ₹</th>'+
+          '<th class="p-1.5">Item & IMEI</th><th class="p-1.5 text-right">Taxable Rev</th><th class="p-1.5 text-right">Tax Rev</th><th class="p-1.5 text-right">Refund ₹</th>'+
         '</tr></thead><tbody><tr>'+
-          '<td class="p-2.5"><div class="font-bold">'+crn.itemDesc+'</div><div class="text-[10px] text-slate-500 font-mono">IMEI: '+(crn.imei||'N/A')+'</div><div class="text-[10px] text-slate-500">Reason: '+crn.reason+'</div></td>'+
-          '<td class="p-2.5 text-right font-mono">₹'+crn.refundTaxable.toFixed(2)+'</td>'+
-          '<td class="p-2.5 text-right font-mono">₹'+crn.refundTax.toFixed(2)+'</td>'+
-          '<td class="p-2.5 text-right font-mono font-bold text-rose-700">₹'+crn.refundTotal.toFixed(2)+'</td>'+
+          '<td class="p-2"><div class="font-bold">'+crn.itemDesc+'</div><div class="text-[10px] text-slate-500 font-mono">IMEI: '+(crn.imei||'N/A')+'</div><div class="text-[10px] text-slate-500">Reason: '+crn.reason+'</div></td>'+
+          '<td class="p-2 text-right font-mono">₹'+crn.refundTaxable.toFixed(2)+'</td>'+
+          '<td class="p-2 text-right font-mono">₹'+crn.refundTax.toFixed(2)+'</td>'+
+          '<td class="p-2 text-right font-mono font-bold text-rose-700">₹'+crn.refundTotal.toFixed(2)+'</td>'+
         '</tr></tbody>'+
       '</table>'+
     '</div>'+
     '<div>'+
-      '<div class="border-t pt-4 flex justify-between items-end">'+
+      '<div class="border-t pt-2 flex justify-between items-end">'+
         '<div class="text-[9px] text-slate-400">SmartFix Pro ERP</div>'+
         '<div class="border-t border-slate-400 w-36 text-center font-bold text-slate-700 pt-0.5">Authorized Signatory</div>'+
       '</div>'+
-      '<div class="mt-3 pt-1.5 border-t text-center text-[9px] text-slate-500 font-mono">SmartFix Pro © 2026</div>'+
+      '<div class="mt-2 pt-1 border-t text-center text-[9px] text-slate-500 font-mono">SmartFix Pro © 2026 | Developed by Debapriya Sarkar</div>'+
     '</div>';
   let h=false;
   const reset=()=>{ if(h) return; h=true; window.removeEventListener('afterprint',reset); renderLiveInvoicePreview(); };
@@ -1183,7 +1388,7 @@ function printCRNSlip(crn){
 function addPurchaseLine(){
   const mdl=document.getElementById('purItemModel').value.trim();
   const imei=document.getElementById('purItemIMEI').value.trim();
-  const qty=parseInt(document.getElementById('purItemQty').value)||1;
+  const qty=parseInt(document.getElementById('purItemQty').value, 10)||1;
   const cost=parseFloat(document.getElementById('purItemCost').value)||0;
   const sell=parseFloat(document.getElementById('purItemSell').value)||0;
   const gst=parseFloat(document.getElementById('purItemGST').value)||18;
@@ -1200,7 +1405,7 @@ function renderPurchaseLines(){
   const el=document.getElementById('purchaseLineItems'); if(!el) return;
   el.innerHTML=activePurchaseLines.map((l,i)=>'<div class="flex justify-between items-center bg-amber-50 border border-amber-200 rounded p-2 text-[11px]">'+
     '<span><strong>'+l.model+'</strong> × '+l.qty+' @ ₹'+l.cost+' (GST '+l.gstRate+'%)</span>'+
-    '<button onclick="removePurchaseLine('+i+')" class="text-red-500 font-bold">✕</button>'+
+    '<button type="button" onclick="removePurchaseLine('+i+')" class="text-red-500 font-bold">✕</button>'+
   '</div>').join('');
 }
 function savePurchase(){
@@ -1283,8 +1488,8 @@ function renderPurchaseTable(){
     '<td class="p-2.5 text-[10px] text-slate-500">'+p.lines.map(l=>l.model).join(', ')+'</td>'+
     '<td class="p-2.5 text-right font-mono font-bold">₹'+p.totalCost.toFixed(2)+'</td>'+
     '<td class="p-2.5 text-center space-x-1">'+
-      '<button onclick="viewPurchase('+i+')" class="text-xs bg-slate-100 px-2 py-1 rounded font-bold">👁</button>'+
-      '<button onclick="deletePurchase('+i+')" class="text-xs bg-red-100 text-red-700 px-2 py-1 rounded font-bold">🗑</button>'+
+      '<button type="button" onclick="viewPurchase('+i+')" class="text-xs bg-slate-100 px-2 py-1 rounded font-bold">👁</button>'+
+      '<button type="button" onclick="deletePurchase('+i+')" class="text-xs bg-red-100 text-red-700 px-2 py-1 rounded font-bold">🗑</button>'+
     '</td></tr>').join('');
 }
 function viewPurchase(i){
@@ -1294,6 +1499,7 @@ function viewPurchase(i){
 }
 function deletePurchase(i){
   const pin=prompt("🔒 Master PIN to delete purchase:");
+  if(!pin) return;
   if(pin!==storeProfile.masterPin){ alert("Unauthorized!"); return; }
   const p=purchases[i];
   if(!confirm('Delete purchase '+p.purchaseNo+'?')) return;
@@ -1377,12 +1583,13 @@ function renderVouchersTable(){
       (v.narration&&v.category?'<div class="text-[10px] text-slate-500">'+v.narration+'</div>':'')+'</td>'+
       '<td class="p-2.5 font-semibold text-slate-700">'+(v.account||v.fromAccount||v.drAccount||'-')+'</td>'+
       '<td class="p-2.5 text-right font-mono font-bold '+cls+'">₹'+v.amount.toFixed(2)+'</td>'+
-      '<td class="p-2.5 text-center"><button onclick="deleteVoucher('+i+')" class="text-xs text-red-500 font-bold">🗑</button></td>'+
+      '<td class="p-2.5 text-center"><button type="button" onclick="deleteVoucher('+i+')" class="text-xs text-red-500 font-bold">🗑</button></td>'+
     '</tr>';
   }).join('');
 }
 function deleteVoucher(i){
   const pin=prompt("🔒 Master PIN to delete voucher:");
+  if(!pin) return;
   if(pin!==storeProfile.masterPin){ alert("Unauthorized!"); return; }
   const v=vouchers[i];
   if(!confirm('Delete voucher ₹'+v.amount+'?')) return;
@@ -1461,13 +1668,14 @@ function renderPartiesList(){
       '<td class="p-2.5 font-mono text-slate-500">'+money(p.opening||0)+' '+(p.drCr||'')+'</td>'+
       '<td class="p-2.5 text-right font-mono font-bold">'+balStr+' <span class="text-[10px] text-slate-500">'+balLabel+'</span></td>'+
       '<td class="p-2.5 text-center space-x-1">'+
-        '<button onclick="viewPartyLedger('+p.id+')" class="text-xs bg-indigo-100 text-indigo-700 font-bold px-2 py-1 rounded">📋</button>'+
-        '<button onclick="deleteParty('+p.id+')" class="text-xs bg-red-100 text-red-700 font-bold px-2 py-1 rounded">🗑</button>'+
+        '<button type="button" onclick="viewPartyLedger('+p.id+')" class="text-xs bg-indigo-100 text-indigo-700 font-bold px-2 py-1 rounded">📋</button>'+
+        '<button type="button" onclick="deleteParty('+p.id+')" class="text-xs bg-red-100 text-red-700 font-bold px-2 py-1 rounded">🗑</button>'+
       '</td></tr>';
   }).join('');
 }
 function deleteParty(id){
   const pin=prompt("🔒 Master PIN to delete party:");
+  if(!pin) return;
   if(pin!==storeProfile.masterPin){ alert("Unauthorized!"); return; }
   const p=parties.find(x=>x.id===id);
   if(!p) return;
@@ -1522,35 +1730,73 @@ function refreshPartyDatalists(){
 }
 
 /* ============================================================
-   STOCK
+   STOCK & BATCH MULTI-IMEI INWARD ENGINE
    ============================================================ */
 function addStockItem(){
   const model=document.getElementById('stkModel').value.trim();
-  const imei=document.getElementById('stkIMEI').value.trim();
   const pc=parseFloat(document.getElementById('stkPurchaseCost').value)||0;
   const cost=parseFloat(document.getElementById('stkCost').value)||0;
-  if(!model){ alert("Enter model name!"); return; }
-  if(cost<=0){ alert("Enter selling price!"); return; }
-  if(imei && inventory.some(i=>i.imei && i.imei.toLowerCase()===imei.toLowerCase() && i.status!=="Sold")){ alert("IMEI exists!"); return; }
-  inventory.push({ id:Date.now(), model, imei, purchaseCost:pc, cost, status:"Available" });
+  const rawBatch=document.getElementById('stkBatchIMEIs').value.trim();
+  const singleIMEI=document.getElementById('itemIMEI')?document.getElementById('itemIMEI').value.trim():'';
+
+  if(!model){ alert("Please enter the Model Name!"); return; }
+  if(cost<=0){ alert("Please enter a valid Selling Price!"); return; }
+
+  // Extract multiple IMEIs from textarea (separated by commas, spaces, or newlines)
+  let imeiList = [];
+  if(rawBatch){
+    imeiList = rawBatch.split(/[\n,\s]+/).map(s=>s.trim()).filter(Boolean);
+  }
+
+  // If no batch IMEIs provided, check single entry
+  if(imeiList.length===0 && singleIMEI){
+    imeiList = [singleIMEI];
+  }
+
+  // If still no IMEI, add as 1 unit item (accessories/chargers without IMEI)
+  if(imeiList.length===0){
+    inventory.push({ id:Date.now()+Math.random(), model, imei:'', purchaseCost:pc, cost, status:"Available" });
+  } else {
+    // Process each IMEI in the batch (e.g. 5, 10, or 15 Oppo A15 phones)
+    let addedCount = 0;
+    imeiList.forEach(imei=>{
+      const exists = inventory.some(i=>i.imei && i.imei.toLowerCase()===imei.toLowerCase() && i.status!=="Sold");
+      if(!exists){
+        inventory.push({
+          id:Date.now()+Math.random(),
+          model,
+          imei,
+          purchaseCost:pc,
+          cost,
+          status:"Available"
+        });
+        addedCount++;
+      }
+    });
+    alert(`Successfully inwarded ${addedCount} units of "${model}" to stock!`);
+  }
+
   safeSave('sfp_stock', inventory);
   document.getElementById('stkModel').value='';
-  document.getElementById('stkIMEI').value='';
   document.getElementById('stkPurchaseCost').value='';
   document.getElementById('stkCost').value='';
+  document.getElementById('stkBatchIMEIs').value='';
   renderStockTable();
-  alert("Item added!");
 }
+
 function deleteStockItem(id){
-  const pin=prompt("🔒 Master PIN:");
+  const pin=prompt("🔒 Master PIN to delete stock:");
+  if(!pin) return;
   if(pin!==storeProfile.masterPin){ alert("Unauthorized!"); return; }
   if(!confirm("Delete this stock item?")) return;
   inventory=inventory.filter(i=>i.id!==id);
   safeSave('sfp_stock', inventory);
   renderStockTable();
 }
+
 function editStockPrice(id){
   const pin=prompt("🔒 Master PIN to edit price:");
+  if(!pin) return;
   if(pin!==storeProfile.masterPin){ alert("Unauthorized!"); return; }
   const item=inventory.find(i=>i.id===id);
   if(!item) return;
@@ -1561,6 +1807,7 @@ function editStockPrice(id){
     renderStockTable();
   }
 }
+
 function renderStockTable(){
   const t=document.getElementById('stockGridBody'); if(!t) return;
   const inStock=inventory.filter(i=>i.status!=="Sold").length;
@@ -1579,9 +1826,9 @@ function renderStockTable(){
         ?'<span class="bg-red-100 text-red-700 text-[10px] font-bold px-2 py-0.5 rounded">SOLD</span>'
         :'<span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded">Available</span>')+'</td>'+
       '<td class="p-3 text-center space-x-1.5 whitespace-nowrap">'+
-        (!sold?'<button onclick="sellFromStock('+s.id+')" class="text-xs bg-indigo-50 text-indigo-700 font-bold px-2 py-1 rounded">Sell ⚡</button>'+
-        '<button onclick="editStockPrice('+s.id+')" class="text-xs text-slate-600 font-semibold px-1.5 py-1">✏</button>':'')+
-        '<button onclick="deleteStockItem('+s.id+')" class="text-xs text-red-500 font-semibold px-1.5 py-1">🗑</button>'+
+        (!sold?'<button type="button" onclick="sellFromStock('+s.id+')" class="text-xs bg-indigo-50 text-indigo-700 font-bold px-2 py-1 rounded">Sell ⚡</button>'+
+        '<button type="button" onclick="editStockPrice('+s.id+')" class="text-xs text-slate-600 font-semibold px-1.5 py-1">✏</button>':'')+
+        '<button type="button" onclick="deleteStockItem('+s.id+')" class="text-xs text-red-500 font-semibold px-1.5 py-1">🗑</button>'+
       '</td></tr>';
   }).join('');
 }
@@ -1655,9 +1902,10 @@ function applyTallyFilter(){
       '<td class="p-3 text-right font-mono">₹'+r.totalTaxable.toFixed(2)+'</td>'+
       '<td class="p-3 text-right font-mono text-slate-500">₹'+r.totalTax.toFixed(2)+'</td>'+
       '<td class="p-3 text-right font-mono font-bold '+(isR?'text-rose-700':'text-slate-900')+'">₹'+r.totalGross.toFixed(2)+'</td>'+
-      '<td class="p-3 text-center space-x-1">'+
-        (!isR?'<button onclick="editInvoice(\''+r.invoiceNo+'\')" class="text-xs bg-amber-100 text-amber-800 font-bold px-2 py-1 rounded">✏</button>'+
-        '<button onclick="deleteInvoice(\''+r.invoiceNo+'\')" class="text-xs bg-red-100 text-red-700 font-bold px-2 py-1 rounded">🗑</button>'
+      '<td class="p-3 text-center space-x-1 whitespace-nowrap">'+
+        (!isR?'<button type="button" onclick="reprintInvoice(\''+r.invoiceNo+'\')" title="View / Reprint" class="text-xs bg-slate-200 hover:bg-slate-300 font-bold px-2 py-1 rounded">👁</button>'+
+        '<button type="button" onclick="editInvoice(\''+r.invoiceNo+'\')" title="Edit" class="text-xs bg-amber-100 text-amber-800 font-bold px-2 py-1 rounded">✏</button>'+
+        '<button type="button" onclick="deleteInvoice(\''+r.invoiceNo+'\')" title="Delete" class="text-xs bg-red-100 text-red-700 font-bold px-2 py-1 rounded">🗑</button>'
         :'<span class="text-slate-300">—</span>')+
       '</td></tr>';
   }).join('');
@@ -1688,15 +1936,12 @@ function renderAllBooks(){
 }
 function getAccountEntries(accountName){
   const entries=[];
-  // Sales
   invoices.forEach(inv=>{
     if(inv.ledger===accountName) entries.push({ date:inv.date, ref:inv.invoiceNo, desc:'Sale - '+inv.customerName, dr:inv.totalGross, cr:0 });
   });
-  // Purchases
   purchases.forEach(p=>{
     if(p.ledger===accountName) entries.push({ date:p.date, ref:p.purchaseNo, desc:'Purchase - '+p.supplierName, dr:0, cr:p.totalCost });
   });
-  // Vouchers
   vouchers.forEach(v=>{
     if(v.type==='EXPENSE' && v.account===accountName){
       entries.push({ date:v.date, ref:'PAY-'+v.id.toString().slice(-4), desc:v.category||'Expense', dr:0, cr:v.amount });
@@ -1777,11 +2022,9 @@ function renderTrialBalance(){
     'Purchases':{dr:0, cr:0},
     'Expenses':{dr:0, cr:0},
     'GST Output':{dr:0, cr:0},
-    'GST Input':{dr:0, cr:0},
-    'Capital':{dr:0, cr:0}
+    'GST Input':{dr:0, cr:0}
   };
   invoices.forEach(inv=>{
-    const cash = inv.ledger==='Cash-in-Hand' || inv.ledger==='Bank / UPI' || inv.ledger==='Card Payment' || inv.ledger==='Bajaj / EMI Finance';
     if(inv.ledger==='Cash-in-Hand') accounts['Cash-in-Hand'].dr += inv.totalGross;
     else if(inv.ledger==='Bank / UPI') accounts['Bank / UPI'].dr += inv.totalGross;
     else if(inv.ledger==='Card Payment') accounts['Card Payment'].dr += inv.totalGross;
@@ -1817,7 +2060,6 @@ function renderTrialBalance(){
       if(v.toAccount==='Cash-in-Hand') accounts['Cash-in-Hand'].dr += v.amount;
       else if(v.toAccount==='Bank / UPI') accounts['Bank / UPI'].dr += v.amount;
     } else if(v.type==='JOURNAL'){
-      const map={};
       if(!accounts[v.drAccount]) accounts[v.drAccount]={dr:0, cr:0};
       if(!accounts[v.crAccount]) accounts[v.crAccount]={dr:0, cr:0};
       accounts[v.drAccount].dr += v.amount;
@@ -1884,6 +2126,9 @@ function renderAuditLog(){
   }).join('');
 }
 function clearAuditLog(){
+  const pin=prompt("🔒 Master PIN to clear Audit Log:");
+  if(!pin) return;
+  if(pin!==storeProfile.masterPin){ alert("Unauthorized!"); return; }
   if(!confirm("Clear entire audit log?")) return;
   auditLog=[];
   safeSave('sfp_audit', auditLog);
@@ -1942,6 +2187,7 @@ function restoreAllData(e){
 }
 function wipeAllData(){
   const pin=prompt("🔒 Master PIN to WIPE ALL DATA:");
+  if(!pin) return;
   if(pin!==storeProfile.masterPin){ alert("Unauthorized!"); return; }
   const confirm1=prompt("Type DELETE ALL to confirm:");
   if(confirm1!=='DELETE ALL'){ alert("Cancelled."); return; }
@@ -2003,17 +2249,10 @@ function exportToExcelCA(){
   logAudit('EXCEL_EXPORT', 'Period: '+(fromStr||'start')+' to '+(toStr||'end'));
 }
 
-/* ============================================================
-   GOOGLE DRIVE PLACEHOLDER
-   ============================================================ */
-function handleAuthClick(){
-  alert("Google Drive sync এখনো কনফিগার করা হয়নি।\n\nসব ডেটা ব্রাউজারের localStorage-এ সংরক্ষিত হচ্ছে। Backup বাটন দিয়ে JSON ফাইল নামিয়ে রাখুন।");
-}
-
 /* Keyboard shortcuts F1-F9 */
 document.addEventListener('keydown', function(e){
   const tabs=['billingTab','returnTab','purchaseTab','vouchersTab','accountingTab','booksTab','partiesTab','inventoryTab','settingsTab'];
-  const idx=parseInt(e.key.replace('F',''))-1;
+  const idx=parseInt(e.key.replace('F',''), 10)-1;
   if(e.key.startsWith('F') && idx>=0 && idx<tabs.length){
     e.preventDefault();
     switchView(tabs[idx]);
