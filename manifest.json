@@ -2,6 +2,7 @@
   "name": "SmartFix Pro",
   "short_name": "SmartFix",
   "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#020617",
   "theme_color": "#4f46e5",
@@ -9,7 +10,8 @@
     {
       "src": "https://cdn-icons-png.flaticon.com/512/2920/2920329.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
