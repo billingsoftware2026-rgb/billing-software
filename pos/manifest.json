@@ -1,6 +1,6 @@
 {
-  "name": "SmartFix Pro ERP & POS",
-  "short_name": "SmartFix",
+  "name": "SmartFix ERP",
+  "short_name": "SmartFix ERP",
   "description": "Tally-Grade ERP, Sales Return & POS for Mobile Shops",
   "start_url": "./index.html",
   "scope": "./",
