@@ -1,1 +1,33 @@
-
+{
+  "name": "SmartFix Pro ERP & POS",
+  "short_name": "SmartFix",
+  "description": "Tally-Grade ERP, Sales Return & POS for Mobile Shops",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#0284c7",
+  "background_color": "#0f172a",
+  "categories": ["business", "productivity", "finance"],
+  "lang": "bn-IN",
+  "icons": [
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMCIgeTI9IjEiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMwZWE1ZTkiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMDM2OWExIi8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgcng9IjEwMCIgZmlsbD0idXJsKCNnKSIvPgogIDxwYXRoIGQ9Ik0xMjAgMTgwIFExMjAgMTUwIDE1MCAxNTAgTDM2MiAxNTAgUTM5MiAxNTAgMzkyIDE4MCBMMzkyIDQwMCBRMzkyIDQzMCAzNjIgNDMwIEwxNTAgNDMwIFExMjAgNDMwIDEyMCA0MDAgWiIgZmlsbD0iI2ZmZmZmZiIvPgogIDxyZWN0IHg9IjE1NSIgeT0iMTkwIiB3aWR0aD0iMjAyIiBoZWlnaHQ9Ijc1IiByeD0iMTAiIGZpbGw9IiMwZjE3MmEiLz4KICA8cmVjdCB4PSIxNzAiIHk9IjIwNSIgd2lkdGg9IjE3MCIgaGVpZ2h0PSIxNCIgcng9IjQiIGZpbGw9IiMzOGJkZjgiLz4KICA8cmVjdCB4PSIxNzAiIHk9IjIzMCIgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxNCIgcng9IjQiIGZpbGw9IiMyMmQzZWUiLz4KICA8cmVjdCB4PSIxNTUiIHk9IjI4NSIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iOCIgZmlsbD0iI2ZiYmYyNCIvPgogIDxyZWN0IHg9IjIxMCIgeT0iMjg1IiB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHJ4PSI4IiBmaWxsPSIjZmJiZjI0Ii8+CiAgPHJlY3QgeD0iMjY1IiB5PSIyODUiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcng9IjgiIGZpbGw9IiNmYmJmMjQiLz4KICA8cmVjdCB4PSIzMjAiIHk9IjI4NSIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iOCIgZmlsbD0iI2ZiYmYyNCIvPgogIDxyZWN0IHg9IjE1NSIgeT0iMzQwIiB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHJ4PSI4IiBmaWxsPSIjZmJiZjI0Ii8+CiAgPHJlY3QgeD0iMjEwIiB5PSIzNDAiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcng9IjgiIGZpbGw9IiNmYmJmMjQiLz4KICA8cmVjdCB4PSIyNjUiIHk9IjM0MCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iOCIgZmlsbD0iI2ZiYmYyNCIvPgogIDxyZWN0IHg9IjMyMCIgeT0iMzQwIiB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHJ4PSI4IiBmaWxsPSIjMjJjNTVlIi8+CiAgPHBhdGggZD0iTTI1NiAxMDAgUTI4MCAxMDAgMjk1IDExNSIgc3Ryb2tlPSIjZmJiZjI0IiBzdHJva2Utd2lkdGg9IjkiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogIDxwYXRoIGQ9Ik0yNTYgMTI4IFEyNzIgMTI4IDI4MiAxMzgiIHN0cm9rZT0iI2ZiYmYyNCIgc3Ryb2tlLXdpZHRoPSI5IiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICA8Y2lyY2xlIGN4PSIyNTYiIGN5PSIxNDgiIHI9IjYiIGZpbGw9IiNmYmJmMjQiLz4KPC9zdmc+",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "New Sale",
+      "short_name": "Sale",
+      "url": "./index.html"
+    },
+    {
+      "name": "Stock Register",
+      "short_name": "Stock",
+      "url": "./index.html"
+    }
+  ]
+}
