@@ -971,6 +971,8 @@ async function toggleCameraScanner(context) {
     purchase: { wrapper: 'purCameraScannerWrapper', btn: 'purScannerToggleBtn', reader: 'readerPurchase' },
     stock: { wrapper: 'stkCameraScannerWrapper', btn: 'stkScannerToggleBtn', reader: 'readerStock' }
   }[context];
+  if (!config) { window.isScannerBusy = false; alert('Invalid scanner mode.'); return; }
+  if (typeof Html5Qrcode === 'undefined') { window.isScannerBusy = false; alert('Camera scanner library could not be loaded. Check your internet connection and reload.'); return; }
   const wrapper = document.getElementById(config.wrapper);
   const btn = document.getElementById(config.btn);
   try {
@@ -1292,6 +1294,9 @@ function addManualItem(){
   document.getElementById('itemPrice').value='';
 }
 function pushProductToBill(desc,imei,hsn,gstRate,qty,gross,pc,stockId){
+  const cleanIMEI = normalizeIMEI(imei);
+  if (stockId && activeLineItems.some(i => i.stockId === stockId)) { alert('This stock item is already in the cart.'); return; }
+  if (cleanIMEI && activeLineItems.some(i => normalizeIMEI(i.imei) === cleanIMEI)) { alert('This IMEI is already in the cart.'); return; }
   activeLineItems.push({ id:Date.now()+Math.random(), stockId:stockId||null, desc, imei, hsn, gstRate, qty:parseInt(qty,10)||1, purchaseCost:parseFloat(pc)||0, grossAmount:parseFloat(gross), returned:false });
   renderLiveInvoicePreview();
 }
@@ -1461,6 +1466,8 @@ function finalizeAndPrint(){
   const ledger=document.getElementById('paymentLedger').value;
   const taxType=document.getElementById('gstTaxType').value;
   const discount=parseFloat(document.getElementById('extraDiscount')?.value)||0;
+  if (!invDate) { alert('Please select a valid invoice date.'); return; }
+  if (invoices.some(i => i.invoiceNo === invNo)) { alert('This invoice number already exists. Use Edit/Reprint for an existing invoice or choose a new number.'); return; }
   let tG=0,tT=0,tC=0,tS=0,tI=0,tPC=0;
   activeLineItems.forEach(it=>{
     const lt=it.grossAmount*it.qty, ltx=lt/(1+it.gstRate/100), ltxa=lt-ltx;
@@ -1479,7 +1486,11 @@ function finalizeAndPrint(){
     if(!p){ p={id:Date.now(), type:'CUSTOMER', name:custName, phone:custPhone, gstin:custGSTIN, address:'', opening:0, drCr:'DR'}; parties.push(p); safeSave('sfp_parties', parties); }
     partyId=p.id;
   }
-  const finalPayable = Math.max(0, tG - discount);
+  if (discount < 0 || discount > tG) { alert('Discount must be between ₹0 and the invoice total.'); return; }
+  const finalPayable = tG - discount;
+  // Discount reduces taxable value and GST proportionately for tax/accounting consistency.
+  const discountFactor = tG > 0 ? finalPayable / tG : 1;
+  tT *= discountFactor; tC *= discountFactor; tS *= discountFactor; tI *= discountFactor;
   const rec={ invoiceNo:invNo, date:invDate, financialYear:getFY(new Date(invDate)).label, customerName:custName, customerPhone:custPhone, customerGSTIN:custGSTIN, partyId, taxType, ledger, discount, items:JSON.parse(JSON.stringify(activeLineItems)), totalTaxable:+tT.toFixed(2), totalCGST:+tC.toFixed(2), totalSGST:+tS.toFixed(2), totalIGST:+tI.toFixed(2), totalGross:+finalPayable.toFixed(2), totalPurchaseCost:+tPC.toFixed(2), theme:currentTheme, timestamp:new Date().toISOString() };
   invoices.unshift(rec);
   safeSave('sfp_invoices', invoices);
@@ -1952,7 +1963,7 @@ function addStockItem(){
     let addedCount = 0;
     imeiList.forEach(imei=>{
       const cleanIMEI = normalizeIMEI(imei);
-      const exists = inventory.some(i=>i.imei && normalizeIMEI(i.imei)===cleanIMEI && i.status!=="Sold");
+      const exists = inventory.some(i=>i.imei && normalizeIMEI(i.imei)===cleanIMEI);
       if(!exists){
         inventory.push({ id:Date.now()+Math.random(), model, imei, category, purchaseCost:pc, cost, status:"Available", isOldStock:isOld, addedDate:fmtDate(new Date()) });
         addedCount++;
@@ -2518,6 +2529,7 @@ function wipeAllData(){
    EXCEL EXPORT
    ============================================================ */
 function exportToExcelCA(){
+  if (typeof XLSX === 'undefined') { alert('Excel export library could not be loaded. Check your internet connection and reload.'); return; }
   const fromStr=document.getElementById('filterFromDate').value;
   const toStr=document.getElementById('filterToDate').value;
   const fromDate=fromStr?new Date(fromStr+'T00:00:00'):new Date(2000,0,1);
@@ -2755,6 +2767,22 @@ document.addEventListener('keydown', function(e){
   const idx=parseInt(e.key.replace('F',''), 10)-1;
   if(e.key.startsWith('F') && idx>=0 && idx<tabs.length){ e.preventDefault(); switchView(tabs[idx]); }
 });
+
+/* Final data-integrity hardening */
+(function () {
+  const numeric = v => Number.isFinite(Number(v)) ? Number(v) : 0;
+  function normaliseLoadedData() {
+    inventory = inventory.filter(Boolean).map(x => ({...x, id:x.id ?? (Date.now()+Math.random()), model:String(x.model || '').trim(), imei:String(x.imei || '').trim(), cost:Math.max(0,numeric(x.cost)), purchaseCost:Math.max(0,numeric(x.purchaseCost)), status:x.status === 'Sold' ? 'Sold' : 'Available'}));
+    invoices = invoices.filter(x => x && x.invoiceNo && x.date && Array.isArray(x.items));
+    purchases = purchases.filter(x => x && x.date && Array.isArray(x.lines));
+    parties = parties.filter(x => x && String(x.name || '').trim());
+    staff = staff.filter(x => x && String(x.name || '').trim());
+  }
+  const originalInitApp = initApp;
+  initApp = function () { originalInitApp(); normaliseLoadedData(); };
+  window.addEventListener('error', function (event) { console.error('SmartFix ERP error:', event.error || event.message); });
+  window.addEventListener('unhandledrejection', function (event) { console.error('SmartFix ERP async error:', event.reason); });
+})();
 </script>
 
 <script>
