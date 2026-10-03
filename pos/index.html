@@ -351,7 +351,6 @@
       </div>
     </div>
 
-    <!-- 🆕 POWERFUL SEARCH BAR -->
     <div class="bg-sky-50 border border-sky-200 rounded-xl p-3">
       <label class="block text-[11px] font-bold uppercase text-sky-900 mb-1.5">🔎 Smart Search — Invoice No / Customer Name / Phone / IMEI</label>
       <div class="flex gap-2">
@@ -501,7 +500,7 @@
   </div>
 </section>
 
-<!-- ============ STOCK (REDESIGNED with CATEGORIES) ============ -->
+<!-- ============ STOCK ============ -->
 <section id="inventoryTab" class="tab-panel" style="display:none;">
   <div class="bg-white p-5 rounded-2xl border shadow-sm space-y-4">
     <div class="flex justify-between items-center border-b pb-2">
@@ -509,7 +508,6 @@
       <span class="text-xs bg-amber-100 text-amber-800 px-2.5 py-0.5 rounded font-bold">🔒 Owner Protected</span>
     </div>
 
-    <!-- Category Manager -->
     <div class="bg-violet-50 border border-violet-200 rounded-xl p-4 space-y-3">
       <div class="flex justify-between items-center">
         <span class="text-xs font-bold text-violet-900 uppercase">🏷️ Category Manager</span>
@@ -518,7 +516,6 @@
       <div id="categoryChipBar" class="flex flex-wrap gap-1.5"></div>
     </div>
 
-    <!-- Add Stock Panel -->
     <div class="bg-sky-50 border border-sky-200 rounded-xl p-4 space-y-3">
       <div class="flex justify-between items-center">
         <span class="text-xs font-bold text-sky-950 uppercase">⚡ Add Stock (Regular or Old)</span>
@@ -566,7 +563,6 @@
     </div>
   </div>
 
-  <!-- Stock Register with Filters -->
   <div class="bg-white rounded-2xl border shadow-sm overflow-hidden mt-4">
     <div class="p-4 border-b bg-slate-50 space-y-3">
       <div class="flex justify-between items-center">
@@ -574,7 +570,6 @@
         <span class="text-xs text-slate-500 font-bold" id="stockCountDisplay">0 Units</span>
       </div>
 
-      <!-- Stock Filters -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
         <div class="md:col-span-2">
           <input type="text" id="stockSearchBox" oninput="renderStockTable()" placeholder="🔎 Search by Model, IMEI, Category..." class="w-full border rounded px-3 py-1.5 text-xs">
@@ -589,7 +584,6 @@
         </div>
       </div>
 
-      <!-- Summary Stats -->
       <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
         <div class="bg-emerald-50 border border-emerald-200 rounded p-2">
           <div class="text-[9px] font-bold text-emerald-700 uppercase">Available Units</div>
@@ -617,10 +611,9 @@
   </div>
 </section>
 
-<!-- ============ STAFF (NEW) ============ -->
+<!-- ============ STAFF ============ -->
 <section id="staffTab" class="tab-panel" style="display:none;">
   <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-    <!-- Staff Master -->
     <div class="lg:col-span-4 bg-white p-5 rounded-2xl border shadow-sm space-y-3">
       <h2 class="font-bold text-sm uppercase text-slate-800">👨‍💼 Staff Master</h2>
       <input type="text" id="staffName" placeholder="Staff Full Name *" class="w-full border rounded px-2.5 py-1.5 text-xs font-semibold">
@@ -676,7 +669,6 @@
       </div>
     </div>
 
-    <!-- Staff List + Payment History -->
     <div class="lg:col-span-8 space-y-4">
       <div class="bg-white p-5 rounded-2xl border shadow-sm">
         <h3 class="font-bold text-xs uppercase text-slate-700 mb-3">Staff Members</h3>
@@ -707,7 +699,6 @@
   <div class="bg-white p-6 rounded-2xl border shadow-sm max-w-2xl mx-auto space-y-4">
     <h2 class="font-bold text-base">🔒 Store Settings, Bank Details & Security</h2>
 
-    <!-- AUTO DAILY BACKUP (ENGLISH) -->
     <div class="border-2 border-sky-300 bg-sky-50/50 rounded-2xl p-4 space-y-3">
       <div class="flex items-center justify-between">
         <h3 class="text-sm font-bold uppercase text-sky-900 flex items-center gap-2"><span>🛡️</span> Auto Daily Backup System</h3>
@@ -1309,7 +1300,7 @@ function sellFromStock(id){
 }
 
 /* ============================================================
-   LIVE PREVIEW (unchanged)
+   LIVE PREVIEW
    ============================================================ */
 function renderLiveInvoicePreview(){
   const el=document.getElementById('printableInvoice'); if(!el) return;
@@ -1447,10 +1438,12 @@ function renderLiveInvoicePreview(){
 }
 
 /* ============================================================
-   FINALIZE
+   FINALIZE — FIXED: Discount validation BEFORE stock deduction
    ============================================================ */
 function finalizeAndPrint(){
   if(activeLineItems.length===0){ alert("Add at least one item!"); return; }
+
+  // ── 1. Validate IMEIs are not already sold ───────────────
   for(const it of activeLineItems){
     if(it.imei){
       const cleanIMEI = normalizeIMEI(it.imei);
@@ -1458,6 +1451,7 @@ function finalizeAndPrint(){
       if(m&&m.status==="Sold"){ alert("IMEI "+it.imei+" already sold!"); return; }
     }
   }
+
   const invNo=document.getElementById('invNo').value;
   const invDate=document.getElementById('invDate').value;
   const custName=document.getElementById('custName').value.trim()||'Cash Customer';
@@ -1466,8 +1460,21 @@ function finalizeAndPrint(){
   const ledger=document.getElementById('paymentLedger').value;
   const taxType=document.getElementById('gstTaxType').value;
   const discount=parseFloat(document.getElementById('extraDiscount')?.value)||0;
+
   if (!invDate) { alert('Please select a valid invoice date.'); return; }
   if (invoices.some(i => i.invoiceNo === invNo)) { alert('This invoice number already exists. Use Edit/Reprint for an existing invoice or choose a new number.'); return; }
+
+  // ── 2. Compute gross total FIRST (for discount validation) ─
+  let preGross = 0;
+  activeLineItems.forEach(it => { preGross += it.grossAmount * it.qty; });
+
+  // ── 3. Validate discount BEFORE touching stock ───────────
+  if (discount < 0 || discount > preGross) {
+    alert('Discount must be between ₹0 and invoice total (₹' + preGross.toFixed(2) + ').');
+    return;
+  }
+
+  // ── 4. Now compute taxes and deduct stock (safe) ────────
   let tG=0,tT=0,tC=0,tS=0,tI=0,tPC=0;
   activeLineItems.forEach(it=>{
     const lt=it.grossAmount*it.qty, ltx=lt/(1+it.gstRate/100), ltxa=lt-ltx;
@@ -1480,24 +1487,35 @@ function finalizeAndPrint(){
   });
   safeSave('sfp_stock', inventory);
   renderStockTable();
+
   let partyId=null;
   if(ledger==='Credit / Sundry Debtors' && custName!=='Cash Customer'){
     let p=parties.find(x=>x.type==='CUSTOMER' && x.name.toLowerCase()===custName.toLowerCase());
     if(!p){ p={id:Date.now(), type:'CUSTOMER', name:custName, phone:custPhone, gstin:custGSTIN, address:'', opening:0, drCr:'DR'}; parties.push(p); safeSave('sfp_parties', parties); }
     partyId=p.id;
   }
-  if (discount < 0 || discount > tG) { alert('Discount must be between ₹0 and the invoice total.'); return; }
+
   const finalPayable = tG - discount;
-  // Discount reduces taxable value and GST proportionately for tax/accounting consistency.
   const discountFactor = tG > 0 ? finalPayable / tG : 1;
   tT *= discountFactor; tC *= discountFactor; tS *= discountFactor; tI *= discountFactor;
-  const rec={ invoiceNo:invNo, date:invDate, financialYear:getFY(new Date(invDate)).label, customerName:custName, customerPhone:custPhone, customerGSTIN:custGSTIN, partyId, taxType, ledger, discount, items:JSON.parse(JSON.stringify(activeLineItems)), totalTaxable:+tT.toFixed(2), totalCGST:+tC.toFixed(2), totalSGST:+tS.toFixed(2), totalIGST:+tI.toFixed(2), totalGross:+finalPayable.toFixed(2), totalPurchaseCost:+tPC.toFixed(2), theme:currentTheme, timestamp:new Date().toISOString() };
+
+  const rec={
+    invoiceNo:invNo, date:invDate, financialYear:getFY(new Date(invDate)).label,
+    customerName:custName, customerPhone:custPhone, customerGSTIN:custGSTIN,
+    partyId, taxType, ledger, discount,
+    items:JSON.parse(JSON.stringify(activeLineItems)),
+    totalTaxable:+tT.toFixed(2), totalCGST:+tC.toFixed(2), totalSGST:+tS.toFixed(2), totalIGST:+tI.toFixed(2),
+    totalGross:+finalPayable.toFixed(2), totalPurchaseCost:+tPC.toFixed(2),
+    theme:currentTheme, timestamp:new Date().toISOString()
+  };
   invoices.unshift(rec);
   safeSave('sfp_invoices', invoices);
   logAudit('INVOICE_CREATE', invNo+' | '+custName+' | ₹'+finalPayable.toFixed(2));
   refreshPartyDatalists();
+
   const printBox = document.getElementById('isolatedPrintContainer');
   printBox.innerHTML = document.getElementById('printableInvoice').innerHTML;
+
   let handled=false;
   const reset=()=>{
     if(handled) return; handled=true;
@@ -1943,7 +1961,7 @@ function refreshPartyDatalists(){
 }
 
 /* ============================================================
-   STOCK (with categories, old stock, filters)
+   STOCK
    ============================================================ */
 function addStockItem(){
   const model=document.getElementById('stkModel').value.trim();
@@ -2025,13 +2043,10 @@ function renderStockTable(){
   const statusFilter = document.getElementById('stockStatusFilter')?.value || 'Available';
 
   let filtered = inventory.filter(item=>{
-    // Category filter
     if(window.activeStockCategoryFilter !== 'ALL' && item.category !== window.activeStockCategoryFilter) return false;
-    // Status filter
     if(statusFilter === 'Available' && item.status === 'Sold') return false;
     if(statusFilter === 'Sold' && item.status !== 'Sold') return false;
     if(statusFilter === 'OLD' && !item.isOldStock) return false;
-    // Search
     if(searchQ){
       const blob = (item.model + ' ' + (item.imei||'') + ' ' + (item.category||'')).toLowerCase();
       if(!blob.includes(searchQ)) return false;
@@ -2113,7 +2128,6 @@ function populateStaffDropdown(){
   sel.innerHTML = staff.length
     ? staff.map(s=>`<option value="${s.id}">${s.name} (₹${s.salary})</option>`).join('')
     : '<option value="">-- No staff --</option>';
-  // auto-fill salary
   sel.onchange = function(){
     const s = staff.find(x=>x.id == this.value);
     if(s){ document.getElementById('salaryAmount').value = s.salary; }
@@ -2145,7 +2159,6 @@ function paySalary(){
   salaryPayments.unshift(rec);
   safeSave('sfp_salary_payments', salaryPayments);
 
-  // Also create an Expense voucher so it appears in books
   vouchers.unshift({
     id: Date.now()+1, type:'EXPENSE', date: payDate, amount: amount+bonus,
     category: 'Staff Salary - '+s.name, account: payMode,
@@ -2156,7 +2169,6 @@ function paySalary(){
   logAudit('SALARY_PAID', s.name+' | '+monthLabel+' | ₹'+(amount+bonus));
   renderSalaryHistory(); renderVouchersTable();
   alert('✅ Salary paid: '+s.name+'\nFor: '+monthLabel+'\nTotal: ₹'+(amount+bonus).toFixed(2));
-  // Auto print salary slip
   printSalarySlip(rec.id);
 }
 function renderSalaryHistory(){
@@ -2310,7 +2322,6 @@ function applyTallyFilter(){
     ...fCRN.map(c=>({ date:c.date, docType:'CRN', invoiceNo:c.crnNo, customerName:c.customerName, customerPhone:c.customerPhone||'', itemsSummary:'RETURN: '+c.itemDesc, imeisSummary:c.imei||'', ledger:'Sales Return', totalTaxable:-c.refundTaxable, totalTax:-c.refundTax, totalGross:-c.refundTotal }))
   ];
 
-  // Search filter
   if(searchQ){
     combined = combined.filter(r=>{
       const blob = (r.invoiceNo + ' ' + r.customerName + ' ' + r.customerPhone + ' ' + r.itemsSummary + ' ' + r.imeisSummary).toLowerCase();
@@ -2559,7 +2570,7 @@ function exportToExcelCA(){
 }
 
 /* ============================================================
-   AUTO DAILY BACKUP (ENGLISH)
+   AUTO DAILY BACKUP
    ============================================================ */
 const BACKUP_KEY = 'sfp_daily_backups';
 const BACKUP_DB = 'SmartFixBackupDB';
@@ -2768,20 +2779,38 @@ document.addEventListener('keydown', function(e){
   if(e.key.startsWith('F') && idx>=0 && idx<tabs.length){ e.preventDefault(); switchView(tabs[idx]); }
 });
 
-/* Final data-integrity hardening */
+/* ============================================================
+   FINAL DATA-INTEGRITY HARDENING (FIXED: now runs on window load)
+   ============================================================ */
 (function () {
   const numeric = v => Number.isFinite(Number(v)) ? Number(v) : 0;
   function normaliseLoadedData() {
-    inventory = inventory.filter(Boolean).map(x => ({...x, id:x.id ?? (Date.now()+Math.random()), model:String(x.model || '').trim(), imei:String(x.imei || '').trim(), cost:Math.max(0,numeric(x.cost)), purchaseCost:Math.max(0,numeric(x.purchaseCost)), status:x.status === 'Sold' ? 'Sold' : 'Available'}));
+    inventory = inventory.filter(Boolean).map(x => ({
+      ...x,
+      id: x.id ?? (Date.now() + Math.random()),
+      model: String(x.model || '').trim(),
+      imei: String(x.imei || '').trim(),
+      cost: Math.max(0, numeric(x.cost)),
+      purchaseCost: Math.max(0, numeric(x.purchaseCost)),
+      status: x.status === 'Sold' ? 'Sold' : 'Available'
+    }));
     invoices = invoices.filter(x => x && x.invoiceNo && x.date && Array.isArray(x.items));
     purchases = purchases.filter(x => x && x.date && Array.isArray(x.lines));
     parties = parties.filter(x => x && String(x.name || '').trim());
     staff = staff.filter(x => x && String(x.name || '').trim());
   }
-  const originalInitApp = initApp;
-  initApp = function () { originalInitApp(); normaliseLoadedData(); };
-  window.addEventListener('error', function (event) { console.error('SmartFix ERP error:', event.error || event.message); });
-  window.addEventListener('unhandledrejection', function (event) { console.error('SmartFix ERP async error:', event.reason); });
+
+  // ✅ Run after everything (including initApp) has loaded
+  window.addEventListener('load', () => {
+    try { normaliseLoadedData(); } catch(e){ console.warn('Normalise error:', e); }
+  });
+
+  window.addEventListener('error', function (event) {
+    console.error('SmartFix ERP error:', event.error || event.message);
+  });
+  window.addEventListener('unhandledrejection', function (event) {
+    console.error('SmartFix ERP async error:', event.reason);
+  });
 })();
 </script>
 
