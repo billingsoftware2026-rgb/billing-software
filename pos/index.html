@@ -65,16 +65,17 @@
 
 <nav class="bg-slate-900/95 border-b border-slate-800 shadow-sm no-print sticky top-[57px] z-40 overflow-x-auto">
   <div class="max-w-7xl mx-auto px-2 flex whitespace-nowrap gap-1 py-1.5">
-    <button type="button" onclick="switchView('billingTab')" id="nav-billingTab" class="tab-btn py-2 px-3 text-xs sm:text-sm font-bold border-b-2 border-indigo-500 text-indigo-400 transition">Sales (F1)</button>
-    <button type="button" onclick="switchView('returnTab')" id="nav-returnTab" class="tab-btn py-2 px-3 text-xs sm:text-sm font-semibold text-slate-400 hover:text-white border-b-2 border-transparent transition">Return (F2)</button>
-    <button type="button" onclick="switchView('purchaseTab')" id="nav-purchaseTab" class="tab-btn py-2 px-3 text-xs sm:text-sm font-semibold text-slate-400 hover:text-white border-b-2 border-transparent transition">Purchase (F3)</button>
-    <button type="button" onclick="switchView('vouchersTab')" id="nav-vouchersTab" class="tab-btn py-2 px-3 text-xs sm:text-sm font-semibold text-slate-400 hover:text-white border-b-2 border-transparent transition">Vouchers (F4)</button>
-    <button type="button" onclick="switchView('accountingTab')" id="nav-accountingTab" class="tab-btn py-2 px-3 text-xs sm:text-sm font-semibold text-slate-400 hover:text-white border-b-2 border-transparent transition">P&L (F5)</button>
-    <button type="button" onclick="switchView('booksTab')" id="nav-booksTab" class="tab-btn py-2 px-3 text-xs sm:text-sm font-semibold text-slate-400 hover:text-white border-b-2 border-transparent transition">Books (F6)</button>
-    <button type="button" onclick="switchView('partiesTab')" id="nav-partiesTab" class="tab-btn py-2 px-3 text-xs sm:text-sm font-semibold text-slate-400 hover:text-white border-b-2 border-transparent transition">Parties (F7)</button>
-    <button type="button" onclick="switchView('inventoryTab')" id="nav-inventoryTab" class="tab-btn py-2 px-3 text-xs sm:text-sm font-semibold text-slate-400 hover:text-white border-b-2 border-transparent transition">Stock (F8)</button>
-    <button type="button" onclick="switchView('staffTab')" id="nav-staffTab" class="tab-btn py-2 px-3 text-xs sm:text-sm font-semibold text-slate-400 hover:text-white border-b-2 border-transparent transition">Staff (F9)</button>
-    <button type="button" onclick="switchView('settingsTab')" id="nav-settingsTab" class="tab-btn py-2 px-3 text-xs sm:text-sm font-semibold text-slate-400 hover:text-white border-b-2 border-transparent transition">Settings (F10)</button>
+    <button type="button" onclick="switchView('billingTab')" id="nav-billingTab" class="tab-btn py-2 px-3 text-xs sm:text-sm font-bold border-b-2 border-indigo-500 text-indigo-400 transition">Sales</button>
+    <button type="button" onclick="switchView('returnTab')" id="nav-returnTab" class="tab-btn py-2 px-3 text-xs sm:text-sm font-semibold text-slate-400 hover:text-white border-b-2 border-transparent transition">Return</button>
+    <button type="button" onclick="switchView('purchaseTab')" id="nav-purchaseTab" class="tab-btn py-2 px-3 text-xs sm:text-sm font-semibold text-slate-400 hover:text-white border-b-2 border-transparent transition">Purchase</button>
+    <button type="button" onclick="switchView('supplierPayTab')" id="nav-supplierPayTab" class="tab-btn py-2 px-3 text-xs sm:text-sm font-semibold text-slate-400 hover:text-white border-b-2 border-transparent transition">💰 Dealer Pay</button>
+    <button type="button" onclick="switchView('vouchersTab')" id="nav-vouchersTab" class="tab-btn py-2 px-3 text-xs sm:text-sm font-semibold text-slate-400 hover:text-white border-b-2 border-transparent transition">Vouchers</button>
+    <button type="button" onclick="switchView('accountingTab')" id="nav-accountingTab" class="tab-btn py-2 px-3 text-xs sm:text-sm font-semibold text-slate-400 hover:text-white border-b-2 border-transparent transition">P&L</button>
+    <button type="button" onclick="switchView('booksTab')" id="nav-booksTab" class="tab-btn py-2 px-3 text-xs sm:text-sm font-semibold text-slate-400 hover:text-white border-b-2 border-transparent transition">Books</button>
+    <button type="button" onclick="switchView('partiesTab')" id="nav-partiesTab" class="tab-btn py-2 px-3 text-xs sm:text-sm font-semibold text-slate-400 hover:text-white border-b-2 border-transparent transition">Parties</button>
+    <button type="button" onclick="switchView('inventoryTab')" id="nav-inventoryTab" class="tab-btn py-2 px-3 text-xs sm:text-sm font-semibold text-slate-400 hover:text-white border-b-2 border-transparent transition">Stock</button>
+    <button type="button" onclick="switchView('staffTab')" id="nav-staffTab" class="tab-btn py-2 px-3 text-xs sm:text-sm font-semibold text-slate-400 hover:text-white border-b-2 border-transparent transition">Staff</button>
+    <button type="button" onclick="switchView('settingsTab')" id="nav-settingsTab" class="tab-btn py-2 px-3 text-xs sm:text-sm font-semibold text-slate-400 hover:text-white border-b-2 border-transparent transition">Settings</button>
   </div>
 </nav>
 
@@ -291,6 +292,94 @@
   </div>
 </section>
 
+<!-- ============ SUPPLIER / DEALER PAYMENTS ============ -->
+<section id="supplierPayTab" class="tab-panel" style="display:none;">
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <div class="lg:col-span-5 bg-white p-5 rounded-2xl border shadow-sm space-y-3">
+      <h2 class="font-bold text-sm uppercase text-emerald-800">💰 Supplier / Dealer Payment Entry</h2>
+
+      <div>
+        <label class="block text-[10px] font-bold uppercase mb-1">Select Supplier / Dealer *</label>
+        <select id="spSupplier" onchange="onSupplierPaymentSelect()" class="w-full border rounded px-2.5 py-1.5 text-xs font-semibold bg-white"></select>
+      </div>
+
+      <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 text-xs space-y-1">
+        <div class="flex justify-between"><span class="text-slate-600">Total Purchases:</span><strong id="spTotalPurch" class="font-mono text-rose-700">₹0</strong></div>
+        <div class="flex justify-between"><span class="text-slate-600">Total Paid:</span><strong id="spTotalPaid" class="font-mono text-emerald-700">₹0</strong></div>
+        <div class="flex justify-between border-t pt-1 mt-1"><span class="font-bold text-slate-700">Outstanding Due:</span><strong id="spOutstanding" class="font-mono text-lg text-rose-800">₹0</strong></div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div><label class="block text-[10px] font-bold uppercase mb-1">Payment Date *</label><input type="date" id="spDate" class="w-full border rounded px-2.5 py-1.5 text-xs"></div>
+        <div><label class="block text-[10px] font-bold uppercase mb-1">Amount ₹ *</label><input type="number" id="spAmount" placeholder="Amount" class="w-full border rounded px-2.5 py-1.5 text-xs font-bold text-emerald-700"></div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div><label class="block text-[10px] font-bold uppercase mb-1">Payment Mode *</label>
+          <select id="spMode" class="w-full border rounded px-2.5 py-1.5 text-xs bg-white font-semibold">
+            <option value="Cash-in-Hand">Cash</option>
+            <option value="Bank / UPI">Bank / UPI / NEFT</option>
+            <option value="Cheque">Cheque</option>
+            <option value="Card Payment">Card</option>
+            <option value="Bajaj / EMI Finance">EMI / Finance</option>
+          </select>
+        </div>
+        <div><label class="block text-[10px] font-bold uppercase mb-1">Reference No</label><input type="text" id="spRefNo" placeholder="Cheque/UTR/Txn ID" class="w-full border rounded px-2.5 py-1.5 text-xs font-mono"></div>
+      </div>
+
+      <div><label class="block text-[10px] font-bold uppercase mb-1">Narration / Notes</label><input type="text" id="spNarration" placeholder="e.g. Monthly settlement" class="w-full border rounded px-2.5 py-1.5 text-xs"></div>
+
+      <button type="button" onclick="saveSupplierPayment()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs shadow">💵 Record Payment</button>
+
+      <div class="bg-sky-50 border border-sky-200 rounded p-2 text-[10px] text-sky-800">💡 Payment auto-updates Cash/Bank Book and creates a voucher entry.</div>
+    </div>
+
+    <div class="lg:col-span-7 bg-white p-5 rounded-2xl border shadow-sm space-y-3">
+      <div class="flex justify-between items-center border-b pb-2">
+        <h3 class="font-bold text-xs uppercase text-slate-700">📜 Payment History</h3>
+        <span id="spHistoryCount" class="text-xs text-slate-500">0 payments</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+        <input type="text" id="spSearchBox" oninput="renderSupplierPayments()" placeholder="🔍 Search supplier / ref..." class="w-full border rounded px-3 py-1.5 text-xs">
+        <select id="spMonthFilter" onchange="renderSupplierPayments()" class="w-full border rounded px-2.5 py-1.5 text-xs bg-white"><option value="ALL">All Months</option></select>
+        <select id="spModeFilter" onchange="renderSupplierPayments()" class="w-full border rounded px-2.5 py-1.5 text-xs bg-white">
+          <option value="ALL">All Modes</option>
+          <option value="Cash-in-Hand">Cash</option>
+          <option value="Bank / UPI">Bank / UPI</option>
+          <option value="Cheque">Cheque</option>
+          <option value="Card Payment">Card</option>
+          <option value="Bajaj / EMI Finance">EMI</option>
+        </select>
+      </div>
+
+      <div class="grid grid-cols-3 gap-2">
+        <div class="bg-emerald-50 border border-emerald-200 rounded p-2"><div class="text-[9px] font-bold text-emerald-700 uppercase">Filtered Total</div><div id="spFilteredTotal" class="text-base font-black text-emerald-800">₹0</div></div>
+        <div class="bg-sky-50 border border-sky-200 rounded p-2"><div class="text-[9px] font-bold text-sky-700 uppercase">Payments</div><div id="spFilteredCount" class="text-base font-black text-sky-800">0</div></div>
+        <div class="bg-rose-50 border border-rose-200 rounded p-2"><div class="text-[9px] font-bold text-rose-700 uppercase">Total Purchases</div><div id="spTotalPurchases" class="text-base font-black text-rose-800">₹0</div></div>
+      </div>
+
+      <div class="overflow-x-auto max-h-[60vh]"><table class="w-full text-left text-xs border-collapse">
+        <thead class="bg-slate-100 text-slate-600 uppercase text-[10px] sticky top-0">
+          <tr><th class="p-2.5">Date</th><th class="p-2.5">Supplier</th><th class="p-2.5">Mode</th><th class="p-2.5">Ref No</th><th class="p-2.5 text-right">Amount</th><th class="p-2.5 text-center">Action</th></tr>
+        </thead><tbody id="spGridBody" class="divide-y"></tbody>
+      </table></div>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-2xl border shadow-sm overflow-hidden mt-4">
+    <div class="p-4 border-b bg-slate-50 flex justify-between items-center">
+      <h3 class="font-bold text-xs uppercase text-slate-700">📊 Supplier-wise Balance Summary</h3>
+      <span class="text-xs text-slate-500">Total outstanding: <strong id="spGrandTotal" class="text-rose-700">₹0</strong></span>
+    </div>
+    <div class="overflow-x-auto"><table class="w-full text-left text-xs border-collapse">
+      <thead class="bg-slate-100 text-slate-600 uppercase text-[10px]">
+        <tr><th class="p-2.5">#</th><th class="p-2.5">Supplier / Dealer</th><th class="p-2.5">Phone</th><th class="p-2.5 text-right">Total Purchases</th><th class="p-2.5 text-right">Total Paid</th><th class="p-2.5 text-right">Outstanding</th><th class="p-2.5 text-center">Actions</th></tr>
+      </thead><tbody id="spSummaryGridBody" class="divide-y"></tbody>
+    </table></div>
+  </div>
+</section>
+
 <!-- ============ VOUCHERS ============ -->
 <section id="vouchersTab" class="tab-panel" style="display:none;">
   <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -336,7 +425,7 @@
   </div>
 </section>
 
-<!-- ============ ACCOUNTING (P&L) with SEARCH BAR ============ -->
+<!-- ============ ACCOUNTING (P&L) ============ -->
 <section id="accountingTab" class="tab-panel" style="display:none;">
   <div class="bg-white p-5 rounded-2xl border shadow-sm space-y-4">
     <div class="flex flex-wrap justify-between items-center gap-3">
@@ -357,7 +446,6 @@
         <input type="text" id="globalInvoiceSearch" oninput="filterAccountingBySearch()" placeholder="Type invoice no, name, mobile, or IMEI..." class="flex-1 border-2 border-sky-300 rounded-lg px-3 py-2 text-sm font-mono bg-white focus:outline-none focus:border-sky-500">
         <button type="button" onclick="clearAccountingSearch()" class="bg-slate-600 hover:bg-slate-700 text-white px-3 py-2 rounded-lg text-xs font-bold">Clear</button>
       </div>
-      <div class="text-[10px] text-sky-700 mt-1">Instant results — everything matches in real-time as you type</div>
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 pt-2 border-t">
@@ -809,6 +897,7 @@ window.purchases = [];
 window.parties = [];
 window.staff = [];
 window.salaryPayments = [];
+window.supplierPayments = [];
 window.auditLog = [];
 window.activeLineItems = [];
 window.activePurchaseLines = [];
@@ -1013,7 +1102,7 @@ function handleScannedCode(code){
    NAV & INIT
    ============================================================ */
 function switchView(tabId){
-  const tabs=['billingTab','returnTab','purchaseTab','vouchersTab','accountingTab','booksTab','partiesTab','inventoryTab','staffTab','settingsTab'];
+  const tabs=['billingTab','returnTab','purchaseTab','supplierPayTab','vouchersTab','accountingTab','booksTab','partiesTab','inventoryTab','staffTab','settingsTab'];
   tabs.forEach(id=>{
     const sec=document.getElementById(id); const btn=document.getElementById('nav-'+id);
     if(sec) sec.style.display=(id===tabId)?'block':'none';
@@ -1031,6 +1120,7 @@ function switchView(tabId){
   if(tabId==='partiesTab') renderPartiesList();
   if(tabId==='booksTab') renderAllBooks();
   if(tabId==='staffTab'){ renderStaffList(); renderSalaryHistory(); populateStaffDropdown(); }
+  if(tabId==='supplierPayTab'){ populateSupplierPaymentDropdown(); populateMonthFilter(); renderSupplierPayments(); renderSupplierSummary(); }
 }
 
 function initApp(){
@@ -1046,6 +1136,7 @@ function initApp(){
     parties     = load('sfp_parties',[]);
     staff       = load('sfp_staff',[]);
     salaryPayments = load('sfp_salary_payments',[]);
+    supplierPayments = load('sfp_supplier_payments',[]);
     auditLog    = load('sfp_audit',[]);
     categories  = load('sfp_categories', categories);
 
@@ -1057,10 +1148,10 @@ function initApp(){
     if(!Array.isArray(parties)) parties=[];
     if(!Array.isArray(staff)) staff=[];
     if(!Array.isArray(salaryPayments)) salaryPayments=[];
+    if(!Array.isArray(supplierPayments)) supplierPayments=[];
     if(!Array.isArray(auditLog)) auditLog=[];
     if(!Array.isArray(categories) || !categories.length) categories=['Mobile Phone', 'Mobile Cover', 'Tempered Glass', 'Cable', 'Charger', 'Earphone', 'Power Bank', 'Memory Card', 'Other'];
 
-    // Migrate: ensure each stock item has category
     inventory.forEach(it=>{ if(!it.category) it.category = 'Mobile Phone'; });
 
     document.getElementById('displayFY').innerText=curFY.label;
@@ -1072,6 +1163,7 @@ function initApp(){
     document.getElementById('salaryPayDate').value=todayStr;
     document.getElementById('salaryYear').value=today.getFullYear();
     document.getElementById('salaryMonth').value=today.getMonth()+1;
+    document.getElementById('spDate').value=todayStr;
     document.getElementById('filterFromDate').value=fmtDate(curFY.start);
     document.getElementById('filterToDate').value=fmtDate(curFY.end);
 
@@ -1092,6 +1184,10 @@ function initApp(){
     populateStaffDropdown();
     applyTallyFilter();
     refreshPartyDatalists();
+    populateSupplierPaymentDropdown();
+    populateMonthFilter();
+    renderSupplierPayments();
+    renderSupplierSummary();
   }catch(e){ console.error("init error:",e); alert("Init error: "+e.message); }
   setTimeout(initBackupSystem, 800);
 }
@@ -1438,12 +1534,10 @@ function renderLiveInvoicePreview(){
 }
 
 /* ============================================================
-   FINALIZE — FIXED: Discount validation BEFORE stock deduction
+   FINALIZE
    ============================================================ */
 function finalizeAndPrint(){
   if(activeLineItems.length===0){ alert("Add at least one item!"); return; }
-
-  // ── 1. Validate IMEIs are not already sold ───────────────
   for(const it of activeLineItems){
     if(it.imei){
       const cleanIMEI = normalizeIMEI(it.imei);
@@ -1451,7 +1545,6 @@ function finalizeAndPrint(){
       if(m&&m.status==="Sold"){ alert("IMEI "+it.imei+" already sold!"); return; }
     }
   }
-
   const invNo=document.getElementById('invNo').value;
   const invDate=document.getElementById('invDate').value;
   const custName=document.getElementById('custName').value.trim()||'Cash Customer';
@@ -1460,21 +1553,16 @@ function finalizeAndPrint(){
   const ledger=document.getElementById('paymentLedger').value;
   const taxType=document.getElementById('gstTaxType').value;
   const discount=parseFloat(document.getElementById('extraDiscount')?.value)||0;
-
   if (!invDate) { alert('Please select a valid invoice date.'); return; }
   if (invoices.some(i => i.invoiceNo === invNo)) { alert('This invoice number already exists. Use Edit/Reprint for an existing invoice or choose a new number.'); return; }
 
-  // ── 2. Compute gross total FIRST (for discount validation) ─
   let preGross = 0;
   activeLineItems.forEach(it => { preGross += it.grossAmount * it.qty; });
-
-  // ── 3. Validate discount BEFORE touching stock ───────────
   if (discount < 0 || discount > preGross) {
     alert('Discount must be between ₹0 and invoice total (₹' + preGross.toFixed(2) + ').');
     return;
   }
 
-  // ── 4. Now compute taxes and deduct stock (safe) ────────
   let tG=0,tT=0,tC=0,tS=0,tI=0,tPC=0;
   activeLineItems.forEach(it=>{
     const lt=it.grossAmount*it.qty, ltx=lt/(1+it.gstRate/100), ltxa=lt-ltx;
@@ -1487,35 +1575,22 @@ function finalizeAndPrint(){
   });
   safeSave('sfp_stock', inventory);
   renderStockTable();
-
   let partyId=null;
   if(ledger==='Credit / Sundry Debtors' && custName!=='Cash Customer'){
     let p=parties.find(x=>x.type==='CUSTOMER' && x.name.toLowerCase()===custName.toLowerCase());
     if(!p){ p={id:Date.now(), type:'CUSTOMER', name:custName, phone:custPhone, gstin:custGSTIN, address:'', opening:0, drCr:'DR'}; parties.push(p); safeSave('sfp_parties', parties); }
     partyId=p.id;
   }
-
   const finalPayable = tG - discount;
   const discountFactor = tG > 0 ? finalPayable / tG : 1;
   tT *= discountFactor; tC *= discountFactor; tS *= discountFactor; tI *= discountFactor;
-
-  const rec={
-    invoiceNo:invNo, date:invDate, financialYear:getFY(new Date(invDate)).label,
-    customerName:custName, customerPhone:custPhone, customerGSTIN:custGSTIN,
-    partyId, taxType, ledger, discount,
-    items:JSON.parse(JSON.stringify(activeLineItems)),
-    totalTaxable:+tT.toFixed(2), totalCGST:+tC.toFixed(2), totalSGST:+tS.toFixed(2), totalIGST:+tI.toFixed(2),
-    totalGross:+finalPayable.toFixed(2), totalPurchaseCost:+tPC.toFixed(2),
-    theme:currentTheme, timestamp:new Date().toISOString()
-  };
+  const rec={ invoiceNo:invNo, date:invDate, financialYear:getFY(new Date(invDate)).label, customerName:custName, customerPhone:custPhone, customerGSTIN:custGSTIN, partyId, taxType, ledger, discount, items:JSON.parse(JSON.stringify(activeLineItems)), totalTaxable:+tT.toFixed(2), totalCGST:+tC.toFixed(2), totalSGST:+tS.toFixed(2), totalIGST:+tI.toFixed(2), totalGross:+finalPayable.toFixed(2), totalPurchaseCost:+tPC.toFixed(2), theme:currentTheme, timestamp:new Date().toISOString() };
   invoices.unshift(rec);
   safeSave('sfp_invoices', invoices);
   logAudit('INVOICE_CREATE', invNo+' | '+custName+' | ₹'+finalPayable.toFixed(2));
   refreshPartyDatalists();
-
   const printBox = document.getElementById('isolatedPrintContainer');
   printBox.innerHTML = document.getElementById('printableInvoice').innerHTML;
-
   let handled=false;
   const reset=()=>{
     if(handled) return; handled=true;
@@ -1764,6 +1839,7 @@ function savePurchase(){
   document.getElementById('purBillNo').value=''; document.getElementById('purSupplier').value=''; document.getElementById('purPhone').value=''; document.getElementById('purGSTIN').value='';
   document.getElementById('purItemModel').value=''; document.getElementById('purItemCost').value=''; document.getElementById('purItemSell').value='';
   renderPurchaseTable(); refreshPartyDatalists(); renderCategoryChips();
+  populateSupplierPaymentDropdown(); renderSupplierSummary(); onSupplierPaymentSelect();
   alert('Purchase '+purNo+' saved! Stock updated.');
 }
 function renderPurchaseTable(){
@@ -1798,7 +1874,239 @@ function deletePurchase(i){
   safeSave('sfp_purchases', purchases);
   logAudit('PURCHASE_DELETE', p.purchaseNo+' | '+p.supplierName+' | Removed '+removed+' items');
   renderPurchaseTable();
+  renderSupplierSummary();
+  onSupplierPaymentSelect();
   alert('Purchase deleted. '+removed+' stock items removed.');
+}
+
+/* ============================================================
+   SUPPLIER / DEALER PAYMENT SYSTEM
+   ============================================================ */
+function populateSupplierPaymentDropdown(){
+  const sel = document.getElementById('spSupplier');
+  if(!sel) return;
+  const suppliers = parties.filter(p => p.type === 'SUPPLIER');
+  sel.innerHTML = suppliers.length 
+    ? '<option value="">-- Select Supplier --</option>' + suppliers.map(s => `<option value="${s.id}">${s.name}</option>`).join('')
+    : '<option value="">-- No suppliers yet (Add from Parties tab) --</option>';
+}
+
+function onSupplierPaymentSelect(){
+  const sel = document.getElementById('spSupplier');
+  if(!sel) return;
+  const supplierId = parseInt(sel.value, 10);
+  if(!supplierId){
+    document.getElementById('spTotalPurch').innerText = '₹0';
+    document.getElementById('spTotalPaid').innerText = '₹0';
+    document.getElementById('spOutstanding').innerText = '₹0';
+    return;
+  }
+  const supplier = parties.find(p => p.id === supplierId);
+  if(!supplier) return;
+
+  const totalPurchases = purchases
+    .filter(p => p.supplierId === supplierId && p.ledger === 'Credit / Sundry Creditors')
+    .reduce((s, p) => s + (p.totalCost || 0), 0) + (supplier.opening || 0);
+  const totalPaid = supplierPayments
+    .filter(sp => sp.supplierId === supplierId)
+    .reduce((s, sp) => s + sp.amount, 0);
+  const outstanding = totalPurchases - totalPaid;
+
+  document.getElementById('spTotalPurch').innerText = '₹' + totalPurchases.toFixed(2);
+  document.getElementById('spTotalPaid').innerText = '₹' + totalPaid.toFixed(2);
+  document.getElementById('spOutstanding').innerText = '₹' + outstanding.toFixed(2);
+}
+
+function saveSupplierPayment(){
+  const supplierId = parseInt(document.getElementById('spSupplier').value, 10);
+  const date = document.getElementById('spDate').value;
+  const amount = parseFloat(document.getElementById('spAmount').value) || 0;
+  const mode = document.getElementById('spMode').value;
+  const refNo = document.getElementById('spRefNo').value.trim();
+  const narration = document.getElementById('spNarration').value.trim();
+
+  if(!supplierId){ alert('Please select a supplier!'); return; }
+  if(!date){ alert('Please select a date!'); return; }
+  if(amount <= 0){ alert('Enter a valid amount!'); return; }
+
+  const supplier = parties.find(p => p.id === supplierId);
+  if(!supplier){ alert('Supplier not found!'); return; }
+
+  const rec = {
+    id: Date.now(),
+    supplierId, supplierName: supplier.name,
+    amount, date, mode, refNo, narration,
+    timestamp: new Date().toISOString()
+  };
+  supplierPayments.unshift(rec);
+  safeSave('sfp_supplier_payments', supplierPayments);
+
+  vouchers.unshift({
+    id: Date.now() + 1,
+    type: 'EXPENSE',
+    date, amount,
+    category: 'Supplier Payment - ' + supplier.name,
+    account: mode,
+    narration: narration || ('Payment to ' + supplier.name + (refNo ? ' (Ref: ' + refNo + ')' : '')),
+    partyId: supplier.id
+  });
+  safeSave('sfp_vouchers', vouchers);
+
+  logAudit('SUPPLIER_PAYMENT', supplier.name + ' | ₹' + amount.toFixed(2) + ' | ' + mode);
+
+  document.getElementById('spAmount').value = '';
+  document.getElementById('spRefNo').value = '';
+  document.getElementById('spNarration').value = '';
+
+  renderSupplierPayments();
+  renderSupplierSummary();
+  onSupplierPaymentSelect();
+  populateMonthFilter();
+  renderVouchersTable();
+  renderAllBooks();
+  renderPartiesList();
+
+  alert('✅ Payment of ₹' + amount.toFixed(2) + ' to ' + supplier.name + ' recorded!');
+}
+
+function renderSupplierPayments(){
+  const t = document.getElementById('spGridBody');
+  if(!t) return;
+
+  const searchQ = (document.getElementById('spSearchBox')?.value || '').trim().toLowerCase();
+  const monthFilter = document.getElementById('spMonthFilter')?.value || 'ALL';
+  const modeFilter = document.getElementById('spModeFilter')?.value || 'ALL';
+
+  let filtered = supplierPayments.filter(sp => {
+    if(modeFilter !== 'ALL' && sp.mode !== modeFilter) return false;
+    if(monthFilter !== 'ALL' && sp.date.substring(0, 7) !== monthFilter) return false;
+    if(searchQ){
+      const blob = (sp.supplierName + ' ' + (sp.refNo || '') + ' ' + (sp.narration || '')).toLowerCase();
+      if(!blob.includes(searchQ)) return false;
+    }
+    return true;
+  });
+
+  const totalAmt = filtered.reduce((s, sp) => s + sp.amount, 0);
+  const elFT = document.getElementById('spFilteredTotal'); if(elFT) elFT.innerText = '₹' + totalAmt.toFixed(2);
+  const elFC = document.getElementById('spFilteredCount'); if(elFC) elFC.innerText = filtered.length;
+  const elHC = document.getElementById('spHistoryCount'); if(elHC) elHC.innerText = filtered.length + ' payments';
+
+  const totalPurchAll = purchases.reduce((s, p) => s + (p.totalCost || 0), 0);
+  const elTP = document.getElementById('spTotalPurchases'); if(elTP) elTP.innerText = '₹' + totalPurchAll.toFixed(2);
+
+  if(!filtered.length){
+    t.innerHTML = '<tr><td colspan="6" class="text-center py-6 text-slate-400">No payments found.</td></tr>';
+    return;
+  }
+
+  t.innerHTML = filtered.map(sp => {
+    const modeShort = sp.mode.replace('Cash-in-Hand', 'Cash').replace('Bank / UPI', 'Bank/UPI').replace('Bajaj / EMI Finance', 'EMI');
+    return `<tr class="hover:bg-slate-50">
+      <td class="p-2.5 font-mono text-slate-600">${sp.date}</td>
+      <td class="p-2.5 font-semibold">${sp.supplierName}</td>
+      <td class="p-2.5"><span class="bg-sky-100 text-sky-800 text-[10px] font-bold px-2 py-0.5 rounded">${modeShort}</span></td>
+      <td class="p-2.5 font-mono text-[10px] text-slate-500">${sp.refNo || '-'}</td>
+      <td class="p-2.5 text-right font-mono font-bold text-emerald-700">₹${sp.amount.toFixed(2)}</td>
+      <td class="p-2.5 text-center">
+        <button onclick="viewSupplierPayment(${sp.id})" class="text-xs bg-slate-100 px-2 py-1 rounded font-bold">👁</button>
+        <button onclick="deleteSupplierPayment(${sp.id})" class="text-xs bg-red-100 text-red-700 px-2 py-1 rounded font-bold">🗑</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function viewSupplierPayment(id){
+  const sp = supplierPayments.find(x => x.id === id);
+  if(!sp){ alert('Not found'); return; }
+  alert(`Payment Details\n\nDate: ${sp.date}\nSupplier: ${sp.supplierName}\nAmount: ₹${sp.amount.toFixed(2)}\nMode: ${sp.mode}\nRef No: ${sp.refNo || '-'}\nNarration: ${sp.narration || '-'}`);
+}
+
+function deleteSupplierPayment(id){
+  const pin = prompt('🔒 Master PIN to delete payment:');
+  if(!pin) return;
+  if(pin !== storeProfile.masterPin){ alert('Unauthorized!'); return; }
+  const sp = supplierPayments.find(x => x.id === id);
+  if(!sp) return;
+  if(!confirm(`Delete payment of ₹${sp.amount.toFixed(2)} to ${sp.supplierName}?`)) return;
+
+  supplierPayments = supplierPayments.filter(x => x.id !== id);
+  safeSave('sfp_supplier_payments', supplierPayments);
+
+  vouchers = vouchers.filter(v => !(v.type === 'EXPENSE' && v.amount === sp.amount && v.date === sp.date && v.category && v.category.startsWith('Supplier Payment - ' + sp.supplierName)));
+  safeSave('sfp_vouchers', vouchers);
+
+  logAudit('SUPPLIER_PAYMENT_DELETE', sp.supplierName + ' | ₹' + sp.amount.toFixed(2));
+  renderSupplierPayments();
+  renderSupplierSummary();
+  populateMonthFilter();
+  onSupplierPaymentSelect();
+  renderVouchersTable();
+  renderAllBooks();
+  renderPartiesList();
+  alert('Payment deleted.');
+}
+
+function renderSupplierSummary(){
+  const t = document.getElementById('spSummaryGridBody');
+  if(!t) return;
+
+  const suppliers = parties.filter(p => p.type === 'SUPPLIER');
+  if(!suppliers.length){
+    t.innerHTML = '<tr><td colspan="7" class="text-center py-6 text-slate-400">No suppliers yet. Add them from Parties tab.</td></tr>';
+    document.getElementById('spGrandTotal').innerText = '₹0';
+    return;
+  }
+
+  let grandTotal = 0;
+  t.innerHTML = suppliers.map((sup, i) => {
+    const totalPurch = purchases
+      .filter(p => p.supplierId === sup.id && p.ledger === 'Credit / Sundry Creditors')
+      .reduce((s, p) => s + (p.totalCost || 0), 0) + (sup.opening || 0);
+    const totalPaid = supplierPayments
+      .filter(sp => sp.supplierId === sup.id)
+      .reduce((s, sp) => s + sp.amount, 0);
+    const outstanding = totalPurch - totalPaid;
+    grandTotal += outstanding;
+
+    return `<tr class="hover:bg-slate-50">
+      <td class="p-2.5 text-slate-500 font-bold">${i + 1}</td>
+      <td class="p-2.5 font-semibold text-slate-900">${sup.name}</td>
+      <td class="p-2.5 font-mono text-slate-600">${sup.phone || '-'}</td>
+      <td class="p-2.5 text-right font-mono text-slate-700">₹${totalPurch.toFixed(2)}</td>
+      <td class="p-2.5 text-right font-mono text-emerald-700">₹${totalPaid.toFixed(2)}</td>
+      <td class="p-2.5 text-right font-mono font-bold ${outstanding > 0 ? 'text-rose-700' : 'text-emerald-700'}">₹${outstanding.toFixed(2)}</td>
+      <td class="p-2.5 text-center">
+        <button onclick="quickPaySupplier(${sup.id})" class="text-xs bg-emerald-100 text-emerald-700 font-bold px-2 py-1 rounded">💰 Pay</button>
+      </td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('spGrandTotal').innerText = '₹' + grandTotal.toFixed(2);
+}
+
+function quickPaySupplier(supplierId){
+  document.getElementById('spSupplier').value = supplierId;
+  onSupplierPaymentSelect();
+  document.getElementById('spAmount').focus();
+  const sec = document.getElementById('supplierPayTab');
+  if(sec) sec.scrollIntoView({ behavior: 'smooth' });
+}
+
+function populateMonthFilter(){
+  const sel = document.getElementById('spMonthFilter');
+  if(!sel) return;
+  const currentVal = sel.value;
+  const months = new Set();
+  supplierPayments.forEach(sp => { if(sp.date) months.add(sp.date.substring(0, 7)); });
+  const sorted = [...months].sort().reverse();
+  const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  sel.innerHTML = '<option value="ALL">All Months</option>' + 
+    sorted.map(m => {
+      const [y, mo] = m.split('-');
+      return `<option value="${m}">${monthNames[parseInt(mo,10)-1]} ${y}</option>`;
+    }).join('');
+  if(currentVal && [...sel.options].some(o => o.value === currentVal)) sel.value = currentVal;
 }
 
 /* ============================================================
@@ -1888,7 +2196,7 @@ function saveParty(){
   else { parties.push({ id:Date.now(), type, name, phone, gstin, address, opening, drCr }); logAudit('PARTY_CREATE', type+' | '+name); }
   safeSave('sfp_parties', parties);
   document.getElementById('partyName').value=''; document.getElementById('partyPhone').value=''; document.getElementById('partyGSTIN').value=''; document.getElementById('partyAddress').value=''; document.getElementById('partyOpening').value='0';
-  renderPartiesList(); refreshPartyDatalists();
+  renderPartiesList(); refreshPartyDatalists(); populateSupplierPaymentDropdown();
   alert("Party saved!");
 }
 function computePartyBalance(p){
@@ -1899,7 +2207,9 @@ function computePartyBalance(p){
     vouchers.forEach(v=>{ if(v.type==='RECEIPT' && v.partyId===p.id) balance -= v.amount; });
   } else if(p.type==='SUPPLIER'){
     purchases.forEach(pur=>{ if(pur.supplierId===p.id && pur.ledger==='Credit / Sundry Creditors') balance += pur.totalCost; });
-    vouchers.forEach(v=>{ if(v.type==='EXPENSE' && v.category && v.category.toLowerCase()===p.name.toLowerCase()) balance -= v.amount; });
+    if(window.supplierPayments){
+      supplierPayments.forEach(sp=>{ if(sp.supplierId===p.id) balance -= sp.amount; });
+    }
   }
   if(p.drCr==='CR') balance = -balance;
   return balance;
@@ -1927,11 +2237,20 @@ function deleteParty(id){
   const pin=prompt("🔒 Master PIN to delete party:"); if(!pin) return;
   if(pin!==storeProfile.masterPin){ alert("Unauthorized!"); return; }
   const p=parties.find(x=>x.id===id); if(!p) return;
+
+  if(p.type === 'SUPPLIER'){
+    const payCount = supplierPayments.filter(sp => sp.supplierId === p.id).length;
+    if(payCount > 0){
+      alert(`⚠️ Cannot delete! ${payCount} payment(s) recorded for this supplier.\n\nDelete payments first from Dealer Pay tab.`);
+      return;
+    }
+  }
+
   if(!confirm('Delete party '+p.name+'?')) return;
   parties=parties.filter(x=>x.id!==id);
   safeSave('sfp_parties', parties);
   logAudit('PARTY_DELETE', p.type+' | '+p.name);
-  renderPartiesList(); refreshPartyDatalists();
+  renderPartiesList(); refreshPartyDatalists(); populateSupplierPaymentDropdown();
 }
 function viewPartyLedger(id){
   const p=parties.find(x=>x.id===id); if(!p){ alert("Not found"); return; }
@@ -1942,7 +2261,7 @@ function viewPartyLedger(id){
     vouchers.forEach(v=>{ if(v.type==='RECEIPT' && v.partyId===p.id) entries.push({date:v.date, ref:'RCPT', desc:'Receipt', dr:0, cr:v.amount}); });
   } else {
     purchases.forEach(pur=>{ if(pur.supplierId===p.id && pur.ledger==='Credit / Sundry Creditors') entries.push({date:pur.date, ref:pur.purchaseNo, desc:'Credit Purchase', dr:0, cr:pur.totalCost}); });
-    vouchers.forEach(v=>{ if(v.type==='EXPENSE' && v.category && v.category.toLowerCase()===p.name.toLowerCase()) entries.push({date:v.date, ref:'PAY', desc:'Payment', dr:v.amount, cr:0}); });
+    supplierPayments.forEach(sp=>{ if(sp.supplierId===p.id) entries.push({date:sp.date, ref:sp.refNo||'PAY', desc:'Payment ('+(sp.mode.replace('Cash-in-Hand','Cash').replace('Bank / UPI','Bank'))+')', dr:sp.amount, cr:0}); });
   }
   entries.sort((a,b)=>new Date(a.date)-new Date(b.date));
   let bal=p.drCr==='CR'?-(p.opening||0):(p.opening||0);
@@ -2263,7 +2582,7 @@ function printSalarySlip(paymentId){
 }
 
 /* ============================================================
-   P&L + SEARCH
+   P&L
    ============================================================ */
 function setDateRange(period){
   const today=new Date(); let from=new Date(), to=new Date();
@@ -2486,7 +2805,7 @@ function clearAuditLog(){
    BACKUP / RESTORE / WIPE
    ============================================================ */
 function backupAllData(){
-  const data={ version:'3.1', exportedAt:new Date().toISOString(), storeProfile, invoices, creditNotes, vouchers, inventory, purchases, parties, staff, salaryPayments, auditLog, categories };
+  const data={ version:'3.2', exportedAt:new Date().toISOString(), storeProfile, invoices, creditNotes, vouchers, inventory, purchases, parties, staff, salaryPayments, supplierPayments, auditLog, categories };
   const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');
@@ -2513,11 +2832,13 @@ function restoreAllData(e){
       parties = d.parties || [];
       staff = d.staff || [];
       salaryPayments = d.salaryPayments || [];
+      supplierPayments = d.supplierPayments || [];
       auditLog = d.auditLog || [];
       categories = d.categories || categories;
       safeSave('sfp_store_profile', storeProfile); safeSave('sfp_invoices', invoices); safeSave('sfp_credit_notes', creditNotes);
       safeSave('sfp_vouchers', vouchers); safeSave('sfp_stock', inventory); safeSave('sfp_purchases', purchases);
       safeSave('sfp_parties', parties); safeSave('sfp_staff', staff); safeSave('sfp_salary_payments', salaryPayments);
+      safeSave('sfp_supplier_payments', supplierPayments);
       safeSave('sfp_audit', auditLog); safeSave('sfp_categories', categories);
       alert("Restore complete! Reloading...");
       location.reload();
@@ -2531,7 +2852,7 @@ function wipeAllData(){
   if(pin!==storeProfile.masterPin){ alert("Unauthorized!"); return; }
   const confirm1=prompt("Type DELETE ALL to confirm:");
   if(confirm1!=='DELETE ALL'){ alert("Cancelled."); return; }
-  ['sfp_store_profile','sfp_invoices','sfp_credit_notes','sfp_vouchers','sfp_stock','sfp_purchases','sfp_parties','sfp_staff','sfp_salary_payments','sfp_audit','sfp_categories'].forEach(k=>localStorage.removeItem(k));
+  ['sfp_store_profile','sfp_invoices','sfp_credit_notes','sfp_vouchers','sfp_stock','sfp_purchases','sfp_parties','sfp_staff','sfp_salary_payments','sfp_supplier_payments','sfp_audit','sfp_categories'].forEach(k=>localStorage.removeItem(k));
   alert("All data wiped. Reloading...");
   location.reload();
 }
@@ -2550,6 +2871,7 @@ function exportToExcelCA(){
   const fVch=vouchers.filter(v=>{ const d=new Date(v.date+'T12:00:00'); return d>=fromDate&&d<=toDate; });
   const fPur=purchases.filter(p=>{ const d=new Date(p.date+'T12:00:00'); return d>=fromDate&&d<=toDate; });
   const fSal=salaryPayments.filter(s=>{ const d=new Date(s.payDate+'T12:00:00'); return d>=fromDate&&d<=toDate; });
+  const fSP=supplierPayments.filter(s=>{ const d=new Date(s.date+'T12:00:00'); return d>=fromDate&&d<=toDate; });
   const wb=XLSX.utils.book_new();
   const sSales=fInv.map(r=>({ "Date":r.date, "FY":r.financialYear, "Invoice":r.invoiceNo, "Customer":r.customerName, "Phone":r.customerPhone, "GSTIN":r.customerGSTIN||"B2C", "TaxType":r.taxType, "Items":(r.items||[]).map(i=>i.desc+' [IMEI:'+(i.imei||'-')+']').join(' | '), "Ledger":r.ledger, "Taxable":r.totalTaxable, "CGST":r.totalCGST, "SGST":r.totalSGST, "IGST":r.totalIGST, "Total":r.totalGross }));
   XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(sSales), "Sales_Register");
@@ -2557,6 +2879,8 @@ function exportToExcelCA(){
   XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(sCRN), "Credit_Notes");
   const sPur=fPur.map(p=>({ "PurchaseNo":p.purchaseNo, "BillNo":p.billNo, "Date":p.date, "Supplier":p.supplierName, "Items":p.lines.map(l=>'['+l.category+'] '+l.model+' x '+l.qty).join(' | '), "Taxable":p.totalTaxable, "GST":p.totalTax, "Total":p.totalCost, "Ledger":p.ledger }));
   XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(sPur), "Purchase_Register");
+  const sSupPay=fSP.map(sp=>({ "Date":sp.date, "Supplier":sp.supplierName, "Amount":sp.amount, "Mode":sp.mode, "RefNo":sp.refNo||'', "Narration":sp.narration||'' }));
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(sSupPay), "Supplier_Payments");
   const sVch=fVch.map(v=>({ "Date":v.date, "Type":v.type, "Category":v.category||'', "Account":v.account||v.fromAccount||v.drAccount||'', "Amount":v.amount, "Narration":v.narration||'' }));
   XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(sVch), "Daybook_Vouchers");
   const sParty=parties.map(p=>({ "Type":p.type, "Name":p.name, "Phone":p.phone, "GSTIN":p.gstin, "Opening":p.opening, "DrCr":p.drCr, "CurrentBalance":computePartyBalance(p) }));
@@ -2620,7 +2944,7 @@ function saveDailyBackups(backups) {
   }
 }
 function buildDailySnapshot() {
-  return { version: '3.1', appName: 'SmartFix ERP', exportedAt: new Date().toISOString(), backupDate: fmtDate(new Date()), storeProfile, invoices, creditNotes, vouchers, inventory, purchases, parties, staff, salaryPayments, auditLog, categories };
+  return { version: '3.2', appName: 'SmartFix ERP', exportedAt: new Date().toISOString(), backupDate: fmtDate(new Date()), storeProfile, invoices, creditNotes, vouchers, inventory, purchases, parties, staff, salaryPayments, supplierPayments, auditLog, categories };
 }
 async function runAutoDailyBackup(force) {
   const today = fmtDate(new Date());
@@ -2646,7 +2970,7 @@ async function runAutoDailyBackup(force) {
   updateBackupUI();
   if (force) {
     logAudit('BACKUP_MANUAL', `Backup completed for ${today}`);
-    alert(`✅ Backup Complete!\n\nDate: ${today}\n\nAll data (invoices, stock, parties, vouchers, staff, salary) has been saved.`);
+    alert(`✅ Backup Complete!\n\nDate: ${today}\n\nAll data (invoices, stock, parties, vouchers, staff, salary, supplier payments) has been saved.`);
   }
   return saved;
 }
@@ -2753,11 +3077,12 @@ function restoreBackupByDate(date) {
   storeProfile = snap.storeProfile || storeProfile;
   invoices = snap.invoices || []; creditNotes = snap.creditNotes || []; vouchers = snap.vouchers || [];
   inventory = snap.inventory || []; purchases = snap.purchases || []; parties = snap.parties || [];
-  staff = snap.staff || []; salaryPayments = snap.salaryPayments || []; auditLog = snap.auditLog || [];
+  staff = snap.staff || []; salaryPayments = snap.salaryPayments || []; supplierPayments = snap.supplierPayments || []; auditLog = snap.auditLog || [];
   categories = snap.categories || categories;
   safeSave('sfp_store_profile', storeProfile); safeSave('sfp_invoices', invoices); safeSave('sfp_credit_notes', creditNotes);
   safeSave('sfp_vouchers', vouchers); safeSave('sfp_stock', inventory); safeSave('sfp_purchases', purchases);
   safeSave('sfp_parties', parties); safeSave('sfp_staff', staff); safeSave('sfp_salary_payments', salaryPayments);
+  safeSave('sfp_supplier_payments', supplierPayments);
   safeSave('sfp_audit', auditLog); safeSave('sfp_categories', categories);
   logAudit('BACKUP_RESTORE', `Restored from ${date} backup`);
   alert(`✅ Restore complete from ${date}!\n\nPage will reload...`);
@@ -2774,13 +3099,13 @@ async function initBackupSystem() {
    KEYBOARD SHORTCUTS
    ============================================================ */
 document.addEventListener('keydown', function(e){
-  const tabs=['billingTab','returnTab','purchaseTab','vouchersTab','accountingTab','booksTab','partiesTab','inventoryTab','staffTab','settingsTab'];
+  const tabs=['billingTab','returnTab','purchaseTab','supplierPayTab','vouchersTab','accountingTab','booksTab','partiesTab','inventoryTab','staffTab','settingsTab'];
   const idx=parseInt(e.key.replace('F',''), 10)-1;
   if(e.key.startsWith('F') && idx>=0 && idx<tabs.length){ e.preventDefault(); switchView(tabs[idx]); }
 });
 
 /* ============================================================
-   FINAL DATA-INTEGRITY HARDENING (FIXED: now runs on window load)
+   FINAL DATA-INTEGRITY HARDENING
    ============================================================ */
 (function () {
   const numeric = v => Number.isFinite(Number(v)) ? Number(v) : 0;
@@ -2798,9 +3123,9 @@ document.addEventListener('keydown', function(e){
     purchases = purchases.filter(x => x && x.date && Array.isArray(x.lines));
     parties = parties.filter(x => x && String(x.name || '').trim());
     staff = staff.filter(x => x && String(x.name || '').trim());
+    supplierPayments = supplierPayments.filter(x => x && x.supplierId && x.amount > 0);
   }
 
-  // ✅ Run after everything (including initApp) has loaded
   window.addEventListener('load', () => {
     try { normaliseLoadedData(); } catch(e){ console.warn('Normalise error:', e); }
   });
