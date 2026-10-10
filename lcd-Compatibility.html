@@ -3,18 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Folder Compatibility Finder - SmartFixPro</title>
+  <title>Parts Match - SmartFixPro Universal Compatibility Database</title>
   <style>
     :root {
       --bg-dark: #0b0d17;
       --card-bg: rgba(22, 27, 46, 0.7);
       --card-border: rgba(255, 255, 255, 0.08);
       --primary-accent: #6366f1;
-      --primary-glow: #4f46e5;
       --text-main: #f8fafc;
       --text-muted: #94a3b8;
-      --tag-bg: rgba(99, 102, 241, 0.15);
-      --tag-border: rgba(99, 102, 241, 0.3);
+      --tag-bg: rgba(99, 102, 241, 0.12);
+      --tag-border: rgba(99, 102, 241, 0.25);
       --tag-text: #a5b4fc;
       --success: #10b981;
     }
@@ -36,7 +35,7 @@
 
     .container {
       width: 100%;
-      max-width: 520px;
+      max-width: 580px;
       background: var(--card-bg);
       border: 1px solid var(--card-border);
       border-radius: 28px;
@@ -82,7 +81,7 @@
 
     .search-box {
       position: relative;
-      margin-bottom: 16px;
+      margin-bottom: 12px;
     }
 
     .search-input {
@@ -90,7 +89,7 @@
       background: rgba(15, 23, 42, 0.8);
       border: 1px solid var(--card-border);
       color: #fff;
-      padding: 14px 16px 14px 44px;
+      padding: 13px 16px 13px 44px;
       border-radius: 14px;
       font-size: 0.92rem;
       outline: none;
@@ -111,6 +110,38 @@
       display: flex;
     }
 
+    .category-pills {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 10px;
+      margin-bottom: 12px;
+    }
+
+    .category-pills::-webkit-scrollbar {
+      display: none;
+    }
+
+    .pill-btn {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 7px 15px;
+      border-radius: 20px;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .pill-btn.active {
+      background: var(--primary-accent);
+      color: #fff;
+      border-color: var(--primary-accent);
+      box-shadow: 0 2px 10px rgba(99, 102, 241, 0.4);
+    }
+
     .results-count {
       font-size: 0.78rem;
       color: var(--text-muted);
@@ -121,25 +152,25 @@
     .results-container {
       display: flex;
       flex-direction: column;
-      gap: 14px;
-      max-height: 580px;
+      gap: 12px;
+      max-height: 540px;
       overflow-y: auto;
       padding-right: 4px;
     }
 
     .results-container::-webkit-scrollbar {
-      width: 5px;
+      width: 4px;
     }
     .results-container::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.18);
+      background: rgba(255, 255, 255, 0.15);
       border-radius: 4px;
     }
 
     .group-card {
-      background: rgba(15, 23, 42, 0.65);
+      background: rgba(15, 23, 42, 0.6);
       border: 1px solid var(--card-border);
       border-radius: 18px;
-      padding: 16px;
+      padding: 15px;
       transition: transform 0.2s ease;
     }
 
@@ -147,8 +178,8 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 12px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      margin-bottom: 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
       padding-bottom: 8px;
     }
 
@@ -159,14 +190,15 @@
       letter-spacing: 0.3px;
     }
 
-    .badge {
-      background: rgba(16, 185, 129, 0.15);
-      color: var(--success);
-      border: 1px solid rgba(16, 185, 129, 0.3);
-      padding: 3px 8px;
-      border-radius: 20px;
-      font-size: 0.7rem;
+    .category-badge {
+      font-size: 0.68rem;
+      padding: 2px 8px;
+      border-radius: 12px;
+      background: rgba(99, 102, 241, 0.15);
+      color: #a5b4fc;
+      border: 1px solid rgba(99, 102, 241, 0.3);
       font-weight: 600;
+      text-transform: uppercase;
     }
 
     .compatible-tags {
@@ -179,10 +211,10 @@
       background: var(--tag-bg);
       border: 1px solid var(--tag-border);
       color: var(--tag-text);
-      font-size: 0.74rem;
+      font-size: 0.73rem;
       padding: 5px 9px;
       border-radius: 8px;
-      line-height: 1.3;
+      line-height: 1.25;
     }
 
     .tag.highlight {
@@ -190,7 +222,7 @@
       color: #fff;
       border-color: #6366f1;
       font-weight: 600;
-      box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
+      box-shadow: 0 0 8px rgba(99, 102, 241, 0.5);
     }
 
     .empty-state {
@@ -209,8 +241,8 @@
         <svg viewBox="0 0 24 24"><path d="M4 6h16v12H4z" fill="none"/><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V6h16v12zM6 10h2v2H6zm0 4h8v2H6zm10 0h2v2h-2zm-6-4h8v2h-8z"/></svg>
       </div>
       <div class="title-area">
-        <h2>Folder Compatibility Finder</h2>
-        <p>SmartFixPro LCD Repair Assistant</p>
+        <h2>Parts Match Engine</h2>
+        <p>Universal Hardware, Glass & Folder Database</p>
       </div>
     </div>
 
@@ -218,7 +250,16 @@
       <span class="search-icon">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
       </span>
-      <input type="text" id="searchInput" class="search-input" placeholder="Search phone model (e.g. Hot 10, Y20, A14, Note 12)...">
+      <input type="text" id="searchInput" class="search-input" placeholder="Search phone model or part (e.g. Y20, V40, BN56, Edge 40)...">
+    </div>
+
+    <!-- Category Pills -->
+    <div class="category-pills">
+      <button class="pill-btn active" onclick="setCategory('all', this)">All Parts</button>
+      <button class="pill-btn" onclick="setCategory('uv_glass', this)">UV Curved Glass</button>
+      <button class="pill-btn" onclick="setCategory('battery', this)">Battery</button>
+      <button class="pill-btn" onclick="setCategory('lcd', this)">Folder / LCD</button>
+      <button class="pill-btn" onclick="setCategory('cc', this)">Sub-Board (CC)</button>
     </div>
 
     <div id="resultsCount" class="results-count">Loading database...</div>
@@ -226,299 +267,502 @@
   </div>
 
   <script>
+    let currentCategory = 'all';
+
+    // Comprehensive Database Extracted from PDF and Price List
     const compatibilityDB = [
-      // === INFINIX / TECNO / ITEL ===
+      // ==========================================
+      // 1. UNIVERSAL UV CURVED GLASS (combosupport.in)
+      // ==========================================
       {
-        code: "INF/TEC/ITE-BG6M / X6525",
-        models: ["Infinix Smart 8 (X6525, X6525B)", "Infinix Smart 8 HD (X6525)", "Infinix Smart 8 Plus (X6526)", "Infinix Smart 8 Pro (X6525B)", "Infinix Smart 10 HD (X6525D)", "Tecno Spark 20C (BG7n, BG7)", "Infinix Hot 40i (X6528, X6528B)", "Tecno Spark Go 2024 (BG6, BG6s, BG6M)", "Tecno Pop 8 (BG6h, BG6i)", "Itel A70s (A666L)", "Itel RS4 (S666Ln)", "Itel S24 (S667Ln)", "Itel P65C (P666L)", "Itel P55 (A666LN, A666L)", "Itel P55T (P665L)", "Itel P55+ (P663L, P663LN)", "Tecno Spark 20 (KJ5, KJ5N)", "ZTE Blade A75", "ZTE Blade V60 Smart", "ZTE Blade V60 Design", "ZTE Blade V60 Vita", "ZTE Axon 60 Lite", "Philips S6310 Essence 20"]
+        type: 'uv_glass',
+        code: "UV-GLASS: OP13 / X200U",
+        models: ["Oneplus 13", "Vivo X200 Ultra"]
       },
       {
-        code: "INF/TEC/ITE-KF6/X659",
-        models: ["Tecno POP 5P (BD3)", "Tecno Spark 7T (KF6p)", "Tecno Spark 8 (KG6)", "Tecno Spark 7 (PR651, PR651H, PR651E, KF6H, KF6i, KF6J, KF6K, KF6, KF6M, KF6N)"]
+        type: 'uv_glass',
+        code: "UV-GLASS: S19P / V40 / V40P",
+        models: ["Vivo S19 Pro", "Vivo V40", "Vivo V40 Pro"]
       },
       {
-        code: "INF/TEC/ITE-KF8/CG6",
-        models: ["Tecno Camon 18i (CG6)", "Tecno Camon 17 (CG6, CG6J)", "Tecno Spark 7 Pro (KF8)"]
+        type: 'uv_glass',
+        code: "UV-GLASS: RM10P+ / RM11P / RENO 9",
+        models: ["Realme 10 Pro Plus", "Realme 11 Pro", "Realme 11 Pro Plus", "Realme Narzo 60 Pro", "Realme 14 Pro Lite", "Realme P1 Pro", "Oppo Reno 9", "Oppo Reno 9 Pro", "Oppo A1 Pro", "Oppo A2 Pro"]
       },
       {
-        code: "INF/TEC/ITE-KG6K",
-        models: ["Itel A49 (A661LRU)", "Itel A58 Pro 4G (A661L)", "Itel A58 (A661W)", "Itel A58 Pro (A661WP)", "Itel S17 (S661W)", "Tecno Spark 8 (KG6K)", "Tecno Spark 8T (KG6p)", "Infinix Smart 6 Plus (X6511g)"]
+        type: 'uv_glass',
+        code: "UV-GLASS: REALME 12 PRO SERIES",
+        models: ["Realme 12 Pro", "Realme 12 Pro Plus"]
       },
       {
-        code: "INF/TEC/ITE-KG5K / BE8",
-        models: ["Itel Vision 3 (S661LP, S661L, S661LN)", "Tecno Spark 9T (KH6)", "Tecno Spark 9 (KG5P)", "Tecno Spark 8C (KG5k, KG5j, KG5ks, KG5p, KG5q, KG5n)", "Itel Vision 5 (S663LC)", "Itel S18 (S663L)", "Itel P38 (P661W)", "Infinix Hot 12 Pro (X668, X668C)", "Tecno Pop 6 Pro (BE8, BE8i, BE8-XQ662A, BE8-XQ662B)"]
+        type: 'uv_glass',
+        code: "UV-GLASS: REALME 13 PRO SERIES",
+        models: ["Realme 13 Pro", "Realme 13 Pro Plus"]
       },
       {
-        code: "INF/TEC/ITE-X650",
-        models: ["Tecno Camon 12 (CC7, CC7S)", "Infinix Hot 8 Lite (X650)", "Infinix Hot 8 (X650B, X650C, X650D)", "Tecno Spark 4 (KC8, KC2J, KC2)"]
+        type: 'uv_glass',
+        code: "UV-GLASS: REALME 14 PRO / NARZO 80 PRO",
+        models: ["Realme 14 Pro", "Realme Narzo 80 Pro"]
       },
       {
-        code: "INF/TEC/ITE-X6515",
-        models: ["Infinix Smart 7 (X6515, X6517)", "Infinix Smart 7 HD (X6516)", "Infinix Smart 7 Plus (X6517)", "Infinix Hot 30i (X669, X669C, X669D)", "Itel P40 (P662L)", "Tecno Pop 7 (BF6)", "Tecno Spark Go 2023 (BF7, BF7n)", "Tecno Pop 7 Pro (BF7, BF7h)", "Tecno Spark 10C (KI5k, KI5m, KI5n, KI5q)", "Itel A60 (A662L)", "Itel A60 4G (A662L)", "Itel A60s (A662LM)", "Tecno Spark 10 5G (KI8)", "Itel S23+ (S665L, S681LN)", "Itel A05s (A663L, A663LC)", "Itel Power 55 (P661N)", "Itel P55 5G (P661N)", "Itel A70 (A665L)", "Itel A90 (A6610L)"]
+        type: 'uv_glass',
+        code: "UV-GLASS: RENO 12 / P2 PRO",
+        models: ["Oppo Reno 12 Global", "Realme P2 Pro"]
       },
       {
-        code: "INF/TEC/ITE-X652",
-        models: ["Infinix S5 (X652, X652A)", "Infinix S5 Lite (X652C, X652B)", "Tecno Camon 12 Air (CC6, KC3)"]
+        type: 'uv_glass',
+        code: "UV-GLASS: VIVO X90 / S17 / V29 / CAMON 30S",
+        models: ["Vivo X90", "Vivo X90S", "Vivo X90 Pro", "Vivo S17", "Vivo S17T", "Vivo S17 Pro", "Vivo V29", "Vivo V29 Pro", "Infinix Note 40 Pro", "Infinix Note 50S", "Infinix Zero 40", "Tecno Camon 30S", "Tecno Camon 30S Pro", "Tecno Camon 40 Pro 4G", "HTC U24 Pro", "Infinix Hot 50 Pro Plus", "Tecno Spark 20 Pro Plus"]
       },
       {
-        code: "INF/TEC/ITE-X653",
-        models: ["Tecno Pop 3 Plus (BB4)", "Infinix Smart 4C (X653C)", "Infinix Smart 4 (X653)", "Tecno Spark 4 Lite (KC8S, BB4K)"]
+        type: 'uv_glass',
+        code: "UV-GLASS: VIVO X80 / V27 / V30E / IQOO",
+        models: ["Vivo X70 Pro Plus", "Vivo X80", "Vivo X80 Pro", "Vivo X90 Pro Plus", "Vivo S16", "Vivo S16 Pro", "Vivo S17E", "Vivo T2 Pro", "Vivo V27", "Vivo V27 Pro", "Vivo V29E", "Vivo V29 Lite", "Vivo V30E", "Vivo V40 Lite", "Vivo Y78 Plus", "Vivo Y100", "Vivo Y200", "Vivo Y200 Pro", "Vivo Y300 Plus", "Vivo iQoo 8 Pro", "Vivo iQoo 9 Pro", "Vivo iQoo 10 Pro", "Vivo iQoo 11 Pro", "Vivo iQoo 12 Pro"]
       },
       {
-        code: "INF/TEC/ITE-X657",
-        models: ["Tecno Hot 10 Lite (X657B)", "Itel P36 Pro Lite", "Itel P36 Pro LTE (L6501)", "Itel P36 (W6501)", "Itel P37 (P651W)", "Itel S16 (W6502)", "Infinix Smart 5A (X657C)", "Infinix Smart 5 (X657, X657C)", "Itel Vision 1 Plus", "Itel Vision 1 Pro (L6502)", "Itel Vision 2S (P651)"]
+        type: 'uv_glass',
+        code: "UV-GLASS: ONEPLUS 12R / ACE 3 / GT NEO 6",
+        models: ["Oneplus 12R", "Oneplus ACE 3", "Oneplus ACE 3 Pro", "Realme GT NEO 6", "Realme GT NEO 6 SE", "Honor X60 Pro", "Oppo Find X7", "Realme GT5 Pro", "Realme GT 6T"]
       },
       {
-        code: "INF/TEC/ITE-KE5",
-        models: ["Tecno Spark Go 2020 (KE5)", "Tecno Spark Go 2021 (KE5)", "Tecno Spark 6 Go (KE5J, KE5K, KE5S, KE5)"]
+        type: 'uv_glass',
+        code: "UV-GLASS: VIVO X200 / S20 PRO / T4 ULTRA",
+        models: ["Vivo X200", "Vivo S20 Pro", "Vivo T4 Ultra"]
       },
       {
-        code: "INF/TEC/ITE-CI6",
-        models: ["Tecno Camon 19 (CI6, CI6n)", "Tecno Camon 19 Pro 5G (CI7n)", "Tecno Camon 19 Pro (CI8, CI8n)"]
+        type: 'uv_glass',
+        code: "UV-GLASS: MOTO EDGE 40 / 40 NEO",
+        models: ["Moto EDGE 40", "Moto EDGE 40 NEO", "M16A"]
       },
       {
-        code: "INF/TEC/ITE-CK6 / X6710",
-        models: ["Tecno Camon 20 (CK6, CK6N)", "Tecno Camon 20 Pro (CK7N)", "Tecno Camon 20 Premier (CK9N)", "Infinix Note 30 VIP (X6710)", "Tecno Camon 20s Pro 5G (CK8nB)", "Tecno Camon 20 Pro 5G (CK8N)", "Infinix Note 30 Pro (X678B)", "Infinix GT 10 Pro (X6739)"]
+        type: 'uv_glass',
+        code: "UV-GLASS: ONEPLUS 11R / RENO 10 / 11",
+        models: ["Oneplus 11R", "Oneplus ACE 2", "Oneplus ACE 2 Pro", "Oppo Reno 10 Pro Plus", "Oppo Reno 11", "Oppo Reno 11 Pro", "Oppo Find X6", "Oppo Reno 10", "Oppo Reno 10 Pro", "Oppo A3 Pro", "Oppo F27 Pro Plus"]
       },
       {
-        code: "INF/TEC/ITE-CL6 / CL7",
-        models: ["Tecno Camon 30 5G (CL7, CL7K, CL7S)", "Infinix Note 40 5G (X6852)", "Tecno Pova 6 (LI7)", "Tecno Pova 6 Pro 5G (LI9)", "Tecno Camon 30 (CL6, CL6K, CL6S)"]
+        type: 'uv_glass',
+        code: "UV-GLASS: MOTO EDGE 50 SERIES",
+        models: ["Moto EDGE 50", "Moto EDGE 50 Pro", "Moto EDGE 50 Ultra", "Moto X50 Ultra"]
       },
       {
-        code: "INF/TEC/ITE-LC7 / LC8",
-        models: ["Tecno Spark 6 Air (KE6, KE6J)", "Tecno Spark Power 2 (LC8)", "Tecno Spark 5 Air (KD6, KD6A)", "Tecno Pouvoir 4 Pro (LC8)", "Tecno Pouvoir 4 (LC7)"]
+        type: 'uv_glass',
+        code: "UV-GLASS: VIVO Y300 PRO / V50 / T4",
+        models: ["Vivo Y300 Pro", "Vivo Y300 Pro Plus", "Vivo V50", "Vivo V50 Pro", "Vivo T4", "Vivo T4 Pro", "Vivo T4R", "Vivo iQoo Z10 5G", "Vivo iQoo Z10R", "Honor Power"]
       },
       {
-        code: "INF/TEC/ITE-X666B / X666 / X670",
-        models: ["Infinix Note 12 (X670, X663C, X663D)", "Infinix Note 12 Pro (X676B)", "Infinix Note 12i 2022 (X677)", "Infinix Note 12 Pro 5G (X671B)", "Infinix Note 30 (X6716B)", "Infinix Note (X663)", "Infinix Note 11 NFC (X663B)", "Infinix Note 12 2023 (X676C)", "Infinix Zero 20 (X6821)", "Tecno Pova 4 Pro (LG8n)", "Infinix Note 12 5G (X671)", "TCL 30+ 4G (T676J)", "TCL 30 4G (T676H)", "TCL 30 5G (T776O)"]
+        type: 'uv_glass',
+        code: "UV-GLASS: REALME 15 / P4 PRO",
+        models: ["Realme 15", "Realme 15 Pro", "Realme P4 Pro"]
       },
       {
-        code: "INF/TEC/ITE-X6720 / KL4 / X6725",
-        models: ["Tecno Pop 9 (KL4, KL4H)", "Tecno Spark Go 1 (KL4, KL4S)", "Tecno Spark Go 1S (KL4H)", "Tecno Spark 30C (KL5, KL5S, KL5N)", "Itel P65 (P671L, P671LN)", "Itel P65+ (P672L)", "Tecno Pova 6 Neo 5G (KL8)", "Tecno Spark 30 5G (KL8, KL8S)", "Tecno Spark 30C 5G (KL8H)", "Tecno Pop 9 5G (KL8H)", "Itel A80 (A671L, A671LC)", "Infinix Hot 50 5G (X6720, X6720B)", "Infinix Hot 50i (X6531, X6531B)", "Infinix Smart 9 (X6532)", "Infinix Smart 9 HD (X6532C)", "Itel Power 70 (P673L)", "Infinix Note 50X 5G (X6857, X6857B)", "Itel A95 5G (A671N)", "Itel Zeno 5G", "ZTE Blade V70 Vita", "ZTE Blade V70 Design", "ZTE Blade V70", "ZTE Axon 70 Lite", "ZTE Nubia Music 2", "ZTE Nubia Focus 2 5G", "Lava LZX419", "Infinix Smart 10 (X6725)", "Infinix Smart 10 Plus (X6725B, X6725C)", "Infinix Hot 60 5G (X6726, X6726B)", "Infinix Hot 60i (X6728, X6728B)", "Tecno Spark Go 2 (KM4, KM4S)", "Tecno Spark 40C (KM4K, KM4N)", "Tecno Pop 10 Pro (KM4K)", "Tecno Spark 40 (KM5, KM5N)"]
+        type: 'uv_glass',
+        code: "UV-GLASS: RENO 13 PRO / 14 PRO+ / P3 PRO",
+        models: ["Oppo Reno 13 Pro", "Realme 14 Pro Plus", "Realme P3 Pro", "Realme P3 Ultra", "Vivo V50E"]
       },
       {
-        code: "INF/TEC/ITE-X6730",
-        models: ["Itel City 100 (C671L)", "Tecno Spark Go 5G (KM8)", "Tecno Spark 40 5G (KM8N)", "Infinix Hot 60i 5G (X67305, X6730B)", "Itel A100 (A673L)"]
+        type: 'uv_glass',
+        code: "UV-GLASS: IQOO Z9S / T3 PRO / V40E",
+        models: ["Vivo iQoo Z9S", "Vivo iQoo Z9S Pro", "Vivo T3 Pro", "Vivo V40E"]
       },
       {
-        code: "INF/TEC/ITE-X680",
-        models: ["Infinix Hot 9 Play (X680, X680B, X680C, X680F)", "Infinix Smart 4 Plus (X680D)"]
+        type: 'uv_glass',
+        code: "UV-GLASS: MOTO EDGE 50 FUSION / G85",
+        models: ["Moto EDGE 50 Fusion", "Moto G85", "Moto S50 Neo"]
       },
       {
-        code: "INF/TEC/ITE-X6812",
-        models: ["Tecno Camon 17P (CG7, CG7N)", "Tecno Camon 18 (CH6, CH6N)", "Tecno Camon 18T (CH6H)", "Tecno Camon 18P (CH7N)", "Infinix Hot 11S (X6812, X6812B)", "Infinix Hot 11T (X6812C)", "Tecno Spark 8 Pro (KG8)", "Infinix Zero 5G (X6815, X6815B, X6815C, X6815D)", "Infinix Hot 20S (X6827)", "Tecno Pova Neo 5G (LE6J)", "Tecno Camon 19 Neo (CH6i)"]
+        type: 'uv_glass',
+        code: "UV-GLASS: MOTO EDGE 60 SERIES",
+        models: ["Moto EDGE 60 Fusion", "Moto EDGE 60 Pro"]
       },
       {
-        code: "INF/TEC/ITE-X6816",
-        models: ["Infinix Hot 12 Play (X6816, X6816C, X6816D)", "Infinix Hot 12 (X6817, X6817B)", "Infinix Note 12i (X6819)", "Infinix Hot 20 Play (X6825, X6826B, X6826, X6826C)", "Tecno Pova 4 (LG7n)", "Itel P40+ (P683L)", "Infinix Hot 30 Play NFC (X6835, X6835B)", "Tecno Pova Neo 2 (LG6n, LG6)", "Tecno Pova Neo 3 (LH6n)"]
+        type: 'uv_glass',
+        code: "UV-GLASS: VIVO X100 / S18 / V30",
+        models: ["Vivo X100", "Vivo X100 Pro", "Vivo X100S Pro", "Vivo S18", "Vivo S18 Pro", "Vivo S19 Pro", "Vivo V30", "Vivo V30 Pro", "Vivo T3 Ultra"]
       },
       {
-        code: "INF/TEC/ITE-X682",
-        models: ["Tecno Camon 16 (CE7)", "Tecno Camon 16SE (CE7J)", "Infinix Hot 10 (X682, X682B, X682C)", "Infinix Note 10i (X683C)", "Infinix Note 8i (X683)", "Tecno Pova (LD7, LD7J)", "Tecno Spark 6 (KE7)"]
+        type: 'uv_glass',
+        code: "UV-GLASS: RENO 3P / 4P / OP8",
+        models: ["Oppo Reno 3 Pro 5G", "Oppo Reno 4 Pro 5G", "Oneplus 8", "Oppo Find X2 Neo 5G"]
       },
       {
-        code: "INF/TEC/ITE-X6831 / X6833",
-        models: ["Tecno Spark 10 Pro (KI7, KI7S)", "Tecno Pova 5 (LH7n)", "Tecno Pova 5 Pro 5G (LH8n)", "Infinix Hot 30 (X6831)", "Infinix Hot 30 5G (X6832)", "Infinix Note 30 (X6833B)", "Infinix Note 30 5G (X6711)", "Infinix Hot 40 (X6836)", "Infinix Hot 40 Pro (X6837)", "Infinix Note 40X 5G (X6838)", "Tecno Spark 20 Pro (KJ6, KJ6S)", "Tecno Spark 20 Pro 5G (KJ8)", "Tecno Pova 6 Neo (LI6)", "Benco S1 Plus", "Dcode Bold 3 (DS-BD3)", "Lava LXX506", "Lava LXX508", "Lava Blaze Pro 5G", "Tecno Pova 7 4G (LJ6)", "Storm 5G", "Adnan X1 (X6871)"]
+        type: 'uv_glass',
+        code: "UV-GLASS: OP10R / 10T / RENO 8 PRO / GT NEO 3",
+        models: ["Oneplus 10R 5G", "Oneplus 10T 5G", "Oppo Reno 8 Pro 5G", "Oneplus ACE", "Realme GT Neo 3"]
       },
       {
-        code: "INF/TEC/ITE-X688",
-        models: ["Infinix Hot 10 Play (X688, X688B, X688C)", "Itel P37 Pro 4G / Vision 2 Plus (P681LM, P681L)", "Tecno Pova Neo (LE6, LE6H)", "Infinix Hot 11 Play (X688B)"]
-      },
-      {
-        code: "INF/TEC/ITE-X6882 / KL6",
-        models: ["Infinix Hot 50 4G (X6882, X6882B)", "Tecno Spark 30 4G (KL6)", "Tecno Pova 7 5G (LJ7)"]
-      },
-      {
-        code: "INF/TEC/ITE-X689",
-        models: ["Infinix Hot 10S (X689, X689B, X689D)", "Infinix Hot 10T (X689C)", "Infinix Hot 11 (X689F)", "Tecno Spark 7P (KF7J)", "Infinix Smart 6 Plus (X6823, X6823C, X6511C)", "Itel P38 Pro (P682L)", "Itel Vision 3 Plus (P682L, P682LP)"]
-      },
-
-      // === MOTOROLA ===
-      { code: "MOT-E13", models: ["Motorola Moto E13"] },
-      { code: "MOT-E20", models: ["Motorola Moto E20"] },
-      { code: "MOT-E22 / E22i", models: ["Motorola Moto E22", "Moto E22i"] },
-      { code: "MOT-E30 / E40", models: ["Motorola Moto E30", "Moto E40"] },
-      { code: "MOT-E7", models: ["Moto E7", "Moto E7 Power", "Moto E7i Power"] },
-      { code: "MOT-G04 / G24", models: ["Moto G04", "Moto G04S", "Moto G24", "Moto G24 Power", "Moto E14"] },
-      { code: "MOT-G05 / E15 / G15", models: ["Moto G05", "Moto E15", "Moto G15", "Moto G15 Power"] },
-      { code: "MOT-G10 / G20 / G30", models: ["Moto G10", "Moto G20", "Moto G30", "Moto G10 Power"] },
-      { code: "MOT-G13 / G23 / G34 / G45 / G53", models: ["Moto G13", "Moto G23", "Moto G34 5G", "Moto G53 5G", "Moto G45 5G"] },
-      { code: "MOT-G14 / G32 / G64", models: ["Moto G14", "Moto G32", "Moto G73 5G", "Moto G54 5G", "Moto G54 Power", "Moto G64 5G"] },
-      { code: "MOT-G22", models: ["Moto G22", "Moto E32", "Moto E32S", "Moto E22S"] },
-      { code: "MOT-G31 / G41", models: ["Moto G31", "Moto G41", "Moto G71 5G"] },
-      { code: "MOT-G60", models: ["Moto G60", "Moto G60S", "Moto G51 5G"] },
-      { code: "MOT-G9 POWER", models: ["Moto G9 Power"] },
-
-      // === OPPO / REALME / ONEPLUS ===
-      { code: "OP/Realme-A3S", models: ["Oppo A3S", "Realme C1"] },
-      { code: "OP/Realme-A5s", models: ["Oppo A5s", "Oppo A7", "Oppo A12"] },
-      { code: "OP/Realme-C20", models: ["Realme C20", "Realme C11 (2021)", "Realme C21"] },
-      { code: "OP/Realme-C30", models: ["Realme C30", "Realme C33", "Realme C33 (2023)"] },
-      {
-        code: "OP/Real-C3 / A11X",
-        models: ["Oppo A11", "Oppo A11x", "Oppo A31", "Oppo A5 (2020)", "Oppo A8", "Oppo A9 (2020)", "Realme 5", "Realme 5i", "Realme 5s", "Realme 6i", "Realme C3", "Realme C3i", "Narzo 10A", "Narzo 20A"]
-      },
-      {
-        code: "OP-A15 / C11 / A16",
-        models: ["Realme C11", "Realme C12", "Realme C15", "Oppo A15", "Oppo A15S", "Oppo A16K", "Oppo A16E", "Oppo A35", "Realme Q2i", "Realme V3", "Realme Narzo 20", "Realme Narzo 30A", "Realme RM7i (RMX2193)", "Oppo A16", "Oppo A16s", "Oppo A54s", "Realme C25", "Realme C25s", "Realme Narzo 50A", "Oppo A53S 5G", "Oppo A55 5G", "Oppo A56 5G"]
-      },
-      {
-        code: "OP-A57 NEW UNIVERSAL",
-        models: ["Oppo A57 (4G/5G)", "Oppo A57S", "Oppo A57E", "Oppo A18", "Oppo A38", "Oppo A59 5G", "Realme C35", "Oppo K10 5G", "Oppo A77 (4G/5G)", "Oppo A77S", "Oppo A17", "Oppo A17K", "Oppo A56S 5G", "Oppo A58 5G", "Oppo A58X 5G", "Oppo A78 5G", "OnePlus Nord N20 SE", "OnePlus Nord N300 5G", "Oppo A1X 5G", "Oppo A2M 5G", "Realme Narzo 50A Prime"]
-      },
-      {
-        code: "OP/Realme-C55 / C65 / A60 / A3X",
-        models: ["Oppo A60 (4G/5G)", "Oppo A40", "Oppo A40M", "Oppo A80", "Realme C63 5G", "Realme C65 (4G/5G)", "Realme Narzo N65 5G", "Oppo A3 (4G/5G/Pro)", "Oppo A3X (4G/5G)", "Realme 12X 5G", "Realme 14X (4G/5G)", "Oppo K12X 5G", "Realme V60 / V60S / V60 Pro", "Realme V70 / V70S", "Oppo A5 Pro (4G/5G)", "Realme C75 (4G/5G/C75X)", "Oppo A5 (4G/5G)", "Oppo A5X (4G/5G)", "Realme C73 5G", "Oppo A5i / A5i Pro", "Oppo K13X 5G", "Realme Narzo 80 Lite 5G", "Realme P3 Lite 5G", "Realme C55", "Realme Narzo N55", "Realme 11 5G", "Realme 11X 5G", "Oppo A98 5G", "Realme C67 (4G/5G)", "Realme Narzo 60X 5G", "Oppo A58 4G", "Oppo A79 5G", "Oppo F23 5G", "OnePlus Nord CE 3 Lite 5G", "OnePlus Nord N30 5G", "OnePlus Nord N30 SE 5G", "Realme 12 5G", "Realme 13 5G", "Realme Narzo 70X 5G", "Realme Narzo 80X 5G", "Realme P3X 5G", "Oppo A5M 4G"]
-      },
-      {
-        code: "OP/REALME-12 / C67 / C75",
-        models: ["Realme 12 5G", "Realme 13 5G", "Realme 12X 5G", "Realme Narzo 70X 5G", "Realme Narzo 80X 5G", "Realme C67 4G", "Realme C75 4G", "Realme P3X 5G"]
-      },
-      {
-        code: "OP/REALME-6PRO / OP-A92S",
-        models: ["Realme 6 Pro", "Oppo A92S 5G", "Oppo Reno 4 Z 5G"]
-      },
-      {
-        code: "OP/Realme-8i / 9i 4G",
-        models: ["Realme 8i", "Realme 9i 4G", "Realme Narzo 50", "Oppo K10", "Oppo A96", "Realme 9 Pro", "Realme 9 Pro 5G", "Realme 9 5G", "Realme 9 5G Speed Edition", "OnePlus Nord CE 2 Lite 5G", "Oppo K9S", "Oppo K10X", "Realme Q3S", "Realme Q3T", "Realme Q5", "Realme V25", "Oppo A32", "Oppo A53", "Oppo A53S 4G", "Oppo A55 4G", "Oppo A33 4G", "Realme C17", "Realme 7i", "Oppo A54 4G", "OnePlus N100"]
-      },
-      {
-        code: "OP/REALME-9I-5G",
-        models: ["Realme 9i 5G", "Realme 10 5G", "Realme 10S", "Realme 10T 5G"]
-      },
-      {
-        code: "OP/REALME-X3",
-        models: ["Realme X3", "Realme X3 Super Zoom", "Realme X50 5G", "Realme X50M 5G"]
-      },
-      {
-        code: "OP-A74 5G / A54 5G / A72 5G",
-        models: ["Oppo A74 5G", "Oppo A54 5G", "Oppo A93 5G", "Realme Q3 5G", "Realme Narzo 30 Pro 5G", "Realme 7 5G", "Oppo A72 5G", "Oppo A53 5G", "OnePlus N10 5G", "OnePlus N200 5G", "Oppo A52 4G", "Oppo A72 4G", "Oppo A92 4G", "Oppo Reno 5A", "Realme V5 5G", "Oppo K7X 5G"]
-      },
-      {
-        code: "OP-F19 / F19 PRO / RENO 5F",
-        models: ["Oppo F19 Pro", "Oppo F19s", "Oppo F19", "Oppo F19 Pro+ 5G", "Realme 7 Pro", "Oppo Reno 5F", "Oppo Reno 5Z", "Oppo Reno 4 SE 5G", "Oppo Reno 6Z 5G", "Oppo Reno 6 Lite", "Oppo Reno 7Z 5G", "Oppo Reno 8 Lite 5G", "Oppo A96 5G", "Oppo A94 (4G/5G)", "Oppo A95 (4G/5G)", "Oppo A74", "Oppo F21S Pro 5G", "Oppo F21 Pro 5G", "Realme 8 4G", "Realme X7 5G", "Realme V15 5G", "Realme Q2 Pro 5G", "Realme 8 Pro"]
-      },
-      {
-        code: "OP-RENO 2F / K3",
-        models: ["Oppo K3", "Realme X", "Oppo Reno 2Z", "Oppo Reno 2F"]
-      },
-      {
-        code: "OP-RENO 4 / F17 PRO",
-        models: ["Oppo A93 4G", "Oppo F17 Pro", "Oppo Reno 4 F", "Oppo Reno 4 Lite", "Oppo Reno 4 5G"]
+        type: 'uv_glass',
+        code: "UV-GLASS: RENO 6 PRO / 5 PRO",
+        models: ["Oppo Reno 6 Pro", "Oppo Reno 5 Pro"]
       },
 
-      // === XIAOMI / REDMI / POCO ===
-      { code: "RM-A1 & A2", models: ["Redmi A1", "Redmi A1+", "Redmi A2", "Redmi A2+"] },
-      { code: "RM-10-4G", models: ["Redmi 10 4G", "Redmi 10 2022", "Redmi 10 Prime", "Redmi 10 Prime 2022"] },
-      { code: "RM-10-5G / Note-11E", models: ["Redmi 10 5G", "Redmi Note 11E", "Redmi Note 11R", "Redmi 11 Prime 5G", "Redmi 11 Prime 4G", "Poco M4 5G", "Poco M5"] },
-      { code: "RM-10C / 12C", models: ["Xiaomi Redmi 10 (India)", "Redmi 10C", "Redmi 10 Power", "Poco C40", "Redmi 12C", "Redmi 11A", "Poco C55"] },
-      { code: "RM-12 / RM-13", models: ["Redmi 12 (4G/5G)", "Redmi 13 (4G/5G)", "Poco M6 4G", "Poco M6 Pro 5G", "Poco M6 Plus 5G", "Redmi Note 12R", "Redmi Note 13R", "HM13X FHD"] },
-      { code: "RM-13C / Poco C65", models: ["Xiaomi Redmi 13C", "Poco C65", "Poco M6 5G"] },
-      { code: "RM-14C / POCO C75", models: ["Redmi 14C", "Redmi 14C 5G", "Redmi 14R", "Redmi A3 Pro", "Redmi A4 5G", "Poco C75", "Poco C75 5G", "Poco M7 5G"] },
-      { code: "RM-15C / POCO C85", models: ["Redmi 15C", "HM15C 5G", "Poco C85", "Poco C85 5G", "HM15R"] },
-      { code: "RM-9 / RM9 Prime", models: ["Xiaomi Redmi 9", "Redmi 9 Prime", "Poco M2"] },
-      { code: "RM-9A / 9C", models: ["Poco C3", "Poco C31", "Redmi 10A", "Redmi 9A", "Redmi 9A Sport", "Redmi 9AT", "Redmi 9C", "Redmi 9i", "Redmi 9i Sport"] },
-      { code: "RM-9T / POCO M3", models: ["Xiaomi Redmi 9 Power", "Redmi 9T", "Redmi 9 4G", "Poco M3"] },
-      { code: "RM-Note 10 5G / M3 PRO", models: ["Redmi Note 10 5G", "Redmi Note 10T 5G", "Poco M3 Pro FHD"] },
-      { code: "RM-NOTE 10 4G / NOTE 10S", models: ["Redmi Note 10 4G", "Poco M5S", "Redmi Note 10S 4G", "Redmi Note 11 SE"] },
+      // ==========================================
+      // 2. BATTERY COMPATIBILITY (combosupport.in)
+      // ==========================================
+      // Motorola Batteries
+      { type: 'battery', code: "BATTERY: EL40 (2100 mAh)", models: ["Moto E"] },
+      { type: 'battery', code: "BATTERY: FL40 (3700 mAh)", models: ["Moto X Play"] },
+      { type: 'battery', code: "BATTERY: ED30 (2200 mAh)", models: ["Moto G2"] },
+      { type: 'battery', code: "BATTERY: GA40 (3000 mAh)", models: ["Moto G4 Plus"] },
+      { type: 'battery', code: "BATTERY: GL40 (3300 mAh)", models: ["Moto Z Play Droid"] },
+      { type: 'battery', code: "BATTERY: HG30 (3000 mAh)", models: ["Moto G6", "Moto G5S", "Moto G5S Plus"] },
+      { type: 'battery', code: "BATTERY: HG40 (3000 mAh)", models: ["Moto G5 Plus"] },
+      { type: 'battery', code: "BATTERY: HX40 (3000 mAh)", models: ["Moto X4"] },
+      { type: 'battery', code: "BATTERY: HZ40 (3000 mAh)", models: ["Moto Z2 Play"] },
+      { type: 'battery', code: "BATTERY: HE50 (5000 mAh)", models: ["Moto E4 Plus"] },
+      { type: 'battery', code: "BATTERY: JG30 (3000 mAh)", models: ["Moto G7"] },
+      { type: 'battery', code: "BATTERY: JT40 (3200 mAh)", models: ["Moto G6 Plus"] },
+      { type: 'battery', code: "BATTERY: JK50 (5000 mAh)", models: ["Moto G7 Power", "Moto One Power", "Lenovo P30 Note"] },
+      { type: 'battery', code: "BATTERY: KD40 (4000 mAh)", models: ["Moto G8 Plus"] },
+      { type: 'battery', code: "BATTERY: KG40 (4000 mAh)", models: ["Moto G8 Play"] },
+      { type: 'battery', code: "BATTERY: LG50 (5000 mAh)", models: ["Moto One Fusion Plus"] },
+      { type: 'battery', code: "BATTERY: LK50 (5000 mAh)", models: ["Moto G60S"] },
+      { type: 'battery', code: "BATTERY: MB40 (4000 mAh)", models: ["Moto Edge XT2063", "Moto One 5G XT2075-2", "Moto Edge 20 XT2143"] },
+      { type: 'battery', code: "BATTERY: MC50 (5000 mAh)", models: ["Moto G9 Power"] },
+      { type: 'battery', code: "BATTERY: MD50 (5000 mAh)", models: ["Moto Stylus"] },
+      { type: 'battery', code: "BATTERY: MG50 (5000 mAh)", models: ["Moto G9 Plus"] },
+      { type: 'battery', code: "BATTERY: MH60 (6000 mAh)", models: ["Moto G60", "Moto G10 Power"] },
+      { type: 'battery', code: "BATTERY: NA50 (5000 mAh)", models: ["Moto Edge 30 Pro"] },
+      { type: 'battery', code: "BATTERY: NC50 (5000 mAh)", models: ["Moto G41"] },
+      { type: 'battery', code: "BATTERY: ND40 (4500 mAh)", models: ["Moto Edge 30"] },
+      { type: 'battery', code: "BATTERY: ND50 (5000 mAh)", models: ["Moto G62 5G"] },
+      { type: 'battery', code: "BATTERY: NE50 (5000 mAh)", models: ["Moto G52", "Moto Edge 5G 2022", "Moto G72", "Moto G82 5G"] },
+      { type: 'battery', code: "BATTERY: NG50 (5000 mAh)", models: ["Moto G71 5G"] },
+      { type: 'battery', code: "BATTERY: NH50 (5000 mAh)", models: ["Moto G22 (XT2231)", "Moto G 5G 2023", "Moto E32", "Moto E32S", "Moto E13", "Moto G13", "Moto G23", "Moto G23 5G", "Moto G73 5G", "Moto E22S"] },
+      { type: 'battery', code: "BATTERY: PC50 / PC60 (6000 mAh)", models: ["Moto G14", "Moto G54 5G"] },
+      { type: 'battery', code: "BATTERY: QB50 / QF50 (5000 mAh)", models: ["Moto G84 5G", "Moto G34 5G"] },
+
+      // Samsung Batteries
+      { type: 'battery', code: "BATTERY: A01 / M01", models: ["Samsung Galaxy A01", "Samsung Galaxy M01"] },
+      { type: 'battery', code: "BATTERY: A02 / M02 / A03", models: ["Samsung Galaxy A02", "Samsung Galaxy M02", "Samsung Galaxy A03", "Samsung Galaxy A03 Core"] },
+      { type: 'battery', code: "BATTERY: A10 / M10 (3400 mAh)", models: ["Samsung Galaxy A10", "Samsung Galaxy M10"] },
+      { type: 'battery', code: "BATTERY: A10S / A11 / A20S / A21", models: ["Samsung Galaxy A10s", "Samsung Galaxy A11", "Samsung Galaxy A20s", "Samsung Galaxy A21"] },
+      { type: 'battery', code: "BATTERY: A20 / A30 / A50 (EB-BA505ABN)", models: ["Samsung Galaxy A20", "Samsung Galaxy A30", "Samsung Galaxy A30s", "Samsung Galaxy A50", "Samsung Galaxy A50s", "Samsung Galaxy M10s"] },
+      { type: 'battery', code: "BATTERY: EB-BA217ABY (5000 mAh)", models: ["Samsung Galaxy A21s", "Samsung Galaxy A12", "Samsung Galaxy A12 Nacho", "Samsung Galaxy A13", "Samsung Galaxy A04s", "Samsung Galaxy A02", "Samsung Galaxy M02"] },
+      { type: 'battery', code: "BATTERY: EB-BM207ABY (6000 mAh)", models: ["Samsung Galaxy M21", "Samsung Galaxy M21 2021 Edition", "Samsung Galaxy M21s", "Samsung Galaxy M30", "Samsung Galaxy M31", "Samsung Galaxy F12", "Samsung Galaxy F41"] },
+      { type: 'battery', code: "BATTERY: M51 / M62 (7000 mAh)", models: ["Samsung Galaxy M51", "Samsung Galaxy M62"] },
+
+      // Infinix / Tecno Batteries
+      { type: 'battery', code: "BATTERY: BL34CX", models: ["Infinix Smart 3 Plus"] },
+      { type: 'battery', code: "BATTERY: BL39AX / 39GX / 39JX", models: ["Infinix Hot 4 Pro", "Infinix Hot S3", "Infinix Hot S3X"] },
+      { type: 'battery', code: "BATTERY: BL48DX / BL49HX", models: ["Infinix Hot 11 2022", "Infinix Hot 20 5G"] },
+      { type: 'battery', code: "BATTERY: BL49FX (5000 mAh)", models: ["Infinix Hot 8", "Infinix Hot 10 Play", "Infinix Hot 11 Play", "Infinix Smart 5", "Tecno Pova Neo"] },
+      { type: 'battery', code: "BATTERY: BL49JX (5000 mAh)", models: ["Infinix Note 10 Pro", "Infinix Note 11S", "Infinix Zero 5G"] },
+      { type: 'battery', code: "BATTERY: BL49KX / BL49NX / BL49TX", models: ["Infinix Note 12", "Infinix Hot 30i", "Infinix Note 30 5G"] },
+      { type: 'battery', code: "BATTERY: BL51BX / BL58BX", models: ["Infinix Hot 10", "Infinix Hot 9", "Infinix Hot 9 Play", "Infinix X650 Series"] },
+      { type: 'battery', code: "BATTERY: BL49FI / 49GT / 49HT / 49LT", models: ["Tecno Camon 15", "Tecno Camon 17", "Tecno Spark 6", "Tecno Camon 19", "Tecno Spark Go"] },
+      { type: 'battery', code: "BATTERY: BL58BT / BL58CT", models: ["Tecno Pouvoir 4 Pro", "Tecno Spark 7", "Infinix Hot 10i"] },
+
+      // Nokia Batteries
+      { type: 'battery', code: "BATTERY: HE316 / NK6", models: ["Nokia 6"] },
+      { type: 'battery', code: "BATTERY: HE319 / NK3 / HE321", models: ["Nokia 3", "Nokia 5"] },
+      { type: 'battery', code: "BATTERY: HE338 / HE341 (4000 mAh)", models: ["Nokia 2", "Nokia 2.1"] },
+      { type: 'battery', code: "BATTERY: WT240 / HQ430", models: ["Nokia 3.2", "Nokia 3.4"] },
+      { type: 'battery', code: "BATTERY: WT340 / WT341", models: ["Nokia G20", "Nokia G21"] },
+      { type: 'battery', code: "BATTERY: HE342 / NK6.1+", models: ["Nokia 5.1 Plus", "Nokia 6.1 Plus"] },
+      { type: 'battery', code: "BATTERY: LC440 / LC620", models: ["Nokia 5.3", "Nokia 6.2"] },
+
+      // Lenovo & Honor Batteries
+      { type: 'battery', code: "BATTERY: BL234 / BL256", models: ["Lenovo Vibe P1M", "Lenovo P70", "Lenovo K4 Note"] },
+      { type: 'battery', code: "BATTERY: BL270 (4000 mAh)", models: ["Lenovo K6 Note", "Lenovo K8 Note", "Moto G5 Plus"] },
+      { type: 'battery', code: "BATTERY: BL297", models: ["Lenovo K5 Pro", "Lenovo Z6 Lite", "Lenovo Z6 Youth"] },
+      { type: 'battery', code: "BATTERY: HONOR 5X / 6X / 7X / 8X", models: ["Honor 5X", "Honor 6X", "Honor 7X", "Honor 8X"] },
+      { type: 'battery', code: "BATTERY: HONOR 7A / 8 LITE / 9 LITE", models: ["Honor 7A", "Honor 8", "Honor 8 Lite", "Honor 9N", "Honor 9 Lite", "Huawei P20 Lite"] },
+
+      // ==========================================
+      // 3. UNIVERSAL LCD / FOLDER LIST (combosupport.in + Master List)
+      // ==========================================
+      // Samsung Combos
       {
-        code: "RM-NOTE 10 PRO / NOTE 11 PRO",
-        models: ["Redmi Note 10 Pro", "Redmi Note 10 Pro Max", "Redmi Note 11 Pro 4G", "Redmi Note 11 Pro 5G", "Redmi Note 11 Pro+ 5G", "Redmi Note 12 Pro 4G", "Poco X4 Pro 5G", "Mi 11i 5G", "Mi 11i 5G HyperCharge", "Redmi Note 14 5G", "Redmi Note 13 4G", "Poco M7 Pro 5G", "Redmi Note 14 4G", "Redmi Note 11E Pro"]
+        type: 'lcd',
+        code: "COMBO: SAM A06 5G / M06 / F06",
+        models: ["Samsung Galaxy A06 5G", "Samsung Galaxy F06 5G", "Samsung Galaxy M06 5G", "SM-A066B", "SM-E066B", "SM-M066B"]
       },
-      { code: "RM-NOTE 11 4G / NOTE 11S", models: ["Redmi Note 11 4G", "Redmi Note 11S 4G", "Poco M4 Pro 4G", "Redmi Note 12S"] },
-      { code: "RM-NOTE 11T 5G", models: ["Redmi Note 11T 5G", "Redmi Note 11 5G", "Redmi Note 11S 5G", "Poco M4 Pro 5G"] },
-      { code: "RM-NOTE 12 4G / 5G", models: ["Redmi Note 12 5G", "Redmi Note 12 4G", "Poco X5 5G"] },
-      { code: "RM-NOTE 12 PRO 5G", models: ["Redmi Note 12 Pro 5G", "Redmi Note 12 Discovery Edition", "Poco X5 Pro 5G", "Redmi Note 12 Pro+ 5G", "Redmi Note 12 Pro Speed 5G"] },
-      { code: "RM-NOTE 13 5G", models: ["Redmi Note 13 5G", "Redmi Note 12 Turbo", "Poco F5 5G", "Poco X6 Neo 5G"] },
-      { code: "RM-NOTE 13 PRO 5G", models: ["Redmi Note 13 Pro 5G", "Redmi K70E", "Redmi Turbo 3", "Poco X6 5G", "Poco X6 Pro"] },
-      { code: "RM-NOTE 13 PRO+ 5G", models: ["Redmi Note 13 Pro+ 5G", "Redmi Note 14 Pro 5G", "Redmi Note 14 Pro+ 5G", "Poco X7 5G"] },
-      { code: "RM-Note 7", models: ["Xiaomi Redmi Note 7", "Redmi Note 7 Pro", "Redmi Note 7S"] },
-      { code: "RM-Note 8", models: ["Xiaomi Redmi Note 8", "Redmi Note 8 2021", "Redmi Note 8T"] },
-      { code: "RM-NOTE 9 / 10X 4G", models: ["Redmi Note 9 4G", "Redmi 10X 4G"] },
-      { code: "RM-NOTE 9S / NOTE 9 PRO", models: ["Redmi Note 9S", "Redmi Note 9 Pro", "Redmi Note 9 Pro Max", "Poco M2 Pro", "Redmi Note 10 Lite"] },
-      { code: "RM-K20 / K20 PRO", models: ["Redmi K20", "Redmi K20 Pro", "Mi 9T", "Mi 9T Pro"] },
-      { code: "RM-K40 / POCO F3 / F4", models: ["Redmi K40", "Redmi K40S", "Redmi K40 Pro", "Redmi K40 Pro+", "Poco F3", "Poco F4", "Black Shark 4 / 4S / 4 Pro", "Black Shark 5 / 5RS", "Mi 11X 5G", "Mi 11X Pro 5G", "Mi 11i"] },
-      { code: "RM-MI 11 LITE", models: ["Mi 11 Lite 4G", "Mi 11 Lite 5G NE", "Mi 11 Lite 5G"] },
-      { code: "MI-POCO X3 / MI 10i", models: ["Poco X3", "Poco X3 NFC", "Poco X3 Pro", "Mi 10i"] },
-      { code: "MI-POCO X3 GT", models: ["Poco X3 GT", "Redmi Note 10 Pro (China)"] },
-
-      // === SAMSUNG GALAXY ===
-      { code: "SA-A01 CORE", models: ["Galaxy A01 Core", "Galaxy A013G", "Galaxy M01 Core"] },
-      { code: "SA-A02S / A03 / A04E", models: ["Galaxy A02s (SM-A025)", "Galaxy A03 (SM-A035)", "Galaxy A03s (SM-A037F)", "Galaxy M02s (SM-M025)", "Galaxy A04e (SM-A042F)", "Galaxy M04 (SM-M045)", "Galaxy F04 (SM-E045)", "Galaxy F02s (SM-E025)"] },
-      { code: "SA-A03 CORE", models: ["Galaxy A03 Core (SM-A032F)"] },
-      { code: "SA-A04", models: ["Galaxy A04 (SM-A045, SM-A045F)"] },
-      { code: "SA-A05S", models: ["Galaxy A05s (SM-A057)"] },
-      { code: "SA-A06", models: ["Galaxy A06 4G (SM-A065F)"] },
-      { code: "SA-A07 / F07 / M07", models: ["Galaxy A07 4G", "Galaxy F07", "Galaxy M07"] },
-      { code: "SA-A10 / M10", models: ["Galaxy A10 (SM-A105)", "Galaxy M10 (SM-M105)"] },
-      { code: "SA-A10S", models: ["Galaxy A10s (SM-A107, A107F)"] },
-      { code: "SA-A11 / M11", models: ["Galaxy A11", "Galaxy M11"] },
-      { code: "SA-A12 / A02 / A32 5G", models: ["Galaxy A02 (SM-A022)", "Galaxy A12 (SM-A125)", "Galaxy A12s (SM-A127)", "Galaxy M02 (SM-M022)", "Galaxy A32 5G (SM-A326)", "Galaxy F12 (SM-F127)", "Galaxy M12 (SM-M127)", "Galaxy M32 5G", "Galaxy A13 5G (A136, A136B, A136U)", "Galaxy M13 5G", "Galaxy A04s (A047, A047F)"] },
-      { code: "SA-A14 5G / A146B", models: ["Galaxy A14 5G (A146B, A146M)", "Galaxy A14 4G (A145M, A145F)", "Galaxy M14 5G", "Galaxy F14 5G"] },
-      { code: "SA-A16 4G", models: ["Galaxy A16 4G (A165)"] },
-      { code: "SA-A16 5G", models: ["Galaxy A16 5G (A166)"] },
-      { code: "SA-A20 / A30", models: ["Galaxy A20", "Galaxy A30"] },
-      { code: "SA-A20S", models: ["Galaxy A20s (A207)"] },
-      { code: "SA-A21S", models: ["Galaxy A21s (SM-A217, SM-A217F, SM-A217M, SM-A217N)"] },
-      { code: "SA-A22 5G", models: ["Galaxy A22 5G (SM-A226)", "Galaxy A22s 5G (SM-A226)", "Galaxy F42 5G (SM-E426)"] },
-      { code: "SA-A23 / A13 4G", models: ["Galaxy A13 4G", "Galaxy M13 4G", "Galaxy F13", "Galaxy A23 4G", "Galaxy A23 5G (A2360, A236B)", "Galaxy M23 5G", "Galaxy M33 5G (M336B, M336K)", "Galaxy F23 5G"] },
-      { code: "SA-A25", models: ["Galaxy A25 5G"] },
-      { code: "SA-A31", models: ["Galaxy A31 (SM-A315)"] },
-      { code: "SA-A32 4G", models: ["Galaxy A32 4G (SM-A325)"] },
-
-      // === VIVO ===
-      { code: "VI-U1 / Y91 / Y93 / Y95", models: ["Vivo U1", "Vivo Y1S", "Vivo Y90", "Vivo Y91", "Vivo Y91C", "Vivo Y91i", "Vivo Y93", "Vivo Y93S", "Vivo Y95"] },
-      { code: "VI-Y12 / Y15 / Y17", models: ["Vivo U10", "Vivo U3x", "Vivo Y11", "Vivo Y12", "Vivo Y15", "Vivo Y17", "Vivo Y3", "Vivo Y3S"] },
       {
-        code: "VI-Y20 / Y21 / Y33S UNIVERSAL",
-        models: ["Vivo Y20", "Y20T", "Y20A", "Y20S", "Y20i", "Y20G", "Y20SG", "Y12S", "Y12A", "Y12G", "Y30", "Y31S", "Y30G", "U1X", "Y20A 2021", "Y20 2021", "Y12S 2021", "Y3S", "Y15S", "Y15A", "Y15C", "Y11S", "Y12D", "Y01", "Y01A", "Y21", "Y21S", "Y21A", "Y21T", "Y21E", "Y21G", "Y02S", "Y16", "Y30 5G", "Y33S 5G", "Y32", "Y52T", "Y33E", "Y35 5G", "Y33S", "Y31", "Y53S", "Y76 5G", "Y76S 5G", "Y72 5G", "Y51 (2020)", "Y51A", "Y55S 5G", "Y77E", "Y75 5G", "Y77 5G", "Y56 5G", "Vivo T2X 5G", "Vivo T1 5G (V2157, V2141)", "Vivo Y55 5G (V2127)", "Vivo Y52 5G (V2053)", "Vivo Y35", "Vivo Y33T", "Vivo T1X (V2143)", "Vivo U3", "Vivo U5", "Vivo Z3", "Vivo Z5X 5G", "Vivo Y22", "Vivo Y22S", "Vivo Y17S", "Vivo Y28 5G"]
+        type: 'lcd',
+        code: "COMBO: SAM A12 / M12 / F12 / M23 5G",
+        models: ["Samsung Galaxy A12", "Samsung Galaxy M12", "Samsung Galaxy F12", "Samsung Galaxy M23 5G", "SM-A125", "SM-M127", "SM-M326"]
       },
-      { code: "VI-V21 5G / S9E", models: ["Vivo V21 5G", "Vivo V21 4G", "Vivo T1 5G (Global)", "Vivo T1 Pro 5G", "Vivo V25", "Vivo V25E", "Vivo S9E"] },
-      { code: "VI-Y200 5G / V29E / V40", models: ["Vivo Y300 5G", "Vivo Y200 5G", "Vivo Y200E 5G", "Vivo Y100 5G", "Vivo T3 5G", "iQOO Z9 5G", "Vivo S18E", "Vivo V29E", "Vivo V30 Lite 5G", "Vivo V40 SE", "Vivo Y100 4G", "Vivo V40E Lite (4G/5G)", "Vivo V40E 5G"] },
-      { code: "VI-Y52S / Y53S (FHD)", models: ["Vivo Y52S", "Vivo Y53S FHD", "Vivo Y33S FHD"] },
+      {
+        type: 'lcd',
+        code: "COMBO: SAM A02 / M02 / A32 5G",
+        models: ["Samsung Galaxy A02", "Samsung Galaxy M02", "Samsung Galaxy A32 5G", "SM-A022", "SM-M022", "SM-A326"]
+      },
+      {
+        type: 'lcd',
+        code: "COMBO: SAM A04S / A13 5G / A23",
+        models: ["Samsung Galaxy A04s", "Samsung Galaxy A23", "Samsung Galaxy A13 5G", "SM-A136", "SM-A047", "SM-A047F"]
+      },
+      {
+        type: 'lcd',
+        code: "COMBO: SAM A02S / A03 / A03S / A04E / M04",
+        models: ["Samsung Galaxy A02s", "Samsung Galaxy A03", "Samsung Galaxy A03s", "Samsung Galaxy A04e", "Samsung Galaxy M02s", "Samsung Galaxy M04", "Samsung Galaxy F04", "Samsung Galaxy F02s"]
+      },
+      {
+        type: 'lcd',
+        code: "COMBO: SAM A30 / A50 / A30S / A50S",
+        models: ["Samsung Galaxy A30", "Samsung Galaxy A50", "Samsung Galaxy A30s", "Samsung Galaxy A50s"]
+      },
+      {
+        type: 'lcd',
+        code: "COMBO: SAM A15 / A15 5G / F15 / M15",
+        models: ["Samsung Galaxy A15", "Samsung Galaxy A15 5G", "Samsung Galaxy F15", "Samsung Galaxy M15", "Samsung Galaxy F15 5G", "Samsung Galaxy M15 5G"]
+      },
+      {
+        type: 'lcd',
+        code: "COMBO: SAM A16 5G / M16 / F16 / A26",
+        models: ["Samsung Galaxy A16 5G", "Samsung Galaxy M16 5G", "Samsung Galaxy F16 5G", "Samsung Galaxy A26 5G", "SM-A166P", "SM-A16 4G"]
+      },
+      {
+        type: 'lcd',
+        code: "COMBO: SAM M21 / M30S / M31 / F41",
+        models: ["Samsung Galaxy M21", "Samsung Galaxy M21s", "Samsung Galaxy M30", "Samsung Galaxy M30s", "Samsung Galaxy M31", "Samsung Galaxy M31s", "Samsung Galaxy F41"]
+      },
+      {
+        type: 'lcd',
+        code: "COMBO: SAM A13 4G / M13 / F13",
+        models: ["Samsung Galaxy A13 4G", "Samsung Galaxy M13", "Samsung Galaxy F13", "Samsung Galaxy A13 Lite", "SM-A135", "SM-A137"]
+      },
+      {
+        type: 'lcd',
+        code: "COMBO: SAM A14 5G / M14 / F14",
+        models: ["Samsung Galaxy A14 5G", "Samsung Galaxy A14 4G", "Samsung Galaxy M14 5G", "Samsung Galaxy F14 5G", "SM-A146B", "SM-A145F"]
+      },
+      {
+        type: 'lcd',
+        code: "COMBO: SAM A23 4G / 5G / F23 / M33 5G",
+        models: ["Samsung Galaxy A23 4G", "Samsung Galaxy A23 5G", "Samsung Galaxy F23 5G", "Samsung Galaxy M23 5G", "Samsung Galaxy M33 5G"]
+      },
+      {
+        type: 'lcd',
+        code: "COMBO: SAM A24 / A25 5G / M34 / F34",
+        models: ["Samsung Galaxy A24", "Samsung Galaxy A25 5G", "Samsung Galaxy M34 5G", "Samsung Galaxy F34"]
+      },
+      {
+        type: 'lcd',
+        code: "COMBO: SAM A34 / A54",
+        models: ["Samsung Galaxy A34", "Samsung Galaxy A54"]
+      },
+      {
+        type: 'lcd',
+        code: "COMBO: SAM A35 / A55 / M35 5G",
+        models: ["Samsung Galaxy A35 5G", "Samsung Galaxy A55 5G", "Samsung Galaxy M35 5G"]
+      },
+      {
+        type: 'lcd',
+        code: "COMBO: SAM M52 / M53 / M54 / F54 5G",
+        models: ["Samsung Galaxy M52 5G", "Samsung Galaxy M53 5G", "Samsung Galaxy M54 5G", "Samsung Galaxy F54 5G"]
+      },
+      {
+        type: 'lcd',
+        code: "COMBO: SAM M55 / F55 / C55 5G",
+        models: ["Samsung Galaxy M55 5G", "Samsung Galaxy F55 5G", "Samsung Galaxy C55 5G", "Samsung Galaxy M55s 5G"]
+      },
 
-      // === HUAWEI / HONOR ===
-      { code: "HW/HON-X7B", models: ["Honor Play 50 Plus", "Honor X7B"] },
-      { code: "HW/HON-X7C", models: ["Honor X7C", "Honor Play 60 Plus"] },
-      { code: "HW/HON-X8 4G", models: ["Honor X30i", "Honor X40i", "Honor X8 4G", "Honor Play 6 Pro", "Honor Play 7T Pro"] },
-      { code: "HW/HON-X8A 4G", models: ["Honor X50i", "Honor X8A 4G", "Honor 90 Lite"] },
-      { code: "HW/HON-X9 5G", models: ["Honor X30 5G", "Honor X9 4G", "Honor X9 5G", "Honor X40 GT", "Honor Magic4 Lite 5G"] },
+      // Motorola & Lava Combos
+      {
+        type: 'lcd',
+        code: "COMBO: MOTO G22 / E32 / E32S",
+        models: ["Moto G22", "Moto G32", "Moto E32", "Moto E32S"]
+      },
+      {
+        type: 'lcd',
+        code: "COMBO: MOTO G85 / G96 / S50 NEO / EDGE 50F",
+        models: ["Moto G85", "Moto G96", "Moto S50 Neo", "Moto Edge 50 Fusion"]
+      },
+      {
+        type: 'lcd',
+        code: "COMBO: MOTO G60 / G60S / G51 5G / G40 FUSION",
+        models: ["Moto G60", "Moto G60S", "Moto G51 5G", "Moto G40 Fusion"]
+      },
+      {
+        type: 'lcd',
+        code: "COMBO: MOTO G10 / G20 / G30 / G10 POWER",
+        models: ["Moto G10", "Moto G20", "Moto G30", "Moto G10 Power"]
+      },
+      {
+        type: 'lcd',
+        code: "COMBO: MOTO G52 / G72 / G82 / EDGE 30",
+        models: ["Moto G52", "Moto G72", "Moto G82 5G", "Moto G71S", "Moto Edge 30"]
+      },
+      {
+        type: 'lcd',
+        code: "COMBO: MOTO G14 / G62 / G54 5G / G64 / G73",
+        models: ["Moto G14", "Moto G62", "Moto G32", "Moto G54 5G", "Moto G54 Power 5G", "Moto G55 5G", "Moto G64 5G", "Moto G73"]
+      },
+      {
+        type: 'lcd',
+        code: "COMBO: MOTO G45 5G / G34 / G53 / G23 / G13",
+        models: ["Moto G45 5G", "Moto G34", "Moto G53", "Moto G23", "Moto G13"]
+      },
+      {
+        type: 'lcd',
+        code: "COMBO: MOTO G04 / G24 / G24 POWER / E14",
+        models: ["Moto G04", "Moto G24", "Moto G24 Power", "Moto E14"]
+      },
+      {
+        type: 'lcd',
+        code: "COMBO: LAVA STORM 5G / BLAZE PRO 5G",
+        models: ["Lava Storm 5G", "Lava Blaze Pro 5G", "LXX506", "LXX508"]
+      },
+      {
+        type: 'lcd',
+        code: "COMBO: LAVA BLAZE 4G / YUVA / X3",
+        models: ["Lava Blaze 4G", "Lava Blaze Nxt", "Lava Blaze Pro 4G", "Lava X3", "Lava Yuva", "LZX403", "LZX407", "LZX404"]
+      },
 
-      // === APPLE IPHONE ===
-      { code: "IPHONE X / XS", models: ["iPhone X", "iPhone XS"] },
-      { code: "IPHONE XR / 11", models: ["iPhone XR", "iPhone 11", "iPhone 11 (Huaxing)"] },
-      { code: "IPHONE XS MAX", models: ["iPhone XS Max"] },
-      { code: "IPHONE 11 PRO", models: ["iPhone 11 Pro"] },
-      { code: "IPHONE 11 PRO MAX", models: ["iPhone 11 Pro Max"] },
-      { code: "IPHONE 12 / 12 PRO", models: ["iPhone 12", "iPhone 12 Pro"] },
-      { code: "IPHONE 12 PRO MAX", models: ["iPhone 12 Pro Max"] },
-      { code: "IPHONE 13", models: ["iPhone 13", "iPhone 13 COF"] },
-      { code: "IPHONE 13 PRO", models: ["iPhone 13 Pro (120Hz)"] },
-      { code: "IPHONE 13 PRO MAX", models: ["iPhone 13 Pro Max (120Hz)"] },
-      { code: "IPHONE 14", models: ["iPhone 14", "iPhone 14 COF"] },
-      { code: "IPHONE 14 PLUS", models: ["iPhone 14 Plus"] },
-      { code: "IPHONE 14 PRO", models: ["iPhone 14 Pro (120Hz)"] },
-      { code: "IPHONE 14 PRO MAX", models: ["iPhone 14 Pro Max (120Hz)"] },
-      { code: "IPHONE 15", models: ["iPhone 15", "iPhone 15 COF"] },
-      { code: "IPHONE 15 PLUS", models: ["iPhone 15 Plus"] },
-      { code: "IPHONE 15 PRO", models: ["iPhone 15 Pro (120Hz)"] },
-      { code: "IPHONE 15 PRO MAX", models: ["iPhone 15 Pro Max (120Hz)"] },
-      { code: "IPHONE 16 / 16E", models: ["iPhone 16", "iPhone 16E", "iPhone 16 COF"] },
-      { code: "IPHONE 16 PLUS", models: ["iPhone 16 Plus"] },
-      { code: "IPHONE 16 PRO", models: ["iPhone 16 Pro (120Hz)"] },
-      { code: "IPHONE 16 PRO MAX", models: ["iPhone 16 Pro Max (120Hz)"] },
-      { code: "IPHONE 17 PRO", models: ["iPhone 17 Pro"] }
+      // Xiaomi / Redmi / Poco Combos
+      {
+        type: 'lcd',
+        code: "COMBO: REDMI A1 / A2 / POCO C50",
+        models: ["Redmi A1", "Redmi A1+", "Redmi A2", "Redmi A2+", "Poco C50"]
+      },
+      {
+        type: 'lcd',
+        code: "COMBO: REDMI 9 / 9 PRIME / POCO M2",
+        models: ["Redmi 9", "Redmi 9 Prime", "Poco M2"]
+      },
+      {
+        type: 'lcd',
+        code: "COMBO: REDMI 9A / 9C / 10A / POCO C3 / C31",
+        models: ["Redmi 9A", "Redmi 9AT", "Redmi 9A Sport", "Redmi 9C", "Redmi 9i", "Redmi 9i Sport", "Redmi 10A", "Poco C3", "Poco C31"]
+      },
+      {
+        type: 'lcd',
+        code: "COMBO: REDMI 10C / 12C / POCO C40 / C55",
+        models: ["Redmi 10", "Redmi 10C", "Redmi 10 Power", "Redmi 12C", "Redmi 11A", "Poco C40", "Poco C55"]
+      },
+      {
+        type: 'lcd',
+        code: "COMBO: REDMI 12 / 13 / POCO M6 SERIES",
+        models: ["Redmi 12 4G", "Redmi 12 5G", "Redmi 13 4G", "Redmi 13 5G", "Redmi 13X 4G", "Poco M6 4G", "Poco M6 Pro 5G", "Poco M6 Plus 5G", "Redmi Note 12R", "Redmi Note 13R"]
+      },
+      {
+        type: 'lcd',
+        code: "COMBO: REDMI 9 POWER / 9T / POCO M3",
+        models: ["Redmi 9 Power", "Redmi 9T", "Redmi Note 9 4G", "Poco M3"]
+      },
+      {
+        type: 'lcd',
+        code: "COMBO: REDMI NOTE 9 PRO / MAX / POCO M2 PRO",
+        models: ["Redmi Note 9 Pro", "Redmi Note 9 Pro Max", "Redmi Note 9S", "Poco M2 Pro", "Redmi Note 10 Lite"]
+      },
+      {
+        type: 'lcd',
+        code: "COMBO: REDMI NOTE 10 5G / NOTE 11 SE / POCO M3 PRO",
+        models: ["Redmi Note 10 5G", "Redmi Note 10T 5G", "Redmi Note 11 SE", "Poco M3 Pro 5G"]
+      },
+      {
+        type: 'lcd',
+        code: "COMBO: REDMI 10 5G / NOTE 11E / 11 PRIME / POCO M4 / M5",
+        models: ["Redmi 10 5G", "Redmi Note 11E", "Redmi Note 11R", "Redmi 11 Prime 4G", "Redmi 11 Prime 5G", "Poco M4 5G", "Poco M5"]
+      },
+      {
+        type: 'lcd',
+        code: "COMBO: REDMI NOTE 13 4G / NOTE 14 / POCO M7 PRO",
+        models: ["Redmi Note 13 4G", "Redmi Note 14 4G", "Redmi Note 14 5G", "Poco M7 Pro 5G"]
+      },
+      {
+        type: 'lcd',
+        code: "COMBO: REDMI NOTE 10 PRO / 11 PRO / POCO X4 PRO",
+        models: ["Redmi Note 10 Pro", "Redmi Note 10 Pro Max", "Redmi Note 11 Pro 4G", "Redmi Note 11 Pro 5G", "Redmi Note 11 Pro+ 5G", "Poco X4 Pro 5G", "Mi 11i 5G"]
+      },
+      {
+        type: 'lcd',
+        code: "COMBO: REDMI NOTE 12 PRO / PRO+ / POCO X5 PRO",
+        models: ["Redmi Note 12 Pro 5G", "Redmi Note 12 Pro Plus", "Poco X5 Pro 5G"]
+      },
+      {
+        type: 'lcd',
+        code: "COMBO: REDMI 14C / POCO C75 / REDMI A4",
+        models: ["Redmi 14C", "Redmi 14R", "Redmi A3 Pro", "Redmi A4 5G", "Poco C75"]
+      },
+      {
+        type: 'lcd',
+        code: "COMBO: REDMI K40 / POCO F3 / F4 / MI 11X",
+        models: ["Redmi K40", "Redmi K40 Pro", "Redmi K40 Pro+", "Redmi K40S", "Poco F3", "Poco F4", "Mi 11X", "Mi 11X Pro"]
+      },
+      {
+        type: 'lcd',
+        code: "COMBO: REDMI NOTE 13 PRO 5G / K70E / POCO X6",
+        models: ["Redmi Note 13 Pro 5G", "Redmi K70E", "Poco X6 5G", "Poco X6 Pro 5G"]
+      },
+
+      // Vivo Combos
+      {
+        type: 'lcd',
+        code: "COMBO: VIVO Y11 / Y12 / Y15 / Y17 / U10",
+        models: ["Vivo Y11", "Vivo Y12", "Vivo Y15", "Vivo Y17", "Vivo U10", "Vivo Y3", "Vivo Y3S"]
+      },
+      {
+        type: 'lcd',
+        code: "COMBO: VIVO Y20 / Y21 / Y33S / Y16 UNIVERSAL",
+        models: ["Vivo Y20", "Vivo Y20T", "Vivo Y20A", "Vivo Y20S", "Vivo Y20i", "Vivo Y20G", "Vivo Y20SG", "Vivo Y12S", "Vivo Y12A", "Vivo Y12G", "Vivo Y30", "Vivo Y31S", "Vivo Y15S", "Vivo Y15A", "Vivo Y15C", "Vivo Y11S", "Vivo Y01", "Vivo Y01A", "Vivo Y21", "Vivo Y21S", "Vivo Y21A", "Vivo Y21T", "Vivo Y21E", "Vivo Y21G", "Vivo Y02S", "Vivo Y16", "Vivo Y33S", "Vivo Y31", "Vivo Y53S", "Vivo Y76 5G", "Vivo Y72 5G", "Vivo Y51 2020", "Vivo Y51A", "Vivo Y56 5G", "Vivo T1 5G", "Vivo T1X", "Vivo T2X 5G", "Vivo Y35", "Vivo Y22", "Vivo Y22S", "Vivo Y17S", "Vivo Y28 5G"]
+      },
+      {
+        type: 'lcd',
+        code: "COMBO: VIVO Y91 / Y91I / Y93 / Y95 / U1",
+        models: ["Vivo U1", "Vivo Y1S", "Vivo Y90", "Vivo Y91", "Vivo Y91C", "Vivo Y91i", "Vivo Y93", "Vivo Y93S", "Vivo Y95"]
+      },
+      {
+        type: 'lcd',
+        code: "COMBO: VIVO Y200 5G / Y300 / T3 / IQOO Z9",
+        models: ["Vivo Y200 5G", "Vivo Y300 5G", "Vivo Y200E 5G", "Vivo Y100 5G", "Vivo T3 5G", "iQOO Z9 5G", "Vivo V29E", "Vivo V30 Lite", "Vivo V40 Lite"]
+      },
+      {
+        type: 'lcd',
+        code: "COMBO: VIVO V40E / T3 PRO / IQOO Z9S (CURVED)",
+        models: ["Vivo V40E", "Vivo T3 Pro", "iQOO Z9S", "iQOO Z9S Pro", "Vivo V400 Pro"]
+      },
+      {
+        type: 'lcd',
+        code: "COMBO: VIVO V30 / V30 PRO / S18 / V40 (CURVED)",
+        models: ["Vivo V30", "Vivo V30 Pro", "Vivo S18", "Vivo S18 Pro", "Vivo V40", "Vivo V40 Pro"]
+      },
+
+      // ==========================================
+      // 4. CHARGING SUB-BOARD (CC BOARD)
+      // ==========================================
+      {
+        type: 'cc',
+        code: "SUB-BOARD: Y20 / Y12S / Y20G",
+        models: ["Vivo Y20", "Vivo Y20i", "Vivo Y12s", "Vivo Y20A", "Vivo Y20G"]
+      },
+      {
+        type: 'cc',
+        code: "SUB-BOARD: C11 / C12 / C15 / NARZO 20",
+        models: ["Realme C11", "Realme C12", "Realme C15", "Realme Narzo 20", "Realme Narzo 30A"]
+      },
+      {
+        type: 'cc',
+        code: "SUB-BOARD: REDMI NOTE 10 4G / 10S",
+        models: ["Redmi Note 10 4G", "Redmi Note 10S", "Poco M5S"]
+      },
+      {
+        type: 'cc',
+        code: "SUB-BOARD: G22 / E32 / E32S",
+        models: ["Moto G22", "Moto E32", "Moto E32S"]
+      }
     ];
 
     const searchInput = document.getElementById('searchInput');
     const resultsList = document.getElementById('resultsList');
     const resultsCount = document.getElementById('resultsCount');
 
+    function setCategory(type, btn) {
+      currentCategory = type;
+      document.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderResults(searchInput.value);
+    }
+
     function renderResults(filter = '') {
       const query = filter.trim().toLowerCase();
       resultsList.innerHTML = '';
 
       const matchedGroups = compatibilityDB.filter(group => {
+        const matchesCategory = (currentCategory === 'all' || group.type === currentCategory);
+        if (!matchesCategory) return false;
+
         if (!query) return true;
         const inCode = group.code.toLowerCase().includes(query);
         const inModels = group.models.some(m => m.toLowerCase().includes(query));
@@ -526,16 +770,16 @@
       });
 
       if (matchedGroups.length === 0) {
-        resultsCount.textContent = 'No matching models found';
+        resultsCount.textContent = 'No matching parts found';
         resultsList.innerHTML = `
           <div class="empty-state">
-            <p>🔍 No compatible folder found for "${filter}".</p>
+            <p>🔍 No compatible match found for "${filter}".</p>
           </div>
         `;
         return;
       }
 
-      resultsCount.textContent = `Showing ${matchedGroups.length} compatible group(s)`;
+      resultsCount.textContent = `Showing ${matchedGroups.length} result(s)`;
 
       matchedGroups.forEach(group => {
         const card = document.createElement('div');
@@ -546,10 +790,15 @@
           return `<span class="tag ${isMatch ? 'highlight' : ''}">${model}</span>`;
         }).join('');
 
+        let badgeLabel = 'Folder / LCD';
+        if (group.type === 'uv_glass') badgeLabel = 'UV Glass';
+        else if (group.type === 'battery') badgeLabel = 'Battery';
+        else if (group.type === 'cc') badgeLabel = 'Sub-Board';
+
         card.innerHTML = `
           <div class="group-header">
             <span class="model-code">${group.code}</span>
-            <span class="badge">${group.models.length} Models Compatible</span>
+            <span class="category-badge">${badgeLabel}</span>
           </div>
           <div class="compatible-tags">
             ${tagElements}
@@ -560,10 +809,7 @@
     }
 
     renderResults();
-
-    searchInput.addEventListener('input', (e) => {
-      renderResults(e.target.value);
-    });
+    searchInput.addEventListener('input', (e) => renderResults(e.target.value));
   </script>
 </body>
 </html>
