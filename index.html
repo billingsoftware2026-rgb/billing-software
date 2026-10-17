@@ -139,7 +139,7 @@
         </div>
 
         <div class="pt-5 border-t border-slate-800/80 mt-6 lg:mt-0 flex items-center justify-between text-[11px] text-slate-500">
-          <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Cloud v2.8 Active</span>
+          <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Cloud v2.7 Active</span>
           <span>Lead Dev: Debapriya Sarkar</span>
         </div>
       </div>
@@ -197,7 +197,7 @@
             <label class="block uppercase font-bold text-slate-400 mb-1">Password *</label>
             <div class="relative">
               <i class="fa-solid fa-lock absolute left-3.5 top-3 text-slate-500"></i>
-              <input type="password" id="authPassword" required placeholder="••••••••" class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-10 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500 transition">
+              <input type="password" id="authPassword" required placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-10 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500 transition">
               <button type="button" onclick="togglePasswordVisibility('authPassword', this)" class="absolute right-3.5 top-2.5 text-slate-500 hover:text-white">
                 <i class="fa-solid fa-eye text-xs"></i>
               </button>
@@ -337,14 +337,14 @@
           </div>
 
           <div>
-            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Estimated Quotation (₹)</label>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Estimated Quotation (â‚¹)</label>
             <input type="number" id="estCost" placeholder="0" min="0" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 text-white transition">
           </div>
 
           <!-- ADVANCE PAYMENT & PAYMENT MODE -->
           <div class="grid grid-cols-2 gap-2">
             <div>
-              <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Advance Deposit (₹)</label>
+              <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Advance Deposit (â‚¹)</label>
               <input type="number" id="advPaid" value="0" min="0" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3 text-sm focus:outline-none focus:border-indigo-500 text-white transition">
             </div>
             <div>
@@ -357,7 +357,7 @@
           </div>
 
           <div class="md:col-span-2">
-            <label class="block text-xs font-semibold uppercase tracking-wider text-amber-400 mb-2">Internal Workshop Remarks 🔒</label>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-amber-400 mb-2">Internal Workshop Remarks ðŸ”’</label>
             <input type="text" id="intakeRemarks" placeholder="e.g. Display ordered from market / Advance taken" class="w-full bg-slate-950 border border-amber-500/40 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-500 text-white transition">
           </div>
 
@@ -396,23 +396,23 @@
       <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
         <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
           <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Adv. Received (Cash)</span>
-          <h4 id="dailyAdvReceived" class="text-xl font-bold text-blue-400">₹0</h4>
+          <h4 id="dailyAdvReceived" class="text-xl font-bold text-blue-400">â‚¹0</h4>
         </div>
         <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
           <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Delivery Collection (Cash)</span>
-          <h4 id="dailyDeliveryCash" class="text-xl font-bold text-emerald-400">₹0</h4>
+          <h4 id="dailyDeliveryCash" class="text-xl font-bold text-emerald-400">â‚¹0</h4>
         </div>
         <div class="bg-slate-900 border border-cyan-500/30 p-4 rounded-2xl bg-cyan-500/5">
           <span class="text-[10px] uppercase font-bold text-cyan-400 tracking-wider">Online / UPI Collection</span>
-          <h4 id="dailyOnlineTotal" class="text-xl font-bold text-cyan-400">₹0</h4>
+          <h4 id="dailyOnlineTotal" class="text-xl font-bold text-cyan-400">â‚¹0</h4>
         </div>
         <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
           <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Advance Refunded</span>
-          <h4 id="dailyAdvRefunded" class="text-xl font-bold text-rose-400">- ₹0</h4>
+          <h4 id="dailyAdvRefunded" class="text-xl font-bold text-rose-400">- â‚¹0</h4>
         </div>
         <div class="bg-slate-900 border border-emerald-500/40 p-4 rounded-2xl bg-emerald-500/5 col-span-2 md:col-span-1">
           <span class="text-[10px] uppercase font-bold text-emerald-400 tracking-wider">Net Cash in Drawer</span>
-          <h4 id="dailyNetCash" class="text-xl font-bold text-white">₹0</h4>
+          <h4 id="dailyNetCash" class="text-xl font-bold text-white">â‚¹0</h4>
         </div>
       </div>
 
@@ -551,23 +551,23 @@
       <div class="grid grid-cols-1 sm:grid-cols-5 gap-3 md:gap-4">
         <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
           <span class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Total Parts Cost</span>
-          <h4 id="calcTotalParts" class="text-xl md:text-2xl font-bold text-rose-400">₹0</h4>
+          <h4 id="calcTotalParts" class="text-xl md:text-2xl font-bold text-rose-400">â‚¹0</h4>
         </div>
         <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
           <span class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Total Adv. Refunded</span>
-          <h4 id="calcTotalRefund" class="text-xl md:text-2xl font-bold text-amber-400">₹0</h4>
+          <h4 id="calcTotalRefund" class="text-xl md:text-2xl font-bold text-amber-400">â‚¹0</h4>
         </div>
         <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
           <span class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Total Billed Revenue</span>
-          <h4 id="calcTotalRevenue" class="text-xl md:text-2xl font-bold text-blue-400">₹0</h4>
+          <h4 id="calcTotalRevenue" class="text-xl md:text-2xl font-bold text-blue-400">â‚¹0</h4>
         </div>
         <div class="bg-slate-900 border border-rose-500/30 p-4 rounded-2xl bg-rose-500/5">
-          <span class="text-xs text-rose-400 font-semibold uppercase tracking-wider">Market Due (বকেয়া)</span>
-          <h4 id="calcTotalDue" class="text-xl md:text-2xl font-bold text-rose-400">₹0</h4>
+          <span class="text-xs text-rose-400 font-semibold uppercase tracking-wider">Market Due (à¦¬à¦•à§‡à§Ÿà¦¾)</span>
+          <h4 id="calcTotalDue" class="text-xl md:text-2xl font-bold text-rose-400">â‚¹0</h4>
         </div>
         <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
           <span class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Net Profit</span>
-          <h4 id="calcTotalProfit" class="text-xl md:text-2xl font-bold text-emerald-400">₹0</h4>
+          <h4 id="calcTotalProfit" class="text-xl md:text-2xl font-bold text-emerald-400">â‚¹0</h4>
         </div>
       </div>
 
@@ -624,10 +624,10 @@
             <tfoot class="bg-slate-950 font-bold border-t-2 border-slate-700 text-white">
               <tr>
                 <td colspan="6" class="p-4 text-right uppercase tracking-wider text-xs">Statement Summary:</td>
-                <td class="p-4 text-rose-400" id="footParts">₹0</td>
-                <td class="p-4 text-blue-400" id="footBilled">₹0</td>
-                <td class="p-4 text-rose-400" id="footDue">₹0</td>
-                <td class="p-4 text-emerald-400" id="footProfit">₹0</td>
+                <td class="p-4 text-rose-400" id="footParts">â‚¹0</td>
+                <td class="p-4 text-blue-400" id="footBilled">â‚¹0</td>
+                <td class="p-4 text-rose-400" id="footDue">â‚¹0</td>
+                <td class="p-4 text-emerald-400" id="footProfit">â‚¹0</td>
                 <td colspan="2" class="p-4"></td>
               </tr>
             </tfoot>
@@ -685,11 +685,11 @@
 
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Parts Cost (₹)</label>
+            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Parts Cost (â‚¹)</label>
             <input type="number" id="modalPartCost" value="0" min="0" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Final Total Bill (₹) *</label>
+            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Final Total Bill (â‚¹) *</label>
             <input type="number" id="modalFinalAmount" min="0" oninput="handleFinalAmountChange()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm font-bold text-white focus:outline-none focus:border-indigo-500">
           </div>
         </div>
@@ -697,15 +697,15 @@
         <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-2 text-xs">
           <div class="flex justify-between items-center text-slate-400">
             <span>Advance Received Earlier:</span>
-            <span id="modalDeliveryAdvDisp" class="font-bold text-white">₹0</span>
+            <span id="modalDeliveryAdvDisp" class="font-bold text-white">â‚¹0</span>
           </div>
           <div class="flex justify-between items-center text-amber-400 font-semibold">
             <span>Remaining Payable Balance:</span>
-            <span id="modalDeliveryRemDueDisp" class="text-sm font-bold">₹0</span>
+            <span id="modalDeliveryRemDueDisp" class="text-sm font-bold">â‚¹0</span>
           </div>
           <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-800">
             <div>
-              <label class="font-bold text-white block mb-1">Amount Collected (₹):</label>
+              <label class="font-bold text-white block mb-1">Amount Collected (â‚¹):</label>
               <input type="number" id="modalDeliveryCashCollected" min="0" oninput="updateDeliveryPaymentMath()" class="w-full bg-slate-900 border border-emerald-500/60 rounded-lg px-2.5 py-1.5 text-right text-emerald-400 font-bold text-sm">
             </div>
             <div>
@@ -717,8 +717,8 @@
             </div>
           </div>
           <div class="flex justify-between items-center pt-1 text-rose-400 font-bold">
-            <span>Customer Pending Due (বাকি):</span>
-            <span id="modalCustomerFinalDue" class="text-sm">₹0</span>
+            <span>Customer Pending Due (à¦¬à¦¾à¦•à¦¿):</span>
+            <span id="modalCustomerFinalDue" class="text-sm">â‚¹0</span>
           </div>
         </div>
       </div>
@@ -727,10 +727,10 @@
         <div class="flex items-center gap-2 text-rose-400 font-bold text-sm">
           <i class="fa-solid fa-triangle-exclamation"></i> Non-Repairable Return Protocol
         </div>
-        <p class="text-slate-300">Total bill becomes <strong class="text-white">₹0</strong>. Customer advance must be refunded in full before closing the job.</p>
+        <p class="text-slate-300">Total bill becomes <strong class="text-white">â‚¹0</strong>. Customer advance must be refunded in full before closing the job.</p>
         <div class="flex items-center justify-between gap-4 pt-2">
           <label class="font-semibold text-slate-300">Advance Received:</label>
-          <span id="unrepairableAdvAmount" class="font-mono font-bold text-amber-400 text-sm">₹0</span>
+          <span id="unrepairableAdvAmount" class="font-mono font-bold text-amber-400 text-sm">â‚¹0</span>
         </div>
         <div class="flex items-center justify-between gap-4">
           <label class="font-semibold text-slate-300">Advance Refund to Customer (100% Mandatory):</label>
@@ -781,7 +781,7 @@
           <textarea id="editFault" rows="2" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white"></textarea>
         </div>
         <div class="col-span-2">
-          <label class="block text-xs font-semibold text-amber-400 uppercase tracking-wider mb-1">Internal Workshop Remarks 🔒</label>
+          <label class="block text-xs font-semibold text-amber-400 uppercase tracking-wider mb-1">Internal Workshop Remarks ðŸ”’</label>
           <input type="text" id="editRemarks" class="w-full bg-slate-950 border border-amber-500/40 rounded-xl px-3 py-2 text-sm text-white">
         </div>
         <div>
@@ -795,15 +795,15 @@
           </select>
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Estimated / Final Cost (₹)</label>
+          <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Estimated / Final Cost (â‚¹)</label>
           <input type="number" id="editEstCost" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white">
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Advance Received (₹)</label>
+          <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Advance Received (â‚¹)</label>
           <input type="number" id="editAdvPaid" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white">
         </div>
         <div>
-          <label class="block text-xs font-semibold text-rose-400 uppercase tracking-wider mb-1">Customer Due Balance (₹)</label>
+          <label class="block text-xs font-semibold text-rose-400 uppercase tracking-wider mb-1">Customer Due Balance (â‚¹)</label>
           <input type="number" id="editDueBalance" class="w-full bg-slate-950 border border-rose-500/40 rounded-xl px-3 py-2 text-sm text-rose-400 font-bold">
         </div>
       </div>
@@ -848,14 +848,14 @@
   <div id="masterDirectPrintArea" style="display: none;"></div>
 
   <script>
-    // UPDATED ACTIVE & PROTECTED FIREBASE CONFIGURATION
     const firebaseConfig = {
-      apiKey: "AIzaSyDbAlfyB04QxKFfRx20508wWqQJk8qK9M",
-      authDomain: "smartfix-a6733.firebaseapp.com",
-      projectId: "smartfix-a6733",
-      storageBucket: "smartfix-a6733.firebasestorage.app",
-      messagingSenderId: "346183509613",
-      appId: "1:346183509613:web:d710eb153e1aef89cb8164"
+      apiKey: "AIzaSyCG357Dtw_ftKsgAyRSsoZUSfMNpx-GGz0",
+      authDomain: "billing-ab24c.firebaseapp.com",
+      projectId: "billing-ab24c",
+      storageBucket: "billing-ab24c.firebasestorage.app",
+      messagingSenderId: "356489808931",
+      appId: "1:356489808931:web:55297f31640c181c7db596",
+      measurementId: "G-QPVQTXGFFJ"
     };
 
     firebase.initializeApp(firebaseConfig);
@@ -1159,7 +1159,6 @@
       renderDailyCashReport();
     }
 
-    // ACCURATE CASH & ONLINE UPI DAYBOOK ENGINE
     function renderDailyCashReport() {
       const selectedDate = document.getElementById('dailyReportDatePicker').value || todayStr;
       document.getElementById('dailyAuditDateLabel').innerText = `Date: ${selectedDate}`;
@@ -1217,19 +1216,19 @@
         }
       });
 
-      // EXACT MATCH WITH TRACKING'S PENDING FILTER
-      const activePendingCount = repairJobs.filter(j => j.status === 'Pending').length;
+      const activePendingCount = repairJobs.filter(j => 
+        j.status === 'Pending' || j.status === 'Ready'
+      ).length;
 
-      // Net physical cash inside drawer (excludes UPI)
       const netCashInDrawer = (cashFromAdvance + cashFromDelivery) - cashOutRefund;
 
-      document.getElementById('dailyAdvReceived').innerText = "₹" + cashFromAdvance;
-      document.getElementById('dailyDeliveryCash').innerText = "₹" + cashFromDelivery;
-      document.getElementById('dailyOnlineTotal').innerText = "₹" + onlineUPICollection;
-      document.getElementById('dailyAdvRefunded').innerText = "- ₹" + cashOutRefund;
+      document.getElementById('dailyAdvReceived').innerText = "â‚¹" + cashFromAdvance;
+      document.getElementById('dailyDeliveryCash').innerText = "â‚¹" + cashFromDelivery;
+      document.getElementById('dailyOnlineTotal').innerText = "â‚¹" + onlineUPICollection;
+      document.getElementById('dailyAdvRefunded').innerText = "- â‚¹" + cashOutRefund;
 
       const netElem = document.getElementById('dailyNetCash');
-      netElem.innerText = (netCashInDrawer < 0 ? "- ₹" + Math.abs(netCashInDrawer) : "₹" + netCashInDrawer);
+      netElem.innerText = (netCashInDrawer < 0 ? "- â‚¹" + Math.abs(netCashInDrawer) : "â‚¹" + netCashInDrawer);
       netElem.className = "text-xl font-bold " + (netCashInDrawer >= 0 ? "text-emerald-400" : "text-rose-400");
 
       document.getElementById('dailyCountReceived').innerText = countReceived;
@@ -1256,10 +1255,10 @@
           ${methodBadge}
         </td>
         <td class="p-3.5 text-xs font-bold text-right ${cashIn > 0 ? (isOnline ? 'text-cyan-400' : 'text-emerald-400') : 'text-slate-500'}">
-          ${cashIn > 0 ? '+ ₹' + cashIn : '-'}
+          ${cashIn > 0 ? '+ â‚¹' + cashIn : '-'}
         </td>
         <td class="p-3.5 text-xs font-bold text-right ${cashOut > 0 ? 'text-rose-400' : 'text-slate-500'}">
-          ${cashOut > 0 ? '- ₹' + cashOut : '-'}
+          ${cashOut > 0 ? '- â‚¹' + cashOut : '-'}
         </td>
       `;
       tbody.appendChild(tr);
@@ -1383,8 +1382,8 @@
               ` : ''}
               ${hasDue && !isUnrepairable ? `
                 <div class="p-1.5 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 font-bold flex justify-between">
-                  <span>Pending Due (বাকি):</span>
-                  <span>₹${job.dueBalance}</span>
+                  <span>Pending Due (à¦¬à¦¾à¦•à¦¿):</span>
+                  <span>â‚¹${job.dueBalance}</span>
                 </div>
               ` : ''}
             </div>
@@ -1392,7 +1391,7 @@
           <div class="pt-3 border-t border-slate-800 flex items-center justify-between gap-2">
             <div>
               <span class="text-[10px] uppercase font-semibold text-slate-500">Total Billed</span>
-              <p class="text-sm font-bold text-white">₹${isUnrepairable ? 0 : (isDelivered ? (job.finalAmount || 0) : (job.estCost || 0))} ${!isDelivered && !isUnrepairable && job.advPaid > 0 ? `<span class="text-xs text-emerald-400 font-normal">(Adv: ₹${job.advPaid}${job.advPayMethod === 'Online' ? 'UPI' : 'Cash'})</span>` : ''}</p>
+              <p class="text-sm font-bold text-white">â‚¹${isUnrepairable ? 0 : (isDelivered ? (job.finalAmount || 0) : (job.estCost || 0))} ${!isDelivered && !isUnrepairable && job.advPaid > 0 ? `<span class="text-xs text-emerald-400 font-normal">(Adv: â‚¹${job.advPaid}${job.advPayMethod === 'Online' ? 'UPI' : 'Cash'})</span>` : ''}</p>
             </div>
             <div class="flex items-center gap-1.5">
               ${!isDelivered && !isUnrepairable ? `
@@ -1456,7 +1455,7 @@
       document.getElementById('modalPartName').value = '';
       document.getElementById('modalPartCost').value = 0;
 
-      document.getElementById('unrepairableAdvAmount').innerText = "₹" + advPaid;
+      document.getElementById('unrepairableAdvAmount').innerText = "â‚¹" + advPaid;
       document.getElementById('modalRefundAmount').value = advPaid;
 
       toggleDeliveryOutcomeUI();
@@ -1472,11 +1471,11 @@
       const finalAmt = parseFloat(document.getElementById('modalFinalAmount').value) || 0;
       const remainingPayable = Math.max(0, finalAmt - adv);
 
-      document.getElementById('modalDeliveryAdvDisp').innerText = "₹" + adv;
-      document.getElementById('modalDeliveryRemDueDisp').innerText = "₹" + remainingPayable;
+      document.getElementById('modalDeliveryAdvDisp').innerText = "â‚¹" + adv;
+      document.getElementById('modalDeliveryRemDueDisp').innerText = "â‚¹" + remainingPayable;
       
       document.getElementById('modalDeliveryCashCollected').value = remainingPayable;
-      document.getElementById('modalCustomerFinalDue').innerText = "₹0";
+      document.getElementById('modalCustomerFinalDue').innerText = "â‚¹0";
     }
 
     function updateDeliveryPaymentMath() {
@@ -1487,7 +1486,7 @@
       const cashCollectedInput = document.getElementById('modalDeliveryCashCollected');
       const collected = parseFloat(cashCollectedInput.value) || 0;
       const pendingDue = Math.max(0, remainingPayable - collected);
-      document.getElementById('modalCustomerFinalDue').innerText = "₹" + pendingDue;
+      document.getElementById('modalCustomerFinalDue').innerText = "â‚¹" + pendingDue;
     }
 
     function toggleDeliveryOutcomeUI() {
@@ -1726,9 +1725,9 @@
             <td class="p-3 font-medium text-white">${job.customerName}</td>
             <td class="p-3 font-mono text-xs">${job.phone}</td>
             <td class="p-3 text-xs">${job.model}</td>
-            <td class="p-3 text-right">₹${billed}</td>
-            <td class="p-3 text-right text-emerald-400">₹${paidSoFar}</td>
-            <td class="p-3 text-right text-rose-400 font-bold">₹${due}</td>
+            <td class="p-3 text-right">â‚¹${billed}</td>
+            <td class="p-3 text-right text-emerald-400">â‚¹${paidSoFar}</td>
+            <td class="p-3 text-right text-rose-400 font-bold">â‚¹${due}</td>
             <td class="p-3 text-center">
               <button onclick="sendWhatsAppReminder('${job.phone}', '${job.customerName}', '${job.billNo}', '${job.model}', ${due})" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold flex items-center gap-1 mx-auto shadow transition">
                 <i class="fa-brands fa-whatsapp text-sm"></i> Remind
@@ -1750,10 +1749,10 @@
           </td>
           <td class="p-4 text-xs font-semibold text-indigo-300">${job.warranty || 'None'}</td>
           <td class="p-4 text-xs">${isUnrepairable ? 'None' : (job.partName || '<span class="text-slate-500">None</span>')}</td>
-          <td class="p-4 text-rose-400 font-semibold">₹${partsCost}</td>
-          <td class="p-4 font-bold text-white">₹${billed}</td>
-          <td class="p-4 font-bold ${due > 0 ? 'text-rose-400' : 'text-slate-500'}">₹${due}</td>
-          <td class="p-4 font-bold ${profit > 0 ? 'text-emerald-400' : 'text-slate-500'}">₹${profit}</td>
+          <td class="p-4 text-rose-400 font-semibold">â‚¹${partsCost}</td>
+          <td class="p-4 font-bold text-white">â‚¹${billed}</td>
+          <td class="p-4 font-bold ${due > 0 ? 'text-rose-400' : 'text-slate-500'}">â‚¹${due}</td>
+          <td class="p-4 font-bold ${profit > 0 ? 'text-emerald-400' : 'text-slate-500'}">â‚¹${profit}</td>
           <td class="p-4">
             <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${isDelivered ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : (isUnrepairable ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20' : 'bg-amber-500/10 text-amber-400 border border-amber-500/20')}">
               ${job.status}
@@ -1769,16 +1768,16 @@
       });
 
       document.getElementById('dueCountBadge').innerText = `${countDueCustomers} Customers with Due`;
-      document.getElementById('calcTotalParts').innerText = "₹" + totalParts;
-      document.getElementById('calcTotalRefund').innerText = "₹" + totalRefund;
-      document.getElementById('calcTotalRevenue').innerText = "₹" + totalBilled;
-      document.getElementById('calcTotalDue').innerText = "₹" + totalMarketDue;
-      document.getElementById('calcTotalProfit').innerText = "₹" + totalProfit;
+      document.getElementById('calcTotalParts').innerText = "â‚¹" + totalParts;
+      document.getElementById('calcTotalRefund').innerText = "â‚¹" + totalRefund;
+      document.getElementById('calcTotalRevenue').innerText = "â‚¹" + totalBilled;
+      document.getElementById('calcTotalDue').innerText = "â‚¹" + totalMarketDue;
+      document.getElementById('calcTotalProfit').innerText = "â‚¹" + totalProfit;
 
-      document.getElementById('footParts').innerText = "₹" + totalParts;
-      document.getElementById('footBilled').innerText = "₹" + totalBilled;
-      document.getElementById('footDue').innerText = "₹" + totalMarketDue;
-      document.getElementById('footProfit').innerText = "₹" + totalProfit;
+      document.getElementById('footParts').innerText = "â‚¹" + totalParts;
+      document.getElementById('footBilled').innerText = "â‚¹" + totalBilled;
+      document.getElementById('footDue').innerText = "â‚¹" + totalMarketDue;
+      document.getElementById('footProfit').innerText = "â‚¹" + totalProfit;
     }
 
     function sendWhatsAppReminder(phone, name, billNo, model, dueAmount) {
@@ -1786,7 +1785,7 @@
       const formattedPhone = cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone;
       const sName = currentStore ? currentStore.shopName : "SmartFix Mobile Care";
       
-      const message = `Dear ${name},\nThis is a friendly reminder from *${sName}* regarding your device *${model}* (Bill: *${billNo}*).\nThere is a remaining due balance of *₹${dueAmount}*.\nKindly settle payment at your convenience.\nThank you!`;
+      const message = `Dear ${name},\nThis is a friendly reminder from *${sName}* regarding your device *${model}* (Bill: *${billNo}*).\nThere is a remaining due balance of *â‚¹${dueAmount}*.\nKindly settle payment at your convenience.\nThank you!`;
       
       const whatsappUrl = `https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`;
       window.open(whatsappUrl, '_blank');
@@ -1815,7 +1814,7 @@
       if (isUnrepairable) {
         paymentStatusText = "RETURNED (CLOSED)";
       } else if (isDelivered) {
-        paymentStatusText = due > 0 ? "PARTIAL (DUE: ₹" + due + ")" : "PAID IN FULL (" + (job.deliveryPayMethod || "Cash") + ")";
+        paymentStatusText = due > 0 ? "PARTIAL (DUE: â‚¹" + due + ")" : "PAID IN FULL (" + (job.deliveryPayMethod || "Cash") + ")";
       } else {
         paymentStatusText = advPaid > 0 ? "ADVANCE PAID (" + (job.advPayMethod || "Cash") + ")" : "PAYMENT DUE";
       }
@@ -2092,7 +2091,7 @@
       const pageHeight = doc.internal.pageSize.height;
       doc.setFontSize(8);
       doc.setTextColor(100);
-      doc.text("SmartFix Pro © 2026 | Mobile Workshop Management System | Developed by Debapriya Sarkar", 40, pageHeight - 20);
+      doc.text("SmartFix Pro Â© 2026 | Mobile Workshop Management System | Developed by Debapriya Sarkar", 40, pageHeight - 20);
 
       doc.save(`${sName.replace(/\\s+/g, '_')}_Statement.pdf`);
     }
