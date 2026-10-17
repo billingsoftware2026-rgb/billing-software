@@ -139,7 +139,7 @@
         </div>
 
         <div class="pt-5 border-t border-slate-800/80 mt-6 lg:mt-0 flex items-center justify-between text-[11px] text-slate-500">
-          <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Cloud v2.7 Active</span>
+          <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Cloud v2.8 Active</span>
           <span>Lead Dev: Debapriya Sarkar</span>
         </div>
       </div>
@@ -848,14 +848,14 @@
   <div id="masterDirectPrintArea" style="display: none;"></div>
 
   <script>
+    // UPDATED ACTIVE & PROTECTED FIREBASE CONFIGURATION
     const firebaseConfig = {
-      apiKey: "AIzaSyCG357Dtw_ftKsgAyRSsoZUSfMNpx-GGz0",
-      authDomain: "billing-ab24c.firebaseapp.com",
-      projectId: "billing-ab24c",
-      storageBucket: "billing-ab24c.firebasestorage.app",
-      messagingSenderId: "356489808931",
-      appId: "1:356489808931:web:55297f31640c181c7db596",
-      measurementId: "G-QPVQTXGFFJ"
+      apiKey: "AIzaSyDbAlfyB04QxKFfRx20508wWqQJk8qK9M",
+      authDomain: "smartfix-a6733.firebaseapp.com",
+      projectId: "smartfix-a6733",
+      storageBucket: "smartfix-a6733.firebasestorage.app",
+      messagingSenderId: "346183509613",
+      appId: "1:346183509613:web:d710eb153e1aef89cb8164"
     };
 
     firebase.initializeApp(firebaseConfig);
@@ -1159,6 +1159,7 @@
       renderDailyCashReport();
     }
 
+    // ACCURATE CASH & ONLINE UPI DAYBOOK ENGINE
     function renderDailyCashReport() {
       const selectedDate = document.getElementById('dailyReportDatePicker').value || todayStr;
       document.getElementById('dailyAuditDateLabel').innerText = `Date: ${selectedDate}`;
@@ -1216,10 +1217,10 @@
         }
       });
 
-      const activePendingCount = repairJobs.filter(j => 
-        j.status === 'Pending' || j.status === 'Ready'
-      ).length;
+      // EXACT MATCH WITH TRACKING'S PENDING FILTER
+      const activePendingCount = repairJobs.filter(j => j.status === 'Pending').length;
 
+      // Net physical cash inside drawer (excludes UPI)
       const netCashInDrawer = (cashFromAdvance + cashFromDelivery) - cashOutRefund;
 
       document.getElementById('dailyAdvReceived').innerText = "₹" + cashFromAdvance;
