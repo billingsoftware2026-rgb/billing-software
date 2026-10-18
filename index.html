@@ -10,6 +10,8 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
 
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -17,10 +19,10 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
   <style>
-    @page {
-      size: 58mm auto !important;
-      margin: 0 !important;
-    }
+    @page thermalpage { size: 58mm auto; margin: 0; }
+    @page a4page { size: A4 landscape; margin: 12mm; }
+    body.mode-thermal { page: thermalpage; }
+    body.mode-a4 { page: a4page; }
 
     @media print {
       html, body {
@@ -272,6 +274,10 @@
           <span>Admin Ledger</span>
         </button>
         
+        <button onclick="requestTabAccess('backup')" id="tab-backup" class="px-3 py-2 rounded-lg text-xs md:text-sm font-semibold transition text-slate-400 hover:text-white flex items-center gap-1.5">
+          <i class="fa-solid fa-database text-emerald-400"></i><span>Backup / Restore</span>
+        </button>
+
         <button onclick="connectBluetoothPrinter()" id="btnBtPrinter" title="Connect 58mm Bluetooth Thermal Printer" class="px-2.5 py-2 rounded-lg text-xs font-bold transition bg-slate-900 text-slate-300 hover:text-emerald-400 hover:bg-slate-800 flex items-center gap-1 border border-slate-800">
           <i class="fa-brands fa-bluetooth text-blue-400"></i>
           <span id="btStatusLabel">Printer</span>
@@ -635,6 +641,21 @@
         </div>
       </div>
     </section>
+
+    <!-- TAB: Store-scoped backup and restore -->
+    <section id="view-backup" class="tab-panel hidden space-y-6">
+      <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 shadow-xl max-w-4xl mx-auto">
+        <div class="flex items-center gap-3 mb-2"><div class="w-11 h-11 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center"><i class="fa-solid fa-shield-halved text-xl"></i></div><div><h2 class="text-xl font-bold text-white">Offline Backup & Restore</h2><p class="text-xs text-slate-400">শুধু বর্তমান লগইন করা দোকানের Store Profile ও Repair Bills</p></div></div>
+        <div class="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4 text-xs text-amber-200 leading-relaxed mb-5">প্রতিদিন একটি JSON backup ফাইল ডাউনলোড করে ফোন/কম্পিউটার বা Google Drive-এ রাখুন। Restore করলে নির্বাচিত backup-এর bill-গুলি বর্তমান লগইন করা দোকানের Firebase account-এ আপলোড হবে। নতুন Firebase project-এ যেতে হলে আগে নতুন project-এর config বসিয়ে নতুন account-এ লগইন/রেজিস্টার করুন, তারপর backup restore করুন।</div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="bg-slate-950 border border-slate-800 rounded-2xl p-5"><i class="fa-solid fa-file-export text-emerald-400 text-2xl"></i><h3 class="text-white font-bold mt-3">Create Offline Backup</h3><p class="text-xs text-slate-400 mt-1 mb-4">বর্তমান দোকানের profile ও সব repair bill JSON ফাইলে সেভ করুন।</p><button onclick="downloadStoreBackup()" class="w-full rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white py-3 text-sm font-bold"><i class="fa-solid fa-download mr-2"></i>Download Backup</button></div>
+          <div class="bg-slate-950 border border-slate-800 rounded-2xl p-5"><i class="fa-solid fa-file-import text-indigo-400 text-2xl"></i><h3 class="text-white font-bold mt-3">Restore Backup</h3><p class="text-xs text-slate-400 mt-1 mb-3">আগের SmartFix backup JSON ফাইল নির্বাচন করুন।</p><input id="backupRestoreFile" type="file" accept=".json,application/json" class="block w-full text-xs text-slate-300 mb-3"><label class="flex items-start gap-2 text-xs text-rose-300 mb-4"><input id="backupReplaceMode" type="checkbox" class="mt-0.5"> Restore করার আগে বর্তমান দোকানের Firebase bill-গুলি মুছে backup-এর bill বসাব (সাবধানে ব্যবহার করুন)</label><button onclick="restoreStoreBackup()" class="w-full rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white py-3 text-sm font-bold"><i class="fa-solid fa-cloud-arrow-up mr-2"></i>Restore to This Store</button></div>
+        </div>
+        <p id="backupStatus" class="text-xs text-slate-300 mt-4" role="status"></p>
+        <p class="text-[11px] text-slate-500 mt-3">নোট: এই index.html ফাইলের Firebase ডেটা হিসেবে Store Profile ও jobs collection ব্যাকআপ হয়। parts.html / used_mobile.html যদি আলাদা collection বা localStorage ব্যবহার করে, সেই ফাইলগুলি না দেখে তাদের inventory-র সম্পূর্ণ backup নিশ্চিত করা যাচ্ছে না। Browser cache/localStorage একমাত্র backup নয়—ডাউনলোড করা JSON ফাইল আলাদা করে রাখুন।</p>
+      </div>
+    </section>
+
   </main>
 
   <!-- Footer -->
@@ -873,9 +894,16 @@
     let bluetoothPrintDevice = null;
     let bluetoothPrintCharacteristic = null;
 
-    const todayStr = new Date().toISOString().split('T')[0];
+    function localDateString(date = new Date()) {
+      const y = date.getFullYear(); const m = String(date.getMonth()+1).padStart(2,'0'); const d = String(date.getDate()).padStart(2,'0');
+      return `${y}-${m}-${d}`;
+    }
+    const todayStr = localDateString();
+    function getStoreScopedKey(base) { const uid = auth.currentUser?.uid || 'signed-out'; return `${base}_${uid}`; }
     const LOCAL_MIRROR_KEY = "SMARTFIX_VAULT_JOBS_MIRROR";
     const STORE_MIRROR_KEY = "SMARTFIX_VAULT_STORE_MIRROR";
+    function jobsMirrorKey() { return getStoreScopedKey(LOCAL_MIRROR_KEY); }
+    function storeMirrorKey() { return getStoreScopedKey(STORE_MIRROR_KEY); }
 
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js').catch(() => {});
@@ -886,7 +914,7 @@
     // =========================================================================
     function mirrorJobsToLocalStorage(jobs) {
       try {
-        localStorage.setItem(LOCAL_MIRROR_KEY, JSON.stringify(jobs));
+        localStorage.setItem(jobsMirrorKey(), JSON.stringify(jobs));
       } catch (e) {
         console.warn("Storage mirror quota full or unavailable", e);
       }
@@ -894,7 +922,7 @@
 
     function getMirroredJobsFromLocal() {
       try {
-        const stored = localStorage.getItem(LOCAL_MIRROR_KEY);
+        const stored = localStorage.getItem(jobsMirrorKey());
         return stored ? JSON.parse(stored) : [];
       } catch (e) {
         return [];
@@ -1009,11 +1037,10 @@
             shopAddress: sAddr,
             shopPhone: sPhone,
             ownerEmail: email,
-            savedPassword: pass,
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
           };
           await db.collection('stores').doc(cred.user.uid).set(storeData);
-          localStorage.setItem(STORE_MIRROR_KEY, JSON.stringify(storeData));
+          localStorage.setItem(storeMirrorKey(), JSON.stringify(storeData));
         } else {
           await auth.signInWithEmailAndPassword(email, pass);
         }
@@ -1034,10 +1061,15 @@
           const storeDoc = await db.collection('stores').doc(user.uid).get();
           if (storeDoc.exists) {
             currentStore = storeDoc.data();
+            // Remove legacy plaintext password fields from older store documents.
+            if (Object.prototype.hasOwnProperty.call(currentStore, 'savedPassword') || Object.prototype.hasOwnProperty.call(currentStore, 'password')) {
+              try { await db.collection('stores').doc(user.uid).update({ savedPassword: firebase.firestore.FieldValue.delete(), password: firebase.firestore.FieldValue.delete() }); } catch (cleanupErr) { console.warn('Legacy credential cleanup could not complete:', cleanupErr); }
+              delete currentStore.savedPassword; delete currentStore.password;
+            }
             document.getElementById('navShopName').innerText = currentStore.shopName;
-            localStorage.setItem(STORE_MIRROR_KEY, JSON.stringify(currentStore));
+            localStorage.setItem(storeMirrorKey(), JSON.stringify(currentStore));
           } else {
-            const localStore = localStorage.getItem(STORE_MIRROR_KEY);
+            const localStore = localStorage.getItem(storeMirrorKey());
             currentStore = localStore ? JSON.parse(localStore) : {
               shopName: "TULSI MOBILE STORE",
               shopAddress: "Main Road, Workshop Station",
@@ -1046,7 +1078,7 @@
             document.getElementById('navShopName').innerText = currentStore.shopName;
           }
         } catch(e) {
-          const localStore = localStorage.getItem(STORE_MIRROR_KEY);
+          const localStore = localStorage.getItem(storeMirrorKey());
           currentStore = localStore ? JSON.parse(localStore) : {
             shopName: "TULSI MOBILE STORE",
             shopAddress: "Main Road, Workshop Station",
@@ -1058,7 +1090,6 @@
 
         // Cloud listener with offline-mirror sync and automatic self-healing
         db.collection('stores').doc(user.uid).collection('jobs')
-          .orderBy('createdAt', 'desc')
           .onSnapshot((snapshot) => {
             if (snapshot.empty) {
               // Automatic restoration trigger if new database/API key is empty
@@ -1066,9 +1097,8 @@
             }
 
             repairJobs = [];
-            snapshot.forEach(doc => {
-              repairJobs.push({ id: doc.id, ...doc.data() });
-            });
+            snapshot.forEach(doc => { repairJobs.push({ id: doc.id, ...doc.data() }); });
+            repairJobs.sort((a,b) => String(b.intakeDate || '').localeCompare(String(a.intakeDate || '')));
 
             // If snapshot loaded data, mirror to offline local vault
             if (repairJobs.length > 0) {
@@ -1110,9 +1140,11 @@
       // 2. Sync to Cloud Firestore
       if (!auth.currentUser) return;
       const userUid = auth.currentUser.uid;
+      const existingJob = currentList.find(j => j.billNo === job.billNo);
       const jobData = {
         ...job,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        createdAt: job.createdAt || existingJob?.createdAt || firebase.firestore.FieldValue.serverTimestamp(),
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
       };
       await db.collection('stores').doc(userUid).collection('jobs').doc(job.billNo).set(jobData, { merge: true });
     }
@@ -1130,6 +1162,7 @@
     }
 
     function requestTabAccess(tabId) {
+      if (tabId === 'backup') { activateTab('backup'); return; }
       if (tabId === 'reports') {
         if (isOwnerAuthenticated) {
           activateTab('reports');
@@ -1197,9 +1230,10 @@
       document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.add('hidden'));
       document.getElementById('view-' + tabId).classList.remove('hidden');
 
-      const tabs = ['newJob', 'dailyCash', 'trackJobs', 'reports'];
+      const tabs = ['newJob', 'dailyCash', 'trackJobs', 'reports', 'backup'];
       tabs.forEach(t => {
         const btn = document.getElementById('tab-' + t);
+        if (!btn) return;
         if (t === tabId) {
           btn.className = "px-3 py-2 rounded-lg text-xs md:text-sm font-semibold transition bg-indigo-600 text-white shadow-md flex items-center gap-1.5";
         } else {
@@ -1214,8 +1248,9 @@
 
     async function handleFormSubmit(e) {
       e.preventDefault();
-      const generatedBill = "SFX-" + Math.floor(1000 + Math.random() * 9000);
-      const today = new Date().toISOString().split('T')[0];
+      let generatedBill;
+      do { generatedBill = 'SFX-' + Math.floor(1000 + Math.random() * 9000); } while (repairJobs.some(j => j.billNo === generatedBill));
+      const today = localDateString();
       const est = parseFloat(document.getElementById('estCost').value) || 0;
       const adv = parseFloat(document.getElementById('advPaid').value) || 0;
       const payMethod = document.getElementById('advPayMethod').value || "Cash";
@@ -1389,37 +1424,27 @@
       const fromDate = document.getElementById('trackFromDate')?.value || '';
       const toDate = document.getElementById('trackToDate')?.value || '';
 
-      document.getElementById('cntAll').innerText = repairJobs.length;
-      document.getElementById('cntPending').innerText = repairJobs.filter(j => j.status === 'Pending').length;
-      document.getElementById('cntPartsOrder').innerText = repairJobs.filter(j => j.status === 'Parts-Ordered').length;
-      document.getElementById('cntReady').innerText = repairJobs.filter(j => j.status === 'Ready').length;
-      document.getElementById('cntUnrepair').innerText = repairJobs.filter(j => j.status === 'Unrepairable').length;
-      document.getElementById('cntDelivered').innerText = repairJobs.filter(j => j.status === 'Delivered').length;
-
       const container = document.getElementById('jobCardGrid');
       container.innerHTML = '';
 
-      const filtered = repairJobs.filter(job => {
-        const matchesQuery = job.billNo.toLowerCase().includes(q) ||
-          job.imei.toLowerCase().includes(q) ||
-          job.phone.toLowerCase().includes(q) ||
-          job.customerName.toLowerCase().includes(q);
+      const filteredByDateAndQuery = repairJobs.filter(job => {
+        const matchesQuery = [job.billNo, job.imei, job.phone, job.customerName, job.model].some(v => String(v ?? '').toLowerCase().includes(q));
 
         if (!matchesQuery) return false;
-        if (currentStatusFilter !== 'ALL' && job.status !== currentStatusFilter) return false;
-
-        const dateA = job.intakeDate || '';
-        const dateB = (job.deliveryDate && job.deliveryDate !== '--') ? job.deliveryDate : dateA;
-
-        if (fromDate) {
-          if (dateA < fromDate && dateB < fromDate) return false;
-        }
-        if (toDate) {
-          if (dateA > toDate && dateB > toDate) return false;
-        }
-
+        const dateA = String(job.intakeDate || '');
+        const dateB = String((job.deliveryDate && job.deliveryDate !== '--') ? job.deliveryDate : dateA);
+        if (fromDate && dateA < fromDate && dateB < fromDate) return false;
+        if (toDate && dateA > toDate && dateB > toDate) return false;
         return true;
       });
+
+      document.getElementById('cntAll').innerText = filteredByDateAndQuery.length;
+      document.getElementById('cntPending').innerText = filteredByDateAndQuery.filter(j => j.status === 'Pending').length;
+      document.getElementById('cntPartsOrder').innerText = filteredByDateAndQuery.filter(j => j.status === 'Parts-Ordered').length;
+      document.getElementById('cntReady').innerText = filteredByDateAndQuery.filter(j => j.status === 'Ready').length;
+      document.getElementById('cntUnrepair').innerText = filteredByDateAndQuery.filter(j => j.status === 'Unrepairable').length;
+      document.getElementById('cntDelivered').innerText = filteredByDateAndQuery.filter(j => j.status === 'Delivered').length;
+      const filtered = currentStatusFilter === 'ALL' ? filteredByDateAndQuery : filteredByDateAndQuery.filter(j => j.status === currentStatusFilter);
 
       if (filtered.length === 0) {
         container.innerHTML = `
@@ -1456,7 +1481,7 @@
         card.innerHTML = `
           <div>
             <div class="flex items-center justify-between gap-2 mb-3">
-              <span class="text-xs font-mono font-bold bg-indigo-500/10 text-indigo-400 px-2.5 py-1 rounded-md border border-indigo-500/20">${job.billNo}</span>
+              <span class="inline-flex flex-col items-center text-xs font-mono font-bold bg-indigo-500/10 text-indigo-400 px-2.5 py-1 rounded-md border border-indigo-500/20">${job.billNo}<svg class="bill-barcode mt-1" data-bill="${String(job.billNo).replace(/&/g,'&amp;').replace(/"/g,'&quot;')}" style="width:112px;height:28px;background:#fff"></svg></span>
               ${statusBadge}
             </div>
             <h4 class="text-base font-bold text-white tracking-wide">${job.model}</h4>
@@ -1516,6 +1541,11 @@
         `;
         container.appendChild(card);
       });
+      if (window.JsBarcode) {
+        container.querySelectorAll('svg.bill-barcode').forEach(svg => {
+          try { JsBarcode(svg, svg.dataset.bill || '', { format: 'CODE128', displayValue: false, margin: 1, height: 24, width: 1.4, background: '#ffffff', lineColor: '#111111' }); } catch (_) {}
+        });
+      }
     }
 
     async function toggleDeviceReady(billNo) {
@@ -1612,7 +1642,7 @@
       const status = document.getElementById('modalStatusSelect').value;
       const advPaid = parseFloat(document.getElementById('modalAdvPaidHidden').value) || 0;
       const idx = repairJobs.findIndex(j => j.billNo === bNo);
-      const today = new Date().toISOString().split('T')[0];
+      const today = localDateString();
 
       if (idx !== -1) {
         repairJobs[idx].deliveryDate = today;
@@ -1857,7 +1887,7 @@
             </span>
           </td>
           <td class="p-4 text-center">
-            <button onclick="openEditModal('${job.billNo}')" class="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-300 text-xs transition">
+            <button onclick="checkAdminThenEdit('${job.billNo}')" class="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-300 text-xs transition">
               <i class="fa-solid fa-pen"></i>
             </button>
           </td>
@@ -1889,7 +1919,7 @@
       window.open(whatsappUrl, '_blank');
     }
 
-    function printDirectThermalVoucher(job, isDualIntake = false) {
+    async function printDirectThermalVoucher(job, isDualIntake = false) {
       const isUnrepairable = job.status === "Unrepairable";
       const isDelivered = job.status === "Delivered";
       const isPartsOnly = job.status === "Parts-Ordered";
@@ -1902,6 +1932,8 @@
       const sName = currentStore ? currentStore.shopName : "TULSI MOBILE STORE";
       const sAddr = currentStore ? currentStore.shopAddress : "Main Road, Workshop Station";
       const sPhone = currentStore ? currentStore.shopPhone : "9876543210";
+      const billBarcodeSvg = createBarcodeSvg(job.billNo, 'receiptBarcode');
+      const upiQrDataUrl = await createUpiQrDataUrl(job);
 
       let totalOrEst = isUnrepairable ? 0 : (isDelivered ? (parseFloat(job.finalAmount) || 0) : (parseFloat(job.estCost) || 0));
       let advPaid = parseFloat(job.advPaid) || 0;
@@ -1931,7 +1963,8 @@
               ${voucherTitle}
             </div>
             <div style="text-align: center; font-size: 9px; font-family: monospace; margin-bottom: 3px;">
-              Memo No: ${job.billNo}
+              Memo No: <strong>${job.billNo}</strong>
+              <div style="display:flex;justify-content:center;margin-top:3px;background:#fff;">${billBarcodeSvg}</div>
             </div>
             <div style="border-top: 1px dashed #000; margin: 4px 0;"></div>
 
@@ -2006,6 +2039,10 @@
               </tr>
             </table>
 
+            <div style="border-top: 1px dashed #000; margin: 7px 0 5px 0;"></div>
+            <div style="text-align:center;font-size:9px;font-weight:bold;margin:3px 0;">SCAN TO PAY VIA UPI</div>
+            ${upiQrDataUrl ? `<div style="text-align:center;"><img src="${upiQrDataUrl}" alt="UPI payment QR" style="width:105px;height:105px;object-fit:contain;display:inline-block;" /></div>` : ''}
+            <div style="text-align:center;font-size:8px;line-height:1.3;word-break:break-all;">UPI ID: 9932480026@okbizaxis<br>Amount: enter in payment app</div>
             <div style="border-top: 1px dashed #000; margin: 5px 0 2px 0;"></div>
             <div style="text-align: center; font-size: 7.5px; line-height: 1.2; color: #333;">
               SmartFix Pro &copy; 2026 | Mobile Workshop Management System<br>
@@ -2023,7 +2060,7 @@
             </div>
             <div style="border-top: 1px dashed #000; margin: 4px 0;"></div>
             <div style="font-size: 10px; line-height: 1.35;">
-              <p style="margin: 2px 0;"><strong>BILL NO :</strong> <span style="font-size: 12px; font-weight: bold; font-family: monospace;">${job.billNo}</span></p>
+              <p style="margin: 2px 0;"><strong>BILL NO :</strong> <span style="font-size: 12px; font-weight: bold; font-family: monospace;">${job.billNo}</span></p><div style="display:flex;justify-content:center;background:#fff;">${billBarcodeSvg}</div>
               <p style="margin: 2px 0;"><strong>DATE    :</strong> ${job.intakeDate}</p>
               <p style="margin: 2px 0;"><strong>MODEL   :</strong> ${job.model}</p>
               <p style="margin: 2px 0;"><strong>ITEM    :</strong> ${job.fault}</p>
@@ -2116,11 +2153,13 @@
       const printArea = document.getElementById('masterDirectPrintArea');
       printArea.innerHTML = htmlContent;
       printArea.style.display = 'block';
-
-      setTimeout(() => {
-        window.print();
-      }, 150);
+      setTimeout(() => { window.print(); }, 250);
     }
+    window.addEventListener('afterprint', () => {
+      const area = document.getElementById('masterDirectPrintArea');
+      if (area) { area.innerHTML = ''; area.style.display = 'none'; }
+      document.body.classList.remove('mode-thermal', 'mode-a4');
+    });
 
     function exportA4PDF() {
       const { jsPDF } = window.jspdf;
@@ -2141,10 +2180,9 @@
       const toDate = document.getElementById('ledgerToDate')?.value || '';
 
       const filtered = repairJobs.filter(job => {
-        const dateA = job.intakeDate || '';
-        const dateB = (job.deliveryDate && job.deliveryDate !== '--') ? job.deliveryDate : dateA;
-        if (fromDate && dateA < fromDate && dateB < fromDate) return false;
-        if (toDate && dateA > toDate && dateB > toDate) return false;
+        const reportDate = String(job.intakeDate || '');
+        if (fromDate && reportDate < fromDate) return false;
+        if (toDate && reportDate > toDate) return false;
         return true;
       });
 
@@ -2192,6 +2230,90 @@
       doc.text("SmartFix Pro © 2026 | Mobile Workshop Management System | Developed by Debapriya Sarkar", 40, pageHeight - 20);
 
       doc.save(`${sName.replace(/\\s+/g, '_')}_Statement.pdf`);
+    }
+
+
+    // Barcode / UPI QR helpers. QR carries UPI ID only; user enters amount in their UPI app.
+    function createBarcodeSvg(value, id = 'billBarcode') {
+      if (!window.JsBarcode) return `<span style="font-size:8px">${String(value || '')}</span>`;
+      const safeId = `${id}_${Math.random().toString(36).slice(2,8)}`;
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('id', safeId);
+      try { window.JsBarcode(svg, String(value || ''), { format: 'CODE128', displayValue: false, margin: 1, height: 28, width: 1.35, background: '#ffffff', lineColor: '#000000' }); return svg.outerHTML; }
+      catch (_) { return `<span style="font-family:monospace">${String(value || '')}</span>`; }
+    }
+    function createUpiQrDataUrl(job) {
+      return new Promise(resolve => {
+        if (!window.QRCode) { resolve(''); return; }
+        const holder = document.createElement('div');
+        holder.style.cssText = 'position:fixed;left:-10000px;top:-10000px;width:180px;height:180px';
+        document.body.appendChild(holder);
+        const upi = `upi://pay?pa=${encodeURIComponent('9932480026@okbizaxis')}&pn=${encodeURIComponent(currentStore?.shopName || 'SmartFix Store')}&cu=INR`;
+        try {
+          new QRCode(holder, { text: upi, width: 180, height: 180, correctLevel: QRCode.CorrectLevel.M });
+          setTimeout(() => {
+            const canvas = holder.querySelector('canvas'); const img = holder.querySelector('img');
+            let url = ''; try { url = canvas ? canvas.toDataURL('image/png') : (img?.src || ''); } catch (_) {}
+            holder.remove(); resolve(url);
+          }, 100);
+        } catch (_) { holder.remove(); resolve(''); }
+      });
+    }
+
+    function setBackupStatus(message, isError = false) {
+      const el = document.getElementById('backupStatus');
+      if (el) { el.textContent = message; el.className = `text-xs mt-4 ${isError ? 'text-rose-300' : 'text-emerald-300'}`; }
+    }
+    function downloadBlob(filename, content, type = 'application/json') {
+      const blob = new Blob([content], { type }); const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1500);
+    }
+    async function downloadStoreBackup() {
+      const user = auth.currentUser;
+      if (!user || !currentStore) { setBackupStatus('আগে দোকানের account-এ লগইন করুন।', true); return; }
+      try {
+        // Pull current cloud state first where possible, then export a store-scoped snapshot.
+        let jobs = repairJobs.slice();
+        try { const snap = await db.collection('stores').doc(user.uid).collection('jobs').get(); const cloudJobs = snap.docs.map(d => ({ id: d.id, ...d.data() })); jobs = (cloudJobs.length || !repairJobs.length) ? cloudJobs : repairJobs.slice(); } catch (_) {}
+        const storeData = { ...currentStore }; delete storeData.savedPassword; delete storeData.password;
+        const payload = { format: 'SMARTFIX_STORE_BACKUP', version: 1, createdAt: new Date().toISOString(), originStoreId: user.uid, store: storeData, jobs, scope: 'current-authenticated-store-only' };
+        const filename = `SmartFix-Backup-${String(currentStore.shopName || 'Store').replace(/[^a-z0-9-_]+/gi,'_')}-${localDateString()}.json`;
+        downloadBlob(filename, JSON.stringify(payload, null, 2));
+        setBackupStatus(`Backup তৈরি হয়েছে: ${jobs.length}টি bill। ফাইলটি নিরাপদ স্থানে রাখুন।`);
+      } catch (err) { setBackupStatus(`Backup ব্যর্থ: ${err.message || err}`, true); }
+    }
+    async function restoreStoreBackup() {
+      const user = auth.currentUser; const file = document.getElementById('backupRestoreFile')?.files?.[0];
+      if (!user) { setBackupStatus('Restore করার আগে লগইন করুন।', true); return; }
+      if (!file) { setBackupStatus('প্রথমে backup JSON ফাইল নির্বাচন করুন।', true); return; }
+      try {
+        const payload = JSON.parse(await file.text());
+        if (payload.format !== 'SMARTFIX_STORE_BACKUP' || !Array.isArray(payload.jobs) || !payload.store) throw new Error('এটি বৈধ SmartFix backup ফাইল নয়।');
+        if (!window.confirm(`এই backup-এ ${payload.jobs.length}টি bill আছে। বর্তমান লগইন করা দোকান “${currentStore?.shopName || 'Current Store'}”-এ restore করবেন?`)) return;
+        const storeRef = db.collection('stores').doc(user.uid);
+        const storeData = { ...payload.store }; delete storeData.savedPassword; delete storeData.password;
+        await storeRef.set({ ...storeData, restoredAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
+        const jobsRef = storeRef.collection('jobs');
+        if (document.getElementById('backupReplaceMode')?.checked) {
+          const existing = await jobsRef.get();
+          for (let i = 0; i < existing.docs.length; i += 400) {
+            const batch = db.batch(); existing.docs.slice(i, i + 400).forEach(d => batch.delete(d.ref)); await batch.commit();
+          }
+        }
+        const jobs = payload.jobs.filter(j => j && (j.billNo || j.id)).map(j => { const copy = { ...j }; delete copy.savedPassword; delete copy.password; return copy; });
+        for (let i = 0; i < jobs.length; i += 400) {
+          const batch = db.batch();
+          jobs.slice(i, i + 400).forEach(job => { const id = String(job.billNo || job.id); batch.set(jobsRef.doc(id), { ...job, billNo: job.billNo || id, restoredAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true }); });
+          await batch.commit();
+        }
+        currentStore = { ...(currentStore || {}), ...storeData };
+        document.getElementById('navShopName').innerText = currentStore.shopName || 'SMARTFIX PRO';
+        localStorage.setItem(storeMirrorKey(), JSON.stringify(currentStore)); mirrorJobsToLocalStorage(jobs);
+        repairJobs = jobs;
+        renderDailyCashReport(); renderJobCards(); if (isOwnerAuthenticated) renderLedgerTable();
+        setBackupStatus(`Restore সম্পূর্ণ: ${jobs.length}টি bill বর্তমান Firebase store-এ আপলোড হয়েছে।`);
+      } catch (err) { setBackupStatus(`Restore ব্যর্থ: ${err.message || err}. Firebase Rules, network এবং নির্বাচিত account পরীক্ষা করুন।`, true); }
     }
 
     window.addEventListener('DOMContentLoaded', () => {
