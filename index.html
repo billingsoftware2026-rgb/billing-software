@@ -50,7 +50,7 @@
         color: #000 !important;
         font-family: 'Courier New', Courier, monospace !important;
         font-size: 11px !important;
-        line-height: 1.3 !important;
+        line-height: 1.4 !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
         text-rendering: geometricPrecision !important;
@@ -578,7 +578,7 @@
           <h4 id="calcTotalRevenue" class="text-xl md:text-2xl font-bold text-blue-400">₹0</h4>
         </div>
         <div class="bg-slate-900 border border-rose-500/30 p-4 rounded-2xl bg-rose-500/5">
-          <span class="text-xs text-rose-400 font-semibold uppercase tracking-wider">Market Due (বকেয়া)</span>
+          <span class="text-xs text-rose-400 font-semibold uppercase tracking-wider">Market Due (বকেয়া)</span>
           <h4 id="calcTotalDue" class="text-xl md:text-2xl font-bold text-rose-400">₹0</h4>
         </div>
         <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
@@ -973,8 +973,6 @@
 
         btnLabel.innerText = "Searching...";
 
-        // acceptAllDevices: true দিলে সমস্ত কাছাকাছি BLE ডিভাইস তালিকায় আসবে
-        // optionalServices এ সমস্ত কমন থার্মাল প্রিন্টার UUID দেওয়া হলো যাতে কানেক্ট হওয়ার পর সার্ভিস না পেয়ে ফেইল না করে
         bluetoothPrintDevice = await navigator.bluetooth.requestDevice({
           acceptAllDevices: true,
           optionalServices: [
@@ -994,7 +992,6 @@
         const services = await server.getPrimaryServices();
 
         let foundCharacteristic = null;
-        // সমস্ত সার্ভিসের ভেতর চেক করা হবে কোনটাতে ডেটা রাইট করা যায়
         for (const service of services) {
           try {
             const characteristics = await service.getCharacteristics();
@@ -1005,7 +1002,7 @@
               }
             }
           } catch (e) {
-            // কিছু সার্ভিসে এরর হতে পারে, সেগুলো ইগনোর করুন
+            // Skip errors
           }
           if (foundCharacteristic) break;
         }
@@ -1021,7 +1018,6 @@
       } catch (err) {
         console.warn("Bluetooth connection cancelled or failed:", err);
         btnLabel.innerText = "Printer";
-        // এরর মেসেজ আরও ইউজার-ফ্রেন্ডলি করা হলো
         if (err.name === 'NotFoundError') {
            alert("No Bluetooth device selected or found.");
         } else {
@@ -1031,7 +1027,7 @@
     }
 
     // =========================================================================
-    // BLUETOOTH PRINTING ENGINE (ESC/POS with BOLD for darker text)
+    // BLUETOOTH PRINTING ENGINE (ESC/POS)
     // =========================================================================
     async function printViaBluetooth(text) {
       if (!bluetoothPrintCharacteristic) {
@@ -1056,7 +1052,6 @@
       fullData.set(feed, offset); offset += feed.length;
       fullData.set(cut, offset);
 
-      // ছোট ছোট চাঙ্কে পাঠানো (প্রিন্টার বাফার ওভারফ্লো এড়াতে)
       const CHUNK_SIZE = 20;
       try {
         for (let i = 0; i < fullData.length; i += CHUNK_SIZE) {
@@ -1076,11 +1071,9 @@
       }
     }
 
-    // ESC/POS bold commands — makes small text DARKER on thermal printers
     const BT_BOLD_ON = '\x1B\x45\x01';   // ESC E 1 (bold ON)
     const BT_BOLD_OFF = '\x1B\x45\x00';  // ESC E 0 (bold OFF)
     
-    // ব্লুটুথের জন্য প্লেইন টেক্সট রসিদ তৈরি (বোল্ড ও ক্লিয়ার লেখা)
     function buildBluetoothReceiptText(job, isDualIntake = false) {
       const isUnrepairable = job.status === "Unrepairable";
       const isDelivered = job.status === "Delivered";
@@ -1101,7 +1094,6 @@
       const LINE = "--------------------------------";
 
       let receipt = "";
-      // Header - BOLD for dark printing
       receipt += BT_BOLD_ON + sName + BT_BOLD_OFF + "\n";
       receipt += BT_BOLD_ON + sAddr + BT_BOLD_OFF + "\n";
       receipt += BT_BOLD_ON + "Helpdesk: +91 " + sPhone + BT_BOLD_OFF + "\n";
@@ -1110,24 +1102,21 @@
       receipt += BT_BOLD_ON + "Bill: " + job.billNo + BT_BOLD_OFF + "\n";
       receipt += "Date: " + job.intakeDate + "\n";
       receipt += LINE + "\n";
-      // Customer info - bold
       receipt += BT_BOLD_ON + "Customer: " + job.customerName + BT_BOLD_OFF + "\n";
       receipt += BT_BOLD_ON + "Phone: " + job.phone + BT_BOLD_OFF + "\n";
       receipt += BT_BOLD_ON + "Model: " + job.model + BT_BOLD_OFF + "\n";
       receipt += "IMEI: " + job.imei + "\n";
       receipt += "Problem: " + job.fault + "\n";
       receipt += LINE + "\n";
-      // Amounts - bold
       receipt += BT_BOLD_ON + (isDelivered ? 'Total Bill' : 'Estimated') + ": Rs. " + totalOrEst.toFixed(2) + BT_BOLD_OFF + "\n";
       receipt += BT_BOLD_ON + "Advance: Rs. " + advPaid.toFixed(2) + " (" + (job.advPayMethod || 'Cash') + ")" + BT_BOLD_OFF + "\n";
       if (due > 0 && !isUnrepairable) {
         receipt += BT_BOLD_ON + "DUE: Rs. " + due.toFixed(2) + BT_BOLD_OFF + "\n";
       }
       receipt += LINE + "\n";
-      // Warranty - bold
       receipt += BT_BOLD_ON + "Warranty: " + (job.warranty || 'NO WARRANTY').toUpperCase() + BT_BOLD_OFF + "\n";
       receipt += LINE + "\n";
-      // Terms & Conditions - ALL BOLD for clarity on thermal
+      
       receipt += BT_BOLD_ON;
       receipt += "TERMS & CONDITIONS:\n";
       receipt += "1. NO WARRANTY on physical/liquid damage.\n";
@@ -1135,7 +1124,7 @@
       receipt += "3. Original memo required for pickup.\n";
       receipt += BT_BOLD_OFF;
       receipt += LINE + "\n";
-      // Footer - BOLD (Developer name extra emphasis)
+      
       receipt += BT_BOLD_ON;
       receipt += "SmartFix Pro (c) 2026\n";
       receipt += "Developed by Debapriya Sarkar\n";
@@ -1240,7 +1229,6 @@
           const storeDoc = await db.collection('stores').doc(user.uid).get();
           if (storeDoc.exists) {
             currentStore = storeDoc.data();
-            // Remove legacy plaintext password fields from older store documents.
             if (Object.prototype.hasOwnProperty.call(currentStore, 'savedPassword') || Object.prototype.hasOwnProperty.call(currentStore, 'password')) {
               try { await db.collection('stores').doc(user.uid).update({ savedPassword: firebase.firestore.FieldValue.delete(), password: firebase.firestore.FieldValue.delete() }); } catch (cleanupErr) { console.warn('Legacy credential cleanup could not complete:', cleanupErr); }
               delete currentStore.savedPassword; delete currentStore.password;
@@ -1267,11 +1255,9 @@
 
         document.getElementById('authScreen').classList.add('hidden');
 
-        // Cloud listener with offline-mirror sync and automatic self-healing
         db.collection('stores').doc(user.uid).collection('jobs')
           .onSnapshot((snapshot) => {
             if (snapshot.empty) {
-              // Automatic restoration trigger if new database/API key is empty
               autoRestoreMirroredJobsIfCloudEmpty(user.uid, snapshot.size);
             }
 
@@ -1279,11 +1265,9 @@
             snapshot.forEach(doc => { repairJobs.push({ id: doc.id, ...doc.data() }); });
             repairJobs.sort((a,b) => String(b.intakeDate || '').localeCompare(String(a.intakeDate || '')));
 
-            // If snapshot loaded data, mirror to offline local vault
             if (repairJobs.length > 0) {
               mirrorJobsToLocalStorage(repairJobs);
             } else {
-              // Fallback to local mirror if cloud has no records yet
               const localJobs = getMirroredJobsFromLocal();
               if (localJobs && localJobs.length > 0) {
                 repairJobs = localJobs;
@@ -1306,7 +1290,6 @@
     });
 
     async function syncJobToFirestore(job) {
-      // 1. Immediately save to Local Mirror
       const currentList = getMirroredJobsFromLocal();
       const existingIdx = currentList.findIndex(j => j.billNo === job.billNo);
       if (existingIdx !== -1) {
@@ -1316,7 +1299,6 @@
       }
       mirrorJobsToLocalStorage(currentList);
 
-      // 2. Sync to Cloud Firestore
       if (!auth.currentUser) return;
       const userUid = auth.currentUser.uid;
       const existingJob = currentList.find(j => j.billNo === job.billNo);
@@ -1329,12 +1311,10 @@
     }
 
     async function deleteJobFromFirestore(billNo) {
-      // 1. Remove from Local Mirror
       let currentList = getMirroredJobsFromLocal();
       currentList = currentList.filter(j => j.billNo !== billNo);
       mirrorJobsToLocalStorage(currentList);
 
-      // 2. Remove from Cloud
       if (!auth.currentUser) return;
       const userUid = auth.currentUser.uid;
       await db.collection('stores').doc(userUid).collection('jobs').doc(billNo).delete();
@@ -1473,7 +1453,6 @@
       renderDailyCashReport();
     }
 
-    // ACCURATE CASH & ONLINE UPI DAYBOOK ENGINE
     function renderDailyCashReport() {
       const selectedDate = document.getElementById('dailyReportDatePicker').value || todayStr;
       document.getElementById('dailyAuditDateLabel').innerText = `Date: ${selectedDate}`;
@@ -2099,14 +2078,12 @@
     }
 
     async function printDirectThermalVoucher(job, isDualIntake = false) {
-      // ১. প্রথমে চেক করবে ব্লুটুথ প্রিন্টার কানেক্টেড আছে কিনা
       if (bluetoothPrintCharacteristic) {
         const btText = buildBluetoothReceiptText(job, isDualIntake);
         const success = await printViaBluetooth(btText);
-        if (success) return; // ব্লুটুথে প্রিন্ট সফল হলে থেমে যাবে
+        if (success) return;
       }
 
-      // ২. ব্লুটুথ না থাকলে বা ফেইল করলে ব্রাউজার প্রিন্ট ডায়ালগ ওপেন হবে
       const isUnrepairable = job.status === "Unrepairable";
       const isDelivered = job.status === "Delivered";
       const isPartsOnly = job.status === "Parts-Ordered";
@@ -2136,7 +2113,6 @@
         paymentStatusText = advPaid > 0 ? "ADVANCE PAID (" + (job.advPayMethod || "Cash") + ")" : "PAYMENT DUE";
       }
 
-      // সমস্ত ছোট লেখা (Terms, Footer) বোল্ড ও কালো (#000) করা হয়েছে যাতে প্রিন্টে পরিষ্কার আসে
       let printHTML = `
         <div>
           <div class="${isDualIntake ? 'receipt-cut-line' : ''}" style="padding: 2px 0;">
@@ -2156,7 +2132,7 @@
             </div>
             <div style="border-top: 1px dashed #000; margin: 4px 0;"></div>
 
-            <table style="width: 100%; font-size: 10px; line-height: 1.35; font-weight: bold; color: #000;">
+            <table style="width: 100%; font-size: 10.5px; line-height: 1.4; font-weight: bold; color: #000;">
               <tr><td style="width: 45%;">Date:</td><td style="text-align: right; font-weight: 900;">${job.intakeDate}</td></tr>
               ${isDelivered ? `<tr><td>Delivery Date:</td><td style="text-align: right; font-weight: 900;">${job.deliveryDate || '--'}</td></tr>` : ''}
               <tr><td>Customer:</td><td style="text-align: right; font-weight: 900;">${job.customerName}</td></tr>
@@ -2164,7 +2140,7 @@
             </table>
 
             <div style="border-top: 1px dashed #000; margin: 4px 0;"></div>
-            <table style="width: 100%; font-size: 10px; line-height: 1.35; font-weight: bold; color: #000;">
+            <table style="width: 100%; font-size: 10.5px; line-height: 1.4; font-weight: bold; color: #000;">
               <tr><td>Device Model:</td><td style="text-align: right; font-weight: 900;">${job.model}</td></tr>
               <tr><td>IMEI / Serial:</td><td style="text-align: right; font-family: monospace; font-weight: 900;">${job.imei}</td></tr>
               <tr><td>Requirement:</td><td style="text-align: right; font-weight: 900;">${job.fault}</td></tr>
@@ -2173,7 +2149,7 @@
             </table>
 
             <div style="border-top: 1.5px solid #000; margin: 5px 0;"></div>
-            <table style="width: 100%; font-size: 10px; line-height: 1.4; font-weight: bold; color: #000;">
+            <table style="width: 100%; font-size: 10.5px; line-height: 1.4; font-weight: bold; color: #000;">
               <tr>
                 <td>${isDelivered ? 'Total Service Fee:' : 'Estimated Cost:'}</td>
                 <td style="text-align: right; font-weight: 900;">Rs. ${totalOrEst.toFixed(2)}</td>
@@ -2211,8 +2187,7 @@
             </div>
 
             <div style="border-top: 1px dashed #000; margin: 5px 0;"></div>
-            <!-- Terms & Conditions - Bold and clear -->
-            <div style="font-size: 8.5px; font-weight: bold; line-height: 1.35; text-align: justify; color: #000;">
+            <div style="font-size: 9.5px; font-weight: bold; line-height: 1.5; text-align: justify; color: #000;">
               <strong style="font-weight: 900;">TERMS &amp; CONDITIONS:</strong><br>
               <strong style="font-weight: 900;">1.</strong> NO WARRANTY on physical damage, broken glass, liquid damage, internal display lining.<br>
               <strong style="font-weight: 900;">2.</strong> Devices/Parts must be claimed within 30 days of notice.<br>
@@ -2221,7 +2196,7 @@
             </div>
 
             <div style="border-top: 1px dashed #000; margin: 12px 0 4px 0;"></div>
-            <table style="width: 100%; font-size: 8.5px; margin-top: 8px; font-weight: bold; color: #000;">
+            <table style="width: 100%; font-size: 9.5px; margin-top: 8px; font-weight: bold; color: #000;">
               <tr>
                 <td style="text-align: left; width: 50%;">____________________<br><strong style="font-weight: 900;">Customer Signature</strong></td>
                 <td style="text-align: right; width: 50%;">____________________<br><strong style="font-weight: 900;">Authorized Signatory</strong></td>
@@ -2231,12 +2206,11 @@
             <div style="border-top: 1px dashed #000; margin: 7px 0 5px 0;"></div>
             <div style="text-align:center;font-size:9.5px;font-weight:900;margin:3px 0;color:#000;">SCAN TO PAY VIA UPI</div>
             ${upiQrDataUrl ? `<div style="text-align:center;"><img src="${upiQrDataUrl}" alt="UPI payment QR" style="width:105px;height:105px;object-fit:contain;display:inline-block;" /></div>` : ''}
-            <div style="text-align:center;font-size:8.5px;font-weight:bold;line-height:1.35;word-break:break-all;color:#000;">UPI ID: <strong style="font-weight:900;">9932480026@okbizaxis</strong><br>Amount: enter in payment app</div>
+            <div style="text-align:center;font-size:9.5px;font-weight:bold;line-height:1.5;word-break:break-all;color:#000;">UPI ID: <strong style="font-weight:900;">9932480026@okbizaxis</strong><br>Amount: enter in payment app</div>
             <div style="border-top: 1px dashed #000; margin: 5px 0 2px 0;"></div>
-            <!-- Developer Name - Extra Bold for clear print -->
-            <div style="text-align: center; font-size: 8.5px; font-weight: bold; line-height: 1.35; color: #000;">
+            <div style="text-align: center; font-size: 9.5px; font-weight: bold; line-height: 1.5; color: #000;">
               SmartFix Pro &copy; 2026 | Mobile Workshop Management System<br>
-              <strong style="font-weight: 900; font-size: 9px;">Developed by Debapriya Sarkar</strong>
+              <strong style="font-weight: 900; font-size: 10.5px;">Developed by Debapriya Sarkar</strong>
             </div>
           </div>
       `;
@@ -2246,10 +2220,10 @@
           <div style="padding: 2px 0;">
             <div style="text-align: center; margin-bottom: 3px;">
               <h3 style="font-size: 12px; font-weight: 900; margin: 0; text-transform: uppercase; color: #000;">WORKSHOP RECORD TAG</h3>
-              <p style="font-size: 8.5px; font-weight: bold; margin: 1px 0; color: #000;">${isPartsOnly ? '(SPARE PARTS BOOKING TOKEN)' : '(ATTACH TO PHONE BACK)'}</p>
+              <p style="font-size: 9.5px; font-weight: bold; margin: 1px 0; color: #000;">${isPartsOnly ? '(SPARE PARTS BOOKING TOKEN)' : '(ATTACH TO PHONE BACK)'}</p>
             </div>
             <div style="border-top: 1px dashed #000; margin: 4px 0;"></div>
-            <div style="font-size: 10px; font-weight: bold; line-height: 1.4; color: #000;">
+            <div style="font-size: 10.5px; font-weight: bold; line-height: 1.5; color: #000;">
               <p style="margin: 2px 0;"><strong style="font-weight:900;">BILL NO :</strong> <span style="font-size: 12px; font-weight: 900; font-family: monospace;">${job.billNo}</span></p><div style="display:flex;justify-content:center;background:#fff;">${billBarcodeSvg}</div>
               <p style="margin: 2px 0;"><strong style="font-weight:900;">DATE    :</strong> ${job.intakeDate}</p>
               <p style="margin: 2px 0;"><strong style="font-weight:900;">MODEL   :</strong> ${job.model}</p>
@@ -2259,9 +2233,9 @@
               ${job.remarks ? `<p style="margin: 2px 0;"><strong style="font-weight:900;">NOTE    :</strong> ${job.remarks}</p>` : ''}
             </div>
             <div style="border-top: 1px dashed #000; margin: 5px 0;"></div>
-            <div style="text-align: center; font-size: 8.5px; font-weight: bold; line-height: 1.35; color: #000;">
+            <div style="text-align: center; font-size: 9.5px; font-weight: bold; line-height: 1.5; color: #000;">
               SmartFix Pro &copy; 2026<br>
-              <strong style="font-weight: 900; font-size: 9px;">Developed by Debapriya Sarkar</strong>
+              <strong style="font-weight: 900; font-size: 10.5px;">Developed by Debapriya Sarkar</strong>
             </div>
           </div>
         `;
@@ -2424,7 +2398,6 @@
     }
 
 
-    // Barcode / UPI QR helpers
     function createBarcodeSvg(value, id = 'billBarcode') {
       if (!window.JsBarcode) return `<span style="font-size:8px;font-weight:bold;">${String(value || '')}</span>`;
       const safeId = `${id}_${Math.random().toString(36).slice(2,8)}`;
