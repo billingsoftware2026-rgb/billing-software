@@ -107,9 +107,9 @@
             </div>
             <div class="flex items-center gap-3 text-xs text-slate-300">
               <div class="w-6 h-6 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-xs flex-shrink-0 border border-indigo-500/20">
-                <i class="fa-solid fa-cloud-arrow-up"></i>
+                <i class="fa-solid fa-shield-halved"></i>
               </div>
-              <span>Real-time Multi-Device Cloud Sync</span>
+              <span>Auto-Restore & Vault Protection Active</span>
             </div>
             <div class="flex items-center gap-3 text-xs text-slate-300">
               <div class="w-6 h-6 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center text-xs flex-shrink-0 border border-amber-500/20">
@@ -139,7 +139,7 @@
         </div>
 
         <div class="pt-5 border-t border-slate-800/80 mt-6 lg:mt-0 flex items-center justify-between text-[11px] text-slate-500">
-          <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Cloud v2.8 Active</span>
+          <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Cloud v2.9 Persistent</span>
           <span>Lead Dev: Debapriya Sarkar</span>
         </div>
       </div>
@@ -224,7 +224,7 @@
     </div>
   </div>
 
-  <!-- Header Navbar (WITH BACKUP & RESTORE BUTTON) -->
+  <!-- Header Navbar -->
   <header class="bg-slate-900/90 backdrop-blur border-b border-slate-800 sticky top-0 z-40">
     <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-4">
       <div class="flex items-center gap-3">
@@ -234,7 +234,7 @@
         <div>
           <div class="flex items-center gap-2">
             <h1 class="text-xl font-bold tracking-tight text-white uppercase" id="navShopName">SMARTFIX<span class="text-indigo-400">PRO</span></h1>
-            <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">Cloud Active</span>
+            <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">Auto-Restore Protected</span>
           </div>
           <p class="text-xs text-slate-400 font-medium flex items-center gap-1.5">
             <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> <span id="currentDateDisplay" class="font-mono text-slate-300"></span>
@@ -270,12 +270,6 @@
         <button onclick="requestTabAccess('reports')" id="tab-reports" class="px-3 py-2 rounded-lg text-xs md:text-sm font-semibold transition text-slate-400 hover:text-white flex items-center gap-1.5">
           <i class="fa-solid fa-lock text-[11px] text-amber-400"></i>
           <span>Admin Ledger</span>
-        </button>
-
-        <!-- BACKUP & RESTORE MODAL BUTTON -->
-        <button onclick="openBackupModal()" title="Daily JSON Data Backup & Restore" class="px-2.5 py-2 rounded-lg text-xs font-bold transition bg-emerald-950/60 text-emerald-400 hover:bg-emerald-600 hover:text-white flex items-center gap-1 border border-emerald-500/30">
-          <i class="fa-solid fa-cloud-arrow-down"></i>
-          <span>Backup</span>
         </button>
         
         <button onclick="connectBluetoothPrinter()" id="btnBtPrinter" title="Connect 58mm Bluetooth Thermal Printer" class="px-2.5 py-2 rounded-lg text-xs font-bold transition bg-slate-900 text-slate-300 hover:text-emerald-400 hover:bg-slate-800 flex items-center gap-1 border border-slate-800">
@@ -651,51 +645,6 @@
     </div>
   </footer>
 
-  <!-- ==================== BACKUP & RESTORE MODAL ==================== -->
-  <div id="backupModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md hidden items-center justify-center p-4 z-50">
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-5">
-      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-        <h3 class="text-base font-bold text-white flex items-center gap-2">
-          <i class="fa-solid fa-cloud-arrow-down text-emerald-400"></i> Workshop Cloud Data Backup & Restore
-        </h3>
-        <button onclick="closeBackupModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
-      </div>
-
-      <div class="space-y-4 text-xs">
-        <!-- Download Section -->
-        <div class="bg-slate-950 border border-slate-800/80 p-4 rounded-2xl space-y-2">
-          <div class="flex items-center justify-between">
-            <span class="font-bold text-white flex items-center gap-1.5">
-              <i class="fa-solid fa-download text-emerald-400"></i> Daily Night Backup
-            </span>
-            <span class="text-[10px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/20 font-bold">Recommended</span>
-          </div>
-          <p class="text-slate-400">Download all your customer bills, job history, and shop profile to an offline JSON file on your mobile or computer.</p>
-          <button onclick="downloadJsonBackup()" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20 transition">
-            <i class="fa-solid fa-file-arrow-down"></i> Download JSON Backup Now
-          </button>
-        </div>
-
-        <!-- Restore Section -->
-        <div class="bg-slate-950 border border-slate-800/80 p-4 rounded-2xl space-y-2">
-          <div class="flex items-center justify-between">
-            <span class="font-bold text-white flex items-center gap-1.5">
-              <i class="fa-solid fa-upload text-indigo-400"></i> Emergency Restore Data
-            </span>
-            <span class="text-[10px] bg-indigo-500/10 text-indigo-400 px-2 py-0.5 rounded border border-indigo-500/20 font-bold">Cloud Sync</span>
-          </div>
-          <p class="text-slate-400">Upload a previously saved SmartFix JSON backup file to restore all jobs and data back to your cloud database.</p>
-          <input type="file" id="restoreFileInput" accept=".json" class="w-full text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-slate-200 hover:file:bg-slate-700">
-          <button onclick="restoreJsonBackup()" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/20 transition mt-2">
-            <i class="fa-solid fa-cloud-arrow-up"></i> Upload & Restore to Database
-          </button>
-        </div>
-
-        <div id="backupStatusBox" class="p-3 bg-slate-900 border border-slate-800 rounded-xl text-center hidden font-mono"></div>
-      </div>
-    </div>
-  </div>
-
   <!-- Delivery Modal -->
   <div id="deliveryModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
     <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4">
@@ -925,136 +874,52 @@
     let bluetoothPrintCharacteristic = null;
 
     const todayStr = new Date().toISOString().split('T')[0];
+    const LOCAL_MIRROR_KEY = "SMARTFIX_VAULT_JOBS_MIRROR";
+    const STORE_MIRROR_KEY = "SMARTFIX_VAULT_STORE_MIRROR";
 
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js').catch(() => {});
     }
 
-    // ==========================================
-    // BACKUP & RESTORE FUNCTIONS
-    // ==========================================
-    function openBackupModal() {
-      const modal = document.getElementById('backupModal');
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
-      document.getElementById('backupStatusBox').classList.add('hidden');
-    }
-
-    function closeBackupModal() {
-      const modal = document.getElementById('backupModal');
-      modal.classList.add('hidden');
-      modal.classList.remove('flex');
-    }
-
-    // 1-Click JSON Backup Download
-    async function downloadJsonBackup() {
-      const statusBox = document.getElementById('backupStatusBox');
-      statusBox.classList.remove('hidden');
-      statusBox.className = "p-3 bg-slate-900 border border-slate-800 rounded-xl text-center font-mono text-amber-400 text-xs";
-      statusBox.innerText = "Generating complete shop backup...";
-
-      if (!auth.currentUser) {
-        statusBox.className = "p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl text-center font-mono text-rose-400 text-xs";
-        statusBox.innerText = "Please log in to your account first!";
-        return;
-      }
-
+    // =========================================================================
+    // PERSISTENT LOCAL MIRROR & AUTOMATIC CLOUD RESTORE ENGINE
+    // =========================================================================
+    function mirrorJobsToLocalStorage(jobs) {
       try {
-        const userUid = auth.currentUser.uid;
-        const snapshot = await db.collection('stores').doc(userUid).collection('jobs').get();
-        const storeDoc = await db.collection('stores').doc(userUid).get();
-
-        const backupData = {
-          exportTimestamp: new Date().toISOString(),
-          storeProfile: storeDoc.exists ? storeDoc.data() : (currentStore || {}),
-          totalJobs: snapshot.size,
-          jobs: []
-        };
-
-        snapshot.forEach(doc => {
-          backupData.jobs.push(doc.data());
-        });
-
-        // Trigger Browser File Download
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData, null, 2));
-        const downloadAnchor = document.createElement('a');
-        downloadAnchor.setAttribute("href", dataStr);
-        downloadAnchor.setAttribute("download", `SmartFix_Backup_${currentStore?.shopName || 'Store'}_${todayStr}.json`);
-        document.body.appendChild(downloadAnchor);
-        downloadAnchor.click();
-        downloadAnchor.remove();
-
-        statusBox.className = "p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-center font-mono text-emerald-400 text-xs font-bold";
-        statusBox.innerText = `✓ Successfully exported ${backupData.totalJobs} jobs to JSON file!`;
-      } catch (err) {
-        statusBox.className = "p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl text-center font-mono text-rose-400 text-xs font-bold";
-        statusBox.innerText = `Backup error: ${err.message}`;
+        localStorage.setItem(LOCAL_MIRROR_KEY, JSON.stringify(jobs));
+      } catch (e) {
+        console.warn("Storage mirror quota full or unavailable", e);
       }
     }
 
-    // 1-Click JSON Restore
-    async function restoreJsonBackup() {
-      const fileInput = document.getElementById('restoreFileInput');
-      const statusBox = document.getElementById('backupStatusBox');
-      statusBox.classList.remove('hidden');
-
-      if (!auth.currentUser) {
-        statusBox.className = "p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl text-center font-mono text-rose-400 text-xs";
-        statusBox.innerText = "Please log in to your account first!";
-        return;
+    function getMirroredJobsFromLocal() {
+      try {
+        const stored = localStorage.getItem(LOCAL_MIRROR_KEY);
+        return stored ? JSON.parse(stored) : [];
+      } catch (e) {
+        return [];
       }
+    }
 
-      if (!fileInput.files || fileInput.files.length === 0) {
-        statusBox.className = "p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl text-center font-mono text-rose-400 text-xs";
-        statusBox.innerText = "Please select a valid .json backup file first!";
-        return;
-      }
-
-      const file = fileInput.files[0];
-      const reader = new FileReader();
-
-      reader.onload = async (e) => {
+    // Auto-Restore: Cloud database khali thakle Local Mirror theke automatic upload
+    async function autoRestoreMirroredJobsIfCloudEmpty(userUid, cloudDocsCount) {
+      const localBackup = getMirroredJobsFromLocal();
+      if (cloudDocsCount === 0 && localBackup && localBackup.length > 0) {
+        console.warn(`[Auto-Restore] Cloud has 0 jobs! Auto-restoring ${localBackup.length} jobs from Local Vault...`);
         try {
-          const parsed = JSON.parse(e.target.result);
-          if (!parsed.jobs || !Array.isArray(parsed.jobs)) {
-            throw new Error("Invalid backup format: No jobs array found in JSON.");
-          }
-
-          statusBox.className = "p-3 bg-slate-900 border border-slate-800 rounded-xl text-center font-mono text-amber-400 text-xs";
-          statusBox.innerText = `Restoring ${parsed.jobs.length} jobs to cloud database...`;
-
-          const userUid = auth.currentUser.uid;
           const batch = db.batch();
-
-          // Restore store profile if present
-          if (parsed.storeProfile && parsed.storeProfile.shopName) {
-            const storeRef = db.collection('stores').doc(userUid);
-            batch.set(storeRef, parsed.storeProfile, { merge: true });
-          }
-
-          // Restore all jobs
-          parsed.jobs.forEach(job => {
+          localBackup.forEach(job => {
             if (job.billNo) {
-              const jobRef = db.collection('stores').doc(userUid).collection('jobs').doc(job.billNo);
-              batch.set(jobRef, {
-                ...job,
-                restoredAt: firebase.firestore.FieldValue.serverTimestamp()
-              }, { merge: true });
+              const ref = db.collection('stores').doc(userUid).collection('jobs').doc(job.billNo);
+              batch.set(ref, job, { merge: true });
             }
           });
-
           await batch.commit();
-
-          statusBox.className = "p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-center font-mono text-emerald-400 text-xs font-bold";
-          statusBox.innerText = `✓ Successfully restored ${parsed.jobs.length} jobs to your cloud!`;
-          fileInput.value = '';
-        } catch (err) {
-          statusBox.className = "p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl text-center font-mono text-rose-400 text-xs font-bold";
-          statusBox.innerText = `Restore failed: ${err.message}`;
+          console.log("[Auto-Restore] Completed successfully to new project/API key!");
+        } catch (restoreErr) {
+          console.error("[Auto-Restore Error]", restoreErr);
         }
-      };
-
-      reader.readAsText(file);
+      }
     }
 
     async function connectBluetoothPrinter() {
@@ -1139,14 +1004,16 @@
           }
 
           const cred = await auth.createUserWithEmailAndPassword(email, pass);
-          await db.collection('stores').doc(cred.user.uid).set({
+          const storeData = {
             shopName: sName,
             shopAddress: sAddr,
             shopPhone: sPhone,
             ownerEmail: email,
             savedPassword: pass,
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
-          });
+          };
+          await db.collection('stores').doc(cred.user.uid).set(storeData);
+          localStorage.setItem(STORE_MIRROR_KEY, JSON.stringify(storeData));
         } else {
           await auth.signInWithEmailAndPassword(email, pass);
         }
@@ -1163,26 +1030,63 @@
 
     auth.onAuthStateChanged(async (user) => {
       if (user) {
-        const storeDoc = await db.collection('stores').doc(user.uid).get();
-        if (storeDoc.exists) {
-          currentStore = storeDoc.data();
-          document.getElementById('navShopName').innerText = currentStore.shopName;
-        } else {
-          currentStore = {
+        try {
+          const storeDoc = await db.collection('stores').doc(user.uid).get();
+          if (storeDoc.exists) {
+            currentStore = storeDoc.data();
+            document.getElementById('navShopName').innerText = currentStore.shopName;
+            localStorage.setItem(STORE_MIRROR_KEY, JSON.stringify(currentStore));
+          } else {
+            const localStore = localStorage.getItem(STORE_MIRROR_KEY);
+            currentStore = localStore ? JSON.parse(localStore) : {
+              shopName: "TULSI MOBILE STORE",
+              shopAddress: "Main Road, Workshop Station",
+              shopPhone: "9876543210"
+            };
+            document.getElementById('navShopName').innerText = currentStore.shopName;
+          }
+        } catch(e) {
+          const localStore = localStorage.getItem(STORE_MIRROR_KEY);
+          currentStore = localStore ? JSON.parse(localStore) : {
             shopName: "TULSI MOBILE STORE",
             shopAddress: "Main Road, Workshop Station",
             shopPhone: "9876543210"
           };
         }
+
         document.getElementById('authScreen').classList.add('hidden');
 
+        // Cloud listener with offline-mirror sync and automatic self-healing
         db.collection('stores').doc(user.uid).collection('jobs')
           .orderBy('createdAt', 'desc')
           .onSnapshot((snapshot) => {
+            if (snapshot.empty) {
+              // Automatic restoration trigger if new database/API key is empty
+              autoRestoreMirroredJobsIfCloudEmpty(user.uid, snapshot.size);
+            }
+
             repairJobs = [];
             snapshot.forEach(doc => {
               repairJobs.push({ id: doc.id, ...doc.data() });
             });
+
+            // If snapshot loaded data, mirror to offline local vault
+            if (repairJobs.length > 0) {
+              mirrorJobsToLocalStorage(repairJobs);
+            } else {
+              // Fallback to local mirror if cloud has no records yet
+              const localJobs = getMirroredJobsFromLocal();
+              if (localJobs && localJobs.length > 0) {
+                repairJobs = localJobs;
+              }
+            }
+
+            renderDailyCashReport();
+            renderJobCards();
+            if (isOwnerAuthenticated) renderLedgerTable();
+          }, (err) => {
+            console.warn("Cloud connection error, falling back to local persistent mirror:", err);
+            repairJobs = getMirroredJobsFromLocal();
             renderDailyCashReport();
             renderJobCards();
             if (isOwnerAuthenticated) renderLedgerTable();
@@ -1193,6 +1097,17 @@
     });
 
     async function syncJobToFirestore(job) {
+      // 1. Immediately save to Local Mirror
+      const currentList = getMirroredJobsFromLocal();
+      const existingIdx = currentList.findIndex(j => j.billNo === job.billNo);
+      if (existingIdx !== -1) {
+        currentList[existingIdx] = { ...currentList[existingIdx], ...job };
+      } else {
+        currentList.unshift(job);
+      }
+      mirrorJobsToLocalStorage(currentList);
+
+      // 2. Sync to Cloud Firestore
       if (!auth.currentUser) return;
       const userUid = auth.currentUser.uid;
       const jobData = {
@@ -1203,6 +1118,12 @@
     }
 
     async function deleteJobFromFirestore(billNo) {
+      // 1. Remove from Local Mirror
+      let currentList = getMirroredJobsFromLocal();
+      currentList = currentList.filter(j => j.billNo !== billNo);
+      mirrorJobsToLocalStorage(currentList);
+
+      // 2. Remove from Cloud
       if (!auth.currentUser) return;
       const userUid = auth.currentUser.uid;
       await db.collection('stores').doc(userUid).collection('jobs').doc(billNo).delete();
@@ -1338,6 +1259,7 @@
       renderDailyCashReport();
     }
 
+    // ACCURATE CASH & ONLINE UPI DAYBOOK ENGINE
     function renderDailyCashReport() {
       const selectedDate = document.getElementById('dailyReportDatePicker').value || todayStr;
       document.getElementById('dailyAuditDateLabel').innerText = `Date: ${selectedDate}`;
