@@ -45,7 +45,8 @@
         top: 0 !important;
         width: 58mm !important;
         max-width: 58mm !important;
-        padding: 4mm 3mm 40mm 3mm !important; /* বড় প্যাডিং যাতে কাগজ বেশি বের হয় */
+        /* Exactly 12mm bottom padding (half inch) to push paper out without jamming */
+        padding: 4mm 3mm 12mm 3mm !important; 
         margin: 0 !important;
         background: #fff !important;
         color: #000 !important;
@@ -949,6 +950,8 @@
         }
       }
     }
+
+    // ব্লুটুথ ফাংশন সম্পূর্ণ মুছে ফেলা হয়েছে
 
     function togglePasswordVisibility(fieldId, btn) {
       const input = document.getElementById(fieldId);
@@ -1913,7 +1916,6 @@
       let printHTML = `
         <div>
           <div class="${isDualIntake ? 'receipt-cut-line' : ''}" style="padding: 2px 0;">
-            <!-- Added a small top margin so top text doesn't cut -->
             <div style="height: 8px;"></div>
             <div style="text-align: center; margin-bottom: 5px;">
               <h2 style="font-size: 14px; font-weight: 900; margin: 0; text-transform: uppercase; letter-spacing: 0.5px; color: #000;">${sName}</h2>
@@ -2006,15 +2008,16 @@
             <div style="text-align:center;font-size:9.5px;font-weight:900;margin:3px 0;color:#000;">SCAN TO PAY VIA UPI</div>
             ${upiQrDataUrl ? `<div style="text-align:center;"><img src="${upiQrDataUrl}" alt="UPI payment QR" style="width:105px;height:105px;object-fit:contain;display:inline-block; filter: grayscale(100%) contrast(300%);" /></div>` : ''}
             <div style="text-align:center;font-size:9.5px;font-weight:600;line-height:1.5;word-break:break-all;color:#000;">UPI ID: <strong style="font-weight:900;">9932480026@okbizaxis</strong><br>Amount: enter in payment app</div>
+            
+            <!-- Developer Name is placed prominently here so it never gets cut off -->
             <div style="border-top: 1px solid #000; margin: 5px 0 2px 0;"></div>
-            <div style="text-align: center; font-size: 9.5px; font-weight: 600; line-height: 1.5; color: #000;">
-              SmartFix Pro &copy; 2026 | Mobile Workshop Management System<br>
-              <strong style="font-weight: 900; font-size: 10.5px;">Developed by Debapriya Sarkar</strong>
+            <div style="text-align: center; font-size: 10.5px; font-weight: 900; line-height: 1.5; color: #000;">
+              Developed by Debapriya Sarkar<br>
+              <span style="font-size: 9px; font-weight: 600;">SmartFix Pro &copy; 2026 | Mobile Workshop</span>
             </div>
             
-            <!-- EXTRA SPACE AT BOTTOM TO PREVENT CUTTING WHEN TEARING -->
-            <br><br><br><br><br><br><br><br><br><br>
-            <div style="height: 40mm;"></div>
+            <!-- Small blank space to push paper out without jamming -->
+            <div style="height: 5mm;"></div>
           </div>
       `;
 
@@ -2037,14 +2040,12 @@
               ${job.remarks ? `<p style="margin: 2px 0;"><strong style="font-weight:900;">NOTE    :</strong> ${job.remarks}</p>` : ''}
             </div>
             <div style="border-top: 1px solid #000; margin: 5px 0;"></div>
-            <div style="text-align: center; font-size: 9.5px; font-weight: 600; line-height: 1.5; color: #000;">
-              SmartFix Pro &copy; 2026<br>
-              <strong style="font-weight: 900; font-size: 10.5px;">Developed by Debapriya Sarkar</strong>
+            <div style="text-align: center; font-size: 10.5px; font-weight: 900; line-height: 1.5; color: #000;">
+              Developed by Debapriya Sarkar<br>
+              <span style="font-size: 9px; font-weight: 600;">SmartFix Pro &copy; 2026</span>
             </div>
             
-            <!-- EXTRA SPACE AT BOTTOM TO PREVENT CUTTING WHEN TEARING -->
-            <br><br><br><br><br><br><br><br><br><br>
-            <div style="height: 40mm;"></div>
+            <div style="height: 5mm;"></div>
           </div>
         `;
       }
@@ -2082,11 +2083,11 @@
             <div>Generated: ${new Date().toLocaleString()}</div>
             <div>Cashier Signature: _______________________</div>
           </div>
-          <div style="border-top: 1px solid #000; margin-top: 25px; padding-top: 8px; text-align: center; font-size: 9px; font-weight: 600; color: #000;">
-            SmartFix Pro &copy; 2026 | Mobile Workshop Management System | <strong style="font-weight:900;">Developed by Debapriya Sarkar</strong>
+          <div style="border-top: 1px solid #000; margin-top: 25px; padding-top: 8px; text-align: center; font-size: 10.5px; font-weight: 900; color: #000;">
+            Developed by Debapriya Sarkar<br>
+            <span style="font-size: 9px; font-weight: 600;">SmartFix Pro &copy; 2026 | Mobile Workshop</span>
           </div>
-          <br><br><br><br><br><br><br><br><br><br>
-          <div style="height: 40mm;"></div>
+          <div style="height: 5mm;"></div>
         </div>
       `;
 
@@ -2113,11 +2114,11 @@
             <div>Generated On: ${new Date().toLocaleString()}</div>
             <div>Authorized Signatory: _______________________</div>
           </div>
-          <div style="border-top: 1px solid #000; margin-top: 25px; padding-top: 8px; text-align: center; font-size: 9px; font-weight: 600; color: #000;">
-            SmartFix Pro &copy; 2026 | Mobile Workshop Management System | <strong style="font-weight:900;">Developed by Debapriya Sarkar</strong>
+          <div style="border-top: 1px solid #000; margin-top: 25px; padding-top: 8px; text-align: center; font-size: 10.5px; font-weight: 900; color: #000;">
+            Developed by Debapriya Sarkar<br>
+            <span style="font-size: 9px; font-weight: 600;">SmartFix Pro &copy; 2026 | Mobile Workshop</span>
           </div>
-          <br><br><br><br><br><br><br><br><br><br>
-          <div style="height: 40mm;"></div>
+          <div style="height: 5mm;"></div>
         </div>
       `;
 
@@ -2130,7 +2131,7 @@
       const printArea = document.getElementById('masterDirectPrintArea');
       printArea.innerHTML = htmlContent;
       printArea.style.display = 'block';
-      // Increased timeout to 500ms to ensure QR code and images fully load before print dialog opens
+      // 500ms timeout ensures images and QR code fully load before print dialog opens
       setTimeout(() => { window.print(); }, 500);
     }
     window.addEventListener('afterprint', () => {
