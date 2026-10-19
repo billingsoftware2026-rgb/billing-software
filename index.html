@@ -27,6 +27,7 @@
     @media print {
       html, body {
         width: 58mm !important;
+        height: auto !important;
         margin: 0 !important;
         padding: 0 !important;
         background: #fff !important;
@@ -44,7 +45,7 @@
         top: 0 !important;
         width: 58mm !important;
         max-width: 58mm !important;
-        padding: 4mm 3mm 5mm 3mm !important; 
+        padding: 4mm 3mm 40mm 3mm !important; /* বড় প্যাডিং যাতে কাগজ বেশি বের হয় */
         margin: 0 !important;
         background: #fff !important;
         color: #000 !important;
@@ -287,11 +288,6 @@
         
         <button onclick="requestTabAccess('backup')" id="tab-backup" class="px-3 py-2 rounded-lg text-xs md:text-sm font-semibold transition text-slate-400 hover:text-white flex items-center gap-1.5">
           <i class="fa-solid fa-database text-emerald-400"></i><span>Backup / Restore</span>
-        </button>
-
-        <button onclick="connectBluetoothPrinter()" id="btnBtPrinter" title="Connect 58mm Bluetooth Thermal Printer" class="px-2.5 py-2 rounded-lg text-xs font-bold transition bg-slate-900 text-slate-300 hover:text-emerald-400 hover:bg-slate-800 flex items-center gap-1 border border-slate-800">
-          <i class="fa-brands fa-bluetooth text-blue-400"></i>
-          <span id="btStatusLabel">Printer</span>
         </button>
 
         <button onclick="signOutShop()" title="Sign Out" class="px-2.5 py-2 text-slate-400 hover:text-rose-400 text-xs">
@@ -902,9 +898,6 @@
     let currentAuthMode = "login";
     let repairJobs = [];
 
-    let bluetoothPrintDevice = null;
-    let bluetoothPrintCharacteristic = null;
-
     function localDateString(date = new Date()) {
       const y = date.getFullYear(); const m = String(date.getMonth()+1).padStart(2,'0'); const d = String(date.getDate()).padStart(2,'0');
       return `${y}-${m}-${d}`;
@@ -955,221 +948,6 @@
           console.error("[Auto-Restore Error]", restoreErr);
         }
       }
-    }
-
-    // =========================================================================
-    // BLUETOOTH PRINTER CONNECTION (MAXIMUM COMPATIBILITY FIX)
-    // =========================================================================
-    async function connectBluetoothPrinter() {
-      const btnLabel = document.getElementById('btStatusLabel');
-      try {
-        if (!navigator.bluetooth) {
-          alert("Web Bluetooth is not supported in this browser. Please use Chrome browser on Android or Computer.");
-          return;
-        }
-
-        btnLabel.innerText = "Searching...";
-
-        bluetoothPrintDevice = await navigator.bluetooth.requestDevice({
-          acceptAllDevices: true,
-          optionalServices: [
-            '000018f0-0000-1000-8000-00805f9b34fb',
-            'e7810a71-73ae-499d-8c15-faa9aef0c3f2',
-            '49535343-fe7d-4ae5-8fa9-9fafd205e455',
-            '0000ffe0-0000-1000-8000-00805f9b34fb',
-            '0000ffe1-0000-1000-8000-00805f9b34fb',
-            '0000ff00-0000-1000-8000-00805f9b34fb',
-            '0000fff0-0000-1000-8000-00805f9b34fb',
-            '0000ff02-0000-1000-8000-00805f9b34fb',
-            '0000ff01-0000-1000-8000-00805f9b34fb'
-          ]
-        });
-
-        const server = await bluetoothPrintDevice.gatt.connect();
-        const services = await server.getPrimaryServices();
-
-        let foundCharacteristic = null;
-        for (const service of services) {
-          try {
-            const characteristics = await service.getCharacteristics();
-            for (const char of characteristics) {
-              if (char.properties.write || char.properties.writeWithoutResponse) {
-                foundCharacteristic = char;
-                break;
-              }
-            }
-          } catch (e) {
-            // Skip errors
-          }
-          if (foundCharacteristic) break;
-        }
-
-        if (!foundCharacteristic) {
-          throw new Error("No writable characteristic found. This device may not be a supported thermal printer.");
-        }
-
-        bluetoothPrintCharacteristic = foundCharacteristic;
-        btnLabel.innerText = "Connected";
-        document.getElementById('btnBtPrinter').classList.replace('text-slate-300', 'text-emerald-400');
-        alert("Bluetooth Printer Connected Successfully! You can now print receipts directly.");
-      } catch (err) {
-        console.warn("Bluetooth connection cancelled or failed:", err);
-        btnLabel.innerText = "Printer";
-        if (err.name === 'NotFoundError') {
-           alert("No Bluetooth device selected or found.");
-        } else {
-           alert("Connection failed: " + (err.message || err) + "\n\nPlease ensure:\n1. The printer is powered on and in pairing mode.\n2. You are using Chrome browser on HTTPS.\n3. The printer supports Bluetooth Low Energy (BLE).\n\n(Note: Classic Bluetooth printers will not appear in this list. If so, please use the browser's default print option.)");
-        }
-      }
-    }
-
-    async function printViaBluetooth(text) {
-      if (!bluetoothPrintCharacteristic) {
-        alert("No Bluetooth printer connected. Please connect a printer first.");
-        return false;
-      }
-
-      const encoder = new TextEncoder();
-      const init = new Uint8Array([0x1B, 0x40]); // ESC @ (initialize)
-      const leftAlign = new Uint8Array([0x1B, 0x61, 0x00]); // ESC a 0 (left align)
-      // INCREASED FEED TO 12 LINES TO PREVENT CUTTING TEXT
-      const feed = new Uint8Array([0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A]); 
-      const cut = new Uint8Array([0x1D, 0x56, 0x41, 0x00]); // GS V A 0 (paper cut)
-
-      const textBytes = encoder.encode(text);
-      const fullData = new Uint8Array(
-        init.length + leftAlign.length + textBytes.length + feed.length + cut.length
-      );
-      let offset = 0;
-      fullData.set(init, offset); offset += init.length;
-      fullData.set(leftAlign, offset); offset += leftAlign.length;
-      fullData.set(textBytes, offset); offset += textBytes.length;
-      fullData.set(feed, offset); offset += feed.length;
-      fullData.set(cut, offset);
-
-      const CHUNK_SIZE = 20;
-      try {
-        for (let i = 0; i < fullData.length; i += CHUNK_SIZE) {
-          const chunk = fullData.slice(i, Math.min(i + CHUNK_SIZE, fullData.length));
-          if (bluetoothPrintCharacteristic.properties.writeWithoutResponse) {
-            await bluetoothPrintCharacteristic.writeValueWithoutResponse(chunk);
-          } else {
-            await bluetoothPrintCharacteristic.writeValue(chunk);
-          }
-          await new Promise(r => setTimeout(r, 20));
-        }
-        return true;
-      } catch (err) {
-        console.error("Bluetooth print error:", err);
-        alert("Printing failed: " + err.message);
-        return false;
-      }
-    }
-
-    const BT_BOLD_ON = '\x1B\x45\x01';   // ESC E 1 (bold ON)
-    const BT_BOLD_OFF = '\x1B\x45\x00';  // ESC E 0 (bold OFF)
-    
-    function buildBluetoothReceiptText(job, isDualIntake = false) {
-      const isUnrepairable = job.status === "Unrepairable";
-      const isDelivered = job.status === "Delivered";
-      const isPartsOnly = job.status === "Parts-Ordered";
-      const sName = currentStore ? currentStore.shopName : "TULSI MOBILE STORE";
-      const sAddr = currentStore ? currentStore.shopAddress : "Main Road, Workshop Station";
-      const sPhone = currentStore ? currentStore.shopPhone : "9876543210";
-
-      let voucherTitle = "REPAIR INTAKE MEMO";
-      if (isPartsOnly) voucherTitle = "PARTS ORDER BOOKING RECEIPT";
-      else if (isUnrepairable) voucherTitle = "NON-REPAIR RETURN VOUCHER";
-      else if (isDelivered) voucherTitle = "REPAIR DELIVERY CASH MEMO";
-
-      const totalOrEst = isUnrepairable ? 0 : (isDelivered ? (parseFloat(job.finalAmount) || 0) : (parseFloat(job.estCost) || 0));
-      const advPaid = parseFloat(job.advPaid) || 0;
-      const due = parseFloat(job.dueBalance) || 0;
-
-      const LINE = "--------------------------------"; // Exactly 32 chars for 58mm
-
-      // Smart Word Wrapping Function to prevent cutting words in half
-      const wrapText = (text, maxChars = 30) => {
-        if (!text) return "";
-        const words = String(text).split(' ');
-        let lines = [];
-        let currentLine = "";
-        for (let word of words) {
-          if (word.length > maxChars) {
-            if (currentLine.trim().length > 0) lines.push(currentLine.trim());
-            let remaining = word;
-            while (remaining.length > maxChars) {
-              lines.push(remaining.substring(0, maxChars));
-              remaining = remaining.substring(maxChars);
-            }
-            currentLine = remaining + " ";
-          } else if ((currentLine + word).length > maxChars) {
-            if (currentLine.trim().length > 0) lines.push(currentLine.trim());
-            currentLine = word + " ";
-          } else {
-            currentLine += word + " ";
-          }
-        }
-        if (currentLine.trim().length > 0) lines.push(currentLine.trim());
-        return lines.join("\n");
-      };
-
-      let receipt = "";
-      receipt += "\n\n"; // Space at top
-      receipt += BT_BOLD_ON + wrapText(sName) + BT_BOLD_OFF + "\n";
-      receipt += wrapText(sAddr) + "\n";
-      // Remove '+' sign for Bluetooth print to avoid encoding issues
-      receipt += BT_BOLD_ON + "Helpdesk: " + String(sPhone).replace('+', '').trim() + BT_BOLD_OFF + "\n";
-      receipt += LINE + "\n";
-      receipt += BT_BOLD_ON + voucherTitle + BT_BOLD_OFF + "\n";
-      receipt += BT_BOLD_ON + "Bill: " + job.billNo + BT_BOLD_OFF + "\n";
-      receipt += "Date: " + job.intakeDate + "\n";
-      receipt += LINE + "\n";
-      receipt += BT_BOLD_ON + "Customer: " + wrapText(job.customerName) + BT_BOLD_OFF + "\n";
-      receipt += BT_BOLD_ON + "Phone: " + job.phone + BT_BOLD_OFF + "\n";
-      receipt += BT_BOLD_ON + "Model: " + wrapText(job.model) + BT_BOLD_OFF + "\n";
-      receipt += "IMEI: " + job.imei + "\n";
-      receipt += "Problem: " + wrapText(job.fault) + "\n";
-      receipt += LINE + "\n";
-      receipt += BT_BOLD_ON + (isDelivered ? 'Total Bill' : 'Estimated') + ": Rs. " + totalOrEst.toFixed(2) + BT_BOLD_OFF + "\n";
-      receipt += BT_BOLD_ON + "Advance: Rs. " + advPaid.toFixed(2) + " (" + (job.advPayMethod || 'Cash') + ")" + BT_BOLD_OFF + "\n";
-      if (due > 0 && !isUnrepairable) {
-        receipt += BT_BOLD_ON + "DUE: Rs. " + due.toFixed(2) + BT_BOLD_OFF + "\n";
-      }
-      receipt += LINE + "\n";
-      receipt += BT_BOLD_ON + "Warranty: " + (job.warranty || 'NO WARRANTY').toUpperCase() + BT_BOLD_OFF + "\n";
-      receipt += LINE + "\n";
-      
-      receipt += BT_BOLD_ON;
-      receipt += "TERMS & CONDITIONS:\n";
-      receipt += wrapText("1. NO WARRANTY on physical/liquid damage.") + "\n";
-      receipt += wrapText("2. Claim within 30 days with this memo.") + "\n";
-      receipt += wrapText("3. Original memo required for pickup.") + "\n";
-      receipt += BT_BOLD_OFF;
-      receipt += LINE + "\n";
-      
-      receipt += BT_BOLD_ON;
-      receipt += "SmartFix Pro (c) 2026\n";
-      receipt += "Developed by Debapriya Sarkar\n";
-      receipt += BT_BOLD_OFF;
-      receipt += LINE + "\n";
-      receipt += "\n\n\n\n\n"; // Extra space for tearing
-
-      if (isDualIntake) {
-        receipt += "\n\n";
-        receipt += BT_BOLD_ON + "WORKSHOP RECORD TAG" + BT_BOLD_OFF + "\n";
-        receipt += LINE + "\n";
-        receipt += BT_BOLD_ON + "BILL NO: " + job.billNo + BT_BOLD_OFF + "\n";
-        receipt += BT_BOLD_ON + "DATE   : " + job.intakeDate + BT_BOLD_OFF + "\n";
-        receipt += BT_BOLD_ON + "MODEL  : " + wrapText(job.model) + BT_BOLD_OFF + "\n";
-        receipt += BT_BOLD_ON + "ITEM   : " + wrapText(job.fault) + BT_BOLD_OFF + "\n";
-        receipt += BT_BOLD_ON + "CUST   : " + wrapText(job.customerName) + BT_BOLD_OFF + "\n";
-        receipt += BT_BOLD_ON + "ADV    : Rs. " + advPaid.toFixed(2) + BT_BOLD_OFF + "\n";
-        receipt += LINE + "\n";
-        receipt += "\n\n\n\n\n";
-      }
-
-      return receipt;
     }
 
     function togglePasswordVisibility(fieldId, btn) {
@@ -2103,12 +1881,6 @@
     }
 
     async function printDirectThermalVoucher(job, isDualIntake = false) {
-      if (bluetoothPrintCharacteristic) {
-        const btText = buildBluetoothReceiptText(job, isDualIntake);
-        const success = await printViaBluetooth(btText);
-        if (success) return;
-      }
-
       const isUnrepairable = job.status === "Unrepairable";
       const isDelivered = job.status === "Delivered";
       const isPartsOnly = job.status === "Parts-Ordered";
@@ -2241,7 +2013,8 @@
             </div>
             
             <!-- EXTRA SPACE AT BOTTOM TO PREVENT CUTTING WHEN TEARING -->
-            <div style="height: 20mm;"></div>
+            <br><br><br><br><br><br><br><br><br><br>
+            <div style="height: 40mm;"></div>
           </div>
       `;
 
@@ -2270,7 +2043,8 @@
             </div>
             
             <!-- EXTRA SPACE AT BOTTOM TO PREVENT CUTTING WHEN TEARING -->
-            <div style="height: 20mm;"></div>
+            <br><br><br><br><br><br><br><br><br><br>
+            <div style="height: 40mm;"></div>
           </div>
         `;
       }
@@ -2311,7 +2085,8 @@
           <div style="border-top: 1px solid #000; margin-top: 25px; padding-top: 8px; text-align: center; font-size: 9px; font-weight: 600; color: #000;">
             SmartFix Pro &copy; 2026 | Mobile Workshop Management System | <strong style="font-weight:900;">Developed by Debapriya Sarkar</strong>
           </div>
-          <div style="height: 20mm;"></div>
+          <br><br><br><br><br><br><br><br><br><br>
+          <div style="height: 40mm;"></div>
         </div>
       `;
 
@@ -2341,7 +2116,8 @@
           <div style="border-top: 1px solid #000; margin-top: 25px; padding-top: 8px; text-align: center; font-size: 9px; font-weight: 600; color: #000;">
             SmartFix Pro &copy; 2026 | Mobile Workshop Management System | <strong style="font-weight:900;">Developed by Debapriya Sarkar</strong>
           </div>
-          <div style="height: 20mm;"></div>
+          <br><br><br><br><br><br><br><br><br><br>
+          <div style="height: 40mm;"></div>
         </div>
       `;
 
