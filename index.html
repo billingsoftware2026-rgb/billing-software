@@ -12,6 +12,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+  <!-- Barcode Scanner Library -->
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -25,76 +27,31 @@
     body.mode-a4 { page: a4page; }
 
     @media print {
-      html, body {
-        width: 58mm !important;
-        height: auto !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        background: #fff !important;
-        color: #000 !important;
-      }
-
-      body > *:not(#masterDirectPrintArea) {
-        display: none !important;
-      }
-
+      html, body { width: 58mm !important; height: auto !important; margin: 0 !important; padding: 0 !important; background: #fff !important; color: #000 !important; }
+      body > *:not(#masterDirectPrintArea) { display: none !important; }
       #masterDirectPrintArea {
-        display: block !important;
-        position: absolute !important;
-        left: 0 !important;
-        top: 0 !important;
-        width: 58mm !important;
-        max-width: 58mm !important;
-        /* Exactly 12mm bottom padding (half inch) to push paper out without jamming */
-        padding: 4mm 3mm 12mm 3mm !important; 
-        margin: 0 !important;
-        background: #fff !important;
-        color: #000 !important;
-        font-family: Arial, Helvetica, sans-serif !important; 
-        font-weight: 600 !important; 
-        font-size: 11px !important;
-        line-height: 1.4 !important;
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-        text-rendering: geometricPrecision !important;
-        -webkit-font-smoothing: none !important;
+        display: block !important; position: absolute !important; left: 0 !important; top: 0 !important;
+        width: 58mm !important; max-width: 58mm !important; padding: 4mm 3mm 12mm 3mm !important; margin: 0 !important;
+        background: #fff !important; color: #000 !important; font-family: Arial, Helvetica, sans-serif !important; 
+        font-weight: 600 !important; font-size: 11px !important; line-height: 1.4 !important;
+        -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;
+        text-rendering: geometricPrecision !important; -webkit-font-smoothing: none !important;
       }
-
-      #masterDirectPrintArea * {
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-        color: #000 !important;
-      }
-
-      .receipt-cut-line {
-        page-break-after: always !important;
-        border-bottom: 2px solid #000 !important;
-        margin: 12px 0 !important;
-        padding-bottom: 10px !important;
-      }
-
-      body.mode-a4 {
-        width: 210mm !important;
-      }
-      body.mode-a4 #masterDirectPrintArea {
-        width: 210mm !important;
-        max-width: 210mm !important;
-        padding: 12mm !important;
-        font-family: Arial, sans-serif !important;
-        font-size: 11px !important;
-      }
+      #masterDirectPrintArea * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color: #000 !important; }
+      .receipt-cut-line { page-break-after: always !important; border-bottom: 2px solid #000 !important; margin: 12px 0 !important; padding-bottom: 10px !important; }
+      body.mode-a4 { width: 210mm !important; }
+      body.mode-a4 #masterDirectPrintArea { width: 210mm !important; max-width: 210mm !important; padding: 12mm !important; font-family: Arial, sans-serif !important; font-size: 11px !important; }
     }
   </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-indigo-600 selection:text-white">
 
-  <!-- ==================== PREMIUM AUTH SCREEN ==================== -->
+  <!-- Auth Screen -->
   <div id="authScreen" class="fixed inset-0 bg-slate-950 z-50 overflow-y-auto flex items-center justify-center p-4 sm:p-6 lg:p-8">
     <div class="fixed top-1/4 left-1/4 w-96 h-96 bg-indigo-600/15 rounded-full blur-3xl pointer-events-none"></div>
     <div class="fixed bottom-1/4 right-1/4 w-96 h-96 bg-violet-600/15 rounded-full blur-3xl pointer-events-none"></div>
 
     <div class="relative w-full max-w-4xl bg-slate-900/80 backdrop-blur-2xl border border-slate-800/80 rounded-3xl shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-12 my-auto">
-      
       <!-- Left Panel -->
       <div class="lg:col-span-5 bg-gradient-to-br from-indigo-950/80 via-slate-900 to-slate-950 p-6 sm:p-8 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-slate-800">
         <div class="space-y-5">
@@ -107,52 +64,11 @@
               <p class="text-[10px] text-slate-400 uppercase tracking-widest font-semibold">Workshop OS & POS</p>
             </div>
           </div>
-
           <div class="space-y-2 pt-1">
             <h3 class="text-sm sm:text-base font-bold text-slate-200">Everything Your Mobile Repair Shop Needs</h3>
             <p class="text-xs text-slate-400 leading-relaxed">Multi-device cloud synchronization, automated invoices, spare parts management, and second-hand mobile billing.</p>
           </div>
-
-          <div class="space-y-2.5 pt-1">
-            <div class="flex items-center gap-3 text-xs text-slate-300">
-              <div class="w-6 h-6 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-xs flex-shrink-0 border border-emerald-500/20">
-                <i class="fa-solid fa-print"></i>
-              </div>
-              <span>58mm Dual-Print (Customer Slip + Phone Tag)</span>
-            </div>
-            <div class="flex items-center gap-3 text-xs text-slate-300">
-              <div class="w-6 h-6 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-xs flex-shrink-0 border border-indigo-500/20">
-                <i class="fa-solid fa-shield-halved"></i>
-              </div>
-              <span>Auto-Restore & Vault Protection Active</span>
-            </div>
-            <div class="flex items-center gap-3 text-xs text-slate-300">
-              <div class="w-6 h-6 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center text-xs flex-shrink-0 border border-amber-500/20">
-                <i class="fa-solid fa-boxes-stacked"></i>
-              </div>
-              <span>Spare Parts Stock & Inventory Control</span>
-            </div>
-            <div class="flex items-center gap-3 text-xs text-slate-300">
-              <div class="w-6 h-6 rounded-lg bg-cyan-500/10 text-cyan-400 flex items-center justify-center text-xs flex-shrink-0 border border-cyan-500/20">
-                <i class="fa-solid fa-mobile-retro"></i>
-              </div>
-              <span>Pre-Owned Mobile Purchase, Sales & Stock</span>
-            </div>
-            <div class="flex items-center gap-3 text-xs text-slate-300">
-              <div class="w-6 h-6 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-xs flex-shrink-0 border border-emerald-500/20">
-                <i class="fa-brands fa-whatsapp"></i>
-              </div>
-              <span>One-Click WhatsApp Due Balance Reminders</span>
-            </div>
-            <div class="flex items-center gap-3 text-xs text-slate-300">
-              <div class="w-6 h-6 rounded-lg bg-purple-500/10 text-purple-400 flex items-center justify-center text-xs flex-shrink-0 border border-purple-500/20">
-                <i class="fa-solid fa-cash-register"></i>
-              </div>
-              <span>Daily Cash Drawer, UPI & Daybook Tracking</span>
-            </div>
-          </div>
         </div>
-
         <div class="pt-5 border-t border-slate-800/80 mt-6 lg:mt-0 flex items-center justify-between text-[11px] text-slate-500">
           <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Cloud v2.9 Persistent</span>
           <span>Lead Dev: Debapriya Sarkar</span>
@@ -165,7 +81,6 @@
           <h2 class="text-xl font-bold text-white tracking-wide" id="authTitle">Owner Authorization</h2>
           <p class="text-xs text-slate-400 mt-1" id="authSubtitle">Sign in with your registered workshop credentials</p>
         </div>
-
         <div class="flex bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs font-semibold">
           <button onclick="toggleAuthMode('login')" id="btnLoginTab" class="flex-1 py-2.5 rounded-lg bg-indigo-600 text-white shadow transition flex items-center justify-center gap-1.5">
             <i class="fa-solid fa-arrow-right-to-bracket text-[11px]"></i> Sign In
@@ -199,7 +114,6 @@
               </div>
             </div>
           </div>
-
           <div>
             <label class="block uppercase font-bold text-slate-400 mb-1">Owner Email Address *</label>
             <div class="relative">
@@ -207,7 +121,6 @@
               <input type="email" id="authEmail" required placeholder="owner@gmail.com" class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500 transition">
             </div>
           </div>
-
           <div>
             <label class="block uppercase font-bold text-slate-400 mb-1">Password *</label>
             <div class="relative">
@@ -218,22 +131,17 @@
               </button>
             </div>
           </div>
-
           <div id="authErrorMsg" class="p-3 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-xl text-xs font-semibold hidden flex items-center gap-2">
             <i class="fa-solid fa-circle-exclamation text-sm"></i>
             <span id="authErrorText"></span>
           </div>
-
           <button type="submit" id="authSubmitBtn" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold shadow-lg shadow-indigo-600/30 transition text-sm flex items-center justify-center gap-2">
             <span>Sign In to Dashboard</span>
             <i class="fa-solid fa-arrow-right text-xs"></i>
           </button>
         </form>
-
         <div class="pt-4 border-t border-slate-800/80 text-center">
-          <p class="text-xs text-slate-500">
-            SmartFix Pro &copy; 2026 | <span class="text-indigo-400 font-semibold">Developed by Debapriya Sarkar</span>
-          </p>
+          <p class="text-xs text-slate-500">SmartFix Pro &copy; 2026 | <span class="text-indigo-400 font-semibold">Developed by Debapriya Sarkar</span></p>
         </div>
       </div>
     </div>
@@ -259,38 +167,32 @@
 
       <nav class="flex items-center bg-slate-950/80 p-1 rounded-xl border border-slate-800 flex-wrap gap-1">
         <button onclick="requestTabAccess('newJob')" id="tab-newJob" class="px-3 py-2 rounded-lg text-xs md:text-sm font-semibold transition bg-indigo-600 text-white shadow-md flex items-center gap-1.5">
-          <i class="fa-solid fa-circle-plus"></i>
-          <span>Intake</span>
+          <i class="fa-solid fa-circle-plus"></i><span>Intake</span>
         </button>
         <button onclick="requestTabAccess('dailyCash')" id="tab-dailyCash" class="px-3 py-2 rounded-lg text-xs md:text-sm font-semibold transition text-slate-400 hover:text-white flex items-center gap-1.5">
-          <i class="fa-solid fa-cash-register text-emerald-400"></i>
-          <span>Daily Cashier</span>
+          <i class="fa-solid fa-cash-register text-emerald-400"></i><span>Daily Cashier</span>
         </button>
         <button onclick="requestTabAccess('trackJobs')" id="tab-trackJobs" class="px-3 py-2 rounded-lg text-xs md:text-sm font-semibold transition text-slate-400 hover:text-white flex items-center gap-1.5">
-          <i class="fa-solid fa-layer-group"></i>
-          <span>Tracking</span>
+          <i class="fa-solid fa-layer-group"></i><span>Tracking</span>
+        </button>
+        <button onclick="requestTabAccess('complaints')" id="tab-complaints" class="px-3 py-2 rounded-lg text-xs md:text-sm font-semibold transition text-slate-400 hover:text-white flex items-center gap-1.5">
+          <i class="fa-solid fa-shield-halved text-amber-400"></i><span>Complaints</span>
         </button>
         <a href="parts.html" title="Manage Parts Inventory & Stock" class="px-3 py-2 rounded-lg text-xs md:text-sm font-semibold transition text-slate-400 hover:text-white hover:bg-slate-900 flex items-center gap-1.5 border border-transparent hover:border-slate-800">
-          <i class="fa-solid fa-boxes-stacked text-amber-400"></i>
-          <span>Stock</span>
+          <i class="fa-solid fa-boxes-stacked text-amber-400"></i><span>Stock</span>
         </a>
         <a href="used_mobile.html" title="Second-Hand Mobile Sales & Stock" class="px-3 py-2 rounded-lg text-xs md:text-sm font-semibold transition text-slate-400 hover:text-white hover:bg-slate-900 flex items-center gap-1.5 border border-transparent hover:border-slate-800">
-          <i class="fa-solid fa-mobile-retro text-cyan-400"></i>
-          <span>Used Mobiles</span>
+          <i class="fa-solid fa-mobile-retro text-cyan-400"></i><span>Used Mobiles</span>
         </a>
         <a href="lcd-Compatibility.html" title="LCD / Folder Compatibility Finder" class="px-3 py-2 rounded-lg text-xs md:text-sm font-semibold transition text-slate-400 hover:text-white hover:bg-slate-900 flex items-center gap-1.5 border border-transparent hover:border-slate-800">
-          <i class="fa-solid fa-clone text-indigo-400"></i>
-          <span>LCD Finder</span>
+          <i class="fa-solid fa-clone text-indigo-400"></i><span>LCD Finder</span>
         </a>
         <button onclick="requestTabAccess('reports')" id="tab-reports" class="px-3 py-2 rounded-lg text-xs md:text-sm font-semibold transition text-slate-400 hover:text-white flex items-center gap-1.5">
-          <i class="fa-solid fa-lock text-[11px] text-amber-400"></i>
-          <span>Admin Ledger</span>
+          <i class="fa-solid fa-lock text-[11px] text-amber-400"></i><span>Admin Ledger</span>
         </button>
-        
         <button onclick="requestTabAccess('backup')" id="tab-backup" class="px-3 py-2 rounded-lg text-xs md:text-sm font-semibold transition text-slate-400 hover:text-white flex items-center gap-1.5">
-          <i class="fa-solid fa-database text-emerald-400"></i><span>Backup / Restore</span>
+          <i class="fa-solid fa-database text-emerald-400"></i><span>Backup</span>
         </button>
-
         <button onclick="signOutShop()" title="Sign Out" class="px-2.5 py-2 text-slate-400 hover:text-rose-400 text-xs">
           <i class="fa-solid fa-arrow-right-from-bracket"></i>
         </button>
@@ -335,8 +237,6 @@
             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Reported Problem / Parts Required *</label>
             <textarea id="faultDesc" required rows="2" placeholder="e.g. AMOLED Display Combo Needed / Battery dead" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 text-white transition"></textarea>
           </div>
-
-          <!-- PARTS ORDER BOOKING SWITCH -->
           <div class="md:col-span-2 p-3.5 bg-slate-950 rounded-2xl border border-indigo-500/30 flex items-center justify-between">
             <div>
               <span class="text-xs font-bold text-white flex items-center gap-1.5">
@@ -349,13 +249,10 @@
               <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
             </label>
           </div>
-
           <div>
             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Estimated Quotation (₹)</label>
             <input type="number" id="estCost" placeholder="0" min="0" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 text-white transition">
           </div>
-
-          <!-- ADVANCE PAYMENT & PAYMENT MODE -->
           <div class="grid grid-cols-2 gap-2">
             <div>
               <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Advance Deposit (₹)</label>
@@ -369,12 +266,10 @@
               </select>
             </div>
           </div>
-
           <div class="md:col-span-2">
             <label class="block text-xs font-semibold uppercase tracking-wider text-amber-400 mb-2">Internal Workshop Remarks 🔒</label>
             <input type="text" id="intakeRemarks" placeholder="e.g. Display ordered from market / Advance taken" class="w-full bg-slate-950 border border-amber-500/40 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-500 text-white transition">
           </div>
-
           <div class="md:col-span-2 flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
             <button type="reset" class="px-5 py-3 rounded-xl border border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800 text-sm font-semibold transition">Clear</button>
             <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg shadow-indigo-600/30 transition">
@@ -406,7 +301,6 @@
         </div>
       </div>
 
-      <!-- Financial Counter Cards -->
       <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
         <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
           <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Adv. Received (Cash)</span>
@@ -430,7 +324,6 @@
         </div>
       </div>
 
-      <!-- Status Summary Cards -->
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div class="bg-slate-950 border border-slate-800/80 p-3 rounded-xl text-center">
           <span class="text-[11px] text-slate-400">Received Today</span>
@@ -450,7 +343,6 @@
         </div>
       </div>
 
-      <!-- Audit Table -->
       <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow">
         <div class="p-4 border-b border-slate-800 flex justify-between items-center">
           <h3 class="text-sm font-bold text-white uppercase tracking-wider">Daily Transaction Audit List</h3>
@@ -481,7 +373,10 @@
         <div class="flex flex-col md:flex-row items-center justify-between gap-4">
           <div class="relative w-full md:w-96">
             <i class="fa-solid fa-magnifying-glass absolute left-4 top-3 text-slate-500"></i>
-            <input type="text" id="searchInput" oninput="renderJobCards()" placeholder="Instant Search IMEI, Bill No, Mobile No..." class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-11 pr-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 text-white placeholder-slate-500">
+            <input type="text" id="searchInput" oninput="renderJobCards()" placeholder="Instant Search IMEI, Bill No, Mobile No..." class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-11 pr-12 py-2.5 text-sm focus:outline-none focus:border-indigo-500 text-white placeholder-slate-500">
+            <button onclick="openScanner()" class="absolute right-3 top-2.5 text-slate-400 hover:text-indigo-400 transition">
+              <i class="fa-solid fa-barcode text-xl"></i>
+            </button>
           </div>
 
           <div class="flex flex-wrap items-center gap-2">
@@ -522,7 +417,35 @@
       </div>
     </section>
 
-    <!-- TAB 4: Admin Ledger -->
+    <!-- TAB 4: Complaints (Warranty) -->
+    <section id="view-complaints" class="tab-panel hidden space-y-6">
+      <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 md:p-6 shadow-xl space-y-4">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+          <div class="relative w-full md:w-96">
+            <i class="fa-solid fa-magnifying-glass absolute left-4 top-3 text-slate-500"></i>
+            <input type="text" id="complaintSearchInput" oninput="renderJobCards()" placeholder="Search complaints by IMEI, Bill No, Mobile No..." class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-11 pr-12 py-2.5 text-sm focus:outline-none focus:border-indigo-500 text-white placeholder-slate-500">
+            <button onclick="openScanner()" class="absolute right-3 top-2.5 text-slate-400 hover:text-indigo-400 transition">
+              <i class="fa-solid fa-barcode text-xl"></i>
+            </button>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2">
+            <button onclick="setTrackingDatePreset('all')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700">All</button>
+            <div class="flex items-center gap-1.5 bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1 text-xs">
+              <span class="text-slate-500">From:</span>
+              <input type="date" id="complaintFromDate" onchange="renderJobCards()" class="bg-transparent text-white focus:outline-none">
+              <span class="text-slate-500">To:</span>
+              <input type="date" id="complaintToDate" onchange="renderJobCards()" class="bg-transparent text-white focus:outline-none">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="complaintCardGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      </div>
+    </section>
+
+    <!-- TAB 5: Admin Ledger -->
     <section id="view-reports" class="tab-panel hidden space-y-6">
       <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl flex flex-wrap items-center justify-between gap-4">
         <div>
@@ -585,7 +508,6 @@
         </div>
       </div>
 
-      <!-- DUE SHORTLIST -->
       <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow">
         <div class="p-4 bg-slate-950 border-b border-slate-800 flex justify-between items-center">
           <h3 class="text-sm font-bold text-rose-400 uppercase tracking-wider flex items-center gap-2">
@@ -613,7 +535,6 @@
         </div>
       </div>
 
-      <!-- Ledger Table -->
       <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow">
         <div class="overflow-x-auto">
           <table class="w-full text-left text-sm" id="ledgerTable">
@@ -650,7 +571,7 @@
       </div>
     </section>
 
-    <!-- TAB: Store-scoped backup and restore -->
+    <!-- TAB 6: Backup and Restore -->
     <section id="view-backup" class="tab-panel hidden space-y-6">
       <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 shadow-xl max-w-4xl mx-auto">
         <div class="flex items-center gap-3 mb-2"><div class="w-11 h-11 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center"><i class="fa-solid fa-shield-halved text-xl"></i></div><div><h2 class="text-xl font-bold text-white">Offline Backup & Restore</h2><p class="text-xs text-slate-400">শুধু বর্তমান লগইন করা দোকানের Store Profile ও Repair Bills</p></div></div>
@@ -660,10 +581,8 @@
           <div class="bg-slate-950 border border-slate-800 rounded-2xl p-5"><i class="fa-solid fa-file-import text-indigo-400 text-2xl"></i><h3 class="text-white font-bold mt-3">Restore Backup</h3><p class="text-xs text-slate-400 mt-1 mb-3">আগের SmartFix backup JSON ফাইল নির্বাচন করুন।</p><input id="backupRestoreFile" type="file" accept=".json,application/json" class="block w-full text-xs text-slate-300 mb-3"><label class="flex items-start gap-2 text-xs text-rose-300 mb-4"><input id="backupReplaceMode" type="checkbox" class="mt-0.5"> Restore করার আগে বর্তমান দোকানের Firebase bill-গুলি মুছে backup-এর bill বসাব (সাবধানে ব্যবহার করুন)</label><button onclick="restoreStoreBackup()" class="w-full rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white py-3 text-sm font-bold"><i class="fa-solid fa-cloud-arrow-up mr-2"></i>Restore to This Store</button></div>
         </div>
         <p id="backupStatus" class="text-xs text-slate-300 mt-4" role="status"></p>
-        <p class="text-[11px] text-slate-500 mt-3">নোট: এই index.html ফাইলের Firebase ডেটা হিসেবে Store Profile ও jobs collection ব্যাকআপ হয়। parts.html / used_mobile.html যদি আলাদা collection বা localStorage ব্যবহার করে, সেই ফাইলগুলি না দেখে তাদের inventory-র সম্পূর্ণ backup নিশ্চিত করা যাচ্ছে না। Browser cache/localStorage একমাত্র backup নয়—ডাউনলোড করা JSON ফাইল আলাদা করে রাখুন।</p>
       </div>
     </section>
-
   </main>
 
   <!-- Footer -->
@@ -673,6 +592,15 @@
       <p class="text-xs font-semibold text-indigo-400 mt-1"><i class="fa-solid fa-code mr-1"></i> Developed by Debapriya Sarkar</p>
     </div>
   </footer>
+
+  <!-- Scanner Modal -->
+  <div id="scannerModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-sm w-full p-4 shadow-2xl space-y-4 text-center">
+      <h3 class="text-base font-bold text-white"><i class="fa-solid fa-barcode text-indigo-400 mr-2"></i>Scan Bill Barcode</h3>
+      <div id="reader" width="100%" class="rounded-xl overflow-hidden bg-slate-950"></div>
+      <button onclick="closeScanner()" class="w-full py-2.5 rounded-xl border border-slate-800 text-xs font-semibold text-slate-400 hover:text-white mt-2">Close Scanner</button>
+    </div>
+  </div>
 
   <!-- Delivery Modal -->
   <div id="deliveryModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
@@ -899,6 +827,8 @@
     let currentAuthMode = "login";
     let repairJobs = [];
 
+    let html5QrCode;
+
     function localDateString(date = new Date()) {
       const y = date.getFullYear(); const m = String(date.getMonth()+1).padStart(2,'0'); const d = String(date.getDate()).padStart(2,'0');
       return `${y}-${m}-${d}`;
@@ -914,55 +844,104 @@
       navigator.serviceWorker.register('sw.js').catch(() => {});
     }
 
+    // BarCode Scanner Logic
+    function openScanner() {
+      document.getElementById('scannerModal').classList.remove('hidden');
+      document.getElementById('scannerModal').classList.add('flex');
+      html5QrCode = new Html5Qrcode("reader");
+      html5QrCode.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: { width: 250, height: 150 } },
+        (decodedText) => {
+           if(document.getElementById('searchInput')) document.getElementById('searchInput').value = decodedText;
+           if(document.getElementById('complaintSearchInput')) document.getElementById('complaintSearchInput').value = decodedText;
+           renderJobCards();
+           closeScanner();
+           const audio = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
+           audio.play().catch(e=>{});
+        },
+        (errorMessage) => { /* ignore */ }
+      ).catch(err => {
+        alert("Camera error: " + err);
+        closeScanner();
+      });
+    }
+
+    function closeScanner() {
+      if (html5QrCode) {
+        html5QrCode.stop().then(() => { html5QrCode.clear(); }).catch(err => console.log(err));
+      }
+      document.getElementById('scannerModal').classList.add('hidden');
+      document.getElementById('scannerModal').classList.remove('flex');
+    }
+
+    // Local Mirroring & Cloud Restore
     function mirrorJobsToLocalStorage(jobs) {
-      try {
-        localStorage.setItem(jobsMirrorKey(), JSON.stringify(jobs));
-      } catch (e) {
-        console.warn("Storage mirror quota full or unavailable", e);
-      }
+      try { localStorage.setItem(jobsMirrorKey(), JSON.stringify(jobs)); } catch (e) {}
     }
-
     function getMirroredJobsFromLocal() {
-      try {
-        const stored = localStorage.getItem(jobsMirrorKey());
-        return stored ? JSON.parse(stored) : [];
-      } catch (e) {
-        return [];
-      }
+      try { const stored = localStorage.getItem(jobsMirrorKey()); return stored ? JSON.parse(stored) : []; } catch (e) { return []; }
     }
-
     async function autoRestoreMirroredJobsIfCloudEmpty(userUid, cloudDocsCount) {
       const localBackup = getMirroredJobsFromLocal();
       if (cloudDocsCount === 0 && localBackup && localBackup.length > 0) {
-        console.warn(`[Auto-Restore] Cloud has 0 jobs! Auto-restoring ${localBackup.length} jobs from Local Vault...`);
         try {
           const batch = db.batch();
           localBackup.forEach(job => {
-            if (job.billNo) {
-              const ref = db.collection('stores').doc(userUid).collection('jobs').doc(job.billNo);
-              batch.set(ref, job, { merge: true });
-            }
+            if (job.billNo) { batch.set(db.collection('stores').doc(userUid).collection('jobs').doc(job.billNo), job, { merge: true }); }
           });
           await batch.commit();
-          console.log("[Auto-Restore] Completed successfully to new project/API key!");
-        } catch (restoreErr) {
-          console.error("[Auto-Restore Error]", restoreErr);
-        }
+        } catch (restoreErr) {}
       }
     }
 
-    // ব্লুটুথ ফাংশন সম্পূর্ণ মুছে ফেলা হয়েছে
+    // Warranty Claim Function
+    async function fileWarrantyClaim(originalBillNo) {
+      const originalJob = repairJobs.find(j => j.billNo === originalBillNo);
+      if (!originalJob) return;
+      
+      if (!window.confirm(`Register a Warranty Claim for ${originalJob.customerName} (Bill: ${originalBillNo})?`)) return;
+
+      let newBill;
+      do { newBill = 'CMP-' + Math.floor(1000 + Math.random() * 9000); } while (repairJobs.some(j => j.billNo === newBill));
+      
+      const newJob = {
+        billNo: newBill,
+        intakeDate: localDateString(),
+        deliveryDate: "--",
+        customerName: originalJob.customerName,
+        phone: originalJob.phone,
+        model: originalJob.model,
+        imei: originalJob.imei,
+        fault: "Warranty Claim for Bill " + originalBillNo,
+        remarks: "Original Issue: " + originalJob.fault,
+        estCost: 0,
+        advPaid: 0,
+        advPayMethod: "Cash",
+        refundPaid: 0,
+        deliveryCollected: 0,
+        deliveryPayMethod: "Cash",
+        dueBalance: 0,
+        status: "Pending",
+        warranty: originalJob.warranty || "Warranty Claim",
+        partName: "",
+        partCost: 0,
+        finalAmount: 0,
+        netProfit: 0,
+        isComplaint: true,
+        originalBill: originalBillNo
+      };
+      
+      await syncJobToFirestore(newJob);
+      alert("Warranty Claim Registered Successfully. Check Complaints tab.");
+      activateTab('complaints');
+    }
 
     function togglePasswordVisibility(fieldId, btn) {
       const input = document.getElementById(fieldId);
       const icon = btn.querySelector('i');
-      if (input.type === 'password') {
-        input.type = 'text';
-        icon.className = 'fa-solid fa-eye-slash text-xs text-indigo-400';
-      } else {
-        input.type = 'password';
-        icon.className = 'fa-solid fa-eye text-xs text-slate-500';
-      }
+      if (input.type === 'password') { input.type = 'text'; icon.className = 'fa-solid fa-eye-slash text-xs text-indigo-400'; }
+      else { input.type = 'password'; icon.className = 'fa-solid fa-eye text-xs text-slate-500'; }
     }
 
     function toggleAuthMode(mode) {
@@ -998,36 +977,20 @@
           const sName = document.getElementById('regShopName').value.trim();
           const sAddr = document.getElementById('regShopAddress').value.trim();
           const sPhone = document.getElementById('regShopPhone').value.trim();
-
           if (!sName || !sAddr || !sPhone) {
             errorText.innerText = "Please complete all shop details.";
             errorBox.classList.remove('hidden');
             return;
           }
-
           const cred = await auth.createUserWithEmailAndPassword(email, pass);
-          const storeData = {
-            shopName: sName,
-            shopAddress: sAddr,
-            shopPhone: sPhone,
-            ownerEmail: email,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-          };
+          const storeData = { shopName: sName, shopAddress: sAddr, shopPhone: sPhone, ownerEmail: email, createdAt: firebase.firestore.FieldValue.serverTimestamp() };
           await db.collection('stores').doc(cred.user.uid).set(storeData);
           localStorage.setItem(storeMirrorKey(), JSON.stringify(storeData));
-        } else {
-          await auth.signInWithEmailAndPassword(email, pass);
-        }
-      } catch (err) {
-        errorText.innerText = err.message;
-        errorBox.classList.remove('hidden');
-      }
+        } else { await auth.signInWithEmailAndPassword(email, pass); }
+      } catch (err) { errorText.innerText = err.message; errorBox.classList.remove('hidden'); }
     }
 
-    function signOutShop() {
-      auth.signOut();
-      location.reload();
-    }
+    function signOutShop() { auth.signOut(); location.reload(); }
 
     auth.onAuthStateChanged(async (user) => {
       if (user) {
@@ -1036,83 +999,63 @@
           if (storeDoc.exists) {
             currentStore = storeDoc.data();
             if (Object.prototype.hasOwnProperty.call(currentStore, 'savedPassword') || Object.prototype.hasOwnProperty.call(currentStore, 'password')) {
-              try { await db.collection('stores').doc(user.uid).update({ savedPassword: firebase.firestore.FieldValue.delete(), password: firebase.firestore.FieldValue.delete() }); } catch (cleanupErr) { console.warn('Legacy credential cleanup could not complete:', cleanupErr); }
+              try { await db.collection('stores').doc(user.uid).update({ savedPassword: firebase.firestore.FieldValue.delete(), password: firebase.firestore.FieldValue.delete() }); } catch (cleanupErr) {}
               delete currentStore.savedPassword; delete currentStore.password;
             }
             document.getElementById('navShopName').innerText = currentStore.shopName;
             localStorage.setItem(storeMirrorKey(), JSON.stringify(currentStore));
           } else {
             const localStore = localStorage.getItem(storeMirrorKey());
-            currentStore = localStore ? JSON.parse(localStore) : {
-              shopName: "TULSI MOBILE STORE",
-              shopAddress: "Main Road, Workshop Station",
-              shopPhone: "9876543210"
-            };
+            currentStore = localStore ? JSON.parse(localStore) : { shopName: "TULSI MOBILE STORE", shopAddress: "Main Road, Workshop Station", shopPhone: "9876543210" };
             document.getElementById('navShopName').innerText = currentStore.shopName;
           }
         } catch(e) {
           const localStore = localStorage.getItem(storeMirrorKey());
-          currentStore = localStore ? JSON.parse(localStore) : {
-            shopName: "TULSI MOBILE STORE",
-            shopAddress: "Main Road, Workshop Station",
-            shopPhone: "9876543210"
-          };
+          currentStore = localStore ? JSON.parse(localStore) : { shopName: "TULSI MOBILE STORE", shopAddress: "Main Road, Workshop Station", shopPhone: "9876543210" };
         }
 
         document.getElementById('authScreen').classList.add('hidden');
 
-        db.collection('stores').doc(user.uid).collection('jobs')
-          .onSnapshot((snapshot) => {
-            if (snapshot.empty) {
-              autoRestoreMirroredJobsIfCloudEmpty(user.uid, snapshot.size);
-            }
-
+        db.collection('stores').doc(user.uid).collection('jobs').onSnapshot((snapshot) => {
+            if (snapshot.empty) { autoRestoreMirroredJobsIfCloudEmpty(user.uid, snapshot.size); }
             repairJobs = [];
             snapshot.forEach(doc => { repairJobs.push({ id: doc.id, ...doc.data() }); });
-            repairJobs.sort((a,b) => String(b.intakeDate || '').localeCompare(String(a.intakeDate || '')));
+            
+            // Sort: Latest Date (Delivery or Intake) First
+            repairJobs.sort((a, b) => {
+              const dateA = a.deliveryDate && a.deliveryDate !== '--' ? a.deliveryDate : a.intakeDate;
+              const dateB = b.deliveryDate && b.deliveryDate !== '--' ? b.deliveryDate : b.intakeDate;
+              return String(dateB || '').localeCompare(String(dateA || ''));
+            });
 
-            if (repairJobs.length > 0) {
-              mirrorJobsToLocalStorage(repairJobs);
-            } else {
+            if (repairJobs.length > 0) { mirrorJobsToLocalStorage(repairJobs); }
+            else {
               const localJobs = getMirroredJobsFromLocal();
-              if (localJobs && localJobs.length > 0) {
-                repairJobs = localJobs;
-              }
+              if (localJobs && localJobs.length > 0) { repairJobs = localJobs; }
             }
-
             renderDailyCashReport();
             renderJobCards();
             if (isOwnerAuthenticated) renderLedgerTable();
           }, (err) => {
-            console.warn("Cloud connection error, falling back to local persistent mirror:", err);
             repairJobs = getMirroredJobsFromLocal();
             renderDailyCashReport();
             renderJobCards();
             if (isOwnerAuthenticated) renderLedgerTable();
           });
-      } else {
-        document.getElementById('authScreen').classList.remove('hidden');
-      }
+      } else { document.getElementById('authScreen').classList.remove('hidden'); }
     });
 
     async function syncJobToFirestore(job) {
       const currentList = getMirroredJobsFromLocal();
       const existingIdx = currentList.findIndex(j => j.billNo === job.billNo);
-      if (existingIdx !== -1) {
-        currentList[existingIdx] = { ...currentList[existingIdx], ...job };
-      } else {
-        currentList.unshift(job);
-      }
+      if (existingIdx !== -1) { currentList[existingIdx] = { ...currentList[existingIdx], ...job }; }
+      else { currentList.unshift(job); }
       mirrorJobsToLocalStorage(currentList);
 
       if (!auth.currentUser) return;
       const userUid = auth.currentUser.uid;
       const existingJob = currentList.find(j => j.billNo === job.billNo);
-      const jobData = {
-        ...job,
-        createdAt: job.createdAt || existingJob?.createdAt || firebase.firestore.FieldValue.serverTimestamp(),
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-      };
+      const jobData = { ...job, createdAt: job.createdAt || existingJob?.createdAt || firebase.firestore.FieldValue.serverTimestamp(), updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
       await db.collection('stores').doc(userUid).collection('jobs').doc(job.billNo).set(jobData, { merge: true });
     }
 
@@ -1120,21 +1063,15 @@
       let currentList = getMirroredJobsFromLocal();
       currentList = currentList.filter(j => j.billNo !== billNo);
       mirrorJobsToLocalStorage(currentList);
-
       if (!auth.currentUser) return;
-      const userUid = auth.currentUser.uid;
-      await db.collection('stores').doc(userUid).collection('jobs').doc(billNo).delete();
+      await db.collection('stores').doc(auth.currentUser.uid).collection('jobs').doc(billNo).delete();
     }
 
     function requestTabAccess(tabId) {
       if (tabId === 'backup') { activateTab('backup'); return; }
       if (tabId === 'reports') {
-        if (isOwnerAuthenticated) {
-          activateTab('reports');
-        } else {
-          pendingDestinationTab = 'reports';
-          openPasswordModal();
-        }
+        if (isOwnerAuthenticated) { activateTab('reports'); }
+        else { pendingDestinationTab = 'reports'; openPasswordModal(); }
         return;
       }
       activateTab(tabId);
@@ -1143,16 +1080,14 @@
     function openPasswordModal() {
       document.getElementById('adminPasswordInput').value = '';
       document.getElementById('passwordError').classList.add('hidden');
-      const modal = document.getElementById('passwordModal');
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
+      document.getElementById('passwordModal').classList.remove('hidden');
+      document.getElementById('passwordModal').classList.add('flex');
       setTimeout(() => document.getElementById('adminPasswordInput').focus(), 50);
     }
 
     function closePasswordModal() {
-      const modal = document.getElementById('passwordModal');
-      modal.classList.add('hidden');
-      modal.classList.remove('flex');
+      document.getElementById('passwordModal').classList.add('hidden');
+      document.getElementById('passwordModal').classList.remove('flex');
       pendingDestinationTab = null;
     }
 
@@ -1160,54 +1095,37 @@
       const entered = document.getElementById('adminPasswordInput').value;
       const errorElem = document.getElementById('passwordError');
       errorElem.classList.add('hidden');
-
       if (!auth.currentUser) return;
-
       try {
         const credential = firebase.auth.EmailAuthProvider.credential(auth.currentUser.email, entered);
         await auth.currentUser.reauthenticateWithCredential(credential);
-        
         isOwnerAuthenticated = true;
         closePasswordModal();
         if (pendingDestinationTab) {
-          if (pendingDestinationTab.startsWith('edit_')) {
-            const bill = pendingDestinationTab.split('_')[1];
-            openEditModal(bill);
-          } else if (pendingDestinationTab.startsWith('delete_')) {
-            const bill = pendingDestinationTab.split('_')[1];
-            executeConfirmedDeletion(bill);
-          } else {
-            activateTab(pendingDestinationTab);
-          }
+          if (pendingDestinationTab.startsWith('edit_')) { openEditModal(pendingDestinationTab.split('_')[1]); }
+          else if (pendingDestinationTab.startsWith('delete_')) { executeConfirmedDeletion(pendingDestinationTab.split('_')[1]); }
+          else { activateTab(pendingDestinationTab); }
           pendingDestinationTab = null;
         }
-      } catch (err) {
-        errorElem.classList.remove('hidden');
-      }
+      } catch (err) { errorElem.classList.remove('hidden'); }
     }
 
-    function lockSystem() {
-      isOwnerAuthenticated = false;
-      activateTab('newJob');
-    }
+    function lockSystem() { isOwnerAuthenticated = false; activateTab('newJob'); }
 
     function activateTab(tabId) {
       document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.add('hidden'));
       document.getElementById('view-' + tabId).classList.remove('hidden');
 
-      const tabs = ['newJob', 'dailyCash', 'trackJobs', 'reports', 'backup'];
+      const tabs = ['newJob', 'dailyCash', 'trackJobs', 'complaints', 'reports', 'backup'];
       tabs.forEach(t => {
         const btn = document.getElementById('tab-' + t);
         if (!btn) return;
-        if (t === tabId) {
-          btn.className = "px-3 py-2 rounded-lg text-xs md:text-sm font-semibold transition bg-indigo-600 text-white shadow-md flex items-center gap-1.5";
-        } else {
-          btn.className = "px-3 py-2 rounded-lg text-xs md:text-sm font-semibold transition text-slate-400 hover:text-white flex items-center gap-1.5";
-        }
+        if (t === tabId) { btn.className = "px-3 py-2 rounded-lg text-xs md:text-sm font-semibold transition bg-indigo-600 text-white shadow-md flex items-center gap-1.5"; }
+        else { btn.className = "px-3 py-2 rounded-lg text-xs md:text-sm font-semibold transition text-slate-400 hover:text-white flex items-center gap-1.5"; }
       });
 
       if (tabId === 'dailyCash') renderDailyCashReport();
-      if (tabId === 'trackJobs') renderJobCards();
+      if (tabId === 'trackJobs' || tabId === 'complaints') renderJobCards();
       if (tabId === 'reports') renderLedgerTable();
     }
 
@@ -1223,55 +1141,32 @@
       const isPartsOnly = document.getElementById('intakeOnlyPartsOrder').checked;
 
       const newJob = {
-        billNo: generatedBill,
-        intakeDate: today,
-        deliveryDate: "--",
+        billNo: generatedBill, intakeDate: today, deliveryDate: "--",
         customerName: document.getElementById('custName').value.trim(),
         phone: document.getElementById('custPhone').value.trim(),
         model: document.getElementById('deviceModel').value.trim(),
         imei: document.getElementById('deviceImei').value.trim() || "N/A",
         fault: document.getElementById('faultDesc').value.trim(),
-        remarks: remarks,
-        estCost: est,
-        advPaid: adv,
-        advPayMethod: payMethod,
-        refundPaid: 0,
-        deliveryCollected: 0,
-        deliveryPayMethod: "Cash",
-        dueBalance: 0,
-        status: isPartsOnly ? "Parts-Ordered" : "Pending",
-        warranty: "No Warranty",
-        partName: "",
-        partCost: 0,
-        finalAmount: 0,
-        netProfit: 0
+        remarks: remarks, estCost: est, advPaid: adv, advPayMethod: payMethod,
+        refundPaid: 0, deliveryCollected: 0, deliveryPayMethod: "Cash", dueBalance: 0,
+        status: isPartsOnly ? "Parts-Ordered" : "Pending", warranty: "No Warranty",
+        partName: "", partCost: 0, finalAmount: 0, netProfit: 0, isComplaint: false
       };
 
       await syncJobToFirestore(newJob);
       printDirectThermalVoucher(newJob, true);
-
       e.target.reset();
       activateTab('dailyCash');
     }
 
-    function setDailyDateToday() {
-      document.getElementById('dailyReportDatePicker').value = todayStr;
-      renderDailyCashReport();
-    }
+    function setDailyDateToday() { document.getElementById('dailyReportDatePicker').value = todayStr; renderDailyCashReport(); }
 
     function renderDailyCashReport() {
       const selectedDate = document.getElementById('dailyReportDatePicker').value || todayStr;
       document.getElementById('dailyAuditDateLabel').innerText = `Date: ${selectedDate}`;
 
-      let cashFromAdvance = 0;
-      let cashFromDelivery = 0;
-      let onlineUPICollection = 0;
-      let cashOutRefund = 0;
-
-      let countReceived = 0;
-      let countDelivered = 0;
-      let countUnrepaired = 0;
-
+      let cashFromAdvance = 0; let cashFromDelivery = 0; let onlineUPICollection = 0; let cashOutRefund = 0;
+      let countReceived = 0; let countDelivered = 0; let countUnrepaired = 0;
       const auditBody = document.getElementById('dailyAuditTableBody');
       auditBody.innerHTML = '';
 
@@ -1281,30 +1176,19 @@
           const adv = parseFloat(job.advPaid) || 0;
           if (adv > 0) {
             const method = job.advPayMethod || "Cash";
-            if (method === "Online") {
-              onlineUPICollection += adv;
-            } else {
-              cashFromAdvance += adv;
-            }
+            if (method === "Online") onlineUPICollection += adv;
+            else cashFromAdvance += adv;
             addAuditRow(job.billNo, job.customerName, job.phone, job.model, "Adv Recv", method, adv, 0);
           }
         }
-
         if (job.deliveryDate === selectedDate) {
           if (job.status === "Delivered") {
             countDelivered++;
-            const collected = (job.deliveryCollected !== undefined && job.deliveryCollected !== '') 
-              ? (parseFloat(job.deliveryCollected) || 0) 
-              : Math.max(0, (parseFloat(job.finalAmount) || 0) - (parseFloat(job.advPaid) || 0));
-
+            const collected = (job.deliveryCollected !== undefined && job.deliveryCollected !== '') ? (parseFloat(job.deliveryCollected) || 0) : Math.max(0, (parseFloat(job.finalAmount) || 0) - (parseFloat(job.advPaid) || 0));
             const method = job.deliveryPayMethod || "Cash";
-            if (method === "Online") {
-              onlineUPICollection += collected;
-            } else {
-              cashFromDelivery += collected;
-            }
+            if (method === "Online") onlineUPICollection += collected;
+            else cashFromDelivery += collected;
             addAuditRow(job.billNo, job.customerName, job.phone, job.model, "Delivered", method, collected, 0);
-
           } else if (job.status === "Unrepairable") {
             countUnrepaired++;
             const refund = parseFloat(job.refundPaid) || parseFloat(job.advPaid) || 0;
@@ -1323,7 +1207,6 @@
       document.getElementById('dailyDeliveryCash').innerText = "₹" + cashFromDelivery;
       document.getElementById('dailyOnlineTotal').innerText = "₹" + onlineUPICollection;
       document.getElementById('dailyAdvRefunded').innerText = "- ₹" + cashOutRefund;
-
       const netElem = document.getElementById('dailyNetCash');
       netElem.innerText = (netCashInDrawer < 0 ? "- ₹" + Math.abs(netCashInDrawer) : "₹" + netCashInDrawer);
       netElem.className = "text-xl font-bold " + (netCashInDrawer >= 0 ? "text-emerald-400" : "text-rose-400");
@@ -1337,64 +1220,53 @@
     function addAuditRow(bill, cust, phone, model, statusText, method, cashIn, cashOut) {
       const tbody = document.getElementById('dailyAuditTableBody');
       const tr = document.createElement('tr');
-      
       const isOnline = method === "Online";
-      const methodBadge = isOnline 
-        ? '<span class="px-2 py-0.5 rounded text-[9px] font-bold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 block mt-0.5">UPI / Online</span>'
-        : '<span class="px-2 py-0.5 rounded text-[9px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 block mt-0.5">Cash</span>';
+      const methodBadge = isOnline ? '<span class="px-2 py-0.5 rounded text-[9px] font-bold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 block mt-0.5">UPI / Online</span>' : '<span class="px-2 py-0.5 rounded text-[9px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 block mt-0.5">Cash</span>';
 
       tr.innerHTML = `
         <td class="p-3.5 font-mono font-bold text-indigo-400">${bill}</td>
         <td class="p-3.5 text-xs"><strong class="text-white">${cust}</strong> <br><span class="text-slate-500 font-mono">${phone}</span></td>
         <td class="p-3.5 text-xs text-slate-300">${model}</td>
-        <td class="p-3.5 text-center">
-          <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-800 text-slate-200 border border-slate-700">${statusText}</span>
-          ${methodBadge}
-        </td>
-        <td class="p-3.5 text-xs font-bold text-right ${cashIn > 0 ? (isOnline ? 'text-cyan-400' : 'text-emerald-400') : 'text-slate-500'}">
-          ${cashIn > 0 ? '+ ₹' + cashIn : '-'}
-        </td>
-        <td class="p-3.5 text-xs font-bold text-right ${cashOut > 0 ? 'text-rose-400' : 'text-slate-500'}">
-          ${cashOut > 0 ? '- ₹' + cashOut : '-'}
-        </td>
+        <td class="p-3.5 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-800 text-slate-200 border border-slate-700">${statusText}</span>${methodBadge}</td>
+        <td class="p-3.5 text-xs font-bold text-right ${cashIn > 0 ? (isOnline ? 'text-cyan-400' : 'text-emerald-400') : 'text-slate-500'}">${cashIn > 0 ? '+ ₹' + cashIn : '-'}</td>
+        <td class="p-3.5 text-xs font-bold text-right ${cashOut > 0 ? 'text-rose-400' : 'text-slate-500'}">${cashOut > 0 ? '- ₹' + cashOut : '-'}</td>
       `;
       tbody.appendChild(tr);
     }
 
     function filterTrackingStatus(status) {
       currentStatusFilter = status;
-      document.querySelectorAll('#statusFilterButtons .status-btn').forEach(btn => {
-        btn.classList.remove('bg-indigo-600', 'text-white');
-        btn.classList.add('bg-slate-950', 'text-slate-300');
-      });
+      document.querySelectorAll('#statusFilterButtons .status-btn').forEach(btn => { btn.classList.remove('bg-indigo-600', 'text-white'); btn.classList.add('bg-slate-950', 'text-slate-300'); });
       event.currentTarget.classList.remove('bg-slate-950', 'text-slate-300');
       event.currentTarget.classList.add('bg-indigo-600', 'text-white');
       renderJobCards();
     }
 
     function setTrackingDatePreset(preset) {
-      if (preset === 'all') {
-        document.getElementById('trackFromDate').value = '';
-        document.getElementById('trackToDate').value = '';
-      } else if (preset === 'today') {
-        document.getElementById('trackFromDate').value = todayStr;
-        document.getElementById('trackToDate').value = todayStr;
-      }
+      if (preset === 'all') { document.getElementById('trackFromDate').value = ''; document.getElementById('trackToDate').value = ''; document.getElementById('complaintFromDate').value = ''; document.getElementById('complaintToDate').value = ''; }
+      else if (preset === 'today') { document.getElementById('trackFromDate').value = todayStr; document.getElementById('trackToDate').value = todayStr; document.getElementById('complaintFromDate').value = todayStr; document.getElementById('complaintToDate').value = todayStr; }
       renderJobCards();
     }
 
+    // RENDER JOB CARDS (Works for both Tracking and Complaints)
     function renderJobCards() {
-      const q = (document.getElementById('searchInput')?.value || '').trim().toLowerCase();
-      const fromDate = document.getElementById('trackFromDate')?.value || '';
-      const toDate = document.getElementById('trackToDate')?.value || '';
-
-      const container = document.getElementById('jobCardGrid');
+      const isComplaintsTab = !document.getElementById('view-complaints').classList.contains('hidden');
+      
+      const q = (document.getElementById(isComplaintsTab ? 'complaintSearchInput' : 'searchInput')?.value || '').trim().toLowerCase();
+      const fromDate = document.getElementById(isComplaintsTab ? 'complaintFromDate' : 'trackFromDate')?.value || '';
+      const toDate = document.getElementById(isComplaintsTab ? 'complaintToDate' : 'trackToDate')?.value || '';
+      const container = document.getElementById(isComplaintsTab ? 'complaintCardGrid' : 'jobCardGrid');
+      
       container.innerHTML = '';
 
       const filteredByDateAndQuery = repairJobs.filter(job => {
-        const matchesQuery = [job.billNo, job.imei, job.phone, job.customerName, job.model].some(v => String(v ?? '').toLowerCase().includes(q));
+        // Separate complaints from normal tracking
+        if (isComplaintsTab && !job.isComplaint) return false;
+        if (!isComplaintsTab && job.isComplaint) return false;
 
+        const matchesQuery = [job.billNo, job.imei, job.phone, job.customerName, job.model].some(v => String(v ?? '').toLowerCase().includes(q));
         if (!matchesQuery) return false;
+        
         const dateA = String(job.intakeDate || '');
         const dateB = String((job.deliveryDate && job.deliveryDate !== '--') ? job.deliveryDate : dateA);
         if (fromDate && dateA < fromDate && dateB < fromDate) return false;
@@ -1402,19 +1274,22 @@
         return true;
       });
 
-      document.getElementById('cntAll').innerText = filteredByDateAndQuery.length;
-      document.getElementById('cntPending').innerText = filteredByDateAndQuery.filter(j => j.status === 'Pending').length;
-      document.getElementById('cntPartsOrder').innerText = filteredByDateAndQuery.filter(j => j.status === 'Parts-Ordered').length;
-      document.getElementById('cntReady').innerText = filteredByDateAndQuery.filter(j => j.status === 'Ready').length;
-      document.getElementById('cntUnrepair').innerText = filteredByDateAndQuery.filter(j => j.status === 'Unrepairable').length;
-      document.getElementById('cntDelivered').innerText = filteredByDateAndQuery.filter(j => j.status === 'Delivered').length;
+      if (!isComplaintsTab) {
+        document.getElementById('cntAll').innerText = filteredByDateAndQuery.length;
+        document.getElementById('cntPending').innerText = filteredByDateAndQuery.filter(j => j.status === 'Pending').length;
+        document.getElementById('cntPartsOrder').innerText = filteredByDateAndQuery.filter(j => j.status === 'Parts-Ordered').length;
+        document.getElementById('cntReady').innerText = filteredByDateAndQuery.filter(j => j.status === 'Ready').length;
+        document.getElementById('cntUnrepair').innerText = filteredByDateAndQuery.filter(j => j.status === 'Unrepairable').length;
+        document.getElementById('cntDelivered').innerText = filteredByDateAndQuery.filter(j => j.status === 'Delivered').length;
+      }
+
       const filtered = currentStatusFilter === 'ALL' ? filteredByDateAndQuery : filteredByDateAndQuery.filter(j => j.status === currentStatusFilter);
 
       if (filtered.length === 0) {
         container.innerHTML = `
           <div class="col-span-full py-12 text-center text-slate-500 bg-slate-900 border border-slate-800 rounded-3xl">
             <i class="fa-solid fa-magnifying-glass text-3xl mb-3 text-slate-600"></i>
-            <p class="text-sm font-medium">No repair record matches criteria or selected date</p>
+            <p class="text-sm font-medium">No record matches criteria or selected date</p>
           </div>
         `;
         return;
@@ -1428,25 +1303,23 @@
         const hasDue = (job.dueBalance || 0) > 0;
 
         let statusBadge = "";
-        if (isDelivered) {
-          statusBadge = '<span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Delivered</span>';
-        } else if (isUnrepairable) {
-          statusBadge = '<span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/20">Unrepairable</span>';
-        } else if (isReady) {
-          statusBadge = '<span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">Ready For Pickup</span>';
-        } else if (isPartsOnly) {
-          statusBadge = '<span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">Parts Ordered Only</span>';
-        } else {
-          statusBadge = '<span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20">Workshop Pending</span>';
-        }
+        if (isDelivered) statusBadge = '<span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Delivered</span>';
+        else if (isUnrepairable) statusBadge = '<span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/20">Unrepairable</span>';
+        else if (isReady) statusBadge = '<span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">Ready For Pickup</span>';
+        else if (isPartsOnly) statusBadge = '<span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">Parts Ordered Only</span>';
+        else statusBadge = '<span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20">Workshop Pending</span>';
 
         const card = document.createElement('div');
         card.className = "bg-slate-900 border border-slate-800 p-5 rounded-2xl flex flex-col justify-between hover:border-slate-700 transition shadow-sm";
+        
         card.innerHTML = `
           <div>
             <div class="flex items-center justify-between gap-2 mb-3">
               <span class="inline-flex flex-col items-center text-xs font-mono font-bold bg-indigo-500/10 text-indigo-400 px-2.5 py-1 rounded-md border border-indigo-500/20">${job.billNo}<svg class="bill-barcode mt-1" data-bill="${String(job.billNo).replace(/&/g,'&amp;').replace(/"/g,'&quot;')}" style="width:112px;height:28px;background:#fff"></svg></span>
-              ${statusBadge}
+              <div class="flex flex-col gap-1 items-end">
+                ${statusBadge}
+                ${job.isComplaint ? `<span class="text-[9px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30 px-1.5 py-0.5 rounded">Warranty Claim</span>` : ''}
+              </div>
             </div>
             <h4 class="text-base font-bold text-white tracking-wide">${job.model}</h4>
             <p class="text-xs text-slate-400 font-mono mb-2">IMEI: ${job.imei}</p>
@@ -1457,22 +1330,11 @@
             <div class="bg-slate-950 p-3 rounded-xl mb-4 text-xs space-y-1.5 border border-slate-800/80">
               <div class="flex items-center justify-between">
                 <p><span class="text-slate-500 font-medium">Customer:</span> <strong class="text-slate-300">${job.customerName}</strong></p>
-                <a href="tel:${job.phone}" title="Call Customer Direct" class="px-2.5 py-1 bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white rounded-lg font-mono text-[11px] font-bold border border-emerald-500/30 transition flex items-center gap-1.5">
-                  <i class="fa-solid fa-phone"></i> ${job.phone}
-                </a>
+                <a href="tel:${job.phone}" title="Call Customer Direct" class="px-2.5 py-1 bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white rounded-lg font-mono text-[11px] font-bold border border-emerald-500/30 transition flex items-center gap-1.5"><i class="fa-solid fa-phone"></i> ${job.phone}</a>
               </div>
               <p><span class="text-slate-500 font-medium">Diagnosis:</span> ${job.fault}</p>
-              ${job.remarks ? `
-                <div class="p-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-300 text-[11px]">
-                  <i class="fa-solid fa-note-sticky mr-1"></i> <strong>Remarks:</strong> ${job.remarks}
-                </div>
-              ` : ''}
-              ${hasDue && !isUnrepairable ? `
-                <div class="p-1.5 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 font-bold flex justify-between">
-                  <span>Pending Due (বাকি):</span>
-                  <span>₹${job.dueBalance}</span>
-                </div>
-              ` : ''}
+              ${job.remarks ? `<div class="p-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-300 text-[11px]"><i class="fa-solid fa-note-sticky mr-1"></i> <strong>Remarks:</strong> ${job.remarks}</div>` : ''}
+              ${hasDue && !isUnrepairable ? `<div class="p-1.5 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 font-bold flex justify-between"><span>Pending Due (বাকি):</span><span>₹${job.dueBalance}</span></div>` : ''}
             </div>
           </div>
           <div class="pt-3 border-t border-slate-800 flex items-center justify-between gap-2">
@@ -1480,12 +1342,19 @@
               <span class="text-[10px] uppercase font-semibold text-slate-500">Total Billed</span>
               <p class="text-sm font-bold text-white">₹${isUnrepairable ? 0 : (isDelivered ? (job.finalAmount || 0) : (job.estCost || 0))} ${!isDelivered && !isUnrepairable && job.advPaid > 0 ? `<span class="text-xs text-emerald-400 font-normal">(Adv: ₹${job.advPaid}${job.advPayMethod === 'Online' ? 'UPI' : 'Cash'})</span>` : ''}</p>
             </div>
-            <div class="flex items-center gap-1.5">
+            <div class="flex items-center gap-1.5 flex-wrap justify-end">
               ${!isDelivered && !isUnrepairable ? `
                 <button onclick="toggleDeviceReady('${job.billNo}')" title="${isReady ? 'Mark as Pending' : 'Mark as Ready for Pickup'}" class="px-2.5 py-2 rounded-xl text-xs font-bold border transition flex items-center gap-1 ${isReady ? 'bg-blue-600 text-white border-blue-500 shadow-md' : 'bg-slate-800 text-slate-300 border-slate-700 hover:text-white'}">
                   <i class="fa-solid fa-bell"></i> ${isReady ? 'Ready' : 'Set Ready'}
                 </button>
               ` : ''}
+              
+              ${isDelivered && !job.isComplaint ? `
+                <button onclick="fileWarrantyClaim('${job.billNo}')" title="File Warranty Claim" class="px-2.5 py-2 bg-amber-600/20 hover:bg-amber-600 rounded-xl text-amber-400 hover:text-white border border-amber-500/30 transition text-xs font-bold flex items-center gap-1">
+                  <i class="fa-solid fa-shield-halved"></i> Claim
+                </button>
+              ` : ''}
+
               <button onclick="checkAdminThenEdit('${job.billNo}')" title="Edit Record (PIN Protected)" class="p-2.5 bg-slate-800 hover:bg-slate-700 rounded-xl text-slate-300 border border-slate-700 transition">
                 <i class="fa-solid fa-pen"></i>
               </button>
@@ -1505,6 +1374,7 @@
         `;
         container.appendChild(card);
       });
+      
       if (window.JsBarcode) {
         container.querySelectorAll('svg.bill-barcode').forEach(svg => {
           try { JsBarcode(svg, svg.dataset.bill || '', { format: 'CODE128', displayValue: false, margin: 1, height: 24, width: 1.4, background: '#ffffff', lineColor: '#111111' }); } catch (_) {}
@@ -1521,21 +1391,13 @@
     }
 
     function checkAdminThenEdit(billNo) {
-      if (isOwnerAuthenticated) {
-        openEditModal(billNo);
-      } else {
-        pendingDestinationTab = 'edit_' + billNo;
-        openPasswordModal();
-      }
+      if (isOwnerAuthenticated) { openEditModal(billNo); }
+      else { pendingDestinationTab = 'edit_' + billNo; openPasswordModal(); }
     }
 
     function requestDirectDelete(billNo) {
-      if (isOwnerAuthenticated) {
-        executeConfirmedDeletion(billNo);
-      } else {
-        pendingDestinationTab = 'delete_' + billNo;
-        openPasswordModal();
-      }
+      if (isOwnerAuthenticated) { executeConfirmedDeletion(billNo); }
+      else { pendingDestinationTab = 'delete_' + billNo; openPasswordModal(); }
     }
 
     function openDeliveryModal(billNo, estAmount, advPaid) {
@@ -1553,19 +1415,16 @@
       toggleDeliveryOutcomeUI();
       handleFinalAmountChange();
 
-      const modal = document.getElementById('deliveryModal');
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
+      document.getElementById('deliveryModal').classList.remove('hidden');
+      document.getElementById('deliveryModal').classList.add('flex');
     }
 
     function handleFinalAmountChange() {
       const adv = parseFloat(document.getElementById('modalAdvPaidHidden').value) || 0;
       const finalAmt = parseFloat(document.getElementById('modalFinalAmount').value) || 0;
       const remainingPayable = Math.max(0, finalAmt - adv);
-
       document.getElementById('modalDeliveryAdvDisp').innerText = "₹" + adv;
       document.getElementById('modalDeliveryRemDueDisp').innerText = "₹" + remainingPayable;
-      
       document.getElementById('modalDeliveryCashCollected').value = remainingPayable;
       document.getElementById('modalCustomerFinalDue').innerText = "₹0";
     }
@@ -1574,31 +1433,25 @@
       const adv = parseFloat(document.getElementById('modalAdvPaidHidden').value) || 0;
       const finalAmt = parseFloat(document.getElementById('modalFinalAmount').value) || 0;
       const remainingPayable = Math.max(0, finalAmt - adv);
-
-      const cashCollectedInput = document.getElementById('modalDeliveryCashCollected');
-      const collected = parseFloat(cashCollectedInput.value) || 0;
+      const collected = parseFloat(document.getElementById('modalDeliveryCashCollected').value) || 0;
       const pendingDue = Math.max(0, remainingPayable - collected);
       document.getElementById('modalCustomerFinalDue').innerText = "₹" + pendingDue;
     }
 
     function toggleDeliveryOutcomeUI() {
       const status = document.getElementById('modalStatusSelect').value;
-      const repFields = document.getElementById('repairableFields');
-      const refundFields = document.getElementById('unrepairableRefundFields');
-
       if (status === "Unrepairable") {
-        repFields.style.display = "none";
-        refundFields.classList.remove('hidden');
+        document.getElementById('repairableFields').style.display = "none";
+        document.getElementById('unrepairableRefundFields').classList.remove('hidden');
       } else {
-        repFields.style.display = "block";
-        refundFields.classList.add('hidden');
+        document.getElementById('repairableFields').style.display = "block";
+        document.getElementById('unrepairableRefundFields').classList.add('hidden');
       }
     }
 
     function closeDeliveryModal() {
-      const modal = document.getElementById('deliveryModal');
-      modal.classList.add('hidden');
-      modal.classList.remove('flex');
+      document.getElementById('deliveryModal').classList.add('hidden');
+      document.getElementById('deliveryModal').classList.remove('flex');
     }
 
     async function submitDelivery() {
@@ -1632,7 +1485,6 @@
           
           const remainingPayable = Math.max(0, fAmount - advPaid);
           const pendingDue = Math.max(0, remainingPayable - collected);
-
           const totalCashCollected = advPaid + collected;
           const calculatedProfit = Math.max(0, totalCashCollected - pCost);
 
@@ -1671,15 +1523,13 @@
       document.getElementById('editAdvPaid').value = job.advPaid;
       document.getElementById('editDueBalance').value = (job.status === 'Unrepairable' ? 0 : (job.dueBalance || 0));
 
-      const modal = document.getElementById('editModal');
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
+      document.getElementById('editModal').classList.remove('hidden');
+      document.getElementById('editModal').classList.add('flex');
     }
 
     function closeEditModal() {
-      const modal = document.getElementById('editModal');
-      modal.classList.add('hidden');
-      modal.classList.remove('flex');
+      document.getElementById('editModal').classList.add('hidden');
+      document.getElementById('editModal').classList.remove('flex');
     }
 
     async function saveEditedJob() {
@@ -1709,7 +1559,6 @@
           const pCost = parseFloat(repairJobs[idx].partCost) || 0;
           repairJobs[idx].netProfit = Math.max(0, repairJobs[idx].finalAmount - pCost);
         }
-
         await syncJobToFirestore(repairJobs[idx]);
         closeEditModal();
       }
@@ -1722,15 +1571,11 @@
     }
 
     async function executeConfirmedDeletion(billNo) {
-      const confirmed = window.confirm(`Are you sure you want to permanently delete Bill "${billNo}"?\n\nThis action will erase the invoice and cash drawer transaction from cloud!`);
-      if (!confirmed) return;
-
+      if (!window.confirm(`Are you sure you want to permanently delete Bill "${billNo}"?`)) return;
       try {
         await deleteJobFromFirestore(billNo);
         closeEditModal();
-      } catch (err) {
-        alert("Error deleting bill: " + err.message);
-      }
+      } catch (err) { alert("Error deleting bill: " + err.message); }
     }
 
     function setLedgerPreset(preset) {
@@ -1745,13 +1590,11 @@
         document.getElementById('ledgerFromDate').value = firstDay;
         document.getElementById('ledgerToDate').value = lastDay;
       } else if (preset === '3months') {
-        const past = new Date();
-        past.setMonth(now.getMonth() - 3);
+        const past = new Date(); past.setMonth(now.getMonth() - 3);
         document.getElementById('ledgerFromDate').value = past.toISOString().split('T')[0];
         document.getElementById('ledgerToDate').value = todayStr;
       } else if (preset === '6months') {
-        const past = new Date();
-        past.setMonth(now.getMonth() - 6);
+        const past = new Date(); past.setMonth(now.getMonth() - 6);
         document.getElementById('ledgerFromDate').value = past.toISOString().split('T')[0];
         document.getElementById('ledgerToDate').value = todayStr;
       } else if (preset === 'all') {
@@ -1764,7 +1607,6 @@
     function renderLedgerTable() {
       const tbody = document.getElementById('ledgerTableBody');
       tbody.innerHTML = '';
-
       const dueTbody = document.getElementById('dueTableBody');
       dueTbody.innerHTML = '';
 
@@ -1774,38 +1616,23 @@
       const filteredJobs = repairJobs.filter(job => {
         const dateA = job.intakeDate || '';
         const dateB = (job.deliveryDate && job.deliveryDate !== '--') ? job.deliveryDate : dateA;
-
-        if (fromDate) {
-          if (dateA < fromDate && dateB < fromDate) return false;
-        }
-        if (toDate) {
-          if (dateA > toDate && dateB > toDate) return false;
-        }
+        if (fromDate && dateA < fromDate && dateB < fromDate) return false;
+        if (toDate && dateA > toDate && dateB > toDate) return false;
         return true;
       });
 
-      let totalParts = 0;
-      let totalBilled = 0;
-      let totalRefund = 0;
-      let totalProfit = 0;
-      let totalMarketDue = 0;
-      let countDueCustomers = 0;
+      let totalParts = 0; let totalBilled = 0; let totalRefund = 0; let totalProfit = 0; let totalMarketDue = 0; let countDueCustomers = 0;
 
       filteredJobs.forEach(job => {
         const isDelivered = job.status === "Delivered";
         const isUnrepairable = job.status === "Unrepairable";
-
         const partsCost = isUnrepairable ? 0 : (parseFloat(job.partCost) || 0);
         const billed = isUnrepairable ? 0 : (isDelivered ? (parseFloat(job.finalAmount) || 0) : (parseFloat(job.estCost) || 0));
         const refund = isUnrepairable ? (parseFloat(job.refundPaid) || parseFloat(job.advPaid) || 0) : 0;
         const profit = isUnrepairable ? 0 : (parseFloat(job.netProfit) || 0);
         const due = isUnrepairable ? 0 : (parseFloat(job.dueBalance) || 0);
 
-        totalParts += partsCost;
-        totalBilled += billed;
-        totalRefund += refund;
-        totalProfit += profit;
-        totalMarketDue += due;
+        totalParts += partsCost; totalBilled += billed; totalRefund += refund; totalProfit += profit; totalMarketDue += due;
 
         if (due > 0 && !isUnrepairable) {
           countDueCustomers++;
@@ -1835,26 +1662,15 @@
           <td class="p-4 font-mono font-semibold text-indigo-400">${job.billNo}</td>
           <td class="p-4 text-xs font-medium">${job.intakeDate}</td>
           <td class="p-4 text-xs font-medium text-emerald-400">${job.deliveryDate || '--'}</td>
-          <td class="p-4">
-            <div class="font-bold text-white">${job.model}</div>
-            <div class="text-xs text-slate-400">${job.customerName} (${job.phone})</div>
-          </td>
+          <td class="p-4"><div class="font-bold text-white">${job.model}</div><div class="text-xs text-slate-400">${job.customerName} (${job.phone})</div></td>
           <td class="p-4 text-xs font-semibold text-indigo-300">${job.warranty || 'None'}</td>
           <td class="p-4 text-xs">${isUnrepairable ? 'None' : (job.partName || '<span class="text-slate-500">None</span>')}</td>
           <td class="p-4 text-rose-400 font-semibold">₹${partsCost}</td>
           <td class="p-4 font-bold text-white">₹${billed}</td>
           <td class="p-4 font-bold ${due > 0 ? 'text-rose-400' : 'text-slate-500'}">₹${due}</td>
           <td class="p-4 font-bold ${profit > 0 ? 'text-emerald-400' : 'text-slate-500'}">₹${profit}</td>
-          <td class="p-4">
-            <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${isDelivered ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : (isUnrepairable ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20' : 'bg-amber-500/10 text-amber-400 border border-amber-500/20')}">
-              ${job.status}
-            </span>
-          </td>
-          <td class="p-4 text-center">
-            <button onclick="checkAdminThenEdit('${job.billNo}')" class="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-300 text-xs transition">
-              <i class="fa-solid fa-pen"></i>
-            </button>
-          </td>
+          <td class="p-4"><span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${isDelivered ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : (isUnrepairable ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20' : 'bg-amber-500/10 text-amber-400 border border-amber-500/20')}">${job.status}</span></td>
+          <td class="p-4 text-center"><button onclick="checkAdminThenEdit('${job.billNo}')" class="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-300 text-xs transition"><i class="fa-solid fa-pen"></i></button></td>
         `;
         tbody.appendChild(tr);
       });
@@ -1876,11 +1692,8 @@
       const cleanPhone = phone.replace(/[^0-9]/g, '');
       const formattedPhone = cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone;
       const sName = currentStore ? currentStore.shopName : "SmartFix Mobile Care";
-      
       const message = `Dear ${name},\nThis is a friendly reminder from *${sName}* regarding your device *${model}* (Bill: *${billNo}*).\nThere is a remaining due balance of *₹${dueAmount}*.\nKindly settle payment at your convenience.\nThank you!`;
-      
-      const whatsappUrl = `https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`;
-      window.open(whatsappUrl, '_blank');
+      window.open(`https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`, '_blank');
     }
 
     async function printDirectThermalVoucher(job, isDualIntake = false) {
@@ -1892,6 +1705,7 @@
       if (isPartsOnly) voucherTitle = "PARTS ORDER BOOKING RECEIPT";
       else if (isUnrepairable) voucherTitle = "NON-REPAIR RETURN VOUCHER";
       else if (isDelivered) voucherTitle = "REPAIR DELIVERY CASH MEMO";
+      else if (job.isComplaint) voucherTitle = "WARRANTY COMPLAINT RECEIPT";
 
       const sName = currentStore ? currentStore.shopName : "TULSI MOBILE STORE";
       const sAddr = currentStore ? currentStore.shopAddress : "Main Road, Workshop Station";
@@ -1905,13 +1719,9 @@
       let due = parseFloat(job.dueBalance) || 0;
 
       let paymentStatusText = "PENDING";
-      if (isUnrepairable) {
-        paymentStatusText = "RETURNED (CLOSED)";
-      } else if (isDelivered) {
-        paymentStatusText = due > 0 ? "PARTIAL (DUE: Rs. " + due + ")" : "PAID IN FULL (" + (job.deliveryPayMethod || "Cash") + ")";
-      } else {
-        paymentStatusText = advPaid > 0 ? "ADVANCE PAID (" + (job.advPayMethod || "Cash") + ")" : "PAYMENT DUE";
-      }
+      if (isUnrepairable) paymentStatusText = "RETURNED (CLOSED)";
+      else if (isDelivered) paymentStatusText = due > 0 ? "PARTIAL (DUE: Rs. " + due + ")" : "PAID IN FULL (" + (job.deliveryPayMethod || "Cash") + ")";
+      else paymentStatusText = advPaid > 0 ? "ADVANCE PAID (" + (job.advPayMethod || "Cash") + ")" : "PAYMENT DUE";
 
       let printHTML = `
         <div>
@@ -1922,7 +1732,6 @@
               <p style="font-size: 9.5px; font-weight: 600; margin: 2px 0; color: #000;">${sAddr}</p>
               <p style="font-size: 9.5px; font-weight: 900; margin: 1px 0; color: #000;">Helpdesk: +91 ${sPhone}</p>
             </div>
-            
             <div style="border-top: 1.5px solid #000; margin: 4px 0;"></div>
             <div style="text-align: center; font-size: 11px; font-weight: 900; text-decoration: underline; letter-spacing: 0.5px; padding: 2px 0; color: #000;">
               ${voucherTitle}
@@ -2009,14 +1818,11 @@
             ${upiQrDataUrl ? `<div style="text-align:center;"><img src="${upiQrDataUrl}" alt="UPI payment QR" style="width:105px;height:105px;object-fit:contain;display:inline-block; filter: grayscale(100%) contrast(300%);" /></div>` : ''}
             <div style="text-align:center;font-size:9.5px;font-weight:600;line-height:1.5;word-break:break-all;color:#000;">UPI ID: <strong style="font-weight:900;">9932480026@okbizaxis</strong><br>Amount: enter in payment app</div>
             
-            <!-- Developer Name is placed prominently here so it never gets cut off -->
             <div style="border-top: 1px solid #000; margin: 5px 0 2px 0;"></div>
             <div style="text-align: center; font-size: 10.5px; font-weight: 900; line-height: 1.5; color: #000;">
               Developed by Debapriya Sarkar<br>
               <span style="font-size: 9px; font-weight: 600;">SmartFix Pro &copy; 2026 | Mobile Workshop</span>
             </div>
-            
-            <!-- Small blank space to push paper out without jamming -->
             <div style="height: 5mm;"></div>
           </div>
       `;
@@ -2044,7 +1850,6 @@
               Developed by Debapriya Sarkar<br>
               <span style="font-size: 9px; font-weight: 600;">SmartFix Pro &copy; 2026</span>
             </div>
-            
             <div style="height: 5mm;"></div>
           </div>
         `;
@@ -2099,9 +1904,7 @@
     function printDirectA4Table() {
       const sName = currentStore ? currentStore.shopName : "SMARTFIX MOBILE CARE";
       const sourceTable = document.getElementById('ledgerTable').cloneNode(true);
-      sourceTable.querySelectorAll('tr').forEach(row => {
-        if (row.cells.length > 11) row.deleteCell(-1);
-      });
+      sourceTable.querySelectorAll('tr').forEach(row => { if (row.cells.length > 11) row.deleteCell(-1); });
 
       const reportHTML = `
         <div>
@@ -2131,7 +1934,6 @@
       const printArea = document.getElementById('masterDirectPrintArea');
       printArea.innerHTML = htmlContent;
       printArea.style.display = 'block';
-      // 500ms timeout ensures images and QR code fully load before print dialog opens
       setTimeout(() => { window.print(); }, 500);
     }
     window.addEventListener('afterprint', () => {
@@ -2144,17 +1946,12 @@
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF('landscape', 'pt', 'a4');
       const sName = currentStore ? currentStore.shopName : "SMARTFIX MOBILE CARE";
-
       doc.setFontSize(15);
       doc.text(`${sName} - FINANCIAL & WORKSHOP STATEMENT`, 40, 40);
       doc.setFontSize(9);
       doc.text(`Generated Date: ${new Date().toLocaleDateString()} | Owner Financial Statement`, 40, 56);
 
-      let totalParts = 0;
-      let totalBilled = 0;
-      let totalProfit = 0;
-      let totalDue = 0;
-
+      let totalParts = 0; let totalBilled = 0; let totalProfit = 0; let totalDue = 0;
       const fromDate = document.getElementById('ledgerFromDate')?.value || '';
       const toDate = document.getElementById('ledgerToDate')?.value || '';
 
@@ -2171,46 +1968,22 @@
         const pCost = isUnrepairable ? 0 : (j.partCost || 0);
         const profit = isUnrepairable ? 0 : (j.netProfit || 0);
         const due = isUnrepairable ? 0 : (j.dueBalance || 0);
-
-        totalParts += pCost;
-        totalBilled += billed;
-        totalProfit += profit;
-        totalDue += due;
-
-        return [
-          j.billNo,
-          j.intakeDate,
-          j.deliveryDate || "--",
-          `${j.customerName} (${j.phone})`,
-          j.model,
-          j.warranty || "None",
-          `Rs. ${pCost}`,
-          `Rs. ${billed}`,
-          `Rs. ${due}`,
-          `Rs. ${profit}`,
-          j.status
-        ];
+        totalParts += pCost; totalBilled += billed; totalProfit += profit; totalDue += due;
+        return [ j.billNo, j.intakeDate, j.deliveryDate || "--", `${j.customerName} (${j.phone})`, j.model, j.warranty || "None", `Rs. ${pCost}`, `Rs. ${billed}`, `Rs. ${due}`, `Rs. ${profit}`, j.status ];
       });
 
       doc.autoTable({
         head: [["Bill No", "Intake", "Delivered", "Customer", "Model", "Warranty", "Parts Cost", "Billed Amt", "Due Amt", "Net Profit", "Status"]],
         body: rows,
         foot: [["TOTALS", "", "", "", "", "", `Rs. ${totalParts}`, `Rs. ${totalBilled}`, `Rs. ${totalDue}`, `Rs. ${totalProfit}`, ""]],
-        startY: 70,
-        theme: 'grid',
-        headStyles: { fillColor: [49, 46, 129], textColor: [255, 255, 255], fontStyle: 'bold' },
-        footStyles: { fillColor: [15, 23, 42], textColor: [255, 255, 255], fontStyle: 'bold' },
-        styles: { fontSize: 8, cellPadding: 4 }
+        startY: 70, theme: 'grid', headStyles: { fillColor: [49, 46, 129], textColor: [255, 255, 255], fontStyle: 'bold' }, footStyles: { fillColor: [15, 23, 42], textColor: [255, 255, 255], fontStyle: 'bold' }, styles: { fontSize: 8, cellPadding: 4 }
       });
 
       const pageHeight = doc.internal.pageSize.height;
-      doc.setFontSize(8);
-      doc.setTextColor(100);
+      doc.setFontSize(8); doc.setTextColor(100);
       doc.text("SmartFix Pro © 2026 | Mobile Workshop Management System | Developed by Debapriya Sarkar", 40, pageHeight - 20);
-
       doc.save(`${sName.replace(/\\s+/g, '_')}_Statement.pdf`);
     }
-
 
     function createBarcodeSvg(value, id = 'billBarcode') {
       if (!window.JsBarcode) return `<span style="font-size:8px;font-weight:bold;">${String(value || '')}</span>`;
@@ -2220,6 +1993,7 @@
       try { window.JsBarcode(svg, String(value || ''), { format: 'CODE128', displayValue: false, margin: 1, height: 28, width: 1.35, background: '#ffffff', lineColor: '#000000' }); return svg.outerHTML; }
       catch (_) { return `<span style="font-family:monospace;font-weight:bold;">${String(value || '')}</span>`; }
     }
+
     function createUpiQrDataUrl(job) {
       return new Promise(resolve => {
         if (!window.QRCode) { resolve(''); return; }
@@ -2228,15 +2002,7 @@
         document.body.appendChild(holder);
         const upi = `upi://pay?pa=${encodeURIComponent('9932480026@okbizaxis')}&pn=${encodeURIComponent(currentStore?.shopName || 'SmartFix Store')}&cu=INR`;
         try {
-          new QRCode(holder, { 
-            text: upi, 
-            width: 180, 
-            height: 180, 
-            colorDark : "#000000", 
-            colorLight : "#ffffff", 
-            correctLevel: QRCode.CorrectLevel.M 
-          });
-          // 300ms wait to ensure image is fully generated before returning
+          new QRCode(holder, { text: upi, width: 180, height: 180, colorDark : "#000000", colorLight : "#ffffff", correctLevel: QRCode.CorrectLevel.M });
           setTimeout(() => {
             const canvas = holder.querySelector('canvas'); const img = holder.querySelector('img');
             let url = ''; try { url = canvas ? canvas.toDataURL('image/png') : (img?.src || ''); } catch (_) {}
@@ -2250,11 +2016,13 @@
       const el = document.getElementById('backupStatus');
       if (el) { el.textContent = message; el.className = `text-xs mt-4 ${isError ? 'text-rose-300' : 'text-emerald-300'}`; }
     }
+
     function downloadBlob(filename, content, type = 'application/json') {
       const blob = new Blob([content], { type }); const url = URL.createObjectURL(blob);
       const a = document.createElement('a'); a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove();
       setTimeout(() => URL.revokeObjectURL(url), 1500);
     }
+
     async function downloadStoreBackup() {
       const user = auth.currentUser;
       if (!user || !currentStore) { setBackupStatus('আগে দোকানের account-এ লগইন করুন।', true); return; }
@@ -2268,6 +2036,7 @@
         setBackupStatus(`Backup তৈরি হয়েছে: ${jobs.length}টি bill। ফাইলটি নিরাপদ স্থানে রাখুন।`);
       } catch (err) { setBackupStatus(`Backup ব্যর্থ: ${err.message || err}`, true); }
     }
+
     async function restoreStoreBackup() {
       const user = auth.currentUser; const file = document.getElementById('backupRestoreFile')?.files?.[0];
       if (!user) { setBackupStatus('Restore করার আগে লগইন করুন।', true); return; }
