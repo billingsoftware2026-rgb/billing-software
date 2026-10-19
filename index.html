@@ -44,12 +44,12 @@
         top: 0 !important;
         width: 58mm !important;
         max-width: 58mm !important;
-        padding: 2mm 3mm !important;
+        padding: 4mm 3mm 5mm 3mm !important; /* Added top and bottom padding */
         margin: 0 !important;
         background: #fff !important;
         color: #000 !important;
-        font-family: Arial, Helvetica, sans-serif !important; /* Changed to Arial */
-        font-weight: 600 !important; /* Made text darker */
+        font-family: Arial, Helvetica, sans-serif !important; /* Arial font */
+        font-weight: 600 !important; /* Darker ink */
         font-size: 11px !important;
         line-height: 1.4 !important;
         -webkit-print-color-adjust: exact !important;
@@ -66,7 +66,7 @@
 
       .receipt-cut-line {
         page-break-after: always !important;
-        border-bottom: 2px solid #000 !important; /* Changed dashed to solid */
+        border-bottom: 2px solid #000 !important;
         margin: 12px 0 !important;
         padding-bottom: 10px !important;
       }
@@ -1032,7 +1032,8 @@
       const encoder = new TextEncoder();
       const init = new Uint8Array([0x1B, 0x40]); // ESC @ (initialize)
       const leftAlign = new Uint8Array([0x1B, 0x61, 0x00]); // ESC a 0 (left align)
-      const feed = new Uint8Array([0x0A, 0x0A, 0x0A, 0x0A]); // 4 line feeds
+      // INCREASED FEED TO 10 LINES TO PREVENT CUTTING TEXT
+      const feed = new Uint8Array([0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A]); 
       const cut = new Uint8Array([0x1D, 0x56, 0x41, 0x00]); // GS V A 0 (paper cut)
 
       const textBytes = encoder.encode(text);
@@ -1088,6 +1089,7 @@
       const LINE = "--------------------------------";
 
       let receipt = "";
+      receipt += "\n\n"; // Space at top
       receipt += BT_BOLD_ON + sName + BT_BOLD_OFF + "\n";
       receipt += BT_BOLD_ON + sAddr + BT_BOLD_OFF + "\n";
       receipt += BT_BOLD_ON + "Helpdesk: +91 " + sPhone + BT_BOLD_OFF + "\n";
@@ -1124,9 +1126,10 @@
       receipt += "Developed by Debapriya Sarkar\n";
       receipt += BT_BOLD_OFF;
       receipt += LINE + "\n";
+      receipt += "\n\n\n"; // Space at bottom before auto-cut
 
       if (isDualIntake) {
-        receipt += "\n";
+        receipt += "\n\n";
         receipt += BT_BOLD_ON + "WORKSHOP RECORD TAG" + BT_BOLD_OFF + "\n";
         receipt += LINE + "\n";
         receipt += BT_BOLD_ON + "BILL NO: " + job.billNo + BT_BOLD_OFF + "\n";
@@ -1136,6 +1139,7 @@
         receipt += BT_BOLD_ON + "CUST   : " + job.customerName + BT_BOLD_OFF + "\n";
         receipt += BT_BOLD_ON + "ADV    : Rs. " + advPaid.toFixed(2) + BT_BOLD_OFF + "\n";
         receipt += LINE + "\n";
+        receipt += "\n\n\n";
       }
 
       return receipt;
@@ -2110,6 +2114,8 @@
       let printHTML = `
         <div>
           <div class="${isDualIntake ? 'receipt-cut-line' : ''}" style="padding: 2px 0;">
+            <!-- Added a small top margin so top text doesn't cut -->
+            <div style="height: 8px;"></div>
             <div style="text-align: center; margin-bottom: 5px;">
               <h2 style="font-size: 14px; font-weight: 900; margin: 0; text-transform: uppercase; letter-spacing: 0.5px; color: #000;">${sName}</h2>
               <p style="font-size: 9.5px; font-weight: 600; margin: 2px 0; color: #000;">${sAddr}</p>
@@ -2206,12 +2212,16 @@
               SmartFix Pro &copy; 2026 | Mobile Workshop Management System<br>
               <strong style="font-weight: 900; font-size: 10.5px;">Developed by Debapriya Sarkar</strong>
             </div>
+            
+            <!-- EXTRA SPACE AT BOTTOM TO PREVENT CUTTING WHEN TEARING -->
+            <div style="height: 20mm;"></div>
           </div>
       `;
 
       if (isDualIntake) {
         printHTML += `
           <div style="padding: 2px 0;">
+            <div style="height: 8px;"></div>
             <div style="text-align: center; margin-bottom: 3px;">
               <h3 style="font-size: 12px; font-weight: 900; margin: 0; text-transform: uppercase; color: #000;">WORKSHOP RECORD TAG</h3>
               <p style="font-size: 9.5px; font-weight: 600; margin: 1px 0; color: #000;">${isPartsOnly ? '(SPARE PARTS BOOKING TOKEN)' : '(ATTACH TO PHONE BACK)'}</p>
@@ -2231,6 +2241,9 @@
               SmartFix Pro &copy; 2026<br>
               <strong style="font-weight: 900; font-size: 10.5px;">Developed by Debapriya Sarkar</strong>
             </div>
+            
+            <!-- EXTRA SPACE AT BOTTOM TO PREVENT CUTTING WHEN TEARING -->
+            <div style="height: 20mm;"></div>
           </div>
         `;
       }
@@ -2271,6 +2284,7 @@
           <div style="border-top: 1px solid #000; margin-top: 25px; padding-top: 8px; text-align: center; font-size: 9px; font-weight: 600; color: #000;">
             SmartFix Pro &copy; 2026 | Mobile Workshop Management System | <strong style="font-weight:900;">Developed by Debapriya Sarkar</strong>
           </div>
+          <div style="height: 20mm;"></div>
         </div>
       `;
 
@@ -2300,6 +2314,7 @@
           <div style="border-top: 1px solid #000; margin-top: 25px; padding-top: 8px; text-align: center; font-size: 9px; font-weight: 600; color: #000;">
             SmartFix Pro &copy; 2026 | Mobile Workshop Management System | <strong style="font-weight:900;">Developed by Debapriya Sarkar</strong>
           </div>
+          <div style="height: 20mm;"></div>
         </div>
       `;
 
