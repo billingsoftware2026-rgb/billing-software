@@ -48,7 +48,8 @@
         margin: 0 !important;
         background: #fff !important;
         color: #000 !important;
-        font-family: 'Courier New', Courier, monospace !important;
+        font-family: Arial, Helvetica, sans-serif !important; /* Changed to Arial */
+        font-weight: 600 !important; /* Made text darker */
         font-size: 11px !important;
         line-height: 1.4 !important;
         -webkit-print-color-adjust: exact !important;
@@ -65,7 +66,7 @@
 
       .receipt-cut-line {
         page-break-after: always !important;
-        border-bottom: 2px dashed #000 !important;
+        border-bottom: 2px solid #000 !important; /* Changed dashed to solid */
         margin: 12px 0 !important;
         padding-bottom: 10px !important;
       }
@@ -77,7 +78,7 @@
         width: 210mm !important;
         max-width: 210mm !important;
         padding: 12mm !important;
-        font-family: system-ui, -apple-system, sans-serif !important;
+        font-family: Arial, sans-serif !important;
         font-size: 11px !important;
       }
     }
@@ -919,9 +920,6 @@
       navigator.serviceWorker.register('sw.js').catch(() => {});
     }
 
-    // =========================================================================
-    // PERSISTENT LOCAL MIRROR & AUTOMATIC CLOUD RESTORE ENGINE
-    // =========================================================================
     function mirrorJobsToLocalStorage(jobs) {
       try {
         localStorage.setItem(jobsMirrorKey(), JSON.stringify(jobs));
@@ -939,7 +937,6 @@
       }
     }
 
-    // Auto-Restore: Cloud database khali thakle Local Mirror theke automatic upload
     async function autoRestoreMirroredJobsIfCloudEmpty(userUid, cloudDocsCount) {
       const localBackup = getMirroredJobsFromLocal();
       if (cloudDocsCount === 0 && localBackup && localBackup.length > 0) {
@@ -1026,9 +1023,6 @@
       }
     }
 
-    // =========================================================================
-    // BLUETOOTH PRINTING ENGINE (ESC/POS)
-    // =========================================================================
     async function printViaBluetooth(text) {
       if (!bluetoothPrintCharacteristic) {
         alert("No Bluetooth printer connected. Please connect a printer first.");
@@ -2118,7 +2112,7 @@
           <div class="${isDualIntake ? 'receipt-cut-line' : ''}" style="padding: 2px 0;">
             <div style="text-align: center; margin-bottom: 5px;">
               <h2 style="font-size: 14px; font-weight: 900; margin: 0; text-transform: uppercase; letter-spacing: 0.5px; color: #000;">${sName}</h2>
-              <p style="font-size: 9.5px; font-weight: bold; margin: 2px 0; color: #000;">${sAddr}</p>
+              <p style="font-size: 9.5px; font-weight: 600; margin: 2px 0; color: #000;">${sAddr}</p>
               <p style="font-size: 9.5px; font-weight: 900; margin: 1px 0; color: #000;">Helpdesk: +91 ${sPhone}</p>
             </div>
             
@@ -2126,21 +2120,21 @@
             <div style="text-align: center; font-size: 11px; font-weight: 900; text-decoration: underline; letter-spacing: 0.5px; padding: 2px 0; color: #000;">
               ${voucherTitle}
             </div>
-            <div style="text-align: center; font-size: 9.5px; font-weight: bold; font-family: monospace; margin-bottom: 3px; color: #000;">
+            <div style="text-align: center; font-size: 9.5px; font-weight: 600; font-family: monospace; margin-bottom: 3px; color: #000;">
               Memo No: <strong style="font-weight: 900;">${job.billNo}</strong>
               <div style="display:flex;justify-content:center;margin-top:3px;background:#fff;">${billBarcodeSvg}</div>
             </div>
-            <div style="border-top: 1px dashed #000; margin: 4px 0;"></div>
+            <div style="border-top: 1px solid #000; margin: 4px 0;"></div>
 
-            <table style="width: 100%; font-size: 10.5px; line-height: 1.4; font-weight: bold; color: #000;">
+            <table style="width: 100%; font-size: 10.5px; line-height: 1.4; font-weight: 600; color: #000;">
               <tr><td style="width: 45%;">Date:</td><td style="text-align: right; font-weight: 900;">${job.intakeDate}</td></tr>
               ${isDelivered ? `<tr><td>Delivery Date:</td><td style="text-align: right; font-weight: 900;">${job.deliveryDate || '--'}</td></tr>` : ''}
               <tr><td>Customer:</td><td style="text-align: right; font-weight: 900;">${job.customerName}</td></tr>
               <tr><td>Contact:</td><td style="text-align: right; font-weight: 900;">${job.phone}</td></tr>
             </table>
 
-            <div style="border-top: 1px dashed #000; margin: 4px 0;"></div>
-            <table style="width: 100%; font-size: 10.5px; line-height: 1.4; font-weight: bold; color: #000;">
+            <div style="border-top: 1px solid #000; margin: 4px 0;"></div>
+            <table style="width: 100%; font-size: 10.5px; line-height: 1.4; font-weight: 600; color: #000;">
               <tr><td>Device Model:</td><td style="text-align: right; font-weight: 900;">${job.model}</td></tr>
               <tr><td>IMEI / Serial:</td><td style="text-align: right; font-family: monospace; font-weight: 900;">${job.imei}</td></tr>
               <tr><td>Requirement:</td><td style="text-align: right; font-weight: 900;">${job.fault}</td></tr>
@@ -2149,7 +2143,7 @@
             </table>
 
             <div style="border-top: 1.5px solid #000; margin: 5px 0;"></div>
-            <table style="width: 100%; font-size: 10.5px; line-height: 1.4; font-weight: bold; color: #000;">
+            <table style="width: 100%; font-size: 10.5px; line-height: 1.4; font-weight: 600; color: #000;">
               <tr>
                 <td>${isDelivered ? 'Total Service Fee:' : 'Estimated Cost:'}</td>
                 <td style="text-align: right; font-weight: 900;">Rs. ${totalOrEst.toFixed(2)}</td>
@@ -2186,8 +2180,8 @@
               WARRANTY: ${(job.warranty || 'NO WARRANTY').toUpperCase()}
             </div>
 
-            <div style="border-top: 1px dashed #000; margin: 5px 0;"></div>
-            <div style="font-size: 9.5px; font-weight: bold; line-height: 1.5; text-align: justify; color: #000;">
+            <div style="border-top: 1px solid #000; margin: 5px 0;"></div>
+            <div style="font-size: 9.5px; font-weight: 600; line-height: 1.5; text-align: justify; color: #000;">
               <strong style="font-weight: 900;">TERMS &amp; CONDITIONS:</strong><br>
               <strong style="font-weight: 900;">1.</strong> NO WARRANTY on physical damage, broken glass, liquid damage, internal display lining.<br>
               <strong style="font-weight: 900;">2.</strong> Devices/Parts must be claimed within 30 days of notice.<br>
@@ -2195,20 +2189,20 @@
               <strong style="font-weight: 900;">4.</strong> Valid Government Photo ID verification may be requested for device identification.
             </div>
 
-            <div style="border-top: 1px dashed #000; margin: 12px 0 4px 0;"></div>
-            <table style="width: 100%; font-size: 9.5px; margin-top: 8px; font-weight: bold; color: #000;">
+            <div style="border-top: 1px solid #000; margin: 12px 0 4px 0;"></div>
+            <table style="width: 100%; font-size: 9.5px; margin-top: 8px; font-weight: 600; color: #000;">
               <tr>
                 <td style="text-align: left; width: 50%;">____________________<br><strong style="font-weight: 900;">Customer Signature</strong></td>
                 <td style="text-align: right; width: 50%;">____________________<br><strong style="font-weight: 900;">Authorized Signatory</strong></td>
               </tr>
             </table>
 
-            <div style="border-top: 1px dashed #000; margin: 7px 0 5px 0;"></div>
+            <div style="border-top: 1px solid #000; margin: 7px 0 5px 0;"></div>
             <div style="text-align:center;font-size:9.5px;font-weight:900;margin:3px 0;color:#000;">SCAN TO PAY VIA UPI</div>
-            ${upiQrDataUrl ? `<div style="text-align:center;"><img src="${upiQrDataUrl}" alt="UPI payment QR" style="width:105px;height:105px;object-fit:contain;display:inline-block;" /></div>` : ''}
-            <div style="text-align:center;font-size:9.5px;font-weight:bold;line-height:1.5;word-break:break-all;color:#000;">UPI ID: <strong style="font-weight:900;">9932480026@okbizaxis</strong><br>Amount: enter in payment app</div>
-            <div style="border-top: 1px dashed #000; margin: 5px 0 2px 0;"></div>
-            <div style="text-align: center; font-size: 9.5px; font-weight: bold; line-height: 1.5; color: #000;">
+            ${upiQrDataUrl ? `<div style="text-align:center;"><img src="${upiQrDataUrl}" alt="UPI payment QR" style="width:105px;height:105px;object-fit:contain;display:inline-block; filter: grayscale(100%) contrast(300%);" /></div>` : ''}
+            <div style="text-align:center;font-size:9.5px;font-weight:600;line-height:1.5;word-break:break-all;color:#000;">UPI ID: <strong style="font-weight:900;">9932480026@okbizaxis</strong><br>Amount: enter in payment app</div>
+            <div style="border-top: 1px solid #000; margin: 5px 0 2px 0;"></div>
+            <div style="text-align: center; font-size: 9.5px; font-weight: 600; line-height: 1.5; color: #000;">
               SmartFix Pro &copy; 2026 | Mobile Workshop Management System<br>
               <strong style="font-weight: 900; font-size: 10.5px;">Developed by Debapriya Sarkar</strong>
             </div>
@@ -2220,10 +2214,10 @@
           <div style="padding: 2px 0;">
             <div style="text-align: center; margin-bottom: 3px;">
               <h3 style="font-size: 12px; font-weight: 900; margin: 0; text-transform: uppercase; color: #000;">WORKSHOP RECORD TAG</h3>
-              <p style="font-size: 9.5px; font-weight: bold; margin: 1px 0; color: #000;">${isPartsOnly ? '(SPARE PARTS BOOKING TOKEN)' : '(ATTACH TO PHONE BACK)'}</p>
+              <p style="font-size: 9.5px; font-weight: 600; margin: 1px 0; color: #000;">${isPartsOnly ? '(SPARE PARTS BOOKING TOKEN)' : '(ATTACH TO PHONE BACK)'}</p>
             </div>
-            <div style="border-top: 1px dashed #000; margin: 4px 0;"></div>
-            <div style="font-size: 10.5px; font-weight: bold; line-height: 1.5; color: #000;">
+            <div style="border-top: 1px solid #000; margin: 4px 0;"></div>
+            <div style="font-size: 10.5px; font-weight: 600; line-height: 1.5; color: #000;">
               <p style="margin: 2px 0;"><strong style="font-weight:900;">BILL NO :</strong> <span style="font-size: 12px; font-weight: 900; font-family: monospace;">${job.billNo}</span></p><div style="display:flex;justify-content:center;background:#fff;">${billBarcodeSvg}</div>
               <p style="margin: 2px 0;"><strong style="font-weight:900;">DATE    :</strong> ${job.intakeDate}</p>
               <p style="margin: 2px 0;"><strong style="font-weight:900;">MODEL   :</strong> ${job.model}</p>
@@ -2232,8 +2226,8 @@
               <p style="margin: 2px 0;"><strong style="font-weight:900;">ADV PAID:</strong> Rs. ${advPaid.toFixed(2)} (${job.advPayMethod || 'Cash'})</p>
               ${job.remarks ? `<p style="margin: 2px 0;"><strong style="font-weight:900;">NOTE    :</strong> ${job.remarks}</p>` : ''}
             </div>
-            <div style="border-top: 1px dashed #000; margin: 5px 0;"></div>
-            <div style="text-align: center; font-size: 9.5px; font-weight: bold; line-height: 1.5; color: #000;">
+            <div style="border-top: 1px solid #000; margin: 5px 0;"></div>
+            <div style="text-align: center; font-size: 9.5px; font-weight: 600; line-height: 1.5; color: #000;">
               SmartFix Pro &copy; 2026<br>
               <strong style="font-weight: 900; font-size: 10.5px;">Developed by Debapriya Sarkar</strong>
             </div>
@@ -2260,9 +2254,9 @@
         <div>
           <div style="border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 12px;">
             <h1 style="font-size: 18px; font-weight: 900; margin: 0; text-transform: uppercase; color: #000;">${sName}</h1>
-            <p style="font-size: 11px; font-weight: bold; color: #000; margin: 2px 0;">Daily Cashier Closing Report | Date: ${selectedDate}</p>
+            <p style="font-size: 11px; font-weight: 600; color: #000; margin: 2px 0;">Daily Cashier Closing Report | Date: ${selectedDate}</p>
           </div>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; border: 1.5px solid #000; padding: 10px; margin-bottom: 15px; font-size: 11px; font-weight: bold; color: #000;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; border: 1.5px solid #000; padding: 10px; margin-bottom: 15px; font-size: 11px; font-weight: 600; color: #000;">
             <div>Intake Adv Recv (Cash): ${advRecv}</div>
             <div>Delivery Cash: ${delCash}</div>
             <div>Online / UPI Total: ${onlineUPI}</div>
@@ -2270,11 +2264,11 @@
             <div style="grid-column: span 2; font-size: 13px; font-weight: 900; border-top: 1px solid #000; padding-top: 4px;">Net Cash in Drawer: ${netCash}</div>
           </div>
           ${document.getElementById('dailyAuditTable').outerHTML}
-          <div style="margin-top: 30px; display: flex; justify-content: space-between; font-size: 11px; font-weight: bold; color: #000;">
+          <div style="margin-top: 30px; display: flex; justify-content: space-between; font-size: 11px; font-weight: 600; color: #000;">
             <div>Generated: ${new Date().toLocaleString()}</div>
             <div>Cashier Signature: _______________________</div>
           </div>
-          <div style="border-top: 1px solid #000; margin-top: 25px; padding-top: 8px; text-align: center; font-size: 9px; font-weight: bold; color: #000;">
+          <div style="border-top: 1px solid #000; margin-top: 25px; padding-top: 8px; text-align: center; font-size: 9px; font-weight: 600; color: #000;">
             SmartFix Pro &copy; 2026 | Mobile Workshop Management System | <strong style="font-weight:900;">Developed by Debapriya Sarkar</strong>
           </div>
         </div>
@@ -2296,14 +2290,14 @@
         <div>
           <div style="border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 12px;">
             <h1 style="font-size: 18px; font-weight: 900; margin: 0; text-transform: uppercase; color: #000;">${sName}</h1>
-            <p style="font-size: 11px; font-weight: bold; color: #000; margin: 2px 0;">Financial Statement & Service Performance Ledger</p>
+            <p style="font-size: 11px; font-weight: 600; color: #000; margin: 2px 0;">Financial Statement & Service Performance Ledger</p>
           </div>
           ${sourceTable.outerHTML}
-          <div style="margin-top: 30px; display: flex; justify-content: space-between; font-size: 11px; font-weight: bold; color: #000;">
+          <div style="margin-top: 30px; display: flex; justify-content: space-between; font-size: 11px; font-weight: 600; color: #000;">
             <div>Generated On: ${new Date().toLocaleString()}</div>
             <div>Authorized Signatory: _______________________</div>
           </div>
-          <div style="border-top: 1px solid #000; margin-top: 25px; padding-top: 8px; text-align: center; font-size: 9px; font-weight: bold; color: #000;">
+          <div style="border-top: 1px solid #000; margin-top: 25px; padding-top: 8px; text-align: center; font-size: 9px; font-weight: 600; color: #000;">
             SmartFix Pro &copy; 2026 | Mobile Workshop Management System | <strong style="font-weight:900;">Developed by Debapriya Sarkar</strong>
           </div>
         </div>
@@ -2318,7 +2312,8 @@
       const printArea = document.getElementById('masterDirectPrintArea');
       printArea.innerHTML = htmlContent;
       printArea.style.display = 'block';
-      setTimeout(() => { window.print(); }, 250);
+      // Increased timeout to 500ms to ensure QR code and images fully load before print dialog opens
+      setTimeout(() => { window.print(); }, 500);
     }
     window.addEventListener('afterprint', () => {
       const area = document.getElementById('masterDirectPrintArea');
@@ -2414,12 +2409,20 @@
         document.body.appendChild(holder);
         const upi = `upi://pay?pa=${encodeURIComponent('9932480026@okbizaxis')}&pn=${encodeURIComponent(currentStore?.shopName || 'SmartFix Store')}&cu=INR`;
         try {
-          new QRCode(holder, { text: upi, width: 180, height: 180, correctLevel: QRCode.CorrectLevel.M });
+          new QRCode(holder, { 
+            text: upi, 
+            width: 180, 
+            height: 180, 
+            colorDark : "#000000", 
+            colorLight : "#ffffff", 
+            correctLevel: QRCode.CorrectLevel.M 
+          });
+          // 300ms wait to ensure image is fully generated before returning
           setTimeout(() => {
             const canvas = holder.querySelector('canvas'); const img = holder.querySelector('img');
             let url = ''; try { url = canvas ? canvas.toDataURL('image/png') : (img?.src || ''); } catch (_) {}
             holder.remove(); resolve(url);
-          }, 100);
+          }, 300);
         } catch (_) { holder.remove(); resolve(''); }
       });
     }
