@@ -25,11 +25,32 @@
   --radius-lg: 14px;
   --radius-md: 10px;
   --shadow-sm: 0 1px 3px rgba(15,23,42,0.06);
-  --shadow-md: 0 8px 24px -4px rgba(15,23,42,0.07);
+  --shadow-md: 0 8px 24px -4px rgba(15,23,42,0.08);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', 'Hind Siliguri', sans-serif; -webkit-tap-highlight-color: transparent; }
 body { background: var(--bg); color: var(--text-main); font-size: 14px; min-height: 100dvh; display: flex; flex-direction: column; overflow-x: hidden; }
+
+/* Auth Screen */
+.auth-wrap {
+  min-height: 100dvh; display: flex; align-items: center; justify-content: center;
+  padding: 20px; background: radial-gradient(ellipse at top left, #1e293b 0%, #0f172a 60%), #0f172a;
+}
+.auth-card {
+  background: #fff; padding: 32px 24px; border-radius: 24px; width: 100%; max-width: 420px;
+  box-shadow: 0 25px 50px -12px rgba(0,0,0,0.35); text-align: left;
+}
+.auth-brand { text-align: center; margin-bottom: 24px; }
+.auth-brand .icon {
+  width: 52px; height: 52px; background: var(--primary-gradient); border-radius: 14px;
+  display: inline-flex; align-items: center; justify-content: center; color: #fff; margin-bottom: 10px;
+}
+.auth-tabs { display: flex; gap: 4px; background: #f1f5f9; padding: 4px; border-radius: 12px; margin-bottom: 20px; }
+.auth-tab {
+  flex: 1; padding: 9px; border-radius: 8px; border: none; background: transparent;
+  color: var(--text-muted); font-weight: 700; font-size: 13px; cursor: pointer;
+}
+.auth-tab.active { background: #fff; color: var(--primary); box-shadow: var(--shadow-sm); }
 
 /* Top Header */
 .topbar {
@@ -60,8 +81,8 @@ body { background: var(--bg); color: var(--text-main); font-size: 14px; min-heig
 }
 .btn-icon:active { transform: scale(0.92); background: #f1f5f9; }
 
-/* Main Wrapper */
-.main-wrapper { flex: 1; padding: 16px; padding-bottom: calc(96px + env(safe-area-inset-bottom)); max-width: 850px; margin: 0 auto; width: 100%; }
+/* Main Content */
+.main-wrapper { flex: 1; padding: 16px; padding-bottom: calc(100px + env(safe-area-inset-bottom)); max-width: 850px; margin: 0 auto; width: 100%; }
 
 .tm-card {
   background: var(--surface); border-radius: var(--radius-xl); padding: 18px;
@@ -94,7 +115,7 @@ body { background: var(--bg); color: var(--text-main); font-size: 14px; min-heig
 .tile-title { font-weight: 700; font-size: 14px; margin-top: 2px; }
 .tile-desc { font-size: 11.5px; color: var(--text-muted); }
 
-/* Floor Map */
+/* Floor Table Visuals */
 .table-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
 .table-card {
   background: #fff; border: 2px solid var(--border); border-radius: var(--radius-lg);
@@ -108,7 +129,7 @@ body { background: var(--bg); color: var(--text-main); font-size: 14px; min-heig
 .table-card.occupied .table-dot { background: var(--warning); animation: pulse 1.4s infinite; }
 @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
 
-/* POS Menu */
+/* POS Layout */
 .cat-scroll { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 12px; scrollbar-width: none; }
 .cat-scroll::-webkit-scrollbar { display: none; }
 .cat-btn {
@@ -170,7 +191,6 @@ body { background: var(--bg); color: var(--text-main); font-size: 14px; min-heig
 .bar-track { flex: 1; height: 8px; background: #f1f5f9; border-radius: 4px; overflow: hidden; }
 .bar-fill { height: 100%; border-radius: 4px; background: var(--primary-gradient); }
 .bar-fill.green { background: linear-gradient(90deg, #10b981, #059669); }
-.bar-fill.rose { background: linear-gradient(90deg, #ef4444, #dc2626); }
 .bar-val { flex: 0 0 auto; font-size: 12px; font-weight: 700; text-align: right; min-width: 70px; }
 
 /* Data Tables */
@@ -179,6 +199,13 @@ body { background: var(--bg); color: var(--text-main); font-size: 14px; min-heig
 .data-table th, .data-table td { padding: 10px 12px; border-bottom: 1px solid #f1f5f9; }
 .data-table th { background: #f8fafc; font-weight: 700; color: var(--text-muted); font-size: 11px; text-transform: uppercase; }
 .data-table tr:last-child td { border-bottom: none; }
+
+.badge { display: inline-flex; align-items: center; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+.badge.cat-raw { background: #fee2e2; color: #b91c1c; }
+.badge.cat-util { background: #fef3c7; color: #b45309; }
+.badge.cat-sal { background: #e0e7ff; color: #4338ca; }
+.badge.cat-rent { background: #dbeafe; color: #1e40af; }
+.badge.cat-other { background: #f1f5f9; color: #475569; }
 
 /* Bottom Bar */
 .bottom-bar {
@@ -189,13 +216,20 @@ body { background: var(--bg); color: var(--text-main); font-size: 14px; min-heig
 }
 .bar-item {
   display: flex; flex-direction: column; align-items: center; gap: 3px;
-  background: transparent; border: none; font-size: 10.5px; font-weight: 600;
-  color: var(--text-muted); cursor: pointer; padding: 6px 6px; border-radius: 10px; flex: 1;
+  background: transparent; border: none; font-size: 10px; font-weight: 600;
+  color: var(--text-muted); cursor: pointer; padding: 6px 4px; border-radius: 10px; flex: 1;
 }
 .bar-item.active { color: var(--primary); background: #eff6ff; }
-.bar-item svg { width: 20px; height: 20px; }
+.bar-item svg { width: 19px; height: 19px; }
 
-/* Modal */
+/* Developer Watermark Footer */
+.dev-footer {
+  text-align: center; padding: 18px 10px; font-size: 12px; color: var(--text-muted);
+  border-top: 1px solid var(--border); margin-top: 24px;
+}
+.dev-footer b { color: var(--primary); font-weight: 800; }
+
+/* Modal Sheet */
 .sheet-backdrop {
   position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6);
   backdrop-filter: blur(4px); display: none; align-items: flex-end; justify-content: center;
@@ -210,7 +244,6 @@ body { background: var(--bg); color: var(--text-main); font-size: 14px; min-heig
 .sheet-title { font-size: 17px; font-weight: 800; }
 .btn-x { background: #f1f5f9; border: none; border-radius: 50%; width: 32px; height: 32px; font-weight: bold; cursor: pointer; }
 
-/* Form inputs */
 input, select, textarea {
   width: 100%; padding: 12px 14px; border: 1.5px solid var(--border); border-radius: 10px;
   font-size: 14px; margin-bottom: 12px; background: #fff; font-family: inherit;
@@ -222,7 +255,7 @@ label { display: block; font-size: 11.5px; font-weight: 700; color: var(--text-m
 .btn-danger { background: var(--danger); color: #fff; border: none; padding: 8px 12px; border-radius: 8px; font-weight: 600; cursor: pointer; }
 .btn-sm-outline { border: 1px solid var(--border); background: #fff; padding: 6px 12px; border-radius: 8px; font-weight: 700; font-size: 12px; cursor: pointer; }
 
-/* Receipt */
+/* Thermal Receipt Paper */
 .receipt-paper {
   font-family: 'JetBrains Mono', monospace; font-size: 11px; background: #fff;
   color: #000; padding: 14px; border: 1px dashed #cbd5e1; border-radius: 8px;
@@ -232,6 +265,7 @@ label { display: block; font-size: 11.5px; font-weight: 700; color: var(--text-m
 .receipt-paper .c { text-align: center; }
 .receipt-paper .r { text-align: right; }
 .receipt-paper .qr-img { width: 105px; height: 105px; display: block; margin: 0 auto; }
+.receipt-dev { text-align: center; font-size: 9px; font-weight: 700; margin-top: 8px; border-top: 1px dotted #000; padding-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
 
 @media print {
   body > * { display: none !important; }
@@ -243,52 +277,79 @@ label { display: block; font-size: 11.5px; font-weight: 700; color: var(--text-m
 </head>
 <body>
 
-<header class="topbar">
-  <div class="brand-box">
-    <div class="brand-icon">
-      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M3 3v18M3 8h4a4 4 0 010 8H3M17 3v18M17 8c0-2 3-2 3 0v6c0 2 3 2 3 0V3"/></svg>
+<!-- AUTH SCREEN -->
+<div id="auth-screen" class="auth-wrap" style="display:none">
+  <div class="auth-card">
+    <div class="auth-brand">
+      <div class="icon">
+        <svg width="28" height="28" fill="none" stroke="#fff" stroke-width="2.5" viewBox="0 0 24 24"><path d="M3 3v18M3 8h4a4 4 0 010 8H3M17 3v18M17 8c0-2 3-2 3 0v6c0 2 3 2 3 0V3"/></svg>
+      </div>
+      <h2 style="font-size:22px;font-weight:800;color:#0f172a">TableMaster Pro</h2>
+      <p style="font-size:12px;color:var(--text-muted);margin-top:2px">Developed by <b>Debapriya Sarkar</b></p>
     </div>
-    <span id="txt-cafe-name">TableMaster Pro</span>
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchAuthTab('login')" id="tab-login">Login</button>
+      <button class="auth-tab" onclick="switchAuthTab('register')" id="tab-register">Register Cafe</button>
+    </div>
+    <form id="form-login" onsubmit="handleLogin(event)">
+      <label>Username</label>
+      <input id="log-user" required placeholder="admin or staff username">
+      <label>Password</label>
+      <input id="log-pass" type="password" required placeholder="••••••••">
+      <button type="submit" class="btn-primary" style="margin-top:8px">Sign In →</button>
+    </form>
+    <form id="form-register" style="display:none" onsubmit="handleRegister(event)">
+      <label>Restaurant / Cafe Name</label>
+      <input id="reg-name" required placeholder="e.g. Royal Cafe">
+      <label>Owner Name</label>
+      <input id="reg-owner" required placeholder="Full Name">
+      <label>Phone Number</label>
+      <input id="reg-phone" required placeholder="+91 XXXXX XXXXX">
+      <label>Admin Username</label>
+      <input id="reg-user" required placeholder="Choose username">
+      <label>Admin Password</label>
+      <input id="reg-pass" type="password" required placeholder="Password">
+      <label>Master PIN (4 Digits)</label>
+      <input id="reg-pin" type="password" pattern="[0-9]{4}" required placeholder="e.g. 1234">
+      <button type="submit" class="btn-primary" style="margin-top:8px">Register & Launch →</button>
+    </form>
+    <div style="text-align:center;font-size:10.5px;color:#94a3b8;margin-top:16px;">
+      Software Architecture by <b>Debapriya Sarkar</b>
+    </div>
   </div>
-  <div class="top-actions">
-    <button class="lang-toggle-btn" onclick="toggleLanguage()" id="btn-lang-toggle">
-      🌐 <span>English</span>
-    </button>
-    <button class="btn-icon" onclick="openSettingsSheet()" title="Settings">
-      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
-    </button>
-  </div>
-</header>
+</div>
 
-<main class="main-wrapper" id="main-view"></main>
+<!-- MAIN APP CONTAINER -->
+<div id="app-container" style="display:none">
+  <header class="topbar">
+    <div class="brand-box">
+      <div class="brand-icon">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M3 3v18M3 8h4a4 4 0 010 8H3M17 3v18M17 8c0-2 3-2 3 0v6c0 2 3 2 3 0V3"/></svg>
+      </div>
+      <span id="txt-cafe-name">TableMaster Pro</span>
+    </div>
+    <div class="top-actions">
+      <button class="lang-toggle-btn" onclick="toggleLanguage()" id="btn-lang-toggle">
+        🌐 <span>English</span>
+      </button>
+      <button class="btn-icon" id="btn-staff-header" onclick="openStaffModal()" title="Staff Management">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+      </button>
+      <button class="btn-icon" id="btn-settings-header" onclick="openSettingsSheet()" title="Settings">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      </button>
+      <button class="btn-icon" onclick="handleLogout()" title="Logout" style="color:var(--danger)">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+      </button>
+    </div>
+  </header>
 
-<nav class="bottom-bar">
-  <button class="bar-item active" onclick="navigate('dashboard')" id="nav-dashboard">
-    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-    <span data-i18n="navHome">Home</span>
-  </button>
-  <button class="bar-item" onclick="navigate('pos')" id="nav-pos">
-    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
-    <span data-i18n="navPOS">Order</span>
-  </button>
-  <button class="bar-item" onclick="navigate('kitchen')" id="nav-kitchen">
-    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"/></svg>
-    <span data-i18n="navKitchen">Kitchen</span>
-  </button>
-  <button class="bar-item" onclick="navigate('bills')" id="nav-bills">
-    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-    <span data-i18n="navBills">Bills</span>
-  </button>
-  <button class="bar-item" onclick="navigate('reports')" id="nav-reports">
-    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-    <span data-i18n="navReports">Reports</span>
-  </button>
-  <button class="bar-item" onclick="navigate('menu')" id="nav-menu">
-    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-    <span data-i18n="navMenu">Menu</span>
-  </button>
-</nav>
+  <main class="main-wrapper" id="main-view"></main>
 
+  <nav class="bottom-bar" id="app-bottom-bar"></nav>
+</div>
+
+<!-- Sheet Modal -->
 <div class="sheet-backdrop" id="sheet-backdrop" onclick="sheetBackdropClick(event)">
   <div class="sheet-modal" id="sheet-modal">
     <div class="sheet-head">
@@ -302,13 +363,14 @@ label { display: block; font-size: 11.5px; font-weight: 700; color: var(--text-m
 <div id="print-area"></div>
 
 <script>
-/* --- DICTIONARY --- */
+/* --- MULTI-LANGUAGE SYSTEM --- */
 const I18N = {
   en: {
     navHome: "Home",
     navPOS: "Order",
     navKitchen: "Kitchen",
     navBills: "Bills",
+    navExpenses: "Expenses",
     navReports: "Reports",
     navMenu: "Menu",
     todaySales: "Today's Total Sales",
@@ -322,12 +384,11 @@ const I18N = {
     billsAndPrintSub: "UPI QR payment",
     reportsAndProfit: "Profit & Reports",
     reportsAndProfitSub: "Sales vs Expenses",
-    dailyExpenses: "Daily Expenses",
+    dailyExpenses: "Expenses Log",
     dailyExpensesSub: "Kitchen market & supplies",
     floorMap: "Floor Table Map",
     addTable: "+ Add Table",
     seater: "Seater",
-    selectCategory: "Select Category",
     searchPlaceholder: "🔍 Search dishes or category...",
     selectDishWarning: "Please select a table first!",
     selectedItems: "items selected",
@@ -353,7 +414,7 @@ const I18N = {
     save: "Save",
     delete: "Delete",
     confirmDelete: "Are you sure you want to delete this?",
-    expenseTitle: "Daily Expense Log",
+    expenseTitle: "Add Expense",
     expenseDesc: "Expense Description",
     amount: "Amount",
     restaurantSettings: "Restaurant Settings",
@@ -371,23 +432,25 @@ const I18N = {
     netLoss: "Net Loss",
     sales: "Sales",
     expenses: "Expenses",
-    pending: "Pending",
     filterToday: "Today",
     filterWeek: "This Week",
     filterMonth: "This Month",
     filterAll: "All Time",
     topSelling: "Top Selling Items",
-    salesByCategory: "Sales by Category",
     dailyBreakdown: "Daily Breakdown",
     exportCSV: "📥 Export CSV",
     date: "Date",
-    profit: "Profit"
+    profit: "Profit",
+    staffMgmt: "Staff Management",
+    role: "Role",
+    masterPinPrompt: "Enter 4-Digit Master PIN:"
   },
   bn: {
     navHome: "হোম",
     navPOS: "অর্ডার",
     navKitchen: "কিচেন",
     navBills: "বিলিং",
+    navExpenses: "খরচের খাতা",
     navReports: "রিপোর্ট",
     navMenu: "মেনু",
     todaySales: "আজকের মোট বিক্রি (Today's Sales)",
@@ -401,12 +464,11 @@ const I18N = {
     billsAndPrintSub: "QR দিয়ে UPI পেমেন্ট",
     reportsAndProfit: "লাভ-ক্ষতি ও রিপোর্ট",
     reportsAndProfitSub: "বিক্রি ও খরচের হিসাব",
-    dailyExpenses: "দৈনিক খরচ",
+    dailyExpenses: "খরচের খাতা",
     dailyExpensesSub: "বাজার ও ভেন্ডর হিসাব",
     floorMap: "ইন্টারেক্টিভ টেবিল ম্যাপ (Floor Map)",
     addTable: "+ টেবিল যোগ",
     seater: "সিটার",
-    selectCategory: "ক্যাটাগরি",
     searchPlaceholder: "🔍 খাবার বা মেনু সার্চ করুন...",
     selectDishWarning: "দয়া করে আগে টেবিল নির্বাচন করুন!",
     selectedItems: "টি আইটেম সিলেক্টেড",
@@ -432,7 +494,7 @@ const I18N = {
     save: "সংরক্ষণ করুন",
     delete: "মুছুন",
     confirmDelete: "আপনি কি এটি মুছে ফেলতে চান?",
-    expenseTitle: "দৈনিক খরচের হিসাব",
+    expenseTitle: "খরচ এন্ট্রি",
     expenseDesc: "খরচের বিবরণ",
     amount: "টাকা",
     restaurantSettings: "রেস্তোরাঁ সেটিংস",
@@ -450,17 +512,18 @@ const I18N = {
     netLoss: "নিট ক্ষতি (Net Loss)",
     sales: "মোট বিক্রি",
     expenses: "মোট খরচ",
-    pending: "বাকি",
     filterToday: "আজকে",
     filterWeek: "এই সপ্তাহ",
     filterMonth: "এই মাস",
     filterAll: "সব সময়",
     topSelling: "সবচেয়ে বেশি বিক্রি হওয়া খাবার",
-    salesByCategory: "ক্যাটাগরি ভিত্তিক বিক্রি",
     dailyBreakdown: "দৈনিক লাভ-ক্ষতির তালিকা",
     exportCSV: "📥 CSV ডাউনলোড",
     date: "তারিখ",
-    profit: "লাভ"
+    profit: "লাভ",
+    staffMgmt: "স্টাফ ম্যানেজমেন্ট",
+    role: "দায়িত্ব / রোল",
+    masterPinPrompt: "৪-ডিজিট মাস্টার পিন (Master PIN) দিন:"
   }
 };
 
@@ -477,72 +540,192 @@ function toggleLanguage() {
 function updateLanguageDisplay() {
   const btn = document.getElementById('btn-lang-toggle');
   if (btn) btn.innerHTML = `🌐 <span>${currentLang === 'en' ? 'English' : 'বাংলা'}</span>`;
-  document.querySelectorAll('[data-i18n]').forEach(el => {
-    const key = el.getAttribute('data-i18n');
-    el.innerText = t(key);
-  });
 }
 
-/* --- STORAGE (NO LICENSE) --- */
-const STORAGE_KEY = 'tmpro_v3_open_profit';
+/* --- SYSTEM DATABASE & AUTH --- */
+const STORAGE_KEY = 'tmpro_master_db_debapriya_v2';
 const todayStr = () => new Date().toISOString().split('T')[0];
 
-let APP_STATE = {
-  restaurant: {
-    name: 'TableMaster Bistro',
-    phone: '+91 98765 43210',
-    address: 'Kolkata, West Bengal, India',
-    upi: 'restaurant@upi',
-    googleReview: 'https://g.page/r/your-cafe/review',
-    gstRate: 5
-  },
-  tables: [
-    { id: 't1', name: 'T-01', seats: 2, status: 'available' },
-    { id: 't2', name: 'T-02', seats: 4, status: 'occupied' },
-    { id: 't3', name: 'T-03', seats: 4, status: 'available' },
-    { id: 't4', name: 'T-04', seats: 6, status: 'occupied' },
-    { id: 't5', name: 'T-05', seats: 2, status: 'available' },
-    { id: 't6', name: 'T-06', seats: 8, status: 'available' }
-  ],
-  menu: [
-    { id: 'm1', name: 'Special Chicken Biryani', category: 'Main', price: 190 },
-    { id: 'm2', name: 'Cold Coffee with Vanilla', category: 'Drinks', price: 90 },
-    { id: 'm3', name: 'Crispy French Fries', category: 'Snacks', price: 80 },
-    { id: 'm4', name: 'Kadai Paneer Regular', category: 'Main', price: 160 },
-    { id: 'm5', name: 'Butter Naan', category: 'Breads', price: 40 }
-  ],
-  orders: [
+let SYSTEM_DB = {
+  session: null,
+  accounts: [
     {
-      id: 'demo_1', kotNo: 101, billNo: 101, tableId: 't2',
-      items: [{ dishId: 'm1', name: 'Special Chicken Biryani', price: 190, qty: 2 }],
-      subtotal: 380, gst: 19, total: 399, status: 'completed',
-      date: todayStr(), time: '01:30 PM'
+      id: 'acc_admin',
+      name: 'Spice Delight Cafe',
+      owner: 'Debapriya Sarkar',
+      phone: '+91 98765 43210',
+      address: 'Chakdaha, Nadia, West Bengal, India',
+      username: 'admin',
+      password: '123',
+      masterPin: '1234',
+      upi: 'debapriya@upi',
+      googleReview: 'https://g.page/r/your-review-url',
+      gstRate: 5,
+      staff: [
+        { id: 'st_1', name: 'Rohan Waiter', username: 'rohan', password: '123', role: 'waiter' },
+        { id: 'st_2', name: 'Chef Sanjeev', username: 'chef', password: '123', role: 'kitchen' }
+      ],
+      tables: [
+        { id: 't1', name: 'T-01', seats: 2, status: 'available' },
+        { id: 't2', name: 'T-02', seats: 4, status: 'occupied' },
+        { id: 't3', name: 'T-03', seats: 4, status: 'available' },
+        { id: 't4', name: 'T-04', seats: 6, status: 'occupied' },
+        { id: 't5', name: 'T-05', seats: 2, status: 'available' }
+      ],
+      menu: [
+        { id: 'm1', name: 'Special Chicken Biryani', category: 'Main Course', price: 190 },
+        { id: 'm2', name: 'Cold Coffee with Ice Cream', category: 'Beverages', price: 90 },
+        { id: 'm3', name: 'Crispy French Fries', category: 'Snacks', price: 80 },
+        { id: 'm4', name: 'Kadai Paneer Regular', category: 'Main Course', price: 160 },
+        { id: 'm5', name: 'Butter Tandoori Roti', category: 'Breads', price: 25 }
+      ],
+      orders: [
+        {
+          id: 'ord_sample', kotNo: 101, billNo: 101, tableId: 't2',
+          items: [{ dishId: 'm1', name: 'Special Chicken Biryani', price: 190, qty: 2 }],
+          subtotal: 380, gst: 19, total: 399, status: 'preparing',
+          date: todayStr(), time: '01:30 PM'
+        }
+      ],
+      expenses: [
+        { id: 'exp_sample_1', desc: 'Amul Milk & Butter', category: 'Raw Materials', amount: 350, date: todayStr() },
+        { id: 'exp_sample_2', desc: 'Electricity Bill Part', category: 'Utilities', amount: 1200, date: todayStr() }
+      ]
     }
-  ],
-  expenses: [
-    { id: 'exp_1', desc: 'Milk & Fresh Cream', amount: 150, date: todayStr() }
   ]
 };
 
-function loadAppData() {
-  const s = localStorage.getItem(STORAGE_KEY);
-  if (s) { try { APP_STATE = JSON.parse(s); } catch(e){} }
+function loadSystemData() {
+  const d = localStorage.getItem(STORAGE_KEY);
+  if (d) { try { SYSTEM_DB = JSON.parse(d); } catch(e){} }
 }
-function persistAppData() { localStorage.setItem(STORAGE_KEY, JSON.stringify(APP_STATE)); }
-loadAppData();
+function persistSystemData() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(SYSTEM_DB));
+}
+loadSystemData();
 
-/* --- VIEW STATE --- */
+function currentAccount() {
+  if (!SYSTEM_DB.session) return null;
+  return SYSTEM_DB.accounts.find(a => a.id === SYSTEM_DB.session.accountId) || null;
+}
+
+/* Authentication Handlers */
+function checkAuth() {
+  if (SYSTEM_DB.session && currentAccount()) {
+    document.getElementById('auth-screen').style.display = 'none';
+    document.getElementById('app-container').style.display = 'block';
+
+    const role = SYSTEM_DB.session.role;
+    document.getElementById('btn-staff-header').style.display = (role === 'owner') ? 'flex' : 'none';
+    document.getElementById('btn-settings-header').style.display = (role === 'owner') ? 'flex' : 'none';
+
+    setupRoleBasedNavigation();
+    renderCurrentView();
+  } else {
+    document.getElementById('auth-screen').style.display = 'flex';
+    document.getElementById('app-container').style.display = 'none';
+  }
+}
+
+function switchAuthTab(tab) {
+  document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+  document.getElementById('tab-register').classList.toggle('active', tab === 'register');
+  document.getElementById('form-login').style.display = tab === 'login' ? 'block' : 'none';
+  document.getElementById('form-register').style.display = tab === 'register' ? 'block' : 'none';
+}
+
+function handleLogin(e) {
+  e.preventDefault();
+  const u = document.getElementById('log-user').value.trim();
+  const p = document.getElementById('log-pass').value.trim();
+
+  for (const acc of SYSTEM_DB.accounts) {
+    if (acc.username === u && acc.password === p) {
+      SYSTEM_DB.session = { accountId: acc.id, role: 'owner', name: acc.owner };
+      persistSystemData();
+      checkAuth();
+      return;
+    }
+    const staffUser = (acc.staff || []).find(s => s.username === u && s.password === p);
+    if (staffUser) {
+      SYSTEM_DB.session = { accountId: acc.id, role: staffUser.role, name: staffUser.name };
+      persistSystemData();
+      checkAuth();
+      return;
+    }
+  }
+  alert('Invalid credentials! Try: admin / 123');
+}
+
+function handleRegister(e) {
+  e.preventDefault();
+  const name = document.getElementById('reg-name').value.trim();
+  const owner = document.getElementById('reg-owner').value.trim();
+  const phone = document.getElementById('reg-phone').value.trim();
+  const user = document.getElementById('reg-user').value.trim();
+  const pass = document.getElementById('reg-pass').value.trim();
+  const pin = document.getElementById('reg-pin').value.trim();
+
+  const exists = SYSTEM_DB.accounts.some(a => a.username === user);
+  if (exists) { alert('Username already exists!'); return; }
+
+  const newAcc = {
+    id: 'acc_' + Date.now(),
+    name, owner, phone, address: 'India',
+    username: user, password: pass, masterPin: pin,
+    upi: 'payment@upi', googleReview: '', gstRate: 5,
+    staff: [],
+    tables: [{ id: 't1', name: 'T-01', seats: 4, status: 'available' }],
+    menu: [{ id: 'm1', name: 'Signature Coffee', category: 'Drinks', price: 60 }],
+    orders: [], expenses: []
+  };
+
+  SYSTEM_DB.accounts.push(newAcc);
+  SYSTEM_DB.session = { accountId: newAcc.id, role: 'owner', name: newAcc.owner };
+  persistSystemData();
+  checkAuth();
+}
+
+function handleLogout() {
+  if (!confirm('Are you sure you want to log out?')) return;
+  SYSTEM_DB.session = null;
+  persistSystemData();
+  checkAuth();
+}
+
+/* --- ROLE-BASED NAVIGATION SETUP (BUG 3 FIXED) --- */
+const ALL_NAV_ITEMS = [
+  { id: 'dashboard', i18n: 'navHome', icon: '<path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 011 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>', roles: ['owner', 'cashier'] },
+  { id: 'pos', i18n: 'navPOS', icon: '<path d="M12 4v16m8-8H4"/>', roles: ['owner', 'waiter', 'cashier'] },
+  { id: 'kitchen', i18n: 'navKitchen', icon: '<path d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"/>', roles: ['owner', 'kitchen'] },
+  { id: 'bills', i18n: 'navBills', icon: '<path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>', roles: ['owner', 'cashier'] },
+  { id: 'expenses', i18n: 'navExpenses', icon: '<path d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>', roles: ['owner'] },
+  { id: 'reports', i18n: 'navReports', icon: '<path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>', roles: ['owner'] },
+  { id: 'menu', i18n: 'navMenu', icon: '<path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>', roles: ['owner'] }
+];
+
 let activeTab = 'dashboard';
-let posSearchQuery = '';
-let posCategoryFilter = 'All';
-let reportFilter = 'today';
-let cartState = { tableId: '', items: [] };
+
+function setupRoleBasedNavigation() {
+  const role = SYSTEM_DB.session.role;
+  const bottomBar = document.getElementById('app-bottom-bar');
+  const allowed = ALL_NAV_ITEMS.filter(it => it.roles.includes(role));
+
+  bottomBar.innerHTML = allowed.map(it => `
+    <button class="bar-item ${activeTab === it.id ? 'active' : ''}" onclick="navigate('${it.id}')" id="nav-${it.id}">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">${it.icon}</svg>
+      <span>${t(it.i18n)}</span>
+    </button>
+  `).join('');
+
+  if (!allowed.some(it => it.id === activeTab)) {
+    activeTab = allowed[0].id;
+  }
+}
 
 function navigate(tab) {
   activeTab = tab;
-  document.querySelectorAll('.bar-item').forEach(b => b.classList.remove('active'));
-  const btn = document.getElementById('nav-' + tab);
-  if (btn) btn.classList.add('active');
+  setupRoleBasedNavigation();
   renderCurrentView();
 }
 
@@ -564,23 +747,68 @@ function createSafeQR(text) {
   } catch (err) { return ''; }
 }
 
-/* --- RENDER VIEW --- */
+/* --- STATE VARIABLES --- */
+let posSearchQuery = '';
+let posCategoryFilter = 'All';
+let reportFilter = 'today';
+let expenseCategoryFilter = 'All';
+let cartState = { tableId: '', items: [] };
+
+/* --- INLINE SEARCH FILTER (BUG 1 FIXED: NO FOCUS LOSS) --- */
+function onSearchKeyInput(query) {
+  posSearchQuery = query;
+  const grid = document.getElementById('pos-dish-grid-container');
+  if (!grid) return;
+
+  const acc = currentAccount();
+  const q = query.toLowerCase().trim();
+  let dishes = posCategoryFilter === 'All' ? acc.menu : acc.menu.filter(m => m.category === posCategoryFilter);
+
+  if (q) {
+    dishes = dishes.filter(d => d.name.toLowerCase().includes(q) || d.category.toLowerCase().includes(q));
+  }
+
+  if (dishes.length === 0) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:24px;color:var(--text-muted);">No matching food items found!</div>';
+    return;
+  }
+
+  grid.innerHTML = dishes.map(d => `
+    <div class="dish-card" onclick="addItemToCart('${d.id}')">
+      <div class="dish-name">${d.name}</div>
+      <div class="dish-price">₹ ${d.price}</div>
+    </div>
+  `).join('');
+}
+
+/* --- RENDER VIEWS --- */
 function renderCurrentView() {
+  const acc = currentAccount();
+  if (!acc) return;
+
   const container = document.getElementById('main-view');
-  document.getElementById('txt-cafe-name').innerText = APP_STATE.restaurant.name;
+  document.getElementById('txt-cafe-name').innerText = acc.name;
   updateLanguageDisplay();
 
+  const developerFooterHtml = `
+    <div class="dev-footer">
+      Designed & Developed with ❤️ by <b>Debapriya Sarkar</b><br>
+      <span style="font-size:10.5px;opacity:0.8;">TableMaster Pro Enterprise Edition</span>
+    </div>
+  `;
+
+  /* 1. DASHBOARD */
   if (activeTab === 'dashboard') {
-    const totalSales = APP_STATE.orders.reduce((sum, o) => sum + (o.total || 0), 0);
-    const totalExp = APP_STATE.expenses.reduce((sum, e) => sum + (e.amount || 0), 0);
-    const activeKOTCount = APP_STATE.orders.filter(o => o.status === 'preparing').length;
+    const totalSales = acc.orders.filter(o => o.status === 'completed').reduce((sum, o) => sum + (o.total || 0), 0);
+    const totalExp = acc.expenses.reduce((sum, e) => sum + (e.amount || 0), 0);
+    const activeKOTCount = acc.orders.filter(o => o.status === 'preparing').length;
 
     container.innerHTML = `
       <div class="tm-card" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color:#fff;">
         <div style="font-size:11px; text-transform:uppercase; color:#94a3b8; font-weight:700;">${t('todaySales')}</div>
         <div style="font-size:32px; font-weight:800; color:#38bdf8; margin:6px 0 10px;">₹ ${totalSales.toFixed(2)}</div>
         <div style="font-size:12px; color:#cbd5e1; display:flex; justify-content:space-between;">
-          <span>${t('totalOrders')}: <b>${APP_STATE.orders.length}</b></span>
+          <span>${t('totalOrders')}: <b>${acc.orders.length}</b></span>
           <span>${t('netProfit')}: <b style="color:#4ade80;">₹ ${(totalSales - totalExp).toFixed(2)}</b></span>
         </div>
       </div>
@@ -601,7 +829,7 @@ function renderCurrentView() {
           <div class="tile-title">${t('reportsAndProfit')}</div>
           <div class="tile-desc">${t('reportsAndProfitSub')}</div>
         </div>
-        <div class="quick-tile purple" onclick="openExpenseSheet()">
+        <div class="quick-tile purple" onclick="navigate('expenses')">
           <div class="tile-bubble"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg></div>
           <div class="tile-title">${t('dailyExpenses')}</div>
           <div class="tile-desc">${t('dailyExpensesSub')}</div>
@@ -614,21 +842,23 @@ function renderCurrentView() {
           <button style="border:none;background:#eff6ff;color:var(--primary);padding:6px 12px;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer;" onclick="openAddTableSheet()">${t('addTable')}</button>
         </div>
         <div class="table-grid">
-          ${APP_STATE.tables.map(tData => `
+          ${acc.tables.map(tData => `
             <div class="table-card ${tData.status}" onclick="handleTableSelect('${tData.id}')">
               <span class="table-dot"></span>
               <div style="font-size:16px;font-weight:800;">${tData.name}</div>
-              <div style="font-size:11.5px;color:var(--text-muted);">${tData.seats}${t('seater')}</div>
+              <div style="font-size:11.5px;color:var(--text-muted);">${tData.seats} ${t('seater')}</div>
             </div>
           `).join('')}
         </div>
       </div>
+      ${developerFooterHtml}
     `;
   }
 
+  /* 2. POS ORDER ENTRY */
   else if (activeTab === 'pos') {
-    const cats = ['All', ...new Set(APP_STATE.menu.map(m => m.category))];
-    let dishes = posCategoryFilter === 'All' ? APP_STATE.menu : APP_STATE.menu.filter(m => m.category === posCategoryFilter);
+    const cats = ['All', ...new Set(acc.menu.map(m => m.category))];
+    let dishes = posCategoryFilter === 'All' ? acc.menu : acc.menu.filter(m => m.category === posCategoryFilter);
     if (posSearchQuery.trim()) {
       const q = posSearchQuery.toLowerCase();
       dishes = dishes.filter(d => d.name.toLowerCase().includes(q) || d.category.toLowerCase().includes(q));
@@ -636,20 +866,34 @@ function renderCurrentView() {
     const cartItemCount = cartState.items.reduce((s, i) => s + i.qty, 0);
     const cartSubtotal = cartState.items.reduce((s, i) => s + (i.price * i.qty), 0);
 
+    const activeOrderOnTable = acc.orders.find(o => o.tableId === cartState.tableId && o.status !== 'completed');
+
     container.innerHTML = `
       <div class="tm-card">
-        <select id="pos-table-select" style="margin-bottom:12px;" onchange="cartState.tableId = this.value">
+        <select id="pos-table-select" style="margin-bottom:12px;" onchange="cartState.tableId = this.value; renderCurrentView();">
           <option value="">-- ${t('table')} --</option>
-          ${APP_STATE.tables.map(tData => `<option value="${tData.id}" ${cartState.tableId === tData.id ? 'selected':''}>${tData.name} (${tData.seats} ${t('seater')}) -${tData.status.toUpperCase()}</option>`).join('')}
+          ${acc.tables.map(tData => `
+            <option value="${tData.id}" ${cartState.tableId === tData.id ? 'selected':''}>
+              ${tData.name} (${tData.seats} ${t('seater')}) - ${tData.status.toUpperCase()}
+            </option>
+          `).join('')}
         </select>
 
-        <input type="text" placeholder="${t('searchPlaceholder')}" value="${posSearchQuery}" oninput="posSearchQuery = this.value; renderCurrentView();" style="margin-bottom:12px;">
+        ${activeOrderOnTable ? `
+          <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:10px;margin-bottom:12px;font-size:12.5px;color:#1e40af;">
+            ℹ️ <b>Active Order (#${activeOrderOnTable.billNo})</b> is already running on this table. Any item you confirm now will be added as an <b>Add-on KOT</b> to the same bill!
+          </div>
+        ` : ''}
+
+        <input type="text" id="pos-search-input" placeholder="${t('searchPlaceholder')}" value="${posSearchQuery}" oninput="onSearchKeyInput(this.value)" style="margin-bottom:12px;">
 
         <div class="cat-scroll">
-          ${cats.map(c => `<button class="cat-btn ${posCategoryFilter === c ? 'active':''}" onclick="posCategoryFilter='${c}'; renderCurrentView();">${c}</button>`).join('')}
+          ${cats.map(c => `
+            <button class="cat-btn ${posCategoryFilter === c ? 'active':''}" onclick="posCategoryFilter='${c}'; renderCurrentView();">${c}</button>
+          `).join('')}
         </div>
 
-        <div class="dish-grid">
+        <div class="dish-grid" id="pos-dish-grid-container">
           ${dishes.map(d => `
             <div class="dish-card" onclick="addItemToCart('${d.id}')">
               <div class="dish-name">${d.name}</div>
@@ -662,17 +906,19 @@ function renderCurrentView() {
       ${cartItemCount > 0 ? `
         <div class="floating-cart">
           <div>
-            <div style="font-size:11px;opacity:0.85;">${cartItemCount}${t('selectedItems')}</div>
+            <div style="font-size:11px;opacity:0.85;">${cartItemCount} ${t('selectedItems')}</div>
             <div style="font-size:18px;font-weight:800;">₹ ${cartSubtotal.toFixed(2)}</div>
           </div>
           <button class="btn-place" onclick="openCartReviewSheet()">${t('confirmOrderKOT')}</button>
         </div>
       `: ''}
+      ${developerFooterHtml}
     `;
   }
 
+  /* 3. KITCHEN LIVE DISPLAY (BUG 2 FIXED: DOES NOT RELEASE TABLE) */
   else if (activeTab === 'kitchen') {
-    const liveKOT = APP_STATE.orders.filter(o => o.status === 'preparing');
+    const liveKOT = acc.orders.filter(o => o.status === 'preparing');
     container.innerHTML = `
       <div class="tm-card">
         <div class="tm-card-title">
@@ -682,7 +928,7 @@ function renderCurrentView() {
         ${liveKOT.length === 0 ? `<div style="text-align:center;padding:30px;color:var(--text-muted);">${t('noKOT')}</div>` : ''}
         <div style="display:flex;flex-direction:column;gap:12px;">
           ${liveKOT.map(o => {
-            const tbl = APP_STATE.tables.find(tData => tData.id === o.tableId);
+            const tbl = acc.tables.find(tData => tData.id === o.tableId);
             return `
               <div style="border:1.5px solid var(--border);border-radius:12px;padding:14px;background:#fff;">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
@@ -698,58 +944,134 @@ function renderCurrentView() {
           }).join('')}
         </div>
       </div>
+      ${developerFooterHtml}
     `;
   }
 
+  /* 4. BILLS & CASHIER PAYMENT (TABLE FREED ONLY UPON COMPLETE PAYMENT) */
   else if (activeTab === 'bills') {
     container.innerHTML = `
       <div class="tm-card">
         <div class="tm-card-title">${t('billingHistory')}</div>
         <div style="display:flex;flex-direction:column;gap:10px;">
-          ${APP_STATE.orders.length === 0 ? `<div style="text-align:center;padding:30px;color:var(--text-muted);">${t('noBills')}</div>` : ''}
-          ${APP_STATE.orders.map(o => {
-            const tbl = APP_STATE.tables.find(tData => tData.id === o.tableId);
+          ${acc.orders.length === 0 ? `<div style="text-align:center;padding:30px;color:var(--text-muted);">${t('noBills')}</div>` : ''}
+          ${acc.orders.map(o => {
+            const tbl = acc.tables.find(tData => tData.id === o.tableId);
+            const isSettled = o.status === 'completed';
             return `
-              <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;border:1px solid var(--border);border-radius:12px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;border:1px solid var(--border);border-radius:12px;${isSettled ? 'background:#f8fafc;' : 'background:#fff;'}">
                 <div>
-                  <div style="font-weight:700;">#${o.billNo} —${tbl ? tbl.name : 'Takeaway'}</div>
-                  <div style="font-size:12px;color:var(--text-muted);">${o.items.length} items · ₹ ${o.total.toFixed(2)}</div>
+                  <div style="font-weight:700;">
+                    #${o.billNo} — ${tbl ? tbl.name : 'Takeaway'}
+                    <span class="badge ${isSettled ? 'cat-raw' : 'cat-sal'}" style="margin-left:6px;font-size:9.5px;">${isSettled ? 'PAID & CLOSED' : 'ACTIVE / UNPAID'}</span>
+                  </div>
+                  <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">${o.items.length} items · <b>₹ ${o.total.toFixed(2)}</b></div>
                 </div>
-                <button class="btn-primary" style="width:auto;padding:8px 16px;font-size:12px;" onclick="showReceiptModal('${o.id}')">${t('printUPIReceipt')}</button>
+                <div style="display:flex;gap:6px;">
+                  <button class="btn-sm-outline" onclick="showReceiptModal('${o.id}')">Receipt</button>
+                  ${!isSettled ? `<button class="btn-primary" style="width:auto;padding:6px 12px;font-size:12px;" onclick="settleBillAndReleaseTable('${o.id}')">✓ Settle Bill</button>` : ''}
+                </div>
               </div>
             `;
           }).join('')}
         </div>
       </div>
+      ${developerFooterHtml}
     `;
   }
 
-  /* --- REPORTS / PROFIT & LOSS SECTION --- */
+  /* 5. EXPENSES LOG VIEW */
+  else if (activeTab === 'expenses') {
+    const expenseCategories = ['All', 'Raw Materials', 'Utilities', 'Salaries', 'Rent', 'Marketing', 'Other'];
+    let filteredExp = acc.expenses;
+    if (expenseCategoryFilter !== 'All') {
+      filteredExp = acc.expenses.filter(e => e.category === expenseCategoryFilter);
+    }
+    const todayExpenses = acc.expenses.filter(e => e.date === todayStr()).reduce((sum, e) => sum + e.amount, 0);
+
+    const getBadgeClass = (c) => {
+      if (c === 'Raw Materials') return 'cat-raw';
+      if (c === 'Utilities') return 'cat-util';
+      if (c === 'Salaries') return 'cat-sal';
+      if (c === 'Rent') return 'cat-rent';
+      return 'cat-other';
+    };
+
+    container.innerHTML = `
+      <div class="tm-card">
+        <div class="tm-card-title">
+          <span>${t('dailyExpenses')}</span>
+          <button class="btn-sm-outline" onclick="openExpenseSheet()">+ ${t('expenseTitle')}</button>
+        </div>
+
+        <div style="background:#fef2f2;border:1.5px solid #fecaca;border-radius:14px;padding:14px;margin-bottom:16px;">
+          <div style="font-size:11px;font-weight:700;color:#991b1b;text-transform:uppercase;">Today's Total Spend</div>
+          <div style="font-size:24px;font-weight:800;color:#dc2626;margin-top:2px;">₹ ${todayExpenses.toFixed(2)}</div>
+        </div>
+
+        <div class="cat-scroll">
+          ${expenseCategories.map(c => `
+            <button class="cat-btn ${expenseCategoryFilter === c ? 'active':''}" onclick="expenseCategoryFilter='${c}';renderCurrentView();">${c}</button>
+          `).join('')}
+        </div>
+
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Category</th>
+                <th>Description</th>
+                <th>Amount</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${filteredExp.length === 0 ? '<tr><td colspan="5" style="text-align:center;padding:24px;color:#94a3b8">No expense records found!</td></tr>' : ''}
+              ${filteredExp.map(e => `
+                <tr>
+                  <td><b>${e.date}</b></td>
+                  <td><span class="badge ${getBadgeClass(e.category)}">${e.category || 'Other'}</span></td>
+                  <td>${e.desc}</td>
+                  <td style="font-weight:700;color:#dc2626;">₹ ${e.amount.toFixed(2)}</td>
+                  <td>
+                    <button class="btn-danger" style="padding:4px 8px;font-size:11px;" onclick="deleteExpense('${e.id}')">✕</button>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      ${developerFooterHtml}
+    `;
+  }
+
+  /* 6. REPORTS / PROFIT & LOSS VIEW */
   else if (activeTab === 'reports') {
     const today = todayStr();
-    let filteredOrders = APP_STATE.orders;
-    let filteredExpenses = APP_STATE.expenses;
+    let filteredOrders = acc.orders.filter(o => o.status === 'completed');
+    let filteredExpenses = acc.expenses;
 
     if (reportFilter === 'today') {
-      filteredOrders = APP_STATE.orders.filter(o => o.date === today);
-      filteredExpenses = APP_STATE.expenses.filter(e => e.date === today);
+      filteredOrders = filteredOrders.filter(o => o.date === today);
+      filteredExpenses = filteredExpenses.filter(e => e.date === today);
     } else if (reportFilter === 'week') {
       const weekAgo = new Date();
       weekAgo.setDate(weekAgo.getDate() - 7);
       const weekStr = weekAgo.toISOString().split('T')[0];
-      filteredOrders = APP_STATE.orders.filter(o => (o.date || today) >= weekStr);
-      filteredExpenses = APP_STATE.expenses.filter(e => (e.date || today) >= weekStr);
+      filteredOrders = filteredOrders.filter(o => (o.date || today) >= weekStr);
+      filteredExpenses = filteredExpenses.filter(e => (e.date || today) >= weekStr);
     } else if (reportFilter === 'month') {
       const monthPrefix = today.slice(0, 7);
-      filteredOrders = APP_STATE.orders.filter(o => (o.date || today).startsWith(monthPrefix));
-      filteredExpenses = APP_STATE.expenses.filter(e => (e.date || today).startsWith(monthPrefix));
+      filteredOrders = filteredOrders.filter(o => (o.date || today).startsWith(monthPrefix));
+      filteredExpenses = filteredExpenses.filter(e => (e.date || today).startsWith(monthPrefix));
     }
 
     const totalSales = filteredOrders.reduce((sum, o) => sum + (o.total || 0), 0);
     const totalExp = filteredExpenses.reduce((sum, e) => sum + (e.amount || 0), 0);
     const netProfit = totalSales - totalExp;
 
-    // Top Selling calculation
     const itemMap = {};
     filteredOrders.forEach(o => {
       (o.items || []).forEach(it => {
@@ -761,7 +1083,6 @@ function renderCurrentView() {
     const topDishes = Object.entries(itemMap).sort((a,b) => b[1].revenue - a[1].revenue).slice(0, 5);
     const maxRev = topDishes[0] ? topDishes[0][1].revenue : 1;
 
-    // Daily Grouping
     const dayMap = {};
     filteredOrders.forEach(o => {
       const d = o.date || today;
@@ -789,7 +1110,6 @@ function renderCurrentView() {
           <button class="filter-chip ${reportFilter==='all'?'active':''}" onclick="reportFilter='all';renderCurrentView();">${t('filterAll')}</button>
         </div>
 
-        <!-- Profit Banner -->
         <div class="profit-banner ${netProfit >= 0 ? 'profit' : 'loss'}">
           <div>
             <div class="label">${netProfit >= 0 ? t('netProfit') : t('netLoss')}</div>
@@ -807,7 +1127,6 @@ function renderCurrentView() {
           </div>
         </div>
 
-        <!-- Top Selling -->
         <div style="margin-top:20px;margin-bottom:20px;">
           <h4 style="font-size:13px;font-weight:700;margin-bottom:10px;">🏆 ${t('topSelling')}</h4>
           ${topDishes.length === 0 ? '<div style="font-size:12px;color:var(--text-muted);">No sales data</div>' : ''}
@@ -820,7 +1139,6 @@ function renderCurrentView() {
           `).join('')}
         </div>
 
-        <!-- Daily Table -->
         <div style="margin-top:20px;">
           <h4 style="font-size:13px;font-weight:700;margin-bottom:10px;">📅 ${t('dailyBreakdown')}</h4>
           <div class="table-responsive">
@@ -848,9 +1166,11 @@ function renderCurrentView() {
           </div>
         </div>
       </div>
+      ${developerFooterHtml}
     `;
   }
 
+  /* 7. DIGITAL MENU VIEW */
   else if (activeTab === 'menu') {
     container.innerHTML = `
       <div class="tm-card">
@@ -859,7 +1179,7 @@ function renderCurrentView() {
           <button style="border:none;background:#eff6ff;color:var(--primary);padding:6px 12px;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer;" onclick="openAddDishSheet()">${t('addNewDish')}</button>
         </div>
         <div style="display:flex;flex-direction:column;gap:8px;">
-          ${APP_STATE.menu.map(d => `
+          ${acc.menu.map(d => `
             <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;border:1px solid var(--border);border-radius:10px;">
               <div>
                 <div style="font-weight:700;">${d.name}</div>
@@ -873,6 +1193,7 @@ function renderCurrentView() {
           `).join('')}
         </div>
       </div>
+      ${developerFooterHtml}
     `;
   }
 }
@@ -884,7 +1205,8 @@ function handleTableSelect(tblId) {
 }
 
 function addItemToCart(dishId) {
-  const dish = APP_STATE.menu.find(d => d.id === dishId);
+  const acc = currentAccount();
+  const dish = acc.menu.find(d => d.id === dishId);
   if (!dish) return;
   const item = cartState.items.find(i => i.dishId === dishId);
   if (item) item.qty += 1;
@@ -893,17 +1215,21 @@ function addItemToCart(dishId) {
 }
 
 function openCartReviewSheet() {
+  const acc = currentAccount();
   if (!cartState.tableId) {
     alert(t('selectDishWarning'));
     return;
   }
   const subtotal = cartState.items.reduce((s, i) => s + (i.price * i.qty), 0);
-  const gst = subtotal * (APP_STATE.restaurant.gstRate / 100);
+  const gst = subtotal * (acc.gstRate / 100);
   const grandTotal = subtotal + gst;
-  const tbl = APP_STATE.tables.find(tData => tData.id === cartState.tableId);
+  const tbl = acc.tables.find(tData => tData.id === cartState.tableId);
+
+  const existingOrder = acc.orders.find(o => o.tableId === cartState.tableId && o.status !== 'completed');
 
   const body = `
     <div style="font-weight:700;margin-bottom:12px;">${t('table')}: ${tbl ? tbl.name : ''}</div>
+    ${existingOrder ? `<div style="font-size:11.5px;color:#1e40af;margin-bottom:8px;">Appending items to Running Bill #${existingOrder.billNo}</div>` : ''}
     <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
       ${cartState.items.map(it => `
         <div style="display:flex;justify-content:space-between;border-bottom:1px solid #f1f5f9;padding-bottom:6px;">
@@ -916,7 +1242,7 @@ function openCartReviewSheet() {
       <span>${t('subtotal')}:</span><span>₹ ${subtotal.toFixed(2)}</span>
     </div>
     <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:12px;">
-      <span>${t('tax')} (${APP_STATE.restaurant.gstRate}%):</span><span>₹ ${gst.toFixed(2)}</span>
+      <span>${t('tax')} (${acc.gstRate}%):</span><span>₹ ${gst.toFixed(2)}</span>
     </div>
     <div style="display:flex;justify-content:space-between;font-size:16px;font-weight:800;margin-bottom:16px;">
       <span>${t('grandTotal')}:</span><span>₹ ${grandTotal.toFixed(2)}</span>
@@ -926,61 +1252,93 @@ function openCartReviewSheet() {
   openSheet(t('orderConfirmation'), body);
 }
 
+/* SUBMIT ORDER WITH ADD-ON SUPPORT (BUG 4 FIXED) */
 function submitOrderToKitchen() {
-  const subtotal = cartState.items.reduce((s, i) => s + (i.price * i.qty), 0);
-  const gst = subtotal * (APP_STATE.restaurant.gstRate / 100);
-  const orderNum = 100 + APP_STATE.orders.length + 1;
+  const acc = currentAccount();
+  const existingOrder = acc.orders.find(o => o.tableId === cartState.tableId && o.status !== 'completed');
 
-  const order = {
-    id: 'ord_' + Date.now(),
-    kotNo: orderNum,
-    billNo: orderNum,
-    tableId: cartState.tableId,
-    items: [...cartState.items],
-    subtotal: subtotal,
-    gst: gst,
-    total: subtotal + gst,
-    status: 'preparing',
-    date: todayStr(),
-    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-  };
+  if (existingOrder) {
+    cartState.items.forEach(newItem => {
+      const match = existingOrder.items.find(i => i.dishId === newItem.dishId);
+      if (match) match.qty += newItem.qty;
+      else existingOrder.items.push({ ...newItem });
+    });
+    existingOrder.subtotal = existingOrder.items.reduce((s, i) => s + (i.price * i.qty), 0);
+    existingOrder.gst = existingOrder.subtotal * (acc.gstRate / 100);
+    existingOrder.total = existingOrder.subtotal + existingOrder.gst;
+    existingOrder.status = 'preparing';
+  } else {
+    const subtotal = cartState.items.reduce((s, i) => s + (i.price * i.qty), 0);
+    const gst = subtotal * (acc.gstRate / 100);
+    const orderNum = 100 + acc.orders.length + 1;
 
-  APP_STATE.orders.push(order);
-  const tbl = APP_STATE.tables.find(tData => tData.id === cartState.tableId);
+    acc.orders.push({
+      id: 'ord_' + Date.now(),
+      kotNo: orderNum,
+      billNo: orderNum,
+      tableId: cartState.tableId,
+      items: [...cartState.items],
+      subtotal: subtotal,
+      gst: gst,
+      total: subtotal + gst,
+      status: 'preparing',
+      date: todayStr(),
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    });
+  }
+
+  const tbl = acc.tables.find(tData => tData.id === cartState.tableId);
   if (tbl) tbl.status = 'occupied';
-  persistAppData();
+  persistSystemData();
 
   cartState = { tableId: '', items: [] };
   closeSheet();
   navigate('kitchen');
 }
 
+/* KITCHEN READY TO SERVE (BUG 2 FIXED: PRESERVES OCCUPIED STATUS) */
 function completeKOT(orderId) {
-  const o = APP_STATE.orders.find(ord => ord.id === orderId);
+  const acc = currentAccount();
+  const o = acc.orders.find(ord => ord.id === orderId);
   if (o) {
-    o.status = 'ready';
-    const tbl = APP_STATE.tables.find(tData => tData.id === o.tableId);
-    if (tbl) tbl.status = 'available';
-    persistAppData();
+    o.status = 'ready_to_serve';
+    persistSystemData();
     renderCurrentView();
   }
 }
 
+/* SETTLE BILL & FREE TABLE */
+function settleBillAndReleaseTable(orderId) {
+  const acc = currentAccount();
+  const o = acc.orders.find(ord => ord.id === orderId);
+  if (!o) return;
+
+  if (!confirm(`Confirm full payment settlement of ₹ ${o.total.toFixed(2)} for Bill #${o.billNo}? Table will now be marked AVAILABLE.`)) return;
+
+  o.status = 'completed';
+  const tbl = acc.tables.find(tData => tData.id === o.tableId);
+  if (tbl) tbl.status = 'available';
+
+  persistSystemData();
+  renderCurrentView();
+}
+
 /* --- RECEIPT MODAL --- */
 function showReceiptModal(orderId) {
-  const o = APP_STATE.orders.find(ord => ord.id === orderId);
+  const acc = currentAccount();
+  const o = acc.orders.find(ord => ord.id === orderId);
   if (!o) return;
-  const tbl = APP_STATE.tables.find(tData => tData.id === o.tableId);
+  const tbl = acc.tables.find(tData => tData.id === o.tableId);
 
-  const upiString = `upi://pay?pa=${APP_STATE.restaurant.upi}&pn=${encodeURIComponent(APP_STATE.restaurant.name)}&am=${o.total.toFixed(2)}&cu=INR&tn=Bill-${o.billNo}`;
+  const upiString = `upi://pay?pa=${acc.upi}&pn=${encodeURIComponent(acc.name)}&am=${o.total.toFixed(2)}&cu=INR&tn=Bill-${o.billNo}`;
   const upiQrImg = createSafeQR(upiString);
-  const reviewQrImg = createSafeQR(APP_STATE.restaurant.googleReview);
+  const reviewQrImg = createSafeQR(acc.googleReview);
 
   const receiptHtml = `
     <div class="receipt-paper" id="paper-element">
-      <div class="c" style="font-size:14px;font-weight:bold;">${APP_STATE.restaurant.name}</div>
-      <div class="c" style="font-size:10px;">${APP_STATE.restaurant.address}</div>
-      <div class="c" style="font-size:10px;">Ph: ${APP_STATE.restaurant.phone}</div>
+      <div class="c" style="font-size:14px;font-weight:bold;">${acc.name}</div>
+      <div class="c" style="font-size:10px;">${acc.address}</div>
+      <div class="c" style="font-size:10px;">Ph: ${acc.phone}</div>
       <hr>
       <div>Bill #: ${o.billNo} | ${t('table')}: ${tbl ? tbl.name : 'Takeaway'}</div>
       <div>Date: ${o.date || todayStr()} ${o.time}</div>
@@ -997,7 +1355,7 @@ function showReceiptModal(orderId) {
         <span>₹ ${o.subtotal.toFixed(2)}</span>
       </div>
       <div style="display:flex;justify-content:space-between;">
-        <span>${t('tax')} (${APP_STATE.restaurant.gstRate}%):</span>
+        <span>${t('tax')} (${acc.gstRate}%):</span>
         <span>₹ ${o.gst.toFixed(2)}</span>
       </div>
       <hr>
@@ -1019,6 +1377,7 @@ function showReceiptModal(orderId) {
         </div>
       ` : ''}
       <div class="c" style="font-size:10px;margin-top:8px;">${t('thankYou')}</div>
+      <div class="receipt-dev">Software Developer: Debapriya Sarkar</div>
     </div>
     <button class="btn-primary" style="margin-top:14px;" onclick="triggerPrint()">${t('printThermalReceipt')}</button>
   `;
@@ -1032,12 +1391,14 @@ function triggerPrint() {
 
 /* --- EXPORT CSV --- */
 function exportReportsCSV() {
+  const acc = currentAccount();
   let csv = "TableMaster Pro - Sales & Profit Report\n";
+  csv += "Developer,Debapriya Sarkar\n";
   csv += "Type,Date,Description,Amount\n";
-  APP_STATE.orders.forEach(o => {
+  acc.orders.filter(o => o.status === 'completed').forEach(o => {
     csv += `Sales,${o.date || todayStr()},Bill #${o.billNo},${o.total.toFixed(2)}\n`;
   });
-  APP_STATE.expenses.forEach(e => {
+  acc.expenses.forEach(e => {
     csv += `Expense,${e.date || todayStr()},"${e.desc}",${e.amount.toFixed(2)}\n`;
   });
 
@@ -1064,19 +1425,21 @@ function openAddDishSheet() {
   openSheet(t('addNewDish'), form);
 }
 function saveNewDish() {
+  const acc = currentAccount();
   const name = document.getElementById('add-dish-name').value.trim();
   const cat = document.getElementById('add-dish-cat').value.trim() || 'General';
   const price = parseFloat(document.getElementById('add-dish-price').value);
   if (!name || !price) { alert('Please enter valid details'); return; }
-  APP_STATE.menu.push({ id: 'm_' + Date.now(), name, category: cat, price });
-  persistAppData();
+  acc.menu.push({ id: 'm_' + Date.now(), name, category: cat, price });
+  persistSystemData();
   closeSheet();
   renderCurrentView();
 }
 function deleteDish(id) {
+  const acc = currentAccount();
   if (!confirm(t('confirmDelete'))) return;
-  APP_STATE.menu = APP_STATE.menu.filter(m => m.id !== id);
-  persistAppData();
+  acc.menu = acc.menu.filter(m => m.id !== id);
+  persistSystemData();
   renderCurrentView();
 }
 
@@ -1091,19 +1454,29 @@ function openAddTableSheet() {
   openSheet(t('addTable'), form);
 }
 function saveNewTable() {
+  const acc = currentAccount();
   const name = document.getElementById('tbl-in-name').value.trim();
   const seats = parseInt(document.getElementById('tbl-in-seats').value) || 4;
   if (!name) return;
-  APP_STATE.tables.push({ id: 't_' + Date.now(), name, seats, status: 'available' });
-  persistAppData();
+  acc.tables.push({ id: 't_' + Date.now(), name, seats, status: 'available' });
+  persistSystemData();
   closeSheet();
   renderCurrentView();
 }
 
 function openExpenseSheet() {
   const form = `
+    <label>Expense Category</label>
+    <select id="exp-cat">
+      <option value="Raw Materials">Raw Materials (Kitchen Supplies)</option>
+      <option value="Utilities">Utilities (Electric/Gas/Water)</option>
+      <option value="Salaries">Salaries (Staff Pay)</option>
+      <option value="Rent">Rent (Premises)</option>
+      <option value="Marketing">Marketing</option>
+      <option value="Other">Other</option>
+    </select>
     <label>${t('expenseDesc')}</label>
-    <input type="text" id="exp-desc" placeholder="e.g. Milk & Coffee beans">
+    <input type="text" id="exp-desc" placeholder="e.g. 5kg Milk & Coffee beans">
     <label>${t('amount')}</label>
     <input type="number" id="exp-amount" placeholder="0.00">
     <button class="btn-primary" onclick="saveExpense()">${t('save')}</button>
@@ -1111,47 +1484,125 @@ function openExpenseSheet() {
   openSheet(t('expenseTitle'), form);
 }
 function saveExpense() {
+  const acc = currentAccount();
+  const cat = document.getElementById('exp-cat').value;
   const desc = document.getElementById('exp-desc').value.trim();
   const amt = parseFloat(document.getElementById('exp-amount').value);
-  if (!amt) return;
-  APP_STATE.expenses.push({ id: Date.now(), desc, amount: amt, date: todayStr() });
-  persistAppData();
+  if (!amt || !desc) { alert('Please enter valid expense details'); return; }
+  acc.expenses.unshift({ id: 'exp_' + Date.now(), category: cat, desc, amount: amt, date: todayStr() });
+  persistSystemData();
   closeSheet();
   renderCurrentView();
 }
+function deleteExpense(id) {
+  const acc = currentAccount();
+  if (!confirm('Delete this expense entry?')) return;
+  acc.expenses = acc.expenses.filter(e => e.id !== id);
+  persistSystemData();
+  renderCurrentView();
+}
+
+function openStaffModal() {
+  const acc = currentAccount();
+  const pin = prompt(t('masterPinPrompt'));
+  if (pin !== acc.masterPin) {
+    alert('Incorrect Master PIN!');
+    return;
+  }
+
+  const staffListHtml = (acc.staff || []).map(s => `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f1f5f9;">
+      <div>
+        <strong>${s.name}</strong> (@${s.username})
+        <div style="font-size:11px;color:var(--text-muted);">${s.role.toUpperCase()}</div>
+      </div>
+      <button class="btn-danger" style="padding:4px 8px;font-size:11px;" onclick="deleteStaff('${s.id}')">✕</button>
+    </div>
+  `).join('');
+
+  const body = `
+    <h4 style="font-size:14px;margin-bottom:12px;">Existing Staff</h4>
+    <div style="margin-bottom:16px;">${staffListHtml || '<div style="color:var(--text-muted);font-size:12px;">No staff accounts yet.</div>'}</div>
+    <hr style="border:none;border-top:1px solid #e2e8f0;margin:12px 0;">
+    <h4 style="font-size:14px;margin-bottom:12px;">Add New Staff Member</h4>
+    <label>Staff Full Name</label>
+    <input type="text" id="stf-name" placeholder="Rohan Kumar">
+    <label>Username</label>
+    <input type="text" id="stf-user" placeholder="rohan">
+    <label>Password</label>
+    <input type="text" id="stf-pass" placeholder="pass123">
+    <label>${t('role')}</label>
+    <select id="stf-role">
+      <option value="waiter">Waiter (POS & Orders Only)</option>
+      <option value="kitchen">Kitchen Staff (KOT Live Only)</option>
+      <option value="cashier">Cashier (Orders, Bills & Dashboard)</option>
+    </select>
+    <button class="btn-primary" onclick="saveStaffMember()">${t('save')}</button>
+  `;
+  openSheet(t('staffMgmt'), body);
+}
+
+function saveStaffMember() {
+  const acc = currentAccount();
+  const name = document.getElementById('stf-name').value.trim();
+  const user = document.getElementById('stf-user').value.trim();
+  const pass = document.getElementById('stf-pass').value.trim();
+  const role = document.getElementById('stf-role').value;
+  if (!name || !user || !pass) { alert('Please fill in all staff fields'); return; }
+
+  if (!acc.staff) acc.staff = [];
+  acc.staff.push({ id: 'stf_' + Date.now(), name, username: user, password: pass, role });
+  persistSystemData();
+  closeSheet();
+  alert('Staff account created successfully!');
+}
+
+function deleteStaff(id) {
+  const acc = currentAccount();
+  if (!confirm('Remove this staff member?')) return;
+  acc.staff = acc.staff.filter(s => s.id !== id);
+  persistSystemData();
+  closeSheet();
+}
 
 function openSettingsSheet() {
+  const acc = currentAccount();
   const form = `
     <label>${t('restaurantName')}</label>
-    <input type="text" id="cfg-name" value="${APP_STATE.restaurant.name}">
+    <input type="text" id="cfg-name" value="${acc.name}">
     <label>${t('phone')}</label>
-    <input type="text" id="cfg-phone" value="${APP_STATE.restaurant.phone}">
+    <input type="text" id="cfg-phone" value="${acc.phone}">
     <label>${t('address')}</label>
-    <input type="text" id="cfg-addr" value="${APP_STATE.restaurant.address}">
+    <input type="text" id="cfg-addr" value="${acc.address}">
     <label>${t('upiId')}</label>
-    <input type="text" id="cfg-upi" value="${APP_STATE.restaurant.upi}">
+    <input type="text" id="cfg-upi" value="${acc.upi}">
     <label>${t('googleReviewUrl')}</label>
-    <input type="text" id="cfg-review" value="${APP_STATE.restaurant.googleReview}">
+    <input type="text" id="cfg-review" value="${acc.googleReview}">
     <label>${t('gstRate')}</label>
-    <input type="number" id="cfg-gst" value="${APP_STATE.restaurant.gstRate}">
+    <input type="number" id="cfg-gst" value="${acc.gstRate}">
+    <label>Master PIN (4 Digits)</label>
+    <input type="password" id="cfg-pin" pattern="[0-9]{4}" value="${acc.masterPin}">
     <button class="btn-primary" onclick="saveSettings()">${t('save')}</button>
   `;
   openSheet(t('restaurantSettings'), form);
 }
+
 function saveSettings() {
-  APP_STATE.restaurant.name = document.getElementById('cfg-name').value.trim();
-  APP_STATE.restaurant.phone = document.getElementById('cfg-phone').value.trim();
-  APP_STATE.restaurant.address = document.getElementById('cfg-addr').value.trim();
-  APP_STATE.restaurant.upi = document.getElementById('cfg-upi').value.trim();
-  APP_STATE.restaurant.googleReview = document.getElementById('cfg-review').value.trim();
-  APP_STATE.restaurant.gstRate = parseFloat(document.getElementById('cfg-gst').value) || 0;
-  persistAppData();
+  const acc = currentAccount();
+  acc.name = document.getElementById('cfg-name').value.trim();
+  acc.phone = document.getElementById('cfg-phone').value.trim();
+  acc.address = document.getElementById('cfg-addr').value.trim();
+  acc.upi = document.getElementById('cfg-upi').value.trim();
+  acc.googleReview = document.getElementById('cfg-review').value.trim();
+  acc.gstRate = parseFloat(document.getElementById('cfg-gst').value) || 0;
+  acc.masterPin = document.getElementById('cfg-pin').value.trim() || acc.masterPin;
+  persistSystemData();
   closeSheet();
   renderCurrentView();
 }
 
-// Initial Boot
-renderCurrentView();
+/* Boot System */
+checkAuth();
 </script>
 </body>
 </html>
