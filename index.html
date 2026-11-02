@@ -10,7 +10,6 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
   <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 
@@ -1860,29 +1859,9 @@
 
             <div style="border-top: 1px solid #000; margin: 7px 0 5px 0;"></div>
             
-            <!-- COMPANY BRANDING START -->
-            <div style="border: 1.5px dashed #000; padding: 6px; margin: 10px 0; color: #000; background: #fff;">
-              <table style="width: 100%; border-collapse: collapse; text-align: left;">
-                <tr>
-                  <td style="width: 38px; vertical-align: middle;">
-                    <svg viewBox="0 0 100 100" style="width: 35px; height: 35px;">
-                      <polygon points="50 5, 95 27.5, 95 72.5, 50 95, 5 72.5, 5 27.5" fill="#000"/>
-                      <circle cx="50" cy="16" r="5" fill="#fff"/>
-                      <circle cx="50" cy="84" r="5" fill="#fff"/>
-                      <text x="50" y="64" fill="#fff" font-family="Arial, sans-serif" font-weight="900" font-size="32" text-anchor="middle" letter-spacing="-2">&lt;/&gt;</text>
-                    </svg>
-                  </td>
-                  <td style="vertical-align: middle; padding-left: 6px;">
-                    <div style="font-size: 18px; font-weight: 900; line-height: 1; letter-spacing: -0.5px;">SmartFix</div>
-                    <div style="border-bottom: 1.5px solid #000; margin: 2px 0 5px 0; position: relative; width: 95%;">
-                      <div style="position: absolute; right: 0; bottom: -3px; width: 5px; height: 5px; background: #000; border-radius: 50%;"></div>
-                    </div>
-                    <div style="font-size: 8px; font-weight: bold; margin-top: 2px;">"Your Concern, We Customize"</div>
-                    <div style="font-size: 7px; font-weight: bold; margin-top: 2px;">[ CODE • HARDWARE • DEV ]</div>
-                    <div style="font-size: 8px; font-weight: 900; margin-top: 3px;">CALL / WHATSAPP: +91 9046356631</div>
-                  </td>
-                </tr>
-              </table>
+            <!-- COMPANY BRANDING START (Base64 Image) -->
+            <div style="border: 1.5px dashed #000; padding: 6px; margin: 10px 0; background: #fff; text-align: center;">
+              <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMDAgODAiIHdpZHRoPSIzMDAiIGhlaWdodD0iODAiPjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iODAiIGZpbGw9IiNmZmZmZmYiIC8+PHBvbHlnb24gcG9pbnRzPSI0MCw1IDc1LDIyLjUgNzUsNTcuNSA0MCw3NSA1LDU3LjUgNSwyMi41IiBmaWxsPSIjMDAwMDAwIiAvPjxjaXJjbGUgY3g9IjQwIiBjeT0iMTMiIHI9IjQiIGZpbGw9IiNmZmZmZmYiIC8+PGNpcmNsZSBjeD0iNDAiIGN5PSI2NyIgcj0iNCIgZmlsbD0iI2ZmZmZmZiIgLz48dGV4dCB4PSI0MCIgeT0iNTEiIGZpbGw9IiNmZmZmZmYiIGZvbnQtZmFtaWx5PSJtb25vc3BhY2UsICdDb3VyaWVyIE5ldyciIGZvbnQtd2VpZ2h0PSI5MDAiIGZvbnQtc2l6ZT0iMjQiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGxldHRlci1zcGFjaW5nPSItMSI+Jmx0Oy8mZ3Q7PC90ZXh0Pjx0ZXh0IHg9Ijg1IiB5PSIzMiIgZm9udC1mYW1pbHk9IidIZWx2ZXRpY2EgTmV1ZScsIEhlbHZldGljYSwgQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtd2VpZ2h0PSI5MDAiIGZvbnQtc2l6ZT0iMjgiIGZpbGw9IiMwMDAwMDAiPlNtYXJ0Rml4PC90ZXh0PjxsaW5lIHgxPSI4NSIgeTE9IjQwIiB4Mj0iMjg1IiB5Mj0iNDAiIHN0cm9rZT0iIzAwMDAwMCIgc3Ryb2tlLXdpZHRoPSIyLjUiIC8+PGNpcmNsZSBjeD0iMjg1IiBjeT0iNDAiIHI9IjMuNSIgZmlsbD0iIzAwMDAwMCIgLz48dGV4dCB4PSI4NSIgeT0iNTIiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC13ZWlnaHQ9ImJvbGQiIGZvbnQtc2l6ZT0iOSIgZmlsbD0iIzAwMDAwMCI+IllvdXIgQ29uY2VybiwgV2UgQ3VzdG9taXplIjwvdGV4dD48dGV4dCB4PSI4NSIgeT0iNjQiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC13ZWlnaHQ9ImJvbGQiIGZvbnQtc2l6ZT0iOCIgZmlsbD0iIzAwMDAwMCI+WyBDT0RFIOKAoiBIQVJEV0FSRSCiIERFViBdPC90ZXh0Pjx0ZXh0IHg9Ijg1IiB5PSI3NiIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iOTAwIiBmb250LXNpemU9IjEwIiBmaWxsPSIjMDAwMDAwIj5DQUxMIC8gV0hBVFNBUFA6ICs5MSA5MDQ2MzU2NjMxPC90ZXh0Pjwvc3ZnPg==" style="width: 100%; max-width: 220px; height: auto; display: block; margin: 0 auto;" />
             </div>
             <!-- COMPANY BRANDING END -->
 
@@ -2060,24 +2039,6 @@
       svg.setAttribute('id', safeId);
       try { window.JsBarcode(svg, String(value || ''), { format: 'CODE128', displayValue: false, margin: 1, height: 28, width: 1.35, background: '#ffffff', lineColor: '#000000' }); return svg.outerHTML; }
       catch (_) { return `<span style="font-family:monospace;font-weight:bold;">${String(value || '')}</span>`; }
-    }
-
-    function createUpiQrDataUrl(job) {
-      return new Promise(resolve => {
-        if (!window.QRCode) { resolve(''); return; }
-        const holder = document.createElement('div');
-        holder.style.cssText = 'position:fixed;left:-10000px;top:-10000px;width:180px;height:180px';
-        document.body.appendChild(holder);
-        const upi = `upi://pay?pa=${encodeURIComponent('9932480026@okbizaxis')}&pn=${encodeURIComponent(currentStore?.shopName || 'SmartFix Store')}&cu=INR`;
-        try {
-          new QRCode(holder, { text: upi, width: 180, height: 180, colorDark : "#000000", colorLight : "#ffffff", correctLevel: QRCode.CorrectLevel.M });
-          setTimeout(() => {
-            const canvas = holder.querySelector('canvas'); const img = holder.querySelector('img');
-            let url = ''; try { url = canvas ? canvas.toDataURL('image/png') : (img?.src || ''); } catch (_) {}
-            holder.remove(); resolve(url);
-          }, 300);
-        } catch (_) { holder.remove(); resolve(''); }
-      });
     }
 
     function setBackupStatus(message, isError = false) {
