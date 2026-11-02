@@ -1757,7 +1757,6 @@
       const sAddr = currentStore ? currentStore.shopAddress : "Main Road, Workshop Station";
       const sPhone = currentStore ? currentStore.shopPhone : "9876543210";
       const billBarcodeSvg = createBarcodeSvg(job.billNo, 'receiptBarcode');
-      const upiQrDataUrl = await createUpiQrDataUrl(job);
 
       let totalOrEst = isUnrepairable ? 0 : (isDelivered ? (parseFloat(job.finalAmount) || 0) : (parseFloat(job.estCost) || 0));
       let advPaid = parseFloat(job.advPaid) || 0;
@@ -1860,10 +1859,33 @@
             </table>
 
             <div style="border-top: 1px solid #000; margin: 7px 0 5px 0;"></div>
-            <div style="text-align:center;font-size:9.5px;font-weight:900;margin:3px 0;color:#000;">SCAN TO PAY VIA UPI</div>
-            ${upiQrDataUrl ? `<div style="text-align:center;"><img src="${upiQrDataUrl}" alt="UPI payment QR" style="width:105px;height:105px;object-fit:contain;display:inline-block; filter: grayscale(100%) contrast(300%);" /></div>` : ''}
-            <div style="text-align:center;font-size:9.5px;font-weight:600;line-height:1.5;word-break:break-all;color:#000;">UPI ID: <strong style="font-weight:900;">9932480026@okbizaxis</strong><br>Amount: enter in payment app</div>
             
+            <!-- COMPANY BRANDING START -->
+            <div style="border: 1.5px dashed #000; padding: 6px; margin: 10px 0; color: #000; background: #fff;">
+              <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                <tr>
+                  <td style="width: 38px; vertical-align: middle;">
+                    <svg viewBox="0 0 100 100" style="width: 35px; height: 35px;">
+                      <polygon points="50 5, 95 27.5, 95 72.5, 50 95, 5 72.5, 5 27.5" fill="#000"/>
+                      <circle cx="50" cy="16" r="5" fill="#fff"/>
+                      <circle cx="50" cy="84" r="5" fill="#fff"/>
+                      <text x="50" y="64" fill="#fff" font-family="Arial, sans-serif" font-weight="900" font-size="32" text-anchor="middle" letter-spacing="-2">&lt;/&gt;</text>
+                    </svg>
+                  </td>
+                  <td style="vertical-align: middle; padding-left: 6px;">
+                    <div style="font-size: 18px; font-weight: 900; line-height: 1; letter-spacing: -0.5px;">SmartFix</div>
+                    <div style="border-bottom: 1.5px solid #000; margin: 2px 0 5px 0; position: relative; width: 95%;">
+                      <div style="position: absolute; right: 0; bottom: -3px; width: 5px; height: 5px; background: #000; border-radius: 50%;"></div>
+                    </div>
+                    <div style="font-size: 8px; font-weight: bold; margin-top: 2px;">"Your Concern, We Customize"</div>
+                    <div style="font-size: 7px; font-weight: bold; margin-top: 2px;">[ CODE • HARDWARE • DEV ]</div>
+                    <div style="font-size: 8px; font-weight: 900; margin-top: 3px;">CALL / WHATSAPP: +91 9046356631</div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <!-- COMPANY BRANDING END -->
+
             <div style="border-top: 1px solid #000; margin: 5px 0 2px 0;"></div>
             <div style="text-align: center; font-size: 10.5px; font-weight: 900; line-height: 1.5; color: #000;">
               Developed by Debapriya Sarkar<br>
