@@ -23,16 +23,16 @@
       body > *:not(#masterDirectPrintArea) { display: none !important; }
       #masterDirectPrintArea {
         display: block !important; position: absolute !important; left: 0 !important; top: 0 !important;
-        width: 58mm !important; max-width: 58mm !important; padding: 4mm 3mm 12mm 3mm !important; margin: 0 !important;
+        width: 58mm !important; max-width: 58mm !important; padding: 4mm 3mm 10mm 3mm !important; margin: 0 !important;
         background: #fff !important; color: #000 !important; font-family: Arial, Helvetica, sans-serif !important; 
-        font-weight: 600 !important; font-size: 11px !important; line-height: 1.4 !important;
+        font-weight: 600 !important; font-size: 11px !important; line-height: 1.35 !important;
         -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;
+        text-rendering: geometricPrecision !important; -webkit-font-smoothing: none !important;
       }
       #masterDirectPrintArea * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color: #000 !important; }
-      .receipt-cut-line { page-break-after: always !important; border-bottom: 2px solid #000 !important; margin: 12px 0 !important; padding-bottom: 10px !important; }
     }
 
-    /* Custom scrollbar for mobile */
+    /* Custom scrollbar */
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: #0f172a; }
     ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
@@ -40,7 +40,6 @@
     /* Prevent iOS Zoom on Input Focus */
     input, select, textarea { font-size: 16px !important; }
     
-    /* Hide scrollbar for horizontal nav */
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
@@ -96,41 +95,58 @@
 
       <!-- Dashboard Tab -->
       <section id="view-dashboard" class="tab-panel block space-y-6">
+        <!-- Interactive Stat Cards -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-          <div class="bg-slate-900 border border-slate-800 p-4 md:p-5 rounded-2xl border-l-4 border-l-indigo-500">
-            <span class="text-[10px] md:text-xs text-slate-400 font-semibold uppercase tracking-wider">Total Sales</span>
+          <div onclick="switchTab('sales')" class="bg-slate-900 border border-slate-800 p-4 md:p-5 rounded-2xl border-l-4 border-l-indigo-500 cursor-pointer hover:bg-slate-800/80 transition active:scale-95 shadow">
+            <div class="flex items-center justify-between text-slate-400">
+              <span class="text-[10px] md:text-xs font-semibold uppercase tracking-wider">Total Sales</span>
+              <i class="fa-solid fa-arrow-right text-[10px]"></i>
+            </div>
             <h4 id="statTotalSales" class="text-lg md:text-2xl font-bold text-white mt-1">₹0</h4>
           </div>
-          <div class="bg-slate-900 border border-slate-800 p-4 md:p-5 rounded-2xl border-l-4 border-l-emerald-500">
-            <span class="text-[10px] md:text-xs text-slate-400 font-semibold uppercase tracking-wider">Collected</span>
+
+          <div onclick="switchTab('payments')" class="bg-slate-900 border border-slate-800 p-4 md:p-5 rounded-2xl border-l-4 border-l-emerald-500 cursor-pointer hover:bg-slate-800/80 transition active:scale-95 shadow">
+            <div class="flex items-center justify-between text-slate-400">
+              <span class="text-[10px] md:text-xs font-semibold uppercase tracking-wider">Collected</span>
+              <i class="fa-solid fa-arrow-right text-[10px]"></i>
+            </div>
             <h4 id="statCollected" class="text-lg md:text-2xl font-bold text-emerald-400 mt-1">₹0</h4>
           </div>
-          <div class="bg-slate-900 border border-slate-800 p-4 md:p-5 rounded-2xl border-l-4 border-l-rose-500">
-            <span class="text-[10px] md:text-xs text-slate-400 font-semibold uppercase tracking-wider">Outstanding Due</span>
+
+          <div onclick="filterSalesView('due')" class="bg-slate-900 border border-slate-800 p-4 md:p-5 rounded-2xl border-l-4 border-l-rose-500 cursor-pointer hover:bg-slate-800/80 transition active:scale-95 shadow">
+            <div class="flex items-center justify-between text-slate-400">
+              <span class="text-[10px] md:text-xs font-semibold uppercase tracking-wider">Outstanding Due</span>
+              <i class="fa-solid fa-arrow-right text-[10px]"></i>
+            </div>
             <h4 id="statOutstanding" class="text-lg md:text-2xl font-bold text-rose-400 mt-1">₹0</h4>
           </div>
-          <div class="bg-slate-900 border border-slate-800 p-4 md:p-5 rounded-2xl border-l-4 border-l-amber-500">
-            <span class="text-[10px] md:text-xs text-slate-400 font-semibold uppercase tracking-wider">Overdue</span>
+
+          <div onclick="scrollToOverdue()" class="bg-slate-900 border border-slate-800 p-4 md:p-5 rounded-2xl border-l-4 border-l-amber-500 cursor-pointer hover:bg-slate-800/80 transition active:scale-95 shadow">
+            <div class="flex items-center justify-between text-slate-400">
+              <span class="text-[10px] md:text-xs font-semibold uppercase tracking-wider">Overdue Accounts</span>
+              <i class="fa-solid fa-arrow-down text-[10px]"></i>
+            </div>
             <h4 id="statOverdue" class="text-lg md:text-2xl font-bold text-amber-400 mt-1">0</h4>
           </div>
         </div>
 
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow">
-          <div class="p-4 bg-slate-950 border-b border-slate-800">
+        <!-- Overdue Table Section -->
+        <div id="overdueSection" class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow">
+          <div class="p-4 bg-slate-950 border-b border-slate-800 flex justify-between items-center">
             <h3 class="text-sm font-bold text-rose-400 uppercase tracking-wider flex items-center gap-2">
               <i class="fa-solid fa-triangle-exclamation"></i> Overdue Customers
             </h3>
+            <span class="text-xs text-slate-400" id="overdueBadge">0 Pending</span>
           </div>
           <div class="overflow-x-auto">
             <table class="w-full text-left text-sm whitespace-nowrap md:whitespace-normal">
               <thead class="bg-slate-950/60 text-slate-400 text-xs uppercase font-semibold border-b border-slate-800">
                 <tr>
                   <th class="p-3">Customer</th>
-                  <th class="p-3">Phone</th>
-                  <th class="p-3">Model</th>
+                  <th class="p-3">Device & IMEI</th>
                   <th class="p-3 text-right text-amber-400">Late Fine</th>
                   <th class="p-3 text-right text-rose-400">Total Due</th>
-                  <th class="p-3 text-center">Action</th>
+                  <th class="p-3 text-center">Actions</th>
                 </tr>
               </thead>
               <tbody id="overdueTableBody" class="divide-y divide-slate-800/60 text-slate-300"></tbody>
@@ -144,37 +160,21 @@
         <div class="flex flex-col md:flex-row justify-between items-center gap-3 bg-slate-900 border border-slate-800 p-4 rounded-2xl">
           <div class="relative w-full md:w-96">
             <i class="fa-solid fa-magnifying-glass absolute left-4 top-3.5 text-slate-500"></i>
-            <input type="text" id="searchSales" oninput="renderSalesTable()" placeholder="Search name / phone / model..." class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-11 pr-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 text-white">
+            <input type="text" id="searchSales" oninput="renderSalesTable()" placeholder="Search name / phone / model / IMEI..." class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-11 pr-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 text-white">
           </div>
           <button onclick="openSaleModal()" class="w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 shadow-lg transition">
             <i class="fa-solid fa-plus"></i> New EMI Sale
           </button>
         </div>
 
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow">
-          <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm whitespace-nowrap">
-              <thead class="bg-slate-950/80 text-slate-400 text-xs uppercase font-semibold border-b border-slate-800">
-                <tr>
-                  <th class="p-3 md:p-4">Customer / Phone</th>
-                  <th class="p-3 md:p-4">Device & IMEI</th>
-                  <th class="p-3 md:p-4">EMI Plan</th>
-                  <th class="p-3 md:p-4">Total Payable</th>
-                  <th class="p-3 md:p-4">Remaining</th>
-                  <th class="p-3 md:p-4">Status</th>
-                  <th class="p-3 md:p-4 text-center">Actions</th>
-                </tr>
-              </thead>
-              <tbody id="salesTableBody" class="divide-y divide-slate-800/60 text-slate-300"></tbody>
-            </table>
-          </div>
-        </div>
+        <!-- Sales Card Container (Mobile-first responsive list) -->
+        <div id="salesListContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
       </section>
 
       <!-- Payments Tab -->
       <section id="view-payments" class="tab-panel hidden space-y-6">
         <div class="flex justify-between items-center bg-slate-900 border border-slate-800 p-4 rounded-2xl">
-          <h3 class="text-lg font-bold text-white"><i class="fa-solid fa-receipt text-emerald-400 mr-2"></i>Payments</h3>
+          <h3 class="text-lg font-bold text-white"><i class="fa-solid fa-receipt text-emerald-400 mr-2"></i>Payment Collection History</h3>
           <button onclick="openPaymentModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl text-xs md:text-sm font-bold flex items-center gap-2 shadow-lg transition">
             <i class="fa-solid fa-plus"></i> Record Payment
           </button>
@@ -204,7 +204,7 @@
 
   <!-- ==================== MODALS ==================== -->
 
-  <!-- Sale Add/Edit Modal (Mobile Full Screen) -->
+  <!-- Sale Add/Edit Modal -->
   <div id="saleModal" class="fixed inset-0 bg-slate-950/90 md:backdrop-blur-sm hidden items-start justify-center z-50 overflow-y-auto w-full h-full md:p-4">
     <div class="bg-slate-900 border-slate-800 md:border md:rounded-3xl w-full max-w-3xl min-h-screen md:min-h-0 md:my-8 shadow-2xl relative flex flex-col">
       <div class="flex justify-between items-center border-b border-slate-800 p-4 md:p-6 sticky top-0 bg-slate-900 z-10 rounded-t-none md:rounded-t-3xl">
@@ -218,39 +218,39 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label class="block text-xs font-semibold text-slate-400 mb-1">Customer Name *</label>
-            <input type="text" id="custName" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-base text-white focus:border-indigo-500">
+            <input type="text" id="custName" required placeholder="Full Name" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-base text-white focus:border-indigo-500">
           </div>
           <div>
             <label class="block text-xs font-semibold text-slate-400 mb-1">Phone Number *</label>
-            <input type="tel" id="custPhone" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-base text-white focus:border-indigo-500">
+            <input type="tel" id="custPhone" required placeholder="10-digit Mobile" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-base text-white focus:border-indigo-500">
           </div>
           <div>
             <label class="block text-xs font-semibold text-slate-400 mb-1">Document ID / Aadhar *</label>
-            <input type="text" id="custDocId" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-base text-white focus:border-indigo-500">
+            <input type="text" id="custDocId" required placeholder="ID Number" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-base text-white focus:border-indigo-500">
           </div>
           <div>
             <label class="block text-xs font-semibold text-slate-400 mb-1">PAN Card Number (Optional)</label>
-            <input type="text" id="custPan" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-base text-white focus:border-indigo-500 uppercase">
+            <input type="text" id="custPan" placeholder="PAN Number" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-base text-white focus:border-indigo-500 uppercase">
           </div>
           <div class="md:col-span-2">
             <label class="block text-xs font-semibold text-slate-400 mb-1">Cheque Details (If any)</label>
             <input type="text" id="custCheque" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-base text-white focus:border-indigo-500" placeholder="Bank name, Cheque No, Date">
           </div>
           <div class="md:col-span-2">
-            <label class="block text-xs font-semibold text-slate-400 mb-1">Address</label>
-            <input type="text" id="custAddress" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-base text-white focus:border-indigo-500">
+            <label class="block text-xs font-semibold text-slate-400 mb-1">Customer Address</label>
+            <input type="text" id="custAddress" placeholder="Full Address" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-base text-white focus:border-indigo-500">
           </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-slate-800">
           <div>
             <label class="block text-xs font-semibold text-slate-400 mb-1">Device Model *</label>
-            <input type="text" id="deviceModel" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-base text-white focus:border-indigo-500">
+            <input type="text" id="deviceModel" required placeholder="e.g. Vivo Y200 / Redmi Note 13" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-base text-white focus:border-indigo-500">
           </div>
           <div>
             <label class="block text-xs font-semibold text-slate-400 mb-1">IMEI / Serial No</label>
             <div class="relative">
-              <input type="text" id="deviceImei" class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-4 pr-12 py-3 text-base text-white focus:border-indigo-500 font-mono">
+              <input type="text" id="deviceImei" placeholder="15-digit IMEI" class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-4 pr-12 py-3 text-base text-white focus:border-indigo-500 font-mono">
               <button type="button" onclick="openScanner('deviceImei')" title="Scan IMEI Barcode" class="absolute right-2 top-1.5 p-2 bg-slate-800 hover:bg-slate-700 text-indigo-400 rounded-lg transition">
                 <i class="fa-solid fa-barcode text-lg"></i>
               </button>
@@ -306,21 +306,21 @@
   <div id="paymentModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
     <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-md p-6 shadow-2xl">
       <div class="flex justify-between items-center border-b border-slate-800 pb-4 mb-4">
-        <h3 class="text-lg font-bold text-white">Record Payment</h3>
+        <h3 class="text-lg font-bold text-white">Record EMI Payment</h3>
         <button type="button" onclick="closeModal('paymentModal')" class="text-slate-400 hover:text-white bg-slate-800 p-1.5 rounded-full"><i class="fa-solid fa-xmark text-lg"></i></button>
       </div>
       <form id="paymentForm" onsubmit="savePayment(event)" class="space-y-4">
         <input type="hidden" id="paySaleId">
         <div>
-          <label class="block text-xs font-semibold text-slate-400 mb-1">Select Sale *</label>
+          <label class="block text-xs font-semibold text-slate-400 mb-1">Select Customer Sale *</label>
           <select id="paySaleSelect" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-base text-white focus:border-indigo-500"></select>
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-400 mb-1">Amount (₹) *</label>
+          <label class="block text-xs font-semibold text-slate-400 mb-1">Payment Amount (₹) *</label>
           <input type="number" id="payAmount" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-base text-white focus:border-indigo-500" min="1">
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-400 mb-1">Date *</label>
+          <label class="block text-xs font-semibold text-slate-400 mb-1">Payment Date *</label>
           <input type="date" id="payDate" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-base text-white focus:border-indigo-500">
         </div>
         <div>
@@ -333,7 +333,7 @@
         </div>
         <div class="flex justify-end gap-3 pt-4 border-t border-slate-800">
           <button type="button" onclick="closeModal('paymentModal')" class="px-5 py-3 rounded-xl border border-slate-800 text-slate-400 hover:text-white text-sm font-semibold w-full">Cancel</button>
-          <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 px-6 py-3 rounded-xl text-sm font-bold text-white shadow-lg w-full">Save & Print</button>
+          <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 px-6 py-3 rounded-xl text-sm font-bold text-white shadow-lg w-full">Save & Print Receipt</button>
         </div>
       </form>
     </div>
@@ -390,11 +390,10 @@
     </div>
   </div>
 
-  <!-- Print Area -->
+  <!-- Master Thermal Print Area -->
   <div id="masterDirectPrintArea" style="display: none;"></div>
 
   <script>
-    // Main App Config
     const firebaseConfig = {
       apiKey: "AIzaSyCG357Dtw_ftKsgAyRSsoZUSfMNpx-GGz0",
       authDomain: "billing-ab24c.firebaseapp.com",
@@ -422,7 +421,6 @@
     }
     const todayStr = localDateString();
 
-    // Escape HTML to prevent XSS and UI breaking
     function esc(str) {
       if (!str) return '';
       return String(str).replace(/[&<>"']/g, function(m) {
@@ -430,27 +428,37 @@
       });
     }
 
-    // Client-side WhatsApp Reminder Sender
-    function sendEmiWhatsAppReminder(phone, name, model, dueAmount, nextDueDate = '') {
+    // Professional WhatsApp Reminder Message Generator
+    function sendEmiWhatsAppReminder(phone, name, model, imei, totalDue, emiAmount, nextDueDate, fineAmount) {
       if (!phone) {
         alert("Customer phone number not available.");
         return;
       }
       const cleanPhone = String(phone).replace(/[^0-9]/g, '');
       const formattedPhone = cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone;
-      const sName = currentStore ? (currentStore.shopName || "BIN EMI Tracker") : "BIN EMI Tracker";
+      const sName = currentStore ? (currentStore.shopName || "Our Store") : "Our Store";
+      const sPhone = currentStore ? (currentStore.shopPhone || "") : "";
       
-      let message = `Dear ${name},\nThis is a friendly payment reminder from *${sName}* for your device *${model}*.\n`;
-      message += `Total Outstanding Due: *₹${Number(dueAmount).toLocaleString('en-IN')}*.\n`;
-      if (nextDueDate && nextDueDate !== 'N/A') {
-        message += `Next Due Date: *${nextDueDate}*.\n`;
+      let message = `Dear *${name || 'Valued Customer'}*,\n\n`;
+      message += `Greetings from *${sName}*! 👋\n\n`;
+      message += `This is an important reminder regarding your smartphone installment (EMI) plan:\n\n`;
+      message += `📱 *Device:* ${model || 'Purchased Phone'}\n`;
+      if (imei && imei !== 'N/A') {
+        message += `🔢 *IMEI:* ${imei}\n`;
       }
-      message += `Kindly clear the payment at your earliest convenience.\nThank you!`;
+      message += `💰 *Monthly EMI:* ₹${Number(emiAmount || 0).toLocaleString('en-IN')}\n`;
+      message += `📅 *Due Date:* ${nextDueDate || 'Immediate'}\n`;
+      if (Number(fineAmount) > 0) {
+        message += `⚠️ *Accrued Late Fine:* ₹${Number(fineAmount).toLocaleString('en-IN')}\n`;
+      }
+      message += `🔴 *Total Outstanding Balance:* ₹${Number(totalDue || 0).toLocaleString('en-IN')}\n\n`;
+      message += `Kindly clear the pending installment as soon as possible to avoid further late charges and maintain your clean credit record.\n\n`;
+      if (sPhone) message += `For assistance or payment confirmation, contact us at: +91 ${sPhone}\n\n`;
+      message += `Thank you for choosing *${sName}*!`;
 
       window.open(`https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`, '_blank');
     }
 
-    // Auth Handler
     auth.onAuthStateChanged(async (user) => {
       if (emiUnsubscribe) { emiUnsubscribe(); emiUnsubscribe = null; }
 
@@ -480,7 +488,6 @@
       auth.signOut().then(() => window.location.href = 'index.html');
     }
 
-    // Data Functions
     function loadEmiData(uid) {
       emiUnsubscribe = db.collection('stores').doc(uid).collection('emis').onSnapshot(snapshot => {
         allEmis = [];
@@ -499,7 +506,6 @@
       });
     }
 
-    // Math & Schedule Logic
     function calculateStats(sale) {
       const payments = sale.payments || [];
       const totalPaidEmi = payments.reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
@@ -591,7 +597,6 @@
       };
     }
 
-    // UI Renderers
     function renderAll() {
       renderDashboard();
       renderSalesTable();
@@ -607,6 +612,18 @@
         if (t === tabId) btn.className = "flex-1 md:flex-none whitespace-nowrap px-4 py-2 rounded-lg text-xs md:text-sm font-semibold transition bg-indigo-600 text-white shadow-md flex items-center justify-center gap-1.5";
         else btn.className = "flex-1 md:flex-none whitespace-nowrap px-4 py-2 rounded-lg text-xs md:text-sm font-semibold transition text-slate-400 hover:text-white flex items-center justify-center gap-1.5";
       });
+    }
+
+    function scrollToOverdue() {
+      const el = document.getElementById('overdueSection');
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function filterSalesView(type) {
+      switchTab('sales');
+      if (type === 'due') {
+        renderSalesTable(true);
+      }
     }
 
     function renderDashboard() {
@@ -628,30 +645,46 @@
       document.getElementById('statCollected').innerText = '₹' + totalCollected.toLocaleString('en-IN');
       document.getElementById('statOutstanding').innerText = '₹' + totalOutstanding.toLocaleString('en-IN');
       document.getElementById('statOverdue').innerText = overdueCount;
+      document.getElementById('overdueBadge').innerText = `${overdueCount} Pending Accounts`;
 
       const tbody = document.getElementById('overdueTableBody');
       tbody.innerHTML = '';
       if (overdueList.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500">No overdue accounts 🎉</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-500 font-medium">No overdue accounts right now 🎉</td></tr>`;
       } else {
         overdueList.forEach(({ sale, st }) => {
           const rawCustName = (sale.customerName || '').replace(/'/g, "\\'");
           const rawPhone = (sale.phone || '').replace(/'/g, "\\'");
           const rawModel = (sale.deviceModel || '').replace(/'/g, "\\'");
-          const nextDue = st.nextDueDate || '';
+          const rawImei = (sale.imei || 'N/A').replace(/'/g, "\\'");
+          const nextDue = st.nextDueDate || 'Immediate';
 
           tbody.innerHTML += `
             <tr class="hover:bg-slate-950/40 transition">
-              <td class="p-3 font-semibold text-white">${esc(sale.customerName)}</td>
-              <td class="p-3 font-mono text-xs">${esc(sale.phone)}</td>
-              <td class="p-3 text-xs text-slate-400">${esc(sale.deviceModel)}</td>
-              <td class="p-3 text-right text-amber-400">+₹${st.totalFine.toLocaleString('en-IN')}</td>
-              <td class="p-3 text-right font-bold text-rose-400">₹${st.totalRemaining.toLocaleString('en-IN')}</td>
-              <td class="p-3 text-center flex items-center justify-center gap-1.5 flex-wrap">
-                <button onclick="sendEmiWhatsAppReminder('${rawPhone}', '${rawCustName}', '${rawModel}', ${st.totalRemaining}, '${nextDue}')" title="Send WhatsApp Reminder" class="px-2.5 py-1.5 bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white rounded-lg text-xs font-bold border border-emerald-500/30 transition flex items-center gap-1">
-                  <i class="fa-brands fa-whatsapp text-sm"></i> Remind
-                </button>
-                <button onclick="openPaymentModal('${sale.id}')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold">Pay</button>
+              <td class="p-3">
+                <div class="font-bold text-white">${esc(sale.customerName)}</div>
+                <div class="text-xs text-slate-400 font-mono flex items-center gap-1">
+                  <i class="fa-solid fa-phone text-[10px]"></i> ${esc(sale.phone)}
+                </div>
+              </td>
+              <td class="p-3">
+                <div class="font-semibold text-slate-200 text-xs">${esc(sale.deviceModel)}</div>
+                <div class="text-[10px] text-slate-500 font-mono">IMEI: ${esc(sale.imei) || 'N/A'}</div>
+              </td>
+              <td class="p-3 text-right text-amber-400 font-bold">+₹${st.totalFine.toLocaleString('en-IN')}</td>
+              <td class="p-3 text-right font-black text-rose-400 text-sm">₹${st.totalRemaining.toLocaleString('en-IN')}</td>
+              <td class="p-3 text-center">
+                <div class="flex items-center justify-center gap-1.5 flex-wrap">
+                  <a href="tel:${sale.phone}" title="Direct Phone Call" class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-bold transition flex items-center justify-center">
+                    <i class="fa-solid fa-phone"></i>
+                  </a>
+                  <button onclick="sendEmiWhatsAppReminder('${rawPhone}', '${rawCustName}', '${rawModel}', '${rawImei}', ${st.totalRemaining}, ${st.emiAmount}, '${nextDue}', ${st.totalFine})" title="Send WhatsApp Notice" class="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition flex items-center gap-1 shadow">
+                    <i class="fa-brands fa-whatsapp text-sm"></i> Remind
+                  </button>
+                  <button onclick="openPaymentModal('${sale.id}')" title="Collect EMI Payment" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold transition">
+                    Pay
+                  </button>
+                </div>
               </td>
             </tr>
           `;
@@ -659,64 +692,112 @@
       }
     }
 
-    function renderSalesTable() {
-      const q = document.getElementById('searchSales').value.toLowerCase();
-      const tbody = document.getElementById('salesTableBody');
-      tbody.innerHTML = '';
+    // Responsive Mobile-First Card View (No Horizontal Scrollbar Needed)
+    function renderSalesTable(onlyDue = false) {
+      const q = (document.getElementById('searchSales')?.value || '').toLowerCase();
+      const container = document.getElementById('salesListContainer');
+      container.innerHTML = '';
 
-      const filtered = allEmis.filter(s => 
+      let filtered = allEmis.filter(s => 
         (s.customerName||'').toLowerCase().includes(q) || 
         (s.phone||'').includes(q) || 
-        (s.deviceModel||'').toLowerCase().includes(q)
+        (s.deviceModel||'').toLowerCase().includes(q) ||
+        (s.imei||'').includes(q)
       );
 
+      if (onlyDue) {
+        filtered = filtered.filter(s => calculateStats(s).totalRemaining > 0);
+      }
+
       if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-500">No sales found.</td></tr>`;
+        container.innerHTML = `<div class="col-span-full p-8 text-center text-slate-500 bg-slate-900 border border-slate-800 rounded-2xl">No EMI records matching your search.</div>`;
         return;
       }
 
       filtered.forEach(sale => {
         const st = calculateStats(sale);
         let statusBadge = '';
-        if (st.totalRemaining <= 0) statusBadge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Completed</span>';
-        else if (st.isOverdue) statusBadge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/10 text-rose-400 border border-rose-500/20">Overdue</span>';
-        else statusBadge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">Active</span>';
+        if (st.totalRemaining <= 0) statusBadge = '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase">Completed</span>';
+        else if (st.isOverdue) statusBadge = '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/10 text-rose-400 border border-rose-500/20 uppercase">Overdue</span>';
+        else statusBadge = '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 uppercase">Active</span>';
 
         const rawCustName = (sale.customerName || '').replace(/'/g, "\\'");
         const rawPhone = (sale.phone || '').replace(/'/g, "\\'");
         const rawModel = (sale.deviceModel || '').replace(/'/g, "\\'");
-        const nextDue = st.nextDueDate || '';
+        const rawImei = (sale.imei || 'N/A').replace(/'/g, "\\'");
+        const nextDue = st.nextDueDate || 'Completed';
 
-        tbody.innerHTML += `
-          <tr class="hover:bg-slate-950/40 transition">
-            <td class="p-3 md:p-4">
-              <div class="font-bold text-white">${esc(sale.customerName)}</div>
-              <div class="text-[11px] text-slate-400 font-mono">${esc(sale.phone)}</div>
-            </td>
-            <td class="p-3 md:p-4">
-              <div class="font-semibold text-slate-300 text-xs md:text-sm">${esc(sale.deviceModel)}</div>
-              <div class="text-[10px] text-slate-500 font-mono">${esc(sale.imei) || 'N/A'}</div>
-            </td>
-            <td class="p-3 md:p-4 text-xs">
-              <div>₹${st.emiAmount.toFixed(0)} /mo</div>
-              <div class="text-slate-500">${sale.tenureMonths} months</div>
-            </td>
-            <td class="p-3 md:p-4 font-semibold text-white">₹${st.totalPayable.toLocaleString('en-IN')}</td>
-            <td class="p-3 md:p-4 font-bold ${st.totalRemaining > 0 ? 'text-rose-400' : 'text-emerald-400'}">
-              ₹${st.totalRemaining.toLocaleString('en-IN')}
-            </td>
-            <td class="p-3 md:p-4">${statusBadge}</td>
-            <td class="p-3 md:p-4 text-center flex justify-center gap-1 flex-wrap">
-              ${st.totalRemaining > 0 ? `
-                <button onclick="sendEmiWhatsAppReminder('${rawPhone}', '${rawCustName}', '${rawModel}', ${st.totalRemaining}, '${nextDue}')" title="Send WhatsApp Reminder" class="p-2 bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/30 rounded-lg transition"><i class="fa-brands fa-whatsapp text-xs"></i></button>
-              ` : ''}
-              <button onclick="viewDetails('${sale.id}')" title="View Details" class="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-300"><i class="fa-solid fa-eye text-xs"></i></button>
-              <button onclick="openPaymentModal('${sale.id}')" title="Add Payment" class="p-2 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-white"><i class="fa-solid fa-money-bill text-xs"></i></button>
-              <button onclick="editSale('${sale.id}')" title="Edit" class="p-2 bg-indigo-600 hover:bg-indigo-700 rounded-lg text-white"><i class="fa-solid fa-pen text-xs"></i></button>
-              <button onclick="requestDelete('${sale.id}')" title="Delete" class="p-2 bg-rose-950 hover:bg-rose-600 rounded-lg text-rose-400 hover:text-white border border-rose-500/30"><i class="fa-solid fa-trash text-xs"></i></button>
-            </td>
-          </tr>
+        const card = document.createElement('div');
+        card.className = "bg-slate-900 border border-slate-800 hover:border-slate-700 p-4 rounded-2xl flex flex-col justify-between shadow-sm transition space-y-3";
+        
+        card.innerHTML = `
+          <div>
+            <div class="flex items-start justify-between gap-2 border-b border-slate-800/80 pb-2.5">
+              <div>
+                <h4 class="font-bold text-white text-base tracking-wide">${esc(sale.customerName)}</h4>
+                <div class="flex items-center gap-2 mt-0.5">
+                  <a href="tel:${sale.phone}" class="text-xs text-emerald-400 font-mono font-semibold hover:underline flex items-center gap-1">
+                    <i class="fa-solid fa-phone text-[10px]"></i> ${esc(sale.phone)}
+                  </a>
+                </div>
+              </div>
+              <div>${statusBadge}</div>
+            </div>
+
+            <div class="py-2.5 space-y-1.5 text-xs">
+              <div class="flex justify-between items-center">
+                <span class="text-slate-400">Device:</span>
+                <span class="font-bold text-slate-200">${esc(sale.deviceModel)}</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-slate-400">IMEI:</span>
+                <span class="font-mono text-slate-300 text-[11px]">${esc(sale.imei) || 'N/A'}</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-slate-400">Plan:</span>
+                <span class="text-slate-300">₹${st.emiAmount.toFixed(0)}/mo (${sale.tenureMonths} Months)</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-slate-400">Total Payable:</span>
+                <span class="font-semibold text-white">₹${st.totalPayable.toLocaleString('en-IN')}</span>
+              </div>
+              <div class="flex justify-between items-center border-t border-slate-800 pt-1.5">
+                <span class="font-bold ${st.totalRemaining > 0 ? 'text-rose-400' : 'text-emerald-400'}">Remaining Due:</span>
+                <span class="font-bold text-sm ${st.totalRemaining > 0 ? 'text-rose-400' : 'text-emerald-400'}">₹${st.totalRemaining.toLocaleString('en-IN')}</span>
+              </div>
+              ${st.totalFine > 0 ? `
+              <div class="flex justify-between items-center text-[11px]">
+                <span class="text-amber-400">Late Fine Included:</span>
+                <span class="text-amber-400 font-bold">+ ₹${st.totalFine.toLocaleString('en-IN')}</span>
+              </div>` : ''}
+            </div>
+          </div>
+
+          <!-- Bottom Action Buttons Grid (Clean Icons on Mobile) -->
+          <div class="pt-2 border-t border-slate-800 flex items-center justify-between gap-1.5">
+            ${st.totalRemaining > 0 ? `
+              <button onclick="sendEmiWhatsAppReminder('${rawPhone}', '${rawCustName}', '${rawModel}', '${rawImei}', ${st.totalRemaining}, ${st.emiAmount}, '${nextDue}', ${st.totalFine})" title="Send WhatsApp Reminder" class="flex-1 py-2 bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/30 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition">
+                <i class="fa-brands fa-whatsapp text-sm"></i> <span>Remind</span>
+              </button>
+            ` : '<div class="flex-1"></div>'}
+            
+            <div class="flex items-center gap-1.5">
+              <button onclick="viewDetails('${sale.id}')" title="View Details" class="p-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl transition">
+                <i class="fa-solid fa-eye text-xs"></i>
+              </button>
+              <button onclick="openPaymentModal('${sale.id}')" title="Add Payment" class="p-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl transition">
+                <i class="fa-solid fa-money-bill text-xs"></i>
+              </button>
+              <button onclick="editSale('${sale.id}')" title="Edit Sale" class="p-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl transition">
+                <i class="fa-solid fa-pen text-xs"></i>
+              </button>
+              <button onclick="requestDelete('${sale.id}')" title="Delete Sale" class="p-2.5 bg-rose-950/40 hover:bg-rose-600 text-rose-400 hover:text-white border border-rose-500/30 rounded-xl transition">
+                <i class="fa-solid fa-trash text-xs"></i>
+              </button>
+            </div>
+          </div>
         `;
+        container.appendChild(card);
       });
     }
 
@@ -734,7 +815,7 @@
       allPayments.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
 
       if (allPayments.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500">No payments recorded.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500">No payment receipts logged yet.</td></tr>`;
         return;
       }
 
@@ -754,7 +835,6 @@
       });
     }
 
-    // Modals & Actions
     function openModal(id) {
       const modal = document.getElementById(id);
       modal.classList.remove('hidden');
@@ -769,7 +849,6 @@
       document.body.style.overflow = '';
     }
 
-    // Scanner Logic
     function openScanner(targetFieldId) {
       currentScanTargetId = targetFieldId;
       openModal('scannerModal');
@@ -779,7 +858,6 @@
       }
       
       html5QrCode = new Html5Qrcode("reader");
-      
       html5QrCode.start(
         { facingMode: "environment" },
         { fps: 10, qrbox: { width: 250, height: 150 } },
@@ -788,7 +866,7 @@
           stopScanner();
           if (navigator.vibrate) navigator.vibrate(100);
         },
-        (errorMessage) => { /* ignore */ }
+        (errorMessage) => { }
       ).catch(err => {
         alert("Camera access denied or not available. Please check permissions.");
         stopScanner();
@@ -799,9 +877,7 @@
       closeModal('scannerModal');
       if (html5QrCode) {
         try {
-          html5QrCode.stop().then(() => {
-            html5QrCode.clear();
-          }).catch(err => console.log(err));
+          html5QrCode.stop().then(() => { html5QrCode.clear(); }).catch(err => console.log(err));
         } catch (e) {
           console.log(e);
         }
@@ -902,7 +978,7 @@
       document.getElementById('payDate').value = todayStr;
       
       const select = document.getElementById('paySaleSelect');
-      select.innerHTML = '<option value="">-- Select Sale --</option>';
+      select.innerHTML = '<option value="">-- Select Customer Sale --</option>';
       
       let hasActive = false;
       allEmis.forEach(s => {
@@ -969,7 +1045,6 @@
       }
     }
 
-    // View Details & Print
     let currentViewSaleId = null;
     function viewDetails(id) {
       const sale = allEmis.find(s => s.id === id);
@@ -979,12 +1054,12 @@
       const st = calculateStats(sale);
       
       let instHtml = st.schedule.map(i => {
-        let badge = i.status === 'paid' ? '<span class="text-emerald-400 text-[10px]">PAID</span>' : 
-                    i.status === 'overdue' ? '<span class="text-rose-400 text-[10px]">OVERDUE</span>' : 
-                    i.status === 'partial' ? '<span class="text-amber-400 text-[10px]">PARTIAL</span>' : 
-                    '<span class="text-slate-500 text-[10px]">PENDING</span>';
+        let badge = i.status === 'paid' ? '<span class="text-emerald-400 text-[10px] font-bold">PAID</span>' : 
+                    i.status === 'overdue' ? '<span class="text-rose-400 text-[10px] font-bold">OVERDUE</span>' : 
+                    i.status === 'partial' ? '<span class="text-amber-400 text-[10px] font-bold">PARTIAL</span>' : 
+                    '<span class="text-slate-500 text-[10px] font-bold">PENDING</span>';
         return `
-          <div class="bg-slate-950 border border-slate-800 p-2 rounded-lg text-center">
+          <div class="bg-slate-950 border border-slate-800 p-2.5 rounded-xl text-center">
             <div class="text-[10px] text-slate-400 mb-1">${i.dueDate}</div>
             <div class="text-sm font-bold text-white mb-1">₹${i.amount.toFixed(0)}</div>
             ${badge}
@@ -999,9 +1074,9 @@
             <h4 class="text-xs font-bold text-rose-400 uppercase mb-2">Late Fine Breakdown</h4>
             <div class="overflow-x-auto">
               <table class="w-full text-xs text-left border border-slate-700 whitespace-nowrap">
-                <thead class="bg-rose-950/30"><tr><th class="p-2 border border-slate-700">Month</th><th class="p-2 border border-slate-700">Due Date</th><th class="p-2 border border-slate-700">Days Late</th><th class="p-2 border border-slate-700">Fine</th></tr></thead>
+                <thead class="bg-rose-950/40"><tr><th class="p-2 border border-slate-700">Month</th><th class="p-2 border border-slate-700">Due Date</th><th class="p-2 border border-slate-700">Days Late</th><th class="p-2 border border-slate-700">Fine</th></tr></thead>
                 <tbody>
-                  ${st.fineDetails.map(f => `<tr><td class="p-2 border border-slate-700">M-${f.month}</td><td class="p-2 border border-slate-700">${f.dueDate}</td><td class="p-2 border border-slate-700 text-rose-400">${f.daysLate}</td><td class="p-2 border border-slate-700">₹${f.fine}</td></tr>`).join('')}
+                  ${st.fineDetails.map(f => `<tr><td class="p-2 border border-slate-700">M-${f.month}</td><td class="p-2 border border-slate-700">${f.dueDate}</td><td class="p-2 border border-slate-700 text-rose-400 font-bold">${f.daysLate}</td><td class="p-2 border border-slate-700 font-bold">₹${f.fine}</td></tr>`).join('')}
                 </tbody>
               </table>
             </div>
@@ -1017,10 +1092,10 @@
           <div class="flex justify-between gap-2"><span class="text-slate-400">Device</span><span class="font-bold text-white text-right">${esc(sale.deviceModel)} (${esc(sale.imei) || 'N/A'})</span></div>
           <div class="flex justify-between gap-2"><span class="text-slate-400">Interest Rate</span><span class="text-indigo-400 text-right">${sale.interestPct}%</span></div>
           <div class="flex justify-between gap-2"><span class="text-slate-400">Monthly EMI</span><span class="font-bold text-indigo-400 text-right">₹${st.emiAmount.toFixed(2)}</span></div>
-          <div class="flex justify-between gap-2"><span class="text-slate-400">Total Payable</span><span class="text-white text-right">₹${st.totalPayable.toLocaleString('en-IN')}</span></div>
+          <div class="flex justify-between gap-2"><span class="text-slate-400">Total Payable</span><span class="text-white text-right font-bold">₹${st.totalPayable.toLocaleString('en-IN')}</span></div>
           <div class="flex justify-between gap-2"><span class="text-slate-400">Remaining Base</span><span class="text-rose-400 font-bold text-right">₹${st.remainingBase.toLocaleString('en-IN')}</span></div>
           <div class="flex justify-between gap-2"><span class="text-slate-400">Late Fine Accrued</span><span class="text-amber-400 font-bold text-right">+ ₹${st.totalFine.toLocaleString('en-IN')}</span></div>
-          <div class="flex justify-between gap-2 border-t border-slate-700 pt-2"><span class="text-slate-300 font-bold">Total Due</span><span class="text-rose-400 font-bold text-lg text-right">₹${st.totalRemaining.toLocaleString('en-IN')}</span></div>
+          <div class="flex justify-between gap-2 border-t border-slate-700 pt-2"><span class="text-slate-300 font-bold">Total Outstanding Due</span><span class="text-rose-400 font-black text-lg text-right">₹${st.totalRemaining.toLocaleString('en-IN')}</span></div>
         </div>
         ${fineHtml}
         <div class="mt-4">
@@ -1029,11 +1104,10 @@
         </div>
       `;
 
-      // Configure Modal WhatsApp Reminder Button
       const waBtn = document.getElementById('modalWhatsAppReminderBtn');
       if (st.totalRemaining > 0) {
         waBtn.style.display = 'inline-flex';
-        waBtn.onclick = () => sendEmiWhatsAppReminder(sale.phone, sale.customerName, sale.deviceModel, st.totalRemaining, st.nextDueDate);
+        waBtn.onclick = () => sendEmiWhatsAppReminder(sale.phone, sale.customerName, sale.deviceModel, sale.imei, st.totalRemaining, st.emiAmount, st.nextDueDate, st.totalFine);
       } else {
         waBtn.style.display = 'none';
       }
@@ -1047,31 +1121,23 @@
       if (sale) printReceipt(sale);
     }
 
+    // High Contrast 58mm Thermal Receipt with Bottom Logo
     function printReceipt(sale, latestPayment = null) {
       const st = calculateStats(sale);
-      const sName = currentStore ? currentStore.shopName : "BIN EMI TRACKER";
-      const sAddr = currentStore ? currentStore.shopAddress : "";
-      const sPhone = currentStore ? currentStore.shopPhone : "";
-
-      const svgLogo = `
-      <svg style="width: 100%; max-width: 200px; display:block; margin: 0 auto 5px auto;" viewBox="0 0 300 120" xmlns="http://www.w3.org/2000/svg">
-        <rect x="2" y="2" width="296" height="116" rx="8" fill="none" stroke="#000" stroke-width="2" stroke-dasharray="6,4"/>
-        <polygon points="40,20 80,20 100,60 80,100 40,100 20,60" fill="#000"/>
-        <path d="M50,45 L40,60 L50,75 M70,45 L80,60 L70,75 M65,35 L55,85" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-        <text x="120" y="50" font-family="Arial, sans-serif" font-size="32" font-weight="900" fill="#000">SmartFix</text>
-        <text x="120" y="70" font-family="Arial, sans-serif" font-size="10" fill="#000" font-style="italic">"Your Concern, We Customize"</text>
-        <text x="120" y="85" font-family="Arial, sans-serif" font-size="9" fill="#000" font-weight="bold">[ CODE • HARDWARE • DEV ]</text>
-        <text x="120" y="100" font-family="Arial, sans-serif" font-size="10" fill="#000" font-weight="bold">CALL / WHATSAPP: +91 9046356631</text>
-      </svg>`;
+      const sName = currentStore ? (currentStore.shopName || "TULSI MOBILE STORE") : "TULSI MOBILE STORE";
+      const sAddr = currentStore ? (currentStore.shopAddress || "Workshop Station Road") : "Workshop Station Road";
+      const sPhone = currentStore ? (currentStore.shopPhone || "9876543210") : "9876543210";
 
       let payInfo = '';
       if (latestPayment) {
         payInfo = `
-          <div style="display:flex; justify-content:space-between; margin-top:10px; border-top:1px dashed #000; padding-top:5px;">
-            <span>Amount Paid Now:</span><span style="font-weight:bold; font-size:14px;">₹${latestPayment.amount}</span>
-          </div>
-          <div style="display:flex; justify-content:space-between; margin-bottom:3px;">
-            <span>Method:</span><span>${esc(latestPayment.method)}</span>
+          <div style="border-top: 1.5px dashed #000; margin-top: 6px; padding-top: 5px;">
+            <div style="display:flex; justify-content:space-between; font-weight:900; font-size:12px;">
+              <span>Amount Received:</span><span>Rs. ${Number(latestPayment.amount).toFixed(2)}</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:9.5px; margin-top:2px;">
+              <span>Payment Mode:</span><span>${esc(latestPayment.method)}</span>
+            </div>
           </div>
         `;
       }
@@ -1079,55 +1145,98 @@
       let finePrint = '';
       if (st.fineDetails.length > 0) {
         finePrint = `
-          <div style="font-size:10px; font-weight:bold; margin-top:10px;">Late Fine Details:</div>
-          <table style="width:100%; border-collapse:collapse; margin:5px 0; font-size:9px; text-align:center;">
+          <div style="font-size:9.5px; font-weight:900; margin-top:6px;">LATE FINE DETAILS:</div>
+          <table style="width:100%; border-collapse:collapse; margin:3px 0; font-size:9px; text-align:center;">
             <tr><th style="border:1px solid #000; padding:2px;">Month</th><th style="border:1px solid #000; padding:2px;">Due Date</th><th style="border:1px solid #000; padding:2px;">Days</th><th style="border:1px solid #000; padding:2px;">Fine</th></tr>
-            ${st.fineDetails.map(f => `<tr><td style="border:1px solid #000; padding:2px;">M-${f.month}</td><td style="border:1px solid #000; padding:2px;">${f.dueDate}</td><td style="border:1px solid #000; padding:2px;">${f.daysLate}</td><td style="border:1px solid #000; padding:2px;">₹${f.fine}</td></tr>`).join('')}
+            ${st.fineDetails.map(f => `<tr><td style="border:1px solid #000; padding:2px;">M-${f.month}</td><td style="border:1px solid #000; padding:2px;">${f.dueDate}</td><td style="border:1px solid #000; padding:2px;">${f.daysLate}</td><td style="border:1px solid #000; padding:2px;">Rs. ${f.fine}</td></tr>`).join('')}
           </table>
         `;
       }
 
       const html = `
-        <div class="receipt-container" style="width:58mm; margin:0 auto; font-family:'Courier New', Courier, monospace; color:#000; background:#fff; padding:5px; font-size:11px; line-height:1.3;">
-          ${svgLogo}
-          <div style="text-align:center; margin-bottom:10px; border-bottom:1px dashed #000; padding-bottom:10px;">
-            <h2 style="font-size:16px; font-weight:bold; margin:0 0 4px 0; text-transform:uppercase;">${esc(sName)}</h2>
-            <p style="margin:0; font-size:10px;">${esc(sAddr)}</p>
-            <p style="margin:0; font-size:10px;">Ph: ${esc(sPhone)}</p>
-          </div>
+        <div style="width:58mm; padding: 2px 0; color:#000; font-family: Arial, Helvetica, sans-serif; font-size:10.5px; line-height:1.35; font-weight:600;">
           
-          <div style="margin-bottom:10px; border-bottom:1px dashed #000; padding-bottom:10px;">
-            <div style="display:flex; justify-content:space-between; margin-bottom:3px;"><span style="font-weight:bold;">Date:</span><span>${latestPayment ? latestPayment.date : todayStr}</span></div>
-            <div style="display:flex; justify-content:space-between; margin-bottom:3px;"><span style="font-weight:bold;">Receipt No:</span><span>${(latestPayment ? latestPayment.id : sale.id).slice(-6).toUpperCase()}</span></div>
-            <div style="display:flex; justify-content:space-between; margin-bottom:3px;"><span style="font-weight:bold;">Customer:</span><span>${esc(sale.customerName)}</span></div>
-            <div style="display:flex; justify-content:space-between; margin-bottom:3px;"><span style="font-weight:bold;">Phone:</span><span>${esc(sale.phone)}</span></div>
+          <!-- Top Header: Store Details -->
+          <div style="text-align:center; margin-bottom: 5px;">
+            <h2 style="font-size: 14px; font-weight: 900; margin: 0; text-transform: uppercase; color: #000;">${esc(sName)}</h2>
+            <p style="font-size: 9.5px; font-weight: 600; margin: 2px 0; color: #000;">${esc(sAddr)}</p>
+            <p style="font-size: 9.5px; font-weight: 900; margin: 1px 0; color: #000;">Helpdesk: +91 ${esc(sPhone)}</p>
           </div>
 
-          <table style="width:100%; border-collapse:collapse; margin-bottom:10px;">
-            <tr><th style="text-align:left; padding:4px 0; border-bottom:1px dashed #000; font-size:10px;">Device</th><td style="text-align:right; padding:4px 0; border-bottom:1px dashed #000; font-size:10px;">${esc(sale.deviceModel)}</td></tr>
-            ${sale.imei ? `<tr><th style="text-align:left; padding:4px 0; border-bottom:1px dashed #000; font-size:10px;">IMEI</th><td style="text-align:right; padding:4px 0; border-bottom:1px dashed #000; font-size:10px;">${esc(sale.imei)}</td></tr>` : ''}
-            <tr><th style="text-align:left; padding:4px 0; border-bottom:1px dashed #000; font-size:10px;">Base Price</th><td style="text-align:right; padding:4px 0; border-bottom:1px dashed #000; font-size:10px;">₹${sale.basePrice}</td></tr>
-            <tr><th style="text-align:left; padding:4px 0; border-bottom:1px dashed #000; font-size:10px;">Down Payment</th><td style="text-align:right; padding:4px 0; border-bottom:1px dashed #000; font-size:10px;">₹${sale.downPayment}</td></tr>
-            <tr><th style="text-align:left; padding:4px 0; border-bottom:1px dashed #000; font-size:10px;">Interest (${sale.interestPct}%)</th><td style="text-align:right; padding:4px 0; border-bottom:1px dashed #000; font-size:10px;">₹${(st.totalPayable - (sale.basePrice - sale.downPayment)).toFixed(0)}</td></tr>
-            <tr><th style="text-align:left; padding:4px 0; border-bottom:1px dashed #000; font-size:10px;">Total Payable</th><td style="text-align:right; padding:4px 0; border-bottom:1px dashed #000; font-size:10px;">₹${st.totalPayable.toFixed(0)}</td></tr>
-            <tr><th style="text-align:left; padding:4px 0; border-bottom:1px dashed #000; font-size:10px;">Tenure</th><td style="text-align:right; padding:4px 0; border-bottom:1px dashed #000; font-size:10px;">${sale.tenureMonths} Months</td></tr>
-            <tr><th style="text-align:left; padding:4px 0; border-bottom:1px dashed #000; font-size:10px;">Monthly EMI</th><td style="text-align:right; padding:4px 0; border-bottom:1px dashed #000; font-size:10px;">₹${st.emiAmount.toFixed(2)}</td></tr>
+          <div style="border-top: 1.5px solid #000; margin: 4px 0;"></div>
+          <div style="text-align: center; font-size: 11px; font-weight: 900; text-decoration: underline; letter-spacing: 0.5px; padding: 2px 0;">
+            EMI PAYMENT &amp; INSTALLMENT MEMO
+          </div>
+          <div style="border-top: 1px solid #000; margin: 4px 0;"></div>
+
+          <table style="width: 100%; font-size: 10px; line-height: 1.35; font-weight: 600;">
+            <tr><td>Date:</td><td style="text-align: right; font-weight: 900;">${latestPayment ? latestPayment.date : todayStr}</td></tr>
+            <tr><td>Receipt No:</td><td style="text-align: right; font-weight: 900; font-family: monospace;">${(latestPayment ? latestPayment.id : sale.id).slice(-6).toUpperCase()}</td></tr>
+            <tr><td>Customer:</td><td style="text-align: right; font-weight: 900;">${esc(sale.customerName)}</td></tr>
+            <tr><td>Contact:</td><td style="text-align: right; font-weight: 900;">${esc(sale.phone)}</td></tr>
           </table>
 
-          <div style="margin-bottom:10px;">
-            <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:4px;"><span style="font-weight:bold;">Total Paid:</span><span>₹${st.totalPaid.toFixed(2)}</span></div>
-            ${st.totalFine > 0 ? `<div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:4px;"><span style="font-weight:bold;">Late Fine:</span><span>+ ₹${st.totalFine.toFixed(2)}</span></div>` : ''}
-            <div style="display:flex; justify-content:space-between; font-size:14px; font-weight:bold; border-top:1px solid #000; padding-top:4px; margin-bottom:4px;"><span>Remaining Due:</span><span>₹${st.totalRemaining.toFixed(2)}</span></div>
-            <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:4px;"><span style="font-weight:bold;">Next Due:</span><span>${st.nextDueDate || 'N/A'}</span></div>
-            ${finePrint}
-            ${payInfo}
+          <div style="border-top: 1px solid #000; margin: 4px 0;"></div>
+          <table style="width: 100%; font-size: 10px; line-height: 1.35; font-weight: 600;">
+            <tr><td>Device Model:</td><td style="text-align: right; font-weight: 900;">${esc(sale.deviceModel)}</td></tr>
+            ${sale.imei ? `<tr><td>IMEI / Serial:</td><td style="text-align: right; font-family: monospace; font-weight: 900;">${esc(sale.imei)}</td></tr>` : ''}
+            <tr><td>Base Price:</td><td style="text-align: right; font-weight: 900;">Rs. ${Number(sale.basePrice).toFixed(2)}</td></tr>
+            <tr><td>Down Payment:</td><td style="text-align: right; font-weight: 900;">Rs. ${Number(sale.downPayment).toFixed(2)}</td></tr>
+            <tr><td>Interest (${sale.interestPct}%):</td><td style="text-align: right; font-weight: 900;">Rs. ${(st.totalPayable - (sale.basePrice - sale.downPayment)).toFixed(2)}</td></tr>
+            <tr><td>Total Payable:</td><td style="text-align: right; font-weight: 900;">Rs. ${st.totalPayable.toFixed(2)}</td></tr>
+            <tr><td>Tenure:</td><td style="text-align: right; font-weight: 900;">${sale.tenureMonths} Months</td></tr>
+            <tr><td>Monthly EMI:</td><td style="text-align: right; font-weight: 900;">Rs. ${st.emiAmount.toFixed(2)}</td></tr>
+          </table>
+
+          <div style="border-top: 1.5px solid #000; margin: 5px 0;"></div>
+          <table style="width: 100%; font-size: 10.5px; line-height: 1.35; font-weight: 600;">
+            <tr><td>Total Amount Paid:</td><td style="text-align: right; font-weight: 900;">Rs. ${st.totalPaid.toFixed(2)}</td></tr>
+            ${st.totalFine > 0 ? `<tr><td style="font-weight: 900;">Late Fine Accrued:</td><td style="text-align: right; font-weight: 900;">+ Rs. ${st.totalFine.toFixed(2)}</td></tr>` : ''}
+            <tr style="font-size: 11px;"><td style="font-weight: 900;">Remaining Balance:</td><td style="text-align: right; font-weight: 900;">Rs. ${st.totalRemaining.toFixed(2)}</td></tr>
+            <tr><td>Next Due Date:</td><td style="text-align: right; font-weight: 900;">${st.nextDueDate || 'Fully Paid'}</td></tr>
+          </table>
+
+          ${payInfo}
+          ${finePrint}
+
+          <div style="border-top: 1px solid #000; margin: 10px 0 4px 0;"></div>
+          <table style="width: 100%; font-size: 9.5px; margin-top: 6px;">
+            <tr>
+              <td style="text-align: left; width: 50%;">____________________<br><strong style="font-weight: 900;">Customer Sign</strong></td>
+              <td style="text-align: right; width: 50%;">____________________<br><strong style="font-weight: 900;">Authorized Sign</strong></td>
+            </tr>
+          </table>
+
+          <div style="border-top: 1px solid #000; margin: 8px 0 5px 0;"></div>
+          
+          <!-- BRANDING & LOGO IN FOOTER -->
+          <div style="border: 1.5px dashed #000; padding: 5px 4px; margin: 8px 0; background: #fff; border-radius: 4px;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left;">
+              <tr>
+                <td style="width: 36px; vertical-align: middle;">
+                  <svg viewBox="0 0 100 100" style="width: 30px; height: 30px; display: block;">
+                    <polygon points="50 5, 95 27.5, 95 72.5, 50 95, 5 72.5, 5 27.5" fill="#000"/>
+                    <circle cx="50" cy="16" r="5" fill="#fff"/>
+                    <circle cx="50" cy="84" r="5" fill="#fff"/>
+                    <text x="50" y="64" fill="#fff" font-family="'Courier New', monospace" font-weight="900" font-size="30" text-anchor="middle" letter-spacing="-2">&lt;/&gt;</text>
+                  </svg>
+                </td>
+                <td style="vertical-align: middle; padding-left: 5px;">
+                  <div style="font-size: 15px; font-weight: 900; line-height: 1; letter-spacing: -0.5px;">SmartFix Pro</div>
+                  <div style="border-bottom: 1.5px solid #000; margin: 2px 0 4px 0; width: 95%;"></div>
+                  <div style="font-size: 6.5px; font-weight: bold; white-space: nowrap;">"Your Concern, We Customize"</div>
+                  <div style="font-size: 5.5px; font-weight: bold; white-space: nowrap;">[ CODE • HARDWARE • DEV ]</div>
+                  <div style="font-size: 7px; font-weight: 900; margin-top: 2px; white-space: nowrap;">CALL / WHATSAPP: +91 9046356631</div>
+                </td>
+              </tr>
+            </table>
           </div>
 
-          <div style="text-align:center; border-top:1px dashed #000; padding-top:10px; font-size:9px;">
-            <p style="font-weight:bold; margin:0;">Thank you for your business!</p>
-            <p style="margin:2px 0;">Keep this receipt for your records.</p>
-            <p style="margin-top:5px; margin-bottom:0;">Powered by SmartFix</p>
+          <div style="text-align: center; font-size: 9.5px; font-weight: 900; line-height: 1.4;">
+            Developed by Debapriya Sarkar<br>
+            <span style="font-size: 8.5px; font-weight: 600;">BIN EMI Tracker &copy; 2026 | SmartFix Pro OS</span>
           </div>
+          <div style="height: 5mm;"></div>
         </div>
       `;
 
@@ -1145,7 +1254,6 @@
       document.body.classList.remove('mode-thermal');
     });
 
-    // Delete Logic with Password Auth
     function requestDelete(saleId) {
       currentSaleIdForDelete = saleId;
       document.getElementById('deletePasswordInput').value = '';
