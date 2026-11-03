@@ -40,7 +40,6 @@
       body.mode-a4 #masterDirectPrintArea { width: 210mm !important; max-width: 210mm !important; padding: 12mm !important; font-family: Arial, sans-serif !important; font-size: 11px !important; }
     }
 
-    /* Glow & pulse animations for UI attraction */
     @keyframes pulseGlow {
       0%, 100% { opacity: 0.35; transform: scale(1); }
       50% { opacity: 0.65; transform: scale(1.05); }
@@ -61,14 +60,14 @@
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-indigo-600 selection:text-white">
 
-  <!-- ==================== PREMIUM AUTH SCREEN WITH ADVANCED ADVERTISEMENT ==================== -->
+  <!-- ==================== PREMIUM AUTH SCREEN ==================== -->
   <div id="authScreen" class="fixed inset-0 bg-slate-950 z-50 overflow-y-auto flex items-center justify-center p-3 sm:p-6 lg:p-8">
     <div class="fixed top-1/4 left-1/4 w-96 h-96 bg-indigo-600/20 rounded-full blur-[120px] pointer-events-none animate-glow"></div>
     <div class="fixed bottom-1/4 right-1/4 w-96 h-96 bg-violet-600/20 rounded-full blur-[120px] pointer-events-none animate-glow" style="animation-delay: 2s;"></div>
 
     <div class="relative w-full max-w-6xl bg-slate-900/80 backdrop-blur-2xl border border-slate-700/60 rounded-3xl shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-12 my-auto">
       
-      <!-- Left Panel (Showcase, Marketing & Feature Advertisement) -->
+      <!-- Left Panel: Advertisement & Feature Highlights -->
       <div class="lg:col-span-7 bg-gradient-to-br from-indigo-950/95 via-slate-900 to-slate-950 p-6 sm:p-8 lg:p-10 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-slate-700/60 relative overflow-hidden">
         <div class="absolute -top-20 -left-20 w-64 h-64 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none"></div>
 
@@ -84,22 +83,22 @@
                   SMARTFIX<span class="text-indigo-400">PRO</span>
                   <span class="text-[9px] px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-bold uppercase tracking-widest">v3.0 Cloud</span>
                 </h1>
-                <p class="text-[11px] text-slate-400 uppercase tracking-widest font-bold">Smart Mobile Workshop & Retail OS</p>
+                <p class="text-[11px] text-slate-400 uppercase tracking-widest font-bold">Smart Mobile Workshop & Retail Management OS</p>
               </div>
             </div>
 
             <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold badge-shimmer">
-              <i class="fa-solid fa-bolt text-amber-400"></i> Easy 1-Click Setup
+              <i class="fa-solid fa-bolt text-amber-400"></i> Instant 1-Click Setup
             </div>
           </div>
 
-          <!-- Hero Headline & Bengali Advertisement -->
+          <!-- Hero Headline & English Advertisement -->
           <div class="space-y-2 pt-1">
             <h2 class="text-xl sm:text-2xl font-extrabold text-white leading-tight">
-              একটি মাত্র সফটওয়্যারে আপনার সম্পূর্ণ মোবাইল শপের ম্যানেজমেন্ট!
+              All-In-One Modern OS for Mobile Repair Shops & Retailers
             </h2>
             <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
-              খাতার হিসাব ও বিলের ঝামেলা ভুলে যান। SmartFix Pro দিয়ে আপনার দোকানকে বানিয়ে তুলুন সম্পূর্ণ ডিজিটাল, দ্রুত ও সুরক্ষিত।
+              Eliminate paper receipts, chaotic ledgers, and manual tracking. SmartFix Pro turns your store into a high-speed, synchronized, cloud-automated operation.
             </p>
           </div>
 
@@ -112,11 +111,11 @@
                 </div>
                 <div>
                   <h4 class="text-xs font-bold text-white flex items-center gap-1.5">
-                    পিসিতে নো-ইনস্টল EXE ফিল
+                    Desktop App Experience
                     <span class="text-[9px] bg-indigo-500/20 text-indigo-300 px-1.5 py-0.2 rounded font-mono">Chrome PWA</span>
                   </h4>
                   <p class="text-[11px] text-slate-400 mt-0.5 leading-snug">
-                    গুগল ক্রোম থেকে শুধু <strong>"Install"</strong> বাটনে ক্লিক করলেই ভারী EXE ছাড়াই সম্পূর্ণ কম্পিউটারে সফটওয়্যারের মতো খুলবে।
+                    Install with 1-click via Google Chrome. Operates exactly like a native Windows <strong>.EXE</strong> application without installation bloat.
                   </p>
                 </div>
               </div>
@@ -129,18 +128,18 @@
                 </div>
                 <div>
                   <h4 class="text-xs font-bold text-white flex items-center gap-1.5">
-                    মোবাইলে ফুল অ্যাপ এক্সপেরিয়েন্স
+                    Native Mobile Ready
                     <span class="text-[9px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.2 rounded font-mono">Mobile OS</span>
                   </h4>
                   <p class="text-[11px] text-slate-400 mt-0.5 leading-snug">
-                    প্লে-স্টোরের কোনো ঝামেলা নেই, ব্রাউজার থেকেই মোবাইলের হোম স্ক্রিনে সরাসরি অ্যাপের মতো ব্যবহার করুন নিমেষেই।
+                    No App Store or Play Store hassle. Add to phone home screen and handle device check-ins, scans, and invoices on the go.
                   </p>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Full Features Grid (Including NEW EMI Tracker) -->
+          <!-- Feature Grid (Includes EMI Tracker) -->
           <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 pt-1">
             <div class="p-2.5 rounded-xl bg-slate-900/60 border border-indigo-500/40 bg-indigo-500/5 flex items-center gap-2.5">
               <div class="w-7 h-7 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-xs flex-shrink-0"><i class="fa-solid fa-file-invoice-dollar"></i></div>
@@ -153,48 +152,47 @@
             <div class="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 flex items-center gap-2.5">
               <div class="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-xs flex-shrink-0"><i class="fa-solid fa-print"></i></div>
               <div>
-                <span class="text-[11px] text-slate-300 font-medium leading-tight">58mm থার্মাল ডুয়াল প্রিন্ট (স্লিপ + ব্যাক ট্যাগ)</span>
+                <span class="text-[11px] text-slate-300 font-medium leading-tight">58mm Dual-Print (Bill + Back Tag)</span>
               </div>
             </div>
 
             <div class="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 flex items-center gap-2.5">
               <div class="w-7 h-7 rounded-lg bg-cyan-500/10 text-cyan-400 flex items-center justify-center text-xs flex-shrink-0"><i class="fa-solid fa-mobile-retro"></i></div>
               <div>
-                <span class="text-[11px] text-slate-300 font-medium leading-tight">পুরোনো মোবাইল বেচাকেনা ও রেকর্ড</span>
+                <span class="text-[11px] text-slate-300 font-medium leading-tight">Pre-Owned Mobile Sales</span>
               </div>
             </div>
 
             <div class="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 flex items-center gap-2.5">
               <div class="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center text-xs flex-shrink-0"><i class="fa-solid fa-boxes-stacked"></i></div>
               <div>
-                <span class="text-[11px] text-slate-300 font-medium leading-tight">স্পেয়ার পার্টস স্টক ও ইনভেন্টরি</span>
+                <span class="text-[11px] text-slate-300 font-medium leading-tight">Spare Parts Stock & Inventory</span>
               </div>
             </div>
 
             <div class="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 flex items-center gap-2.5">
               <div class="w-7 h-7 rounded-lg bg-purple-500/10 text-purple-400 flex items-center justify-center text-xs flex-shrink-0"><i class="fa-solid fa-cash-register"></i></div>
               <div>
-                <span class="text-[11px] text-slate-300 font-medium leading-tight">দৈনিক ক্যাশ ড্রয়ার ও UPI অডিট</span>
+                <span class="text-[11px] text-slate-300 font-medium leading-tight">Daily Cash Drawer & UPI Audit</span>
               </div>
             </div>
 
             <div class="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 flex items-center gap-2.5">
               <div class="w-7 h-7 rounded-lg bg-rose-500/10 text-rose-400 flex items-center justify-center text-xs flex-shrink-0"><i class="fa-brands fa-whatsapp"></i></div>
               <div>
-                <span class="text-[11px] text-slate-300 font-medium leading-tight">১-ক্লিকে হোয়াটসঅ্যাপ বকেয়া রিমাইন্ডার</span>
+                <span class="text-[11px] text-slate-300 font-medium leading-tight">1-Click WhatsApp Reminders</span>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Footer Meta -->
         <div class="pt-6 border-t border-slate-800/80 mt-6 flex items-center justify-between text-[11px] text-slate-500 relative z-10">
           <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Cloud v3.0 Persistent Vault</span>
           <span>Lead Dev: Debapriya Sarkar</span>
         </div>
       </div>
 
-      <!-- Right Panel (Auth Forms) -->
+      <!-- Right Panel: Auth Form -->
       <div class="lg:col-span-5 p-6 sm:p-10 flex flex-col justify-center space-y-6 relative z-10">
         <div>
           <h2 class="text-2xl font-bold text-white tracking-wide" id="authTitle">Owner Authorization</h2>
@@ -607,7 +605,7 @@
             <h2 class="text-xl font-bold text-white">Owner Financial Statement & Profit Ledger</h2>
             <span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Owner Access</span>
           </div>
-          <p class="text-xs text-slate-400">Review turnover, parts consumption, advance refunds, market dues & cumulative profit.</p>
+          <p class="text-xs text-slate-400">Review turnover, parts consumption, advance refunds, market pending balances & cumulative profit.</p>
         </div>
         <div class="flex flex-wrap items-center gap-2">
           <button onclick="lockSystem()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-2 rounded-xl border border-slate-700 transition">
@@ -653,7 +651,7 @@
           <h4 id="calcTotalRevenue" class="text-xl md:text-2xl font-bold text-blue-400">₹0</h4>
         </div>
         <div class="bg-slate-900 border border-rose-500/30 p-4 rounded-2xl bg-rose-500/5">
-          <span class="text-xs text-rose-400 font-semibold uppercase tracking-wider">Market Due (বকেয়া)</span>
+          <span class="text-xs text-rose-400 font-semibold uppercase tracking-wider">Market Due (Pending Balance)</span>
           <h4 id="calcTotalDue" class="text-xl md:text-2xl font-bold text-rose-400">₹0</h4>
         </div>
         <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
@@ -728,11 +726,11 @@
     <!-- TAB 6: Backup and Restore -->
     <section id="view-backup" class="tab-panel hidden space-y-6">
       <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 shadow-xl max-w-4xl mx-auto">
-        <div class="flex items-center gap-3 mb-2"><div class="w-11 h-11 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center"><i class="fa-solid fa-shield-halved text-xl"></i></div><div><h2 class="text-xl font-bold text-white">Offline Backup & Restore</h2><p class="text-xs text-slate-400">শুধু বর্তমান লগইন করা দোকানের Store Profile ও Repair Bills</p></div></div>
-        <div class="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4 text-xs text-amber-200 leading-relaxed mb-5">প্রতিদিন একটি JSON backup ফাইল ডাউনলোড করে ফোন/কম্পিউটার বা Google Drive-এ রাখুন। Restore করলে নির্বাচিত backup-এর bill-গুলি বর্তমান লগইন করা দোকানের Firebase account-এ আপলোড হবে। নতুন Firebase project-এ যেতে হলে আগে নতুন project-এর config বসিয়ে নতুন account-এ লগইন/রেজিস্টার করুন, তারপর backup restore করুন।</div>
+        <div class="flex items-center gap-3 mb-2"><div class="w-11 h-11 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center"><i class="fa-solid fa-shield-halved text-xl"></i></div><div><h2 class="text-xl font-bold text-white">Offline Backup & Restore</h2><p class="text-xs text-slate-400">Backs up store profile and repair records for the currently authenticated account.</p></div></div>
+        <div class="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4 text-xs text-amber-200 leading-relaxed mb-5">Download a JSON backup file daily and store it safely on your device or Google Drive. Restoring will push records to the currently logged-in Firebase workshop account.</div>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div class="bg-slate-950 border border-slate-800 rounded-2xl p-5"><i class="fa-solid fa-file-export text-emerald-400 text-2xl"></i><h3 class="text-white font-bold mt-3">Create Offline Backup</h3><p class="text-xs text-slate-400 mt-1 mb-4">বর্তমান দোকানের profile ও সব repair bill JSON ফাইলে সেভ করুন।</p><button onclick="downloadStoreBackup()" class="w-full rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white py-3 text-sm font-bold"><i class="fa-solid fa-download mr-2"></i>Download Backup</button></div>
-          <div class="bg-slate-950 border border-slate-800 rounded-2xl p-5"><i class="fa-solid fa-file-import text-indigo-400 text-2xl"></i><h3 class="text-white font-bold mt-3">Restore Backup</h3><p class="text-xs text-slate-400 mt-1 mb-3">আগের SmartFix backup JSON ফাইল নির্বাচন করুন।</p><input id="backupRestoreFile" type="file" accept=".json,application/json" class="block w-full text-xs text-slate-300 mb-3"><label class="flex items-start gap-2 text-xs text-rose-300 mb-4"><input id="backupReplaceMode" type="checkbox" class="mt-0.5"> Restore করার আগে বর্তমান দোকানের Firebase bill-গুলি মুছে backup-এর bill বসাব (সাবধানে ব্যবহার করুন)</label><button onclick="restoreStoreBackup()" class="w-full rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white py-3 text-sm font-bold"><i class="fa-solid fa-cloud-arrow-up mr-2"></i>Restore to This Store</button></div>
+          <div class="bg-slate-950 border border-slate-800 rounded-2xl p-5"><i class="fa-solid fa-file-export text-emerald-400 text-2xl"></i><h3 class="text-white font-bold mt-3">Create Offline Backup</h3><p class="text-xs text-slate-400 mt-1 mb-4">Export all workshop jobs and profile details into a secure JSON file.</p><button onclick="downloadStoreBackup()" class="w-full rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white py-3 text-sm font-bold"><i class="fa-solid fa-download mr-2"></i>Download Backup</button></div>
+          <div class="bg-slate-950 border border-slate-800 rounded-2xl p-5"><i class="fa-solid fa-file-import text-indigo-400 text-2xl"></i><h3 class="text-white font-bold mt-3">Restore Backup</h3><p class="text-xs text-slate-400 mt-1 mb-3">Select a previous SmartFix backup JSON file to import.</p><input id="backupRestoreFile" type="file" accept=".json,application/json" class="block w-full text-xs text-slate-300 mb-3"><label class="flex items-start gap-2 text-xs text-rose-300 mb-4"><input id="backupReplaceMode" type="checkbox" class="mt-0.5"> Overwrite existing bills before restoring (Use with caution)</label><button onclick="restoreStoreBackup()" class="w-full rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white py-3 text-sm font-bold"><i class="fa-solid fa-cloud-arrow-up mr-2"></i>Restore to This Store</button></div>
         </div>
         <p id="backupStatus" class="text-xs text-slate-300 mt-4" role="status"></p>
       </div>
@@ -828,7 +826,7 @@
             </div>
           </div>
           <div class="flex justify-between items-center pt-1 text-rose-400 font-bold">
-            <span>Customer Pending Due (বাকি):</span>
+            <span>Customer Pending Due:</span>
             <span id="modalCustomerFinalDue" class="text-sm">₹0</span>
           </div>
         </div>
@@ -1196,7 +1194,6 @@
             repairJobs = [];
             snapshot.forEach(doc => { repairJobs.push({ id: doc.id, ...doc.data() }); });
             
-            // Sort: Latest Date (Delivery or Intake) First
             repairJobs.sort((a, b) => {
               const dateA = a.deliveryDate && a.deliveryDate !== '--' ? a.deliveryDate : a.intakeDate;
               const dateB = b.deliveryDate && b.deliveryDate !== '--' ? b.deliveryDate : b.intakeDate;
@@ -1512,7 +1509,7 @@
               <p><span class="text-slate-500 font-medium">Diagnosis:</span> ${job.fault}</p>
               ${job.idNumber ? `<div class="p-2 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-300 text-[11px]"><i class="fa-solid fa-id-card mr-1"></i> <strong>ID:</strong> ${job.idType} - ${job.idNumber}</div>` : ''}
               ${job.remarks ? `<div class="p-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-300 text-[11px]"><i class="fa-solid fa-note-sticky mr-1"></i> <strong>Remarks:</strong> ${job.remarks}</div>` : ''}
-              ${hasDue && !isUnrepairable ? `<div class="p-1.5 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 font-bold flex justify-between"><span>Pending Due (বাকি):</span><span>₹${job.dueBalance}</span></div>` : ''}
+              ${hasDue && !isUnrepairable ? `<div class="p-1.5 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 font-bold flex justify-between"><span>Pending Due Balance:</span><span>₹${job.dueBalance}</span></div>` : ''}
             </div>
           </div>
           <div class="pt-3 border-t border-slate-800 flex items-center justify-between gap-2">
@@ -1874,7 +1871,7 @@
       const cleanPhone = phone.replace(/[^0-9]/g, '');
       const formattedPhone = cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone;
       const sName = currentStore ? currentStore.shopName : "SmartFix Mobile Care";
-      const message = `Dear ${name},\nThis is a friendly reminder from *${sName}* regarding your device *${model}* (Bill: *${billNo}*).\nThere is a remaining due balance of *₹${dueAmount}*.\nKindly settle payment at your convenience.\nThank you!`;
+      const message = `Dear ${name},\nThis is a friendly reminder from *${sName}* regarding your device *${model}* (Bill: *${billNo}*).\nThere is a remaining pending balance of *₹${dueAmount}*.\nKindly settle payment at your convenience.\nThank you!`;
       window.open(`https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`, '_blank');
     }
 
@@ -1901,7 +1898,7 @@
 
       let paymentStatusText = "PENDING";
       if (isUnrepairable) paymentStatusText = "RETURNED (CLOSED)";
-      else if (isDelivered) paymentStatusText = due > 0 ? "PARTIAL (DUE: Rs. " + due + ")" : "PAID IN FULL (" + (job.deliveryPayMethod || "Cash") + ")";
+      else if (isDelivered) paymentStatusText = due > 0 ? "PARTIAL (PENDING: Rs. " + due + ")" : "PAID IN FULL (" + (job.deliveryPayMethod || "Cash") + ")";
       else paymentStatusText = advPaid > 0 ? "ADVANCE PAID (" + (job.advPayMethod || "Cash") + ")" : "PAYMENT DUE";
 
       let printHTML = `
@@ -1957,7 +1954,7 @@
               </tr>` : ''}
               ${due > 0 && !isUnrepairable ? `
               <tr>
-                <td style="font-weight: 900; color: #000;">Remaining Due:</td>
+                <td style="font-weight: 900; color: #000;">Remaining Pending Balance:</td>
                 <td style="text-align: right; font-weight: 900; color: #000;">Rs. ${due.toFixed(2)}</td>
               </tr>` : ''}
             </table>
@@ -2213,7 +2210,7 @@
 
     async function downloadStoreBackup() {
       const user = auth.currentUser;
-      if (!user || !currentStore) { setBackupStatus('আগে দোকানের account-এ লগইন করুন।', true); return; }
+      if (!user || !currentStore) { setBackupStatus('Please sign in to your store account first.', true); return; }
       try {
         let jobs = repairJobs.slice();
         try { const snap = await db.collection('stores').doc(user.uid).collection('jobs').get(); const cloudJobs = snap.docs.map(d => ({ id: d.id, ...d.data() })); jobs = (cloudJobs.length || !repairJobs.length) ? cloudJobs : repairJobs.slice(); } catch (_) {}
@@ -2221,18 +2218,18 @@
         const payload = { format: 'SMARTFIX_STORE_BACKUP', version: 1, createdAt: new Date().toISOString(), originStoreId: user.uid, store: storeData, jobs, scope: 'current-authenticated-store-only' };
         const filename = `SmartFix-Backup-${String(currentStore.shopName || 'Store').replace(/[^a-z0-9-_]+/gi,'_')}-${localDateString()}.json`;
         downloadBlob(filename, JSON.stringify(payload, null, 2));
-        setBackupStatus(`Backup তৈরি হয়েছে: ${jobs.length}টি bill। ফাইলটি নিরাপদ স্থানে রাখুন।`);
-      } catch (err) { setBackupStatus(`Backup ব্যর্থ: ${err.message || err}`, true); }
+        setBackupStatus(`Backup generated successfully: ${jobs.length} bills saved. Keep this file in a safe place.`);
+      } catch (err) { setBackupStatus(`Backup failed: ${err.message || err}`, true); }
     }
 
     async function restoreStoreBackup() {
       const user = auth.currentUser; const file = document.getElementById('backupRestoreFile')?.files?.[0];
-      if (!user) { setBackupStatus('Restore করার আগে লগইন করুন।', true); return; }
-      if (!file) { setBackupStatus('প্রথমে backup JSON ফাইল নির্বাচন করুন।', true); return; }
+      if (!user) { setBackupStatus('Please sign in before restoring.', true); return; }
+      if (!file) { setBackupStatus('Please select a backup JSON file first.', true); return; }
       try {
         const payload = JSON.parse(await file.text());
-        if (payload.format !== 'SMARTFIX_STORE_BACKUP' || !Array.isArray(payload.jobs) || !payload.store) throw new Error('এটি বৈধ SmartFix backup ফাইল নয়।');
-        if (!window.confirm(`এই backup-এ ${payload.jobs.length}টি bill আছে। বর্তমান লগইন করা দোকান “${currentStore?.shopName || 'Current Store'}”-এ restore করবেন?`)) return;
+        if (payload.format !== 'SMARTFIX_STORE_BACKUP' || !Array.isArray(payload.jobs) || !payload.store) throw new Error('Invalid SmartFix backup file format.');
+        if (!window.confirm(`This backup contains ${payload.jobs.length} bills. Restore to currently authenticated store “${currentStore?.shopName || 'Current Store'}”?`)) return;
         const storeRef = db.collection('stores').doc(user.uid);
         const storeData = { ...payload.store }; delete storeData.savedPassword; delete storeData.password;
         await storeRef.set({ ...storeData, restoredAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
@@ -2254,8 +2251,8 @@
         localStorage.setItem(storeMirrorKey(), JSON.stringify(currentStore)); mirrorJobsToLocalStorage(jobs);
         repairJobs = jobs;
         renderDailyCashReport(); renderJobCards(); if (isOwnerAuthenticated) renderLedgerTable();
-        setBackupStatus(`Restore সম্পূর্ণ: ${jobs.length}টি bill বর্তমান Firebase store-এ আপলোড হয়েছে।`);
-      } catch (err) { setBackupStatus(`Restore ব্যর্থ: ${err.message || err}. Firebase Rules, network এবং নির্বাচিত account পরীক্ষা করুন।`, true); }
+        setBackupStatus(`Restore completed: ${jobs.length} bills synced to current Firebase store.`);
+      } catch (err) { setBackupStatus(`Restore failed: ${err.message || err}. Check Firebase rules and selected account.`, true); }
     }
 
     window.addEventListener('DOMContentLoaded', () => {
