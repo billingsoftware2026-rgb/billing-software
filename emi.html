@@ -2,11 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>BIN EMI Tracker - SmartFix Pro</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   
+  <!-- IMEI / Barcode Scanner Library -->
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -28,11 +31,23 @@
       #masterDirectPrintArea * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color: #000 !important; }
       .receipt-cut-line { page-break-after: always !important; border-bottom: 2px solid #000 !important; margin: 12px 0 !important; padding-bottom: 10px !important; }
     }
+
+    /* Custom scrollbar for mobile */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #0f172a; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    
+    /* Prevent iOS Zoom on Input Focus */
+    input, select, textarea { font-size: 16px !important; }
+    
+    /* Hide scrollbar for horizontal nav */
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-indigo-600 selection:text-white">
 
-  <!-- Loading / Unauthenticated Screen -->
+  <!-- Loading Screen -->
   <div id="loadingScreen" class="fixed inset-0 bg-slate-950 z-50 flex flex-col items-center justify-center">
     <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-indigo-600 mb-4"></div>
     <h2 class="text-xl font-bold text-white">Connecting to Cloud...</h2>
@@ -52,7 +67,6 @@
           <div>
             <div class="flex items-center gap-2">
               <h1 class="text-xl font-bold tracking-tight text-white uppercase">BIN <span class="text-indigo-400">EMI TRACKER</span></h1>
-              <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">Cloud Sync</span>
             </div>
             <p class="text-xs text-slate-400 font-medium flex items-center gap-1.5">
               <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> <span id="currentDateDisplay" class="font-mono text-slate-300"></span>
@@ -60,18 +74,18 @@
           </div>
         </div>
 
-        <nav class="flex items-center bg-slate-950/80 p-1 rounded-xl border border-slate-800 flex-wrap gap-1">
-          <button onclick="switchTab('dashboard')" id="nav-dashboard" class="px-4 py-2 rounded-lg text-xs md:text-sm font-semibold transition bg-indigo-600 text-white shadow-md flex items-center gap-1.5">
+        <nav class="flex items-center bg-slate-950/80 p-1 rounded-xl border border-slate-800 w-full md:w-auto overflow-x-auto no-scrollbar">
+          <button onclick="switchTab('dashboard')" id="nav-dashboard" class="flex-1 md:flex-none whitespace-nowrap px-4 py-2 rounded-lg text-xs md:text-sm font-semibold transition bg-indigo-600 text-white shadow-md flex items-center justify-center gap-1.5">
             <i class="fa-solid fa-chart-pie"></i> Dashboard
           </button>
-          <button onclick="switchTab('sales')" id="nav-sales" class="px-4 py-2 rounded-lg text-xs md:text-sm font-semibold transition text-slate-400 hover:text-white flex items-center gap-1.5">
+          <button onclick="switchTab('sales')" id="nav-sales" class="flex-1 md:flex-none whitespace-nowrap px-4 py-2 rounded-lg text-xs md:text-sm font-semibold transition text-slate-400 hover:text-white flex items-center justify-center gap-1.5">
             <i class="fa-solid fa-mobile-screen"></i> EMI Sales
           </button>
-          <button onclick="switchTab('payments')" id="nav-payments" class="px-4 py-2 rounded-lg text-xs md:text-sm font-semibold transition text-slate-400 hover:text-white flex items-center gap-1.5">
+          <button onclick="switchTab('payments')" id="nav-payments" class="flex-1 md:flex-none whitespace-nowrap px-4 py-2 rounded-lg text-xs md:text-sm font-semibold transition text-slate-400 hover:text-white flex items-center justify-center gap-1.5">
             <i class="fa-solid fa-money-bill-transfer"></i> Payments
           </button>
-          <button onclick="logout()" title="Logout" class="px-3 py-2 text-slate-400 hover:text-rose-400 text-xs transition">
-            <i class="fa-solid fa-arrow-right-from-bracket"></i> Logout
+          <button onclick="logout()" title="Logout" class="ml-auto md:ml-2 px-3 py-2 text-slate-400 hover:text-rose-400 text-xs transition">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i> <span class="md:hidden">Logout</span>
           </button>
         </nav>
       </div>
@@ -82,33 +96,33 @@
 
       <!-- Dashboard Tab -->
       <section id="view-dashboard" class="tab-panel block space-y-6">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl border-l-4 border-l-indigo-500">
-            <span class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Total Sales</span>
-            <h4 id="statTotalSales" class="text-2xl font-bold text-white mt-1">₹0</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+          <div class="bg-slate-900 border border-slate-800 p-4 md:p-5 rounded-2xl border-l-4 border-l-indigo-500">
+            <span class="text-[10px] md:text-xs text-slate-400 font-semibold uppercase tracking-wider">Total Sales</span>
+            <h4 id="statTotalSales" class="text-lg md:text-2xl font-bold text-white mt-1">₹0</h4>
           </div>
-          <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl border-l-4 border-l-emerald-500">
-            <span class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Collected</span>
-            <h4 id="statCollected" class="text-2xl font-bold text-emerald-400 mt-1">₹0</h4>
+          <div class="bg-slate-900 border border-slate-800 p-4 md:p-5 rounded-2xl border-l-4 border-l-emerald-500">
+            <span class="text-[10px] md:text-xs text-slate-400 font-semibold uppercase tracking-wider">Collected</span>
+            <h4 id="statCollected" class="text-lg md:text-2xl font-bold text-emerald-400 mt-1">₹0</h4>
           </div>
-          <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl border-l-4 border-l-rose-500">
-            <span class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Outstanding Due</span>
-            <h4 id="statOutstanding" class="text-2xl font-bold text-rose-400 mt-1">₹0</h4>
+          <div class="bg-slate-900 border border-slate-800 p-4 md:p-5 rounded-2xl border-l-4 border-l-rose-500">
+            <span class="text-[10px] md:text-xs text-slate-400 font-semibold uppercase tracking-wider">Outstanding Due</span>
+            <h4 id="statOutstanding" class="text-lg md:text-2xl font-bold text-rose-400 mt-1">₹0</h4>
           </div>
-          <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl border-l-4 border-l-amber-500">
-            <span class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Overdue Accounts</span>
-            <h4 id="statOverdue" class="text-2xl font-bold text-amber-400 mt-1">0</h4>
+          <div class="bg-slate-900 border border-slate-800 p-4 md:p-5 rounded-2xl border-l-4 border-l-amber-500">
+            <span class="text-[10px] md:text-xs text-slate-400 font-semibold uppercase tracking-wider">Overdue</span>
+            <h4 id="statOverdue" class="text-lg md:text-2xl font-bold text-amber-400 mt-1">0</h4>
           </div>
         </div>
 
         <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow">
           <div class="p-4 bg-slate-950 border-b border-slate-800">
             <h3 class="text-sm font-bold text-rose-400 uppercase tracking-wider flex items-center gap-2">
-              <i class="fa-solid fa-triangle-exclamation"></i> Overdue Customers (Needs Attention)
+              <i class="fa-solid fa-triangle-exclamation"></i> Overdue Customers
             </h3>
           </div>
           <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm">
+            <table class="w-full text-left text-sm whitespace-nowrap md:whitespace-normal">
               <thead class="bg-slate-950/60 text-slate-400 text-xs uppercase font-semibold border-b border-slate-800">
                 <tr>
                   <th class="p-3">Customer</th>
@@ -127,10 +141,10 @@
 
       <!-- Sales Tab -->
       <section id="view-sales" class="tab-panel hidden space-y-6">
-        <div class="flex flex-col md:flex-row justify-between items-center gap-4 bg-slate-900 border border-slate-800 p-4 rounded-2xl">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-3 bg-slate-900 border border-slate-800 p-4 rounded-2xl">
           <div class="relative w-full md:w-96">
             <i class="fa-solid fa-magnifying-glass absolute left-4 top-3.5 text-slate-500"></i>
-            <input type="text" id="searchSales" oninput="renderSalesTable()" placeholder="Search customer / phone / model..." class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-11 pr-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 text-white">
+            <input type="text" id="searchSales" oninput="renderSalesTable()" placeholder="Search name / phone / model..." class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-11 pr-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 text-white">
           </div>
           <button onclick="openSaleModal()" class="w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 shadow-lg transition">
             <i class="fa-solid fa-plus"></i> New EMI Sale
@@ -139,16 +153,16 @@
 
         <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow">
           <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm">
+            <table class="w-full text-left text-sm whitespace-nowrap">
               <thead class="bg-slate-950/80 text-slate-400 text-xs uppercase font-semibold border-b border-slate-800">
                 <tr>
-                  <th class="p-4">Customer / Phone</th>
-                  <th class="p-4">Device & IMEI</th>
-                  <th class="p-4">EMI Plan</th>
-                  <th class="p-4">Total Payable</th>
-                  <th class="p-4">Remaining</th>
-                  <th class="p-4">Status</th>
-                  <th class="p-4 text-center">Actions</th>
+                  <th class="p-3 md:p-4">Customer / Phone</th>
+                  <th class="p-3 md:p-4">Device & IMEI</th>
+                  <th class="p-3 md:p-4">EMI Plan</th>
+                  <th class="p-3 md:p-4">Total Payable</th>
+                  <th class="p-3 md:p-4">Remaining</th>
+                  <th class="p-3 md:p-4">Status</th>
+                  <th class="p-3 md:p-4 text-center">Actions</th>
                 </tr>
               </thead>
               <tbody id="salesTableBody" class="divide-y divide-slate-800/60 text-slate-300"></tbody>
@@ -160,23 +174,23 @@
       <!-- Payments Tab -->
       <section id="view-payments" class="tab-panel hidden space-y-6">
         <div class="flex justify-between items-center bg-slate-900 border border-slate-800 p-4 rounded-2xl">
-          <h3 class="text-lg font-bold text-white"><i class="fa-solid fa-receipt text-emerald-400 mr-2"></i>Payment History</h3>
-          <button onclick="openPaymentModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg transition">
+          <h3 class="text-lg font-bold text-white"><i class="fa-solid fa-receipt text-emerald-400 mr-2"></i>Payments</h3>
+          <button onclick="openPaymentModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl text-xs md:text-sm font-bold flex items-center gap-2 shadow-lg transition">
             <i class="fa-solid fa-plus"></i> Record Payment
           </button>
         </div>
 
         <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow">
           <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm">
+            <table class="w-full text-left text-sm whitespace-nowrap">
               <thead class="bg-slate-950/80 text-slate-400 text-xs uppercase font-semibold border-b border-slate-800">
                 <tr>
-                  <th class="p-4">Date</th>
-                  <th class="p-4">Customer</th>
-                  <th class="p-4">Model</th>
-                  <th class="p-4">Method</th>
-                  <th class="p-4 text-right">Amount</th>
-                  <th class="p-4 text-center">Action</th>
+                  <th class="p-3 md:p-4">Date</th>
+                  <th class="p-3 md:p-4">Customer</th>
+                  <th class="p-3 md:p-4">Model</th>
+                  <th class="p-3 md:p-4">Method</th>
+                  <th class="p-3 md:p-4 text-right">Amount</th>
+                  <th class="p-3 md:p-4 text-center">Action</th>
                 </tr>
               </thead>
               <tbody id="paymentsTableBody" class="divide-y divide-slate-800/60 text-slate-300"></tbody>
@@ -190,79 +204,84 @@
 
   <!-- ==================== MODALS ==================== -->
 
-  <!-- Sale Add/Edit Modal -->
-  <div id="saleModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50 overflow-y-auto">
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-3xl w-full p-6 shadow-2xl my-8">
-      <div class="flex justify-between items-center border-b border-slate-800 pb-4 mb-4">
+  <!-- Sale Add/Edit Modal (Mobile Full Screen) -->
+  <div id="saleModal" class="fixed inset-0 bg-slate-950/90 md:backdrop-blur-sm hidden items-start justify-center z-50 overflow-y-auto w-full h-full md:p-4">
+    <div class="bg-slate-900 border-slate-800 md:border md:rounded-3xl w-full max-w-3xl min-h-screen md:min-h-0 md:my-8 shadow-2xl relative flex flex-col">
+      <div class="flex justify-between items-center border-b border-slate-800 p-4 md:p-6 sticky top-0 bg-slate-900 z-10 rounded-t-none md:rounded-t-3xl">
         <h3 class="text-lg font-bold text-white" id="saleModalTitle">New EMI Sale</h3>
-        <button onclick="closeModal('saleModal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+        <button type="button" onclick="closeModal('saleModal')" class="text-slate-400 hover:text-white bg-slate-800 p-2 rounded-full"><i class="fa-solid fa-xmark text-xl"></i></button>
       </div>
 
-      <form id="saleForm" onsubmit="saveSale(event)" class="space-y-4">
+      <form id="saleForm" onsubmit="saveSale(event)" class="p-4 md:p-6 space-y-4 flex-1">
         <input type="hidden" id="saleId">
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label class="block text-xs font-semibold text-slate-400 mb-1">Customer Name *</label>
-            <input type="text" id="custName" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-indigo-500">
+            <input type="text" id="custName" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-base text-white focus:border-indigo-500">
           </div>
           <div>
             <label class="block text-xs font-semibold text-slate-400 mb-1">Phone Number *</label>
-            <input type="tel" id="custPhone" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-indigo-500">
+            <input type="tel" id="custPhone" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-base text-white focus:border-indigo-500">
           </div>
           <div>
             <label class="block text-xs font-semibold text-slate-400 mb-1">Document ID / Aadhar *</label>
-            <input type="text" id="custDocId" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-indigo-500">
+            <input type="text" id="custDocId" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-base text-white focus:border-indigo-500">
           </div>
           <div>
             <label class="block text-xs font-semibold text-slate-400 mb-1">PAN Card Number (Optional)</label>
-            <input type="text" id="custPan" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-indigo-500 uppercase">
+            <input type="text" id="custPan" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-base text-white focus:border-indigo-500 uppercase">
           </div>
           <div class="md:col-span-2">
             <label class="block text-xs font-semibold text-slate-400 mb-1">Cheque Details (If any)</label>
-            <input type="text" id="custCheque" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-indigo-500" placeholder="Bank name, Cheque No, Date">
+            <input type="text" id="custCheque" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-base text-white focus:border-indigo-500" placeholder="Bank name, Cheque No, Date">
           </div>
           <div class="md:col-span-2">
             <label class="block text-xs font-semibold text-slate-400 mb-1">Address</label>
-            <input type="text" id="custAddress" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-indigo-500">
+            <input type="text" id="custAddress" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-base text-white focus:border-indigo-500">
           </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-slate-800">
           <div>
             <label class="block text-xs font-semibold text-slate-400 mb-1">Device Model *</label>
-            <input type="text" id="deviceModel" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-indigo-500">
+            <input type="text" id="deviceModel" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-base text-white focus:border-indigo-500">
           </div>
           <div>
             <label class="block text-xs font-semibold text-slate-400 mb-1">IMEI / Serial No</label>
-            <input type="text" id="deviceImei" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-indigo-500 font-mono">
+            <div class="relative">
+              <input type="text" id="deviceImei" class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-4 pr-12 py-3 text-base text-white focus:border-indigo-500 font-mono">
+              <button type="button" onclick="openScanner('deviceImei')" title="Scan IMEI Barcode" class="absolute right-2 top-1.5 p-2 bg-slate-800 hover:bg-slate-700 text-indigo-400 rounded-lg transition">
+                <i class="fa-solid fa-barcode text-lg"></i>
+              </button>
+            </div>
           </div>
         </div>
 
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-slate-800">
           <div>
             <label class="block text-xs font-semibold text-slate-400 mb-1">Base Price (₹) *</label>
-            <input type="number" id="basePrice" required oninput="calcEmi()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-indigo-500">
+            <input type="number" id="basePrice" required oninput="calcEmi()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-base text-white focus:border-indigo-500" min="1">
           </div>
           <div>
             <label class="block text-xs font-semibold text-slate-400 mb-1">Down Payment (₹)</label>
-            <input type="number" id="downPayment" oninput="calcEmi()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-indigo-500" value="0">
+            <input type="number" id="downPayment" oninput="calcEmi()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-base text-white focus:border-indigo-500" value="0" min="0">
           </div>
           <div>
             <label class="block text-xs font-semibold text-slate-400 mb-1">Interest (%)</label>
-            <input type="number" id="interestPct" oninput="calcEmi()" step="0.1" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-indigo-500" value="0">
+            <input type="number" id="interestPct" oninput="calcEmi()" step="0.1" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-base text-white focus:border-indigo-500" value="0" min="0">
           </div>
           <div>
             <label class="block text-xs font-semibold text-slate-400 mb-1">Tenure (Months) *</label>
-            <input type="number" id="tenureMonths" required oninput="calcEmi()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-indigo-500" value="6">
+            <input type="number" id="tenureMonths" required oninput="calcEmi()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-base text-white focus:border-indigo-500" value="6" min="1">
           </div>
           <div>
             <label class="block text-xs font-semibold text-slate-400 mb-1">Start Date *</label>
-            <input type="date" id="startDate" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-indigo-500">
+            <input type="date" id="startDate" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-base text-white focus:border-indigo-500">
           </div>
           <div>
             <label class="block text-xs font-semibold text-slate-400 mb-1">Late Fee (₹/day)</label>
-            <input type="number" id="lateFeePerDay" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-indigo-500" value="0">
+            <input type="number" id="lateFeePerDay" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-base text-white focus:border-indigo-500" value="0" min="0">
           </div>
         </div>
 
@@ -275,9 +294,9 @@
           </div>
         </div>
 
-        <div class="flex justify-end gap-3 pt-4">
-          <button type="button" onclick="closeModal('saleModal')" class="px-5 py-2.5 rounded-xl border border-slate-800 text-slate-400 hover:text-white text-sm font-semibold">Cancel</button>
-          <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 px-6 py-2.5 rounded-xl text-sm font-bold text-white shadow-lg">Save Sale</button>
+        <div class="flex justify-end gap-3 pt-4 pb-8 md:pb-0">
+          <button type="button" onclick="closeModal('saleModal')" class="px-5 py-3 rounded-xl border border-slate-800 text-slate-400 hover:text-white text-sm font-semibold w-full md:w-auto">Cancel</button>
+          <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 px-6 py-3 rounded-xl text-sm font-bold text-white shadow-lg w-full md:w-auto">Save Sale</button>
         </div>
       </form>
     </div>
@@ -285,52 +304,52 @@
 
   <!-- Payment Modal -->
   <div id="paymentModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full p-6 shadow-2xl">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-md p-6 shadow-2xl">
       <div class="flex justify-between items-center border-b border-slate-800 pb-4 mb-4">
         <h3 class="text-lg font-bold text-white">Record Payment</h3>
-        <button onclick="closeModal('paymentModal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+        <button type="button" onclick="closeModal('paymentModal')" class="text-slate-400 hover:text-white bg-slate-800 p-1.5 rounded-full"><i class="fa-solid fa-xmark text-lg"></i></button>
       </div>
       <form id="paymentForm" onsubmit="savePayment(event)" class="space-y-4">
         <input type="hidden" id="paySaleId">
         <div>
           <label class="block text-xs font-semibold text-slate-400 mb-1">Select Sale *</label>
-          <select id="paySaleSelect" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-indigo-500"></select>
+          <select id="paySaleSelect" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-base text-white focus:border-indigo-500"></select>
         </div>
         <div>
           <label class="block text-xs font-semibold text-slate-400 mb-1">Amount (₹) *</label>
-          <input type="number" id="payAmount" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-indigo-500">
+          <input type="number" id="payAmount" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-base text-white focus:border-indigo-500" min="1">
         </div>
         <div>
           <label class="block text-xs font-semibold text-slate-400 mb-1">Date *</label>
-          <input type="date" id="payDate" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-indigo-500">
+          <input type="date" id="payDate" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-base text-white focus:border-indigo-500">
         </div>
         <div>
           <label class="block text-xs font-semibold text-slate-400 mb-1">Payment Method</label>
-          <select id="payMethod" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-indigo-500">
+          <select id="payMethod" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-base text-white focus:border-indigo-500">
             <option value="Cash">Cash</option>
             <option value="UPI">UPI / Online</option>
             <option value="Cheque">Cheque</option>
           </select>
         </div>
-        <div class="flex justify-end gap-3 pt-4">
-          <button type="button" onclick="closeModal('paymentModal')" class="px-5 py-2.5 rounded-xl border border-slate-800 text-slate-400 hover:text-white text-sm font-semibold">Cancel</button>
-          <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 px-6 py-2.5 rounded-xl text-sm font-bold text-white shadow-lg">Save & Print Receipt</button>
+        <div class="flex justify-end gap-3 pt-4 border-t border-slate-800">
+          <button type="button" onclick="closeModal('paymentModal')" class="px-5 py-3 rounded-xl border border-slate-800 text-slate-400 hover:text-white text-sm font-semibold w-full">Cancel</button>
+          <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 px-6 py-3 rounded-xl text-sm font-bold text-white shadow-lg w-full">Save & Print</button>
         </div>
       </form>
     </div>
   </div>
 
   <!-- Sale Details Modal -->
-  <div id="detailsModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50 overflow-y-auto">
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-2xl w-full p-6 shadow-2xl my-8">
+  <div id="detailsModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-start justify-center p-4 z-50 overflow-y-auto">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-2xl p-6 shadow-2xl my-8">
       <div class="flex justify-between items-center border-b border-slate-800 pb-4 mb-4">
         <h3 class="text-lg font-bold text-white" id="detailTitle">Sale Details</h3>
-        <button onclick="closeModal('detailsModal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+        <button type="button" onclick="closeModal('detailsModal')" class="text-slate-400 hover:text-white bg-slate-800 p-1.5 rounded-full"><i class="fa-solid fa-xmark text-lg"></i></button>
       </div>
       <div id="detailsContent" class="space-y-4"></div>
       <div class="flex justify-end gap-3 pt-4 mt-4 border-t border-slate-800">
-        <button onclick="closeModal('detailsModal')" class="px-5 py-2.5 rounded-xl border border-slate-800 text-slate-400 hover:text-white text-sm font-semibold">Close</button>
-        <button onclick="printReceiptFromDetails()" class="bg-indigo-600 hover:bg-indigo-700 px-6 py-2.5 rounded-xl text-sm font-bold text-white shadow-lg"><i class="fa-solid fa-print mr-2"></i>Print Statement</button>
+        <button type="button" onclick="closeModal('detailsModal')" class="px-5 py-3 rounded-xl border border-slate-800 text-slate-400 hover:text-white text-sm font-semibold w-full md:w-auto">Close</button>
+        <button type="button" onclick="printReceiptFromDetails()" class="bg-indigo-600 hover:bg-indigo-700 px-6 py-3 rounded-xl text-sm font-bold text-white shadow-lg w-full md:w-auto"><i class="fa-solid fa-print mr-2"></i>Print Statement</button>
       </div>
     </div>
   </div>
@@ -346,13 +365,25 @@
         <p class="text-xs text-slate-400 mt-1">Enter your login password to delete this record. <strong class="text-rose-400">Warning: This action cannot be undone!</strong></p>
       </div>
       <div>
-        <input type="password" id="deletePasswordInput" placeholder="Enter Password" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-center text-sm text-white focus:outline-none focus:border-indigo-500">
+        <input type="password" id="deletePasswordInput" placeholder="Enter Password" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-center text-base text-white focus:outline-none focus:border-indigo-500">
         <p id="deleteErrorText" class="text-rose-400 text-xs mt-1.5 hidden font-semibold">Incorrect Password!</p>
       </div>
       <div class="flex items-center justify-between gap-3 pt-2">
-        <button onclick="closeModal('authModal')" class="flex-1 py-2.5 rounded-xl border border-slate-800 text-xs font-semibold text-slate-400 hover:text-white">Cancel</button>
-        <button onclick="confirmDelete()" class="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-xs font-bold text-white">Delete</button>
+        <button type="button" onclick="closeModal('authModal')" class="flex-1 py-3 rounded-xl border border-slate-800 text-xs font-semibold text-slate-400 hover:text-white">Cancel</button>
+        <button type="button" onclick="confirmDelete()" class="flex-1 py-3 rounded-xl bg-rose-600 hover:bg-rose-700 text-xs font-bold text-white">Delete</button>
       </div>
+    </div>
+  </div>
+
+  <!-- Scanner Modal -->
+  <div id="scannerModal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-sm hidden items-center justify-center p-4 z-[70]">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-sm w-full p-4 shadow-2xl space-y-4 text-center">
+      <div class="flex justify-between items-center pb-2">
+        <h3 class="text-base font-bold text-white"><i class="fa-solid fa-barcode text-indigo-400 mr-2"></i>Scan Barcode / IMEI</h3>
+        <button type="button" onclick="stopScanner()" class="text-slate-400 hover:text-white bg-slate-800 p-1.5 rounded-full"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+      <div id="reader" width="100%" class="rounded-xl overflow-hidden bg-slate-950"></div>
+      <p class="text-xs text-slate-400">Align the barcode inside the box to scan.</p>
     </div>
   </div>
 
@@ -378,6 +409,9 @@
     let currentStore = null;
     let allEmis = [];
     let currentSaleIdForDelete = null;
+    let html5QrCode = null;
+    let currentScanTargetId = null;
+    let emiUnsubscribe = null; 
 
     function localDateString(date = new Date()) {
       const y = date.getFullYear(); const m = String(date.getMonth()+1).padStart(2,'0'); const d = String(date.getDate()).padStart(2,'0');
@@ -385,20 +419,28 @@
     }
     const todayStr = localDateString();
 
+    // Escape HTML to prevent XSS and UI breaking
+    function esc(str) {
+      if (!str) return '';
+      return String(str).replace(/[&<>"']/g, function(m) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m];
+      });
+    }
+
     // Auth Handler
     auth.onAuthStateChanged(async (user) => {
+      if (emiUnsubscribe) { emiUnsubscribe(); emiUnsubscribe = null; }
+
       if (user) {
-        // Fetch store details
         try {
           const storeDoc = await db.collection('stores').doc(user.uid).get();
           if (storeDoc.exists) currentStore = storeDoc.data();
-          else currentStore = { shopName: "My Mobile Store" }; // Fallback
+          else currentStore = { shopName: "My Mobile Store" };
           
           document.getElementById('loadingScreen').classList.add('hidden');
           document.getElementById('appContent').classList.remove('hidden');
           document.getElementById('currentDateDisplay').innerText = todayStr;
           
-          // Load EMI Data
           loadEmiData(user.uid);
         } catch (e) {
           console.error(e);
@@ -406,26 +448,27 @@
           window.location.href = 'index.html';
         }
       } else {
-        // Not logged in, redirect to main app
         window.location.href = 'index.html';
       }
     });
 
     function logout() {
-      auth.signOut().then(() => {
-        window.location.href = 'index.html';
-      });
+      if (emiUnsubscribe) emiUnsubscribe();
+      auth.signOut().then(() => window.location.href = 'index.html');
     }
 
     // Data Functions
     function loadEmiData(uid) {
-      db.collection('stores').doc(uid).collection('emis').onSnapshot(snapshot => {
+      emiUnsubscribe = db.collection('stores').doc(uid).collection('emis').onSnapshot(snapshot => {
         allEmis = [];
-        snapshot.forEach(doc => {
-          allEmis.push({ id: doc.id, ...doc.data() });
+        snapshot.forEach(doc => allEmis.push({ id: doc.id, ...doc.data() }));
+        
+        allEmis.sort((a, b) => {
+           const dateA = a.startDate || '';
+           const dateB = b.startDate || '';
+           return dateB.localeCompare(dateA);
         });
-        // Sort by latest start date
-        allEmis.sort((a, b) => new Date(b.startDate) - new Date(a.startDate));
+        
         renderAll();
       }, error => {
         console.error("Firestore error:", error);
@@ -441,40 +484,50 @@
 
       const basePrice = Number(sale.basePrice) || 0;
       const downPayment = Number(sale.downPayment) || 0;
-      const financed = basePrice - downPayment;
+      const financed = Math.max(0, basePrice - downPayment); 
       const interestPct = Number(sale.interestPct) || 0;
       const interestAmt = financed * (interestPct / 100);
       const totalPayable = financed + interestAmt;
 
-      const tenure = Number(sale.tenureMonths) || 1;
+      const tenure = Math.max(1, Number(sale.tenureMonths) || 1); 
       const emiAmount = totalPayable / tenure;
 
-      // Schedule & Fine Logic
       const schedule = [];
       let totalFine = 0;
       let fineDetails = [];
       const lateFeePerDay = Number(sale.lateFeePerDay) || 0;
-      const startDate = new Date(sale.startDate);
+      
+      let startDate = new Date();
+      if (sale.startDate) {
+        const parts = sale.startDate.split('-');
+        if (parts.length === 3) {
+          startDate = new Date(parts[0], parts[1]-1, parts[2]); 
+        } else {
+          startDate = new Date(sale.startDate);
+        }
+      }
       const todayDate = new Date(); todayDate.setHours(0,0,0,0);
 
+      const paymentTracker = payments.map(p => ({ id: p.id, amount: Number(p.amount) || 0, date: p.date || '', used: 0 }))
+                                    .sort((a,b) => a.date.localeCompare(b.date));
+
       let paymentsProcessed = 0;
-      const sortedPayments = [...payments].sort((a,b) => new Date(a.date) - new Date(b.date));
 
       for (let i = 1; i <= tenure; i++) {
         const dueDate = new Date(startDate.getFullYear(), startDate.getMonth() + i, startDate.getDate());
         let paidForThisInst = 0;
         let amountNeeded = emiAmount;
 
-        while (amountNeeded > 0.01 && paymentsProcessed < sortedPayments.length) {
-          const p = sortedPayments[paymentsProcessed];
-          const available = Number(p.amount) - (p._used || 0);
+        while (amountNeeded > 0.01 && paymentsProcessed < paymentTracker.length) {
+          const p = paymentTracker[paymentsProcessed];
+          const available = p.amount - p.used;
           const take = Math.min(available, amountNeeded);
           
           paidForThisInst += take;
           amountNeeded -= take;
-          p._used = (p._used || 0) + take;
+          p.used += take;
 
-          if (p._used >= Number(p.amount) - 0.01) paymentsProcessed++;
+          if (p.used >= p.amount - 0.01) paymentsProcessed++;
         }
 
         let status = 'pending';
@@ -509,14 +562,7 @@
       const nextInst = schedule.find(i => i.status !== 'paid');
 
       return {
-        totalPaid,
-        remainingBase,
-        totalFine,
-        totalRemaining,
-        schedule,
-        fineDetails,
-        emiAmount,
-        totalPayable,
+        totalPaid, remainingBase, totalFine, totalRemaining, schedule, fineDetails, emiAmount, totalPayable,
         nextDueDate: nextInst ? nextInst.dueDate : null,
         isOverdue: schedule.some(i => i.status === 'overdue')
       };
@@ -535,8 +581,8 @@
       
       ['dashboard', 'sales', 'payments'].forEach(t => {
         const btn = document.getElementById(`nav-${t}`);
-        if (t === tabId) btn.className = "px-4 py-2 rounded-lg text-xs md:text-sm font-semibold transition bg-indigo-600 text-white shadow-md flex items-center gap-1.5";
-        else btn.className = "px-4 py-2 rounded-lg text-xs md:text-sm font-semibold transition text-slate-400 hover:text-white flex items-center gap-1.5";
+        if (t === tabId) btn.className = "flex-1 md:flex-none whitespace-nowrap px-4 py-2 rounded-lg text-xs md:text-sm font-semibold transition bg-indigo-600 text-white shadow-md flex items-center justify-center gap-1.5";
+        else btn.className = "flex-1 md:flex-none whitespace-nowrap px-4 py-2 rounded-lg text-xs md:text-sm font-semibold transition text-slate-400 hover:text-white flex items-center justify-center gap-1.5";
       });
     }
 
@@ -568,13 +614,13 @@
         overdueList.forEach(({ sale, st }) => {
           tbody.innerHTML += `
             <tr class="hover:bg-slate-950/40 transition">
-              <td class="p-3 font-semibold text-white">${sale.customerName}</td>
-              <td class="p-3 font-mono text-xs">${sale.phone}</td>
-              <td class="p-3 text-xs">${sale.deviceModel}</td>
+              <td class="p-3 font-semibold text-white">${esc(sale.customerName)}</td>
+              <td class="p-3 font-mono text-xs">${esc(sale.phone)}</td>
+              <td class="p-3 text-xs text-slate-400">${esc(sale.deviceModel)}</td>
               <td class="p-3 text-right text-amber-400">+₹${st.totalFine.toLocaleString('en-IN')}</td>
               <td class="p-3 text-right font-bold text-rose-400">₹${st.totalRemaining.toLocaleString('en-IN')}</td>
               <td class="p-3 text-center">
-                <button onclick="openPaymentModal('${sale.id}')" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold">Pay</button>
+                <button onclick="openPaymentModal('${sale.id}')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold">Pay</button>
               </td>
             </tr>
           `;
@@ -588,9 +634,9 @@
       tbody.innerHTML = '';
 
       const filtered = allEmis.filter(s => 
-        s.customerName.toLowerCase().includes(q) || 
-        s.phone.includes(q) || 
-        s.deviceModel.toLowerCase().includes(q)
+        (s.customerName||'').toLowerCase().includes(q) || 
+        (s.phone||'').includes(q) || 
+        (s.deviceModel||'').toLowerCase().includes(q)
       );
 
       if (filtered.length === 0) {
@@ -607,28 +653,28 @@
 
         tbody.innerHTML += `
           <tr class="hover:bg-slate-950/40 transition">
-            <td class="p-4">
-              <div class="font-bold text-white">${sale.customerName}</div>
-              <div class="text-xs text-slate-400 font-mono">${sale.phone}</div>
+            <td class="p-3 md:p-4">
+              <div class="font-bold text-white">${esc(sale.customerName)}</div>
+              <div class="text-[11px] text-slate-400 font-mono">${esc(sale.phone)}</div>
             </td>
-            <td class="p-4">
-              <div class="font-semibold text-slate-300">${sale.deviceModel}</div>
-              <div class="text-[10px] text-slate-500 font-mono">${sale.imei || 'N/A'}</div>
+            <td class="p-3 md:p-4">
+              <div class="font-semibold text-slate-300 text-xs md:text-sm">${esc(sale.deviceModel)}</div>
+              <div class="text-[10px] text-slate-500 font-mono">${esc(sale.imei) || 'N/A'}</div>
             </td>
-            <td class="p-4 text-xs">
+            <td class="p-3 md:p-4 text-xs">
               <div>₹${st.emiAmount.toFixed(0)} /mo</div>
               <div class="text-slate-500">${sale.tenureMonths} months</div>
             </td>
-            <td class="p-4 font-semibold text-white">₹${st.totalPayable.toLocaleString('en-IN')}</td>
-            <td class="p-4 font-bold ${st.totalRemaining > 0 ? 'text-rose-400' : 'text-emerald-400'}">
+            <td class="p-3 md:p-4 font-semibold text-white">₹${st.totalPayable.toLocaleString('en-IN')}</td>
+            <td class="p-3 md:p-4 font-bold ${st.totalRemaining > 0 ? 'text-rose-400' : 'text-emerald-400'}">
               ₹${st.totalRemaining.toLocaleString('en-IN')}
             </td>
-            <td class="p-4">${statusBadge}</td>
-            <td class="p-4 text-center flex justify-center gap-1.5 flex-wrap">
-              <button onclick="viewDetails('${sale.id}')" title="View Details" class="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-300"><i class="fa-solid fa-eye"></i></button>
-              <button onclick="openPaymentModal('${sale.id}')" title="Add Payment" class="p-2 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-white"><i class="fa-solid fa-money-bill"></i></button>
-              <button onclick="editSale('${sale.id}')" title="Edit" class="p-2 bg-indigo-600 hover:bg-indigo-700 rounded-lg text-white"><i class="fa-solid fa-pen"></i></button>
-              <button onclick="requestDelete('${sale.id}')" title="Delete" class="p-2 bg-rose-950 hover:bg-rose-600 rounded-lg text-rose-400 hover:text-white border border-rose-500/30"><i class="fa-solid fa-trash"></i></button>
+            <td class="p-3 md:p-4">${statusBadge}</td>
+            <td class="p-3 md:p-4 text-center flex justify-center gap-1 flex-wrap">
+              <button onclick="viewDetails('${sale.id}')" title="View Details" class="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-300"><i class="fa-solid fa-eye text-xs"></i></button>
+              <button onclick="openPaymentModal('${sale.id}')" title="Add Payment" class="p-2 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-white"><i class="fa-solid fa-money-bill text-xs"></i></button>
+              <button onclick="editSale('${sale.id}')" title="Edit" class="p-2 bg-indigo-600 hover:bg-indigo-700 rounded-lg text-white"><i class="fa-solid fa-pen text-xs"></i></button>
+              <button onclick="requestDelete('${sale.id}')" title="Delete" class="p-2 bg-rose-950 hover:bg-rose-600 rounded-lg text-rose-400 hover:text-white border border-rose-500/30"><i class="fa-solid fa-trash text-xs"></i></button>
             </td>
           </tr>
         `;
@@ -646,7 +692,7 @@
         });
       });
 
-      allPayments.sort((a, b) => new Date(b.date) - new Date(a.date));
+      allPayments.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
 
       if (allPayments.length === 0) {
         tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500">No payments recorded.</td></tr>`;
@@ -656,12 +702,12 @@
       allPayments.forEach(p => {
         tbody.innerHTML += `
           <tr class="hover:bg-slate-950/40 transition">
-            <td class="p-4 text-xs font-medium">${p.date}</td>
-            <td class="p-4 font-bold text-white">${p.customer}</td>
-            <td class="p-4 text-xs text-slate-400">${p.model}</td>
-            <td class="p-4 text-xs"><span class="bg-slate-800 px-2 py-1 rounded border border-slate-700">${p.method}</span></td>
-            <td class="p-4 text-right font-bold text-emerald-400">₹${Number(p.amount).toLocaleString('en-IN')}</td>
-            <td class="p-4 text-center">
+            <td class="p-3 md:p-4 text-xs font-medium">${p.date}</td>
+            <td class="p-3 md:p-4 font-bold text-white">${esc(p.customer)}</td>
+            <td class="p-3 md:p-4 text-xs text-slate-400">${esc(p.model)}</td>
+            <td class="p-3 md:p-4 text-xs"><span class="bg-slate-800 px-2 py-1 rounded border border-slate-700">${esc(p.method)}</span></td>
+            <td class="p-3 md:p-4 text-right font-bold text-emerald-400">₹${Number(p.amount).toLocaleString('en-IN')}</td>
+            <td class="p-3 md:p-4 text-center">
               <button onclick="deletePayment('${p.saleId}', '${p.id}')" class="text-rose-400 hover:text-rose-300 p-2"><i class="fa-solid fa-trash"></i></button>
             </td>
           </tr>
@@ -671,13 +717,56 @@
 
     // Modals & Actions
     function openModal(id) {
-      document.getElementById(id).classList.remove('hidden');
-      document.getElementById(id).classList.add('flex');
+      const modal = document.getElementById(id);
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      if(window.innerWidth < 768) document.body.style.overflow = 'hidden';
     }
 
     function closeModal(id) {
-      document.getElementById(id).classList.add('hidden');
-      document.getElementById(id).classList.remove('flex');
+      const modal = document.getElementById(id);
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      document.body.style.overflow = '';
+    }
+
+    // Scanner Logic
+    function openScanner(targetFieldId) {
+      currentScanTargetId = targetFieldId;
+      openModal('scannerModal');
+      
+      if (html5QrCode) {
+         try { html5QrCode.clear(); } catch(e) {}
+      }
+      
+      html5QrCode = new Html5Qrcode("reader");
+      
+      html5QrCode.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: { width: 250, height: 150 } },
+        (decodedText) => {
+          document.getElementById(currentScanTargetId).value = decodedText;
+          stopScanner();
+          if (navigator.vibrate) navigator.vibrate(100);
+        },
+        (errorMessage) => { /* ignore */ }
+      ).catch(err => {
+        alert("Camera access denied or not available. Please check permissions.");
+        stopScanner();
+      });
+    }
+
+    function stopScanner() {
+      closeModal('scannerModal');
+      if (html5QrCode) {
+        try {
+          html5QrCode.stop().then(() => {
+            html5QrCode.clear();
+          }).catch(err => console.log(err));
+        } catch (e) {
+          console.log(e);
+        }
+      }
     }
 
     function calcEmi() {
@@ -686,7 +775,7 @@
       const intPct = Number(document.getElementById('interestPct').value) || 0;
       const ten = Number(document.getElementById('tenureMonths').value) || 1;
 
-      const fin = bp - dp;
+      const fin = Math.max(0, bp - dp);
       const intAmt = fin * (intPct / 100);
       const tot = fin + intAmt;
       const emi = tot / ten;
@@ -711,19 +800,19 @@
       if (!sale) return;
 
       document.getElementById('saleId').value = sale.id;
-      document.getElementById('custName').value = sale.customerName;
-      document.getElementById('custPhone').value = sale.phone;
+      document.getElementById('custName').value = sale.customerName || '';
+      document.getElementById('custPhone').value = sale.phone || '';
       document.getElementById('custDocId').value = sale.docId || '';
       document.getElementById('custPan').value = sale.pan || '';
       document.getElementById('custCheque').value = sale.cheque || '';
       document.getElementById('custAddress').value = sale.address || '';
-      document.getElementById('deviceModel').value = sale.deviceModel;
+      document.getElementById('deviceModel').value = sale.deviceModel || '';
       document.getElementById('deviceImei').value = sale.imei || '';
-      document.getElementById('basePrice').value = sale.basePrice;
-      document.getElementById('downPayment').value = sale.downPayment;
-      document.getElementById('interestPct').value = sale.interestPct;
-      document.getElementById('tenureMonths').value = sale.tenureMonths;
-      document.getElementById('startDate').value = sale.startDate;
+      document.getElementById('basePrice').value = sale.basePrice || '';
+      document.getElementById('downPayment').value = sale.downPayment || 0;
+      document.getElementById('interestPct').value = sale.interestPct || 0;
+      document.getElementById('tenureMonths').value = sale.tenureMonths || 6;
+      document.getElementById('startDate').value = sale.startDate || todayStr;
       document.getElementById('lateFeePerDay').value = sale.lateFeePerDay || 0;
 
       document.getElementById('saleModalTitle').innerText = 'Edit EMI Sale';
@@ -775,12 +864,21 @@
       
       const select = document.getElementById('paySaleSelect');
       select.innerHTML = '<option value="">-- Select Sale --</option>';
+      
+      let hasActive = false;
       allEmis.forEach(s => {
         const st = calculateStats(s);
         if (st.totalRemaining > 0) {
-          select.innerHTML += `<option value="${s.id}" ${presetSaleId === s.id ? 'selected' : ''}>${s.customerName} - ${s.deviceModel} (Due: ₹${st.totalRemaining.toLocaleString('en-IN')})</option>`;
+          hasActive = true;
+          select.innerHTML += `<option value="${s.id}" ${presetSaleId === s.id ? 'selected' : ''}>${esc(s.customerName)} - ${esc(s.deviceModel)} (Due: ₹${st.totalRemaining.toLocaleString('en-IN')})</option>`;
         }
       });
+      
+      if (!hasActive) {
+        alert("No active EMI sales found with pending dues.");
+        return;
+      }
+      
       openModal('paymentModal');
     }
 
@@ -809,7 +907,6 @@
           
           closeModal('paymentModal');
           
-          // Auto print receipt for this payment
           const updatedSale = { id: saleId, ...data, payments };
           printReceipt(updatedSale, payData);
         }
@@ -861,33 +958,35 @@
         fineHtml = `
           <div class="mt-4">
             <h4 class="text-xs font-bold text-rose-400 uppercase mb-2">Late Fine Breakdown</h4>
-            <table class="w-full text-xs text-left border border-slate-700">
-              <thead class="bg-rose-950/30"><tr><th class="p-1 border border-slate-700">Month</th><th class="p-1 border border-slate-700">Due Date</th><th class="p-1 border border-slate-700">Days Late</th><th class="p-1 border border-slate-700">Fine</th></tr></thead>
-              <tbody>
-                ${st.fineDetails.map(f => `<tr><td class="p-1 border border-slate-700">M-${f.month}</td><td class="p-1 border border-slate-700">${f.dueDate}</td><td class="p-1 border border-slate-700 text-rose-400">${f.daysLate}</td><td class="p-1 border border-slate-700">₹${f.fine}</td></tr>`).join('')}
-              </tbody>
-            </table>
+            <div class="overflow-x-auto">
+              <table class="w-full text-xs text-left border border-slate-700 whitespace-nowrap">
+                <thead class="bg-rose-950/30"><tr><th class="p-2 border border-slate-700">Month</th><th class="p-2 border border-slate-700">Due Date</th><th class="p-2 border border-slate-700">Days Late</th><th class="p-2 border border-slate-700">Fine</th></tr></thead>
+                <tbody>
+                  ${st.fineDetails.map(f => `<tr><td class="p-2 border border-slate-700">M-${f.month}</td><td class="p-2 border border-slate-700">${f.dueDate}</td><td class="p-2 border border-slate-700 text-rose-400">${f.daysLate}</td><td class="p-2 border border-slate-700">₹${f.fine}</td></tr>`).join('')}
+                </tbody>
+              </table>
+            </div>
           </div>
         `;
       }
 
       document.getElementById('detailsContent').innerHTML = `
         <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2 text-sm">
-          <div class="flex justify-between"><span class="text-slate-400">Customer</span><span class="font-bold text-white">${sale.customerName} (${sale.phone})</span></div>
-          <div class="flex justify-between"><span class="text-slate-400">Doc ID / PAN</span><span class="text-slate-300">${sale.docId} ${sale.pan ? '| ' + sale.pan : ''}</span></div>
-          ${sale.cheque ? `<div class="flex justify-between"><span class="text-slate-400">Cheque</span><span class="text-slate-300">${sale.cheque}</span></div>` : ''}
-          <div class="flex justify-between"><span class="text-slate-400">Device</span><span class="font-bold text-white">${sale.deviceModel} (${sale.imei || 'N/A'})</span></div>
-          <div class="flex justify-between"><span class="text-slate-400">Interest Rate</span><span class="text-indigo-400">${sale.interestPct}%</span></div>
-          <div class="flex justify-between"><span class="text-slate-400">Monthly EMI</span><span class="font-bold text-indigo-400">₹${st.emiAmount.toFixed(2)}</span></div>
-          <div class="flex justify-between"><span class="text-slate-400">Total Payable</span><span class="text-white">₹${st.totalPayable.toLocaleString('en-IN')}</span></div>
-          <div class="flex justify-between"><span class="text-slate-400">Remaining Base</span><span class="text-rose-400 font-bold">₹${st.remainingBase.toLocaleString('en-IN')}</span></div>
-          <div class="flex justify-between"><span class="text-slate-400">Late Fine Accrued</span><span class="text-amber-400 font-bold">+ ₹${st.totalFine.toLocaleString('en-IN')}</span></div>
-          <div class="flex justify-between border-t border-slate-700 pt-2"><span class="text-slate-300 font-bold">Total Amount Due</span><span class="text-rose-400 font-bold text-lg">₹${st.totalRemaining.toLocaleString('en-IN')}</span></div>
+          <div class="flex justify-between gap-2"><span class="text-slate-400">Customer</span><span class="font-bold text-white text-right">${esc(sale.customerName)} (${esc(sale.phone)})</span></div>
+          <div class="flex justify-between gap-2"><span class="text-slate-400">Doc ID / PAN</span><span class="text-slate-300 text-right">${esc(sale.docId) || 'N/A'} ${sale.pan ? '| ' + esc(sale.pan) : ''}</span></div>
+          ${sale.cheque ? `<div class="flex justify-between gap-2"><span class="text-slate-400">Cheque</span><span class="text-slate-300 text-right">${esc(sale.cheque)}</span></div>` : ''}
+          <div class="flex justify-between gap-2"><span class="text-slate-400">Device</span><span class="font-bold text-white text-right">${esc(sale.deviceModel)} (${esc(sale.imei) || 'N/A'})</span></div>
+          <div class="flex justify-between gap-2"><span class="text-slate-400">Interest Rate</span><span class="text-indigo-400 text-right">${sale.interestPct}%</span></div>
+          <div class="flex justify-between gap-2"><span class="text-slate-400">Monthly EMI</span><span class="font-bold text-indigo-400 text-right">₹${st.emiAmount.toFixed(2)}</span></div>
+          <div class="flex justify-between gap-2"><span class="text-slate-400">Total Payable</span><span class="text-white text-right">₹${st.totalPayable.toLocaleString('en-IN')}</span></div>
+          <div class="flex justify-between gap-2"><span class="text-slate-400">Remaining Base</span><span class="text-rose-400 font-bold text-right">₹${st.remainingBase.toLocaleString('en-IN')}</span></div>
+          <div class="flex justify-between gap-2"><span class="text-slate-400">Late Fine Accrued</span><span class="text-amber-400 font-bold text-right">+ ₹${st.totalFine.toLocaleString('en-IN')}</span></div>
+          <div class="flex justify-between gap-2 border-t border-slate-700 pt-2"><span class="text-slate-300 font-bold">Total Due</span><span class="text-rose-400 font-bold text-lg text-right">₹${st.totalRemaining.toLocaleString('en-IN')}</span></div>
         </div>
         ${fineHtml}
         <div class="mt-4">
           <h4 class="text-xs font-bold text-slate-400 uppercase mb-2">Installment Schedule</h4>
-          <div class="grid grid-cols-4 sm:grid-cols-6 gap-2">${instHtml}</div>
+          <div class="grid grid-cols-3 sm:grid-cols-5 gap-2">${instHtml}</div>
         </div>
       `;
       openModal('detailsModal');
@@ -923,7 +1022,7 @@
             <span>Amount Paid Now:</span><span style="font-weight:bold; font-size:14px;">₹${latestPayment.amount}</span>
           </div>
           <div style="display:flex; justify-content:space-between; margin-bottom:3px;">
-            <span>Method:</span><span>${latestPayment.method}</span>
+            <span>Method:</span><span>${esc(latestPayment.method)}</span>
           </div>
         `;
       }
@@ -943,21 +1042,21 @@
         <div class="receipt-container" style="width:58mm; margin:0 auto; font-family:'Courier New', Courier, monospace; color:#000; background:#fff; padding:5px; font-size:11px; line-height:1.3;">
           ${svgLogo}
           <div style="text-align:center; margin-bottom:10px; border-bottom:1px dashed #000; padding-bottom:10px;">
-            <h2 style="font-size:16px; font-weight:bold; margin:0 0 4px 0; text-transform:uppercase;">${sName}</h2>
-            <p style="margin:0; font-size:10px;">${sAddr}</p>
-            <p style="margin:0; font-size:10px;">Ph: ${sPhone}</p>
+            <h2 style="font-size:16px; font-weight:bold; margin:0 0 4px 0; text-transform:uppercase;">${esc(sName)}</h2>
+            <p style="margin:0; font-size:10px;">${esc(sAddr)}</p>
+            <p style="margin:0; font-size:10px;">Ph: ${esc(sPhone)}</p>
           </div>
           
           <div style="margin-bottom:10px; border-bottom:1px dashed #000; padding-bottom:10px;">
             <div style="display:flex; justify-content:space-between; margin-bottom:3px;"><span style="font-weight:bold;">Date:</span><span>${latestPayment ? latestPayment.date : todayStr}</span></div>
             <div style="display:flex; justify-content:space-between; margin-bottom:3px;"><span style="font-weight:bold;">Receipt No:</span><span>${(latestPayment ? latestPayment.id : sale.id).slice(-6).toUpperCase()}</span></div>
-            <div style="display:flex; justify-content:space-between; margin-bottom:3px;"><span style="font-weight:bold;">Customer:</span><span>${sale.customerName}</span></div>
-            <div style="display:flex; justify-content:space-between; margin-bottom:3px;"><span style="font-weight:bold;">Phone:</span><span>${sale.phone}</span></div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:3px;"><span style="font-weight:bold;">Customer:</span><span>${esc(sale.customerName)}</span></div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:3px;"><span style="font-weight:bold;">Phone:</span><span>${esc(sale.phone)}</span></div>
           </div>
 
           <table style="width:100%; border-collapse:collapse; margin-bottom:10px;">
-            <tr><th style="text-align:left; padding:4px 0; border-bottom:1px dashed #000; font-size:10px;">Device</th><td style="text-align:right; padding:4px 0; border-bottom:1px dashed #000; font-size:10px;">${sale.deviceModel}</td></tr>
-            ${sale.imei ? `<tr><th style="text-align:left; padding:4px 0; border-bottom:1px dashed #000; font-size:10px;">IMEI</th><td style="text-align:right; padding:4px 0; border-bottom:1px dashed #000; font-size:10px;">${sale.imei}</td></tr>` : ''}
+            <tr><th style="text-align:left; padding:4px 0; border-bottom:1px dashed #000; font-size:10px;">Device</th><td style="text-align:right; padding:4px 0; border-bottom:1px dashed #000; font-size:10px;">${esc(sale.deviceModel)}</td></tr>
+            ${sale.imei ? `<tr><th style="text-align:left; padding:4px 0; border-bottom:1px dashed #000; font-size:10px;">IMEI</th><td style="text-align:right; padding:4px 0; border-bottom:1px dashed #000; font-size:10px;">${esc(sale.imei)}</td></tr>` : ''}
             <tr><th style="text-align:left; padding:4px 0; border-bottom:1px dashed #000; font-size:10px;">Base Price</th><td style="text-align:right; padding:4px 0; border-bottom:1px dashed #000; font-size:10px;">₹${sale.basePrice}</td></tr>
             <tr><th style="text-align:left; padding:4px 0; border-bottom:1px dashed #000; font-size:10px;">Down Payment</th><td style="text-align:right; padding:4px 0; border-bottom:1px dashed #000; font-size:10px;">₹${sale.downPayment}</td></tr>
             <tr><th style="text-align:left; padding:4px 0; border-bottom:1px dashed #000; font-size:10px;">Interest (${sale.interestPct}%)</th><td style="text-align:right; padding:4px 0; border-bottom:1px dashed #000; font-size:10px;">₹${(st.totalPayable - (sale.basePrice - sale.downPayment)).toFixed(0)}</td></tr>
@@ -1015,7 +1114,6 @@
         const credential = firebase.auth.EmailAuthProvider.credential(auth.currentUser.email, pass);
         await auth.currentUser.reauthenticateWithCredential(credential);
         
-        // Password correct, delete document
         await db.collection('stores').doc(auth.currentUser.uid).collection('emis').doc(currentSaleIdForDelete).delete();
         
         closeModal('authModal');
