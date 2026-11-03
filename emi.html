@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BIN EMI Tracker - SmartFix Pro</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+  <style>
+    @page thermalpage { size: 58mm auto; margin: 0; }
+    body.mode-thermal { page: thermalpage; }
+
+    @media print {
+      html, body { width: 58mm !important; height: auto !important; margin: 0 !important; padding: 0 !important; background: #fff !important; color: #000 !important; }
+      body > *:not(#masterDirectPrintArea) { display: none !important; }
+      #masterDirectPrintArea {
+        display: block !important; position: absolute !important; left: 0 !important; top: 0 !important;
+        width: 58mm !important; max-width: 58mm !important; padding: 4mm 3mm 12mm 3mm !important; margin: 0 !important;
+        background: #fff !important; color: #000 !important; font-family: Arial, Helvetica, sans-serif !important; 
+        font-weight: 600 !important; font-size: 11px !important; line-height: 1.4 !important;
+        -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;
+      }
+      #masterDirectPrintArea * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color: #000 !important; }
+      .receipt-cut-line { page-break-after: always !important; border-bottom: 2px solid #000 !important; margin: 12px 0 !important; padding-bottom: 10px !important; }
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-indigo-600 selection:text-white">
+
+  <!-- Loading / Unauthenticated Screen -->
+  <div id="loadingScreen" class="fixed inset-0 bg-slate-950 z-50 flex flex-col items-center justify-center">
+    <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-indigo-600 mb-4"></div>
+    <h2 class="text-xl font-bold text-white">Connecting to Cloud...</h2>
+    <p class="text-sm text-slate-400 mt-2">Please login from the main dashboard if it takes too long.</p>
+    <a href="index.html" class="mt-6 px-6 py-2 bg-indigo-600 hover:bg-indigo-700 rounded-xl font-bold transition">Go to Main App</a>
+  </div>
+
+  <!-- App Content -->
+  <div id="appContent" class="hidden flex-col flex-1">
+    <!-- Header Navbar -->
+    <header class="bg-slate-900/90 backdrop-blur border-b border-slate-800 sticky top-0 z-40">
+      <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <div class="bg-gradient-to-tr from-indigo-600 to-violet-500 p-2.5 rounded-xl shadow-lg shadow-indigo-600/30">
+            <i class="fa-solid fa-file-invoice-dollar text-xl text-white"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="text-xl font-bold tracking-tight text-white uppercase">BIN <span class="text-indigo-400">EMI TRACKER</span></h1>
+              <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">Cloud Sync</span>
+            </div>
+            <p class="text-xs text-slate-400 font-medium flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> <span id="currentDateDisplay" class="font-mono text-slate-300"></span>
+            </p>
+          </div>
+        </div>
+
+        <nav class="flex items-center bg-slate-950/80 p-1 rounded-xl border border-slate-800 flex-wrap gap-1">
+          <button onclick="switchTab('dashboard')" id="nav-dashboard" class="px-4 py-2 rounded-lg text-xs md:text-sm font-semibold transition bg-indigo-600 text-white shadow-md flex items-center gap-1.5">
+            <i class="fa-solid fa-chart-pie"></i> Dashboard
+          </button>
+          <button onclick="switchTab('sales')" id="nav-sales" class="px-4 py-2 rounded-lg text-xs md:text-sm font-semibold transition text-slate-400 hover:text-white flex items-center gap-1.5">
+            <i class="fa-solid fa-mobile-screen"></i> EMI Sales
+          </button>
+          <button onclick="switchTab('payments')" id="nav-payments" class="px-4 py-2 rounded-lg text-xs md:text-sm font-semibold transition text-slate-400 hover:text-white flex items-center gap-1.5">
+            <i class="fa-solid fa-money-bill-transfer"></i> Payments
+          </button>
+          <button onclick="logout()" title="Logout" class="px-3 py-2 text-slate-400 hover:text-rose-400 text-xs transition">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i> Logout
+          </button>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 space-y-6">
+
+      <!-- Dashboard Tab -->
+      <section id="view-dashboard" class="tab-panel block space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl border-l-4 border-l-indigo-500">
+            <span class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Total Sales</span>
+            <h4 id="statTotalSales" class="text-2xl font-bold text-white mt-1">₹0</h4>
+          </div>
+          <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl border-l-4 border-l-emerald-500">
+            <span class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Collected</span>
+            <h4 id="statCollected" class="text-2xl font-bold text-emerald-400 mt-1">₹0</h4>
+          </div>
+          <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl border-l-4 border-l-rose-500">
+            <span class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Outstanding Due</span>
+            <h4 id="statOutstanding" class="text-2xl font-bold text-rose-400 mt-1">₹0</h4>
+          </div>
+          <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl border-l-4 border-l-amber-500">
+            <span class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Overdue Accounts</span>
+            <h4 id="statOverdue" class="text-2xl font-bold text-amber-400 mt-1">0</h4>
+          </div>
+        </div>
+
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow">
+          <div class="p-4 bg-slate-950 border-b border-slate-800">
+            <h3 class="text-sm font-bold text-rose-400 uppercase tracking-wider flex items-center gap-2">
+              <i class="fa-solid fa-triangle-exclamation"></i> Overdue Customers (Needs Attention)
+            </h3>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm">
+              <thead class="bg-slate-950/60 text-slate-400 text-xs uppercase font-semibold border-b border-slate-800">
+                <tr>
+                  <th class="p-3">Customer</th>
+                  <th class="p-3">Phone</th>
+                  <th class="p-3">Model</th>
+                  <th class="p-3 text-right text-amber-400">Late Fine</th>
+                  <th class="p-3 text-right text-rose-400">Total Due</th>
+                  <th class="p-3 text-center">Action</th>
+                </tr>
+              </thead>
+              <tbody id="overdueTableBody" class="divide-y divide-slate-800/60 text-slate-300"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Sales Tab -->
+      <section id="view-sales" class="tab-panel hidden space-y-6">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-4 bg-slate-900 border border-slate-800 p-4 rounded-2xl">
+          <div class="relative w-full md:w-96">
+            <i class="fa-solid fa-magnifying-glass absolute left-4 top-3.5 text-slate-500"></i>
+            <input type="text" id="searchSales" oninput="renderSalesTable()" placeholder="Search customer / phone / model..." class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-11 pr-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 text-white">
+          </div>
+          <button onclick="openSaleModal()" class="w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 shadow-lg transition">
+            <i class="fa-solid fa-plus"></i> New EMI Sale
+          </button>
+        </div>
+
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm">
+              <thead class="bg-slate-950/80 text-slate-400 text-xs uppercase font-semibold border-b border-slate-800">
+                <tr>
+                  <th class="p-4">Customer / Phone</th>
+                  <th class="p-4">Device & IMEI</th>
+                  <th class="p-4">EMI Plan</th>
+                  <th class="p-4">Total Payable</th>
+                  <th class="p-4">Remaining</th>
+                  <th class="p-4">Status</th>
+                  <th class="p-4 text-center">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="salesTableBody" class="divide-y divide-slate-800/60 text-slate-300"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Payments Tab -->
+      <section id="view-payments" class="tab-panel hidden space-y-6">
+        <div class="flex justify-between items-center bg-slate-900 border border-slate-800 p-4 rounded-2xl">
+          <h3 class="text-lg font-bold text-white"><i class="fa-solid fa-receipt text-emerald-400 mr-2"></i>Payment History</h3>
+          <button onclick="openPaymentModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg transition">
+            <i class="fa-solid fa-plus"></i> Record Payment
+          </button>
+        </div>
+
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm">
+              <thead class="bg-slate-950/80 text-slate-400 text-xs uppercase font-semibold border-b border-slate-800">
+                <tr>
+                  <th class="p-4">Date</th>
+                  <th class="p-4">Customer</th>
+                  <th class="p-4">Model</th>
+                  <th class="p-4">Method</th>
+                  <th class="p-4 text-right">Amount</th>
+                  <th class="p-4 text-center">Action</th>
+                </tr>
+              </thead>
+              <tbody id="paymentsTableBody" class="divide-y divide-slate-800/60 text-slate-300"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ==================== MODALS ==================== -->
+
+  <!-- Sale Add/Edit Modal -->
+  <div id="saleModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50 overflow-y-auto">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-3xl w-full p-6 shadow-2xl my-8">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-4 mb-4">
+        <h3 class="text-lg font-bold text-white" id="saleModalTitle">New EMI Sale</h3>
+        <button onclick="closeModal('saleModal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+      </div>
+
+      <form id="saleForm" onsubmit="saveSale(event)" class="space-y-4">
+        <input type="hidden" id="saleId">
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 mb-1">Customer Name *</label>
+            <input type="text" id="custName" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-indigo-500">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 mb-1">Phone Number *</label>
+            <input type="tel" id="custPhone" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-indigo-500">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 mb-1">Document ID / Aadhar *</label>
+            <input type="text" id="custDocId" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-indigo-500">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 mb-1">PAN Card Number (Optional)</label>
+            <input type="text" id="custPan" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-indigo-500 uppercase">
+          </div>
+          <div class="md:col-span-2">
+            <label class="block text-xs font-semibold text-slate-400 mb-1">Cheque Details (If any)</label>
+            <input type="text" id="custCheque" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-indigo-500" placeholder="Bank name, Cheque No, Date">
+          </div>
+          <div class="md:col-span-2">
+            <label class="block text-xs font-semibold text-slate-400 mb-1">Address</label>
+            <input type="text" id="custAddress" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-indigo-500">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-slate-800">
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 mb-1">Device Model *</label>
+            <input type="text" id="deviceModel" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-indigo-500">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 mb-1">IMEI / Serial No</label>
+            <input type="text" id="deviceImei" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-indigo-500 font-mono">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-slate-800">
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 mb-1">Base Price (₹) *</label>
+            <input type="number" id="basePrice" required oninput="calcEmi()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-indigo-500">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 mb-1">Down Payment (₹)</label>
+            <input type="number" id="downPayment" oninput="calcEmi()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-indigo-500" value="0">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 mb-1">Interest (%)</label>
+            <input type="number" id="interestPct" oninput="calcEmi()" step="0.1" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-indigo-500" value="0">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 mb-1">Tenure (Months) *</label>
+            <input type="number" id="tenureMonths" required oninput="calcEmi()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-indigo-500" value="6">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 mb-1">Start Date *</label>
+            <input type="date" id="startDate" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-indigo-500">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 mb-1">Late Fee (₹/day)</label>
+            <input type="number" id="lateFeePerDay" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-indigo-500" value="0">
+          </div>
+        </div>
+
+        <div class="bg-indigo-500/10 border border-indigo-500/20 rounded-xl p-4 mt-2">
+          <div class="flex justify-between text-sm mb-1"><span class="text-slate-400">Financed Amount:</span><span id="calcFinanced" class="font-bold text-white">₹0</span></div>
+          <div class="flex justify-between text-sm mb-1"><span class="text-slate-400">Interest Amount:</span><span id="calcInterest" class="font-bold text-white">₹0</span></div>
+          <div class="flex justify-between text-sm mb-1"><span class="text-slate-400">Total Payable:</span><span id="calcTotal" class="font-bold text-indigo-400">₹0</span></div>
+          <div class="flex justify-between text-sm mt-2 pt-2 border-t border-indigo-500/20">
+            <span class="text-indigo-300 font-bold">Monthly EMI:</span><span id="calcEmi" class="font-bold text-lg text-indigo-400">₹0</span>
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-3 pt-4">
+          <button type="button" onclick="closeModal('saleModal')" class="px-5 py-2.5 rounded-xl border border-slate-800 text-slate-400 hover:text-white text-sm font-semibold">Cancel</button>
+          <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 px-6 py-2.5 rounded-xl text-sm font-bold text-white shadow-lg">Save Sale</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Payment Modal -->
+  <div id="paymentModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full p-6 shadow-2xl">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-4 mb-4">
+        <h3 class="text-lg font-bold text-white">Record Payment</h3>
+        <button onclick="closeModal('paymentModal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+      </div>
+      <form id="paymentForm" onsubmit="savePayment(event)" class="space-y-4">
+        <input type="hidden" id="paySaleId">
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 mb-1">Select Sale *</label>
+          <select id="paySaleSelect" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-indigo-500"></select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 mb-1">Amount (₹) *</label>
+          <input type="number" id="payAmount" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-indigo-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 mb-1">Date *</label>
+          <input type="date" id="payDate" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-indigo-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 mb-1">Payment Method</label>
+          <select id="payMethod" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-indigo-500">
+            <option value="Cash">Cash</option>
+            <option value="UPI">UPI / Online</option>
+            <option value="Cheque">Cheque</option>
+          </select>
+        </div>
+        <div class="flex justify-end gap-3 pt-4">
+          <button type="button" onclick="closeModal('paymentModal')" class="px-5 py-2.5 rounded-xl border border-slate-800 text-slate-400 hover:text-white text-sm font-semibold">Cancel</button>
+          <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 px-6 py-2.5 rounded-xl text-sm font-bold text-white shadow-lg">Save & Print Receipt</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Sale Details Modal -->
+  <div id="detailsModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50 overflow-y-auto">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-2xl w-full p-6 shadow-2xl my-8">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-4 mb-4">
+        <h3 class="text-lg font-bold text-white" id="detailTitle">Sale Details</h3>
+        <button onclick="closeModal('detailsModal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+      </div>
+      <div id="detailsContent" class="space-y-4"></div>
+      <div class="flex justify-end gap-3 pt-4 mt-4 border-t border-slate-800">
+        <button onclick="closeModal('detailsModal')" class="px-5 py-2.5 rounded-xl border border-slate-800 text-slate-400 hover:text-white text-sm font-semibold">Close</button>
+        <button onclick="printReceiptFromDetails()" class="bg-indigo-600 hover:bg-indigo-700 px-6 py-2.5 rounded-xl text-sm font-bold text-white shadow-lg"><i class="fa-solid fa-print mr-2"></i>Print Statement</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Authorization Modal -->
+  <div id="authModal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md hidden items-center justify-center p-4 z-[60]">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4 text-center">
+      <div class="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-400 border border-amber-500/20 mx-auto flex items-center justify-center text-xl">
+        <i class="fa-solid fa-lock"></i>
+      </div>
+      <div>
+        <h3 class="text-base font-bold text-white">Authorization Required</h3>
+        <p class="text-xs text-slate-400 mt-1">Enter your login password to delete this record. <strong class="text-rose-400">Warning: This action cannot be undone!</strong></p>
+      </div>
+      <div>
+        <input type="password" id="deletePasswordInput" placeholder="Enter Password" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-center text-sm text-white focus:outline-none focus:border-indigo-500">
+        <p id="deleteErrorText" class="text-rose-400 text-xs mt-1.5 hidden font-semibold">Incorrect Password!</p>
+      </div>
+      <div class="flex items-center justify-between gap-3 pt-2">
+        <button onclick="closeModal('authModal')" class="flex-1 py-2.5 rounded-xl border border-slate-800 text-xs font-semibold text-slate-400 hover:text-white">Cancel</button>
+        <button onclick="confirmDelete()" class="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-xs font-bold text-white">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Print Area -->
+  <div id="masterDirectPrintArea" style="display: none;"></div>
+
+  <script>
+    // Main App Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyCG357Dtw_ftKsgAyRSsoZUSfMNpx-GGz0",
+      authDomain: "billing-ab24c.firebaseapp.com",
+      projectId: "billing-ab24c",
+      storageBucket: "billing-ab24c.firebasestorage.app",
+      messagingSenderId: "356489808931",
+      appId: "1:356489808931:web:55297f31640c181c7db596",
+      measurementId: "G-QPVQTXGFFJ"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    let currentStore = null;
+    let allEmis = [];
+    let currentSaleIdForDelete = null;
+
+    function localDateString(date = new Date()) {
+      const y = date.getFullYear(); const m = String(date.getMonth()+1).padStart(2,'0'); const d = String(date.getDate()).padStart(2,'0');
+      return `${y}-${m}-${d}`;
+    }
+    const todayStr = localDateString();
+
+    // Auth Handler
+    auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        // Fetch store details
+        try {
+          const storeDoc = await db.collection('stores').doc(user.uid).get();
+          if (storeDoc.exists) currentStore = storeDoc.data();
+          else currentStore = { shopName: "My Mobile Store" }; // Fallback
+          
+          document.getElementById('loadingScreen').classList.add('hidden');
+          document.getElementById('appContent').classList.remove('hidden');
+          document.getElementById('currentDateDisplay').innerText = todayStr;
+          
+          // Load EMI Data
+          loadEmiData(user.uid);
+        } catch (e) {
+          console.error(e);
+          alert("Error loading store data.");
+          window.location.href = 'index.html';
+        }
+      } else {
+        // Not logged in, redirect to main app
+        window.location.href = 'index.html';
+      }
+    });
+
+    function logout() {
+      auth.signOut().then(() => {
+        window.location.href = 'index.html';
+      });
+    }
+
+    // Data Functions
+    function loadEmiData(uid) {
+      db.collection('stores').doc(uid).collection('emis').onSnapshot(snapshot => {
+        allEmis = [];
+        snapshot.forEach(doc => {
+          allEmis.push({ id: doc.id, ...doc.data() });
+        });
+        // Sort by latest start date
+        allEmis.sort((a, b) => new Date(b.startDate) - new Date(a.startDate));
+        renderAll();
+      }, error => {
+        console.error("Firestore error:", error);
+        alert("Failed to load EMI data. Check your connection.");
+      });
+    }
+
+    // Math & Schedule Logic
+    function calculateStats(sale) {
+      const payments = sale.payments || [];
+      const totalPaidEmi = payments.reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
+      const totalPaid = (Number(sale.downPayment) || 0) + totalPaidEmi;
+
+      const basePrice = Number(sale.basePrice) || 0;
+      const downPayment = Number(sale.downPayment) || 0;
+      const financed = basePrice - downPayment;
+      const interestPct = Number(sale.interestPct) || 0;
+      const interestAmt = financed * (interestPct / 100);
+      const totalPayable = financed + interestAmt;
+
+      const tenure = Number(sale.tenureMonths) || 1;
+      const emiAmount = totalPayable / tenure;
+
+      // Schedule & Fine Logic
+      const schedule = [];
+      let totalFine = 0;
+      let fineDetails = [];
+      const lateFeePerDay = Number(sale.lateFeePerDay) || 0;
+      const startDate = new Date(sale.startDate);
+      const todayDate = new Date(); todayDate.setHours(0,0,0,0);
+
+      let paymentsProcessed = 0;
+      const sortedPayments = [...payments].sort((a,b) => new Date(a.date) - new Date(b.date));
+
+      for (let i = 1; i <= tenure; i++) {
+        const dueDate = new Date(startDate.getFullYear(), startDate.getMonth() + i, startDate.getDate());
+        let paidForThisInst = 0;
+        let amountNeeded = emiAmount;
+
+        while (amountNeeded > 0.01 && paymentsProcessed < sortedPayments.length) {
+          const p = sortedPayments[paymentsProcessed];
+          const available = Number(p.amount) - (p._used || 0);
+          const take = Math.min(available, amountNeeded);
+          
+          paidForThisInst += take;
+          amountNeeded -= take;
+          p._used = (p._used || 0) + take;
+
+          if (p._used >= Number(p.amount) - 0.01) paymentsProcessed++;
+        }
+
+        let status = 'pending';
+        let instFine = 0;
+
+        if (paidForThisInst >= emiAmount - 0.01) {
+          status = 'paid';
+        } else if (dueDate < todayDate) {
+          status = 'overdue';
+          if (lateFeePerDay > 0) {
+            const daysLate = Math.floor((todayDate - dueDate) / (1000 * 60 * 60 * 24));
+            instFine = daysLate * lateFeePerDay;
+            totalFine += instFine;
+            fineDetails.push({ month: i, dueDate: localDateString(dueDate), daysLate, fine: instFine });
+          }
+        } else if (paidForThisInst > 0) {
+          status = 'partial';
+        }
+
+        schedule.push({
+          month: i,
+          dueDate: localDateString(dueDate),
+          amount: emiAmount,
+          paid: paidForThisInst,
+          status: status,
+          fine: instFine
+        });
+      }
+
+      const remainingBase = Math.max(0, totalPayable - totalPaidEmi);
+      const totalRemaining = remainingBase + totalFine;
+      const nextInst = schedule.find(i => i.status !== 'paid');
+
+      return {
+        totalPaid,
+        remainingBase,
+        totalFine,
+        totalRemaining,
+        schedule,
+        fineDetails,
+        emiAmount,
+        totalPayable,
+        nextDueDate: nextInst ? nextInst.dueDate : null,
+        isOverdue: schedule.some(i => i.status === 'overdue')
+      };
+    }
+
+    // UI Renderers
+    function renderAll() {
+      renderDashboard();
+      renderSalesTable();
+      renderPaymentsTable();
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
+      document.getElementById(`view-${tabId}`).classList.remove('hidden');
+      
+      ['dashboard', 'sales', 'payments'].forEach(t => {
+        const btn = document.getElementById(`nav-${t}`);
+        if (t === tabId) btn.className = "px-4 py-2 rounded-lg text-xs md:text-sm font-semibold transition bg-indigo-600 text-white shadow-md flex items-center gap-1.5";
+        else btn.className = "px-4 py-2 rounded-lg text-xs md:text-sm font-semibold transition text-slate-400 hover:text-white flex items-center gap-1.5";
+      });
+    }
+
+    function renderDashboard() {
+      let totalSales = 0, totalCollected = 0, totalOutstanding = 0, overdueCount = 0;
+      const overdueList = [];
+
+      allEmis.forEach(sale => {
+        const st = calculateStats(sale);
+        totalSales += Number(sale.basePrice) || 0;
+        totalCollected += st.totalPaid;
+        totalOutstanding += st.totalRemaining;
+        if (st.isOverdue && st.totalRemaining > 0) {
+          overdueCount++;
+          overdueList.push({ sale, st });
+        }
+      });
+
+      document.getElementById('statTotalSales').innerText = '₹' + totalSales.toLocaleString('en-IN');
+      document.getElementById('statCollected').innerText = '₹' + totalCollected.toLocaleString('en-IN');
+      document.getElementById('statOutstanding').innerText = '₹' + totalOutstanding.toLocaleString('en-IN');
+      document.getElementById('statOverdue').innerText = overdueCount;
+
+      const tbody = document.getElementById('overdueTableBody');
+      tbody.innerHTML = '';
+      if (overdueList.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500">No overdue accounts 🎉</td></tr>`;
+      } else {
+        overdueList.forEach(({ sale, st }) => {
+          tbody.innerHTML += `
+            <tr class="hover:bg-slate-950/40 transition">
+              <td class="p-3 font-semibold text-white">${sale.customerName}</td>
+              <td class="p-3 font-mono text-xs">${sale.phone}</td>
+              <td class="p-3 text-xs">${sale.deviceModel}</td>
+              <td class="p-3 text-right text-amber-400">+₹${st.totalFine.toLocaleString('en-IN')}</td>
+              <td class="p-3 text-right font-bold text-rose-400">₹${st.totalRemaining.toLocaleString('en-IN')}</td>
+              <td class="p-3 text-center">
+                <button onclick="openPaymentModal('${sale.id}')" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold">Pay</button>
+              </td>
+            </tr>
+          `;
+        });
+      }
+    }
+
+    function renderSalesTable() {
+      const q = document.getElementById('searchSales').value.toLowerCase();
+      const tbody = document.getElementById('salesTableBody');
+      tbody.innerHTML = '';
+
+      const filtered = allEmis.filter(s => 
+        s.customerName.toLowerCase().includes(q) || 
+        s.phone.includes(q) || 
+        s.deviceModel.toLowerCase().includes(q)
+      );
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-500">No sales found.</td></tr>`;
+        return;
+      }
+
+      filtered.forEach(sale => {
+        const st = calculateStats(sale);
+        let statusBadge = '';
+        if (st.totalRemaining <= 0) statusBadge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Completed</span>';
+        else if (st.isOverdue) statusBadge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/10 text-rose-400 border border-rose-500/20">Overdue</span>';
+        else statusBadge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">Active</span>';
+
+        tbody.innerHTML += `
+          <tr class="hover:bg-slate-950/40 transition">
+            <td class="p-4">
+              <div class="font-bold text-white">${sale.customerName}</div>
+              <div class="text-xs text-slate-400 font-mono">${sale.phone}</div>
+            </td>
+            <td class="p-4">
+              <div class="font-semibold text-slate-300">${sale.deviceModel}</div>
+              <div class="text-[10px] text-slate-500 font-mono">${sale.imei || 'N/A'}</div>
+            </td>
+            <td class="p-4 text-xs">
+              <div>₹${st.emiAmount.toFixed(0)} /mo</div>
+              <div class="text-slate-500">${sale.tenureMonths} months</div>
+            </td>
+            <td class="p-4 font-semibold text-white">₹${st.totalPayable.toLocaleString('en-IN')}</td>
+            <td class="p-4 font-bold ${st.totalRemaining > 0 ? 'text-rose-400' : 'text-emerald-400'}">
+              ₹${st.totalRemaining.toLocaleString('en-IN')}
+            </td>
+            <td class="p-4">${statusBadge}</td>
+            <td class="p-4 text-center flex justify-center gap-1.5 flex-wrap">
+              <button onclick="viewDetails('${sale.id}')" title="View Details" class="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-300"><i class="fa-solid fa-eye"></i></button>
+              <button onclick="openPaymentModal('${sale.id}')" title="Add Payment" class="p-2 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-white"><i class="fa-solid fa-money-bill"></i></button>
+              <button onclick="editSale('${sale.id}')" title="Edit" class="p-2 bg-indigo-600 hover:bg-indigo-700 rounded-lg text-white"><i class="fa-solid fa-pen"></i></button>
+              <button onclick="requestDelete('${sale.id}')" title="Delete" class="p-2 bg-rose-950 hover:bg-rose-600 rounded-lg text-rose-400 hover:text-white border border-rose-500/30"><i class="fa-solid fa-trash"></i></button>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    function renderPaymentsTable() {
+      const tbody = document.getElementById('paymentsTableBody');
+      tbody.innerHTML = '';
+      
+      let allPayments = [];
+      allEmis.forEach(sale => {
+        (sale.payments || []).forEach(p => {
+          allPayments.push({ ...p, saleId: sale.id, customer: sale.customerName, model: sale.deviceModel });
+        });
+      });
+
+      allPayments.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+      if (allPayments.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500">No payments recorded.</td></tr>`;
+        return;
+      }
+
+      allPayments.forEach(p => {
+        tbody.innerHTML += `
+          <tr class="hover:bg-slate-950/40 transition">
+            <td class="p-4 text-xs font-medium">${p.date}</td>
+            <td class="p-4 font-bold text-white">${p.customer}</td>
+            <td class="p-4 text-xs text-slate-400">${p.model}</td>
+            <td class="p-4 text-xs"><span class="bg-slate-800 px-2 py-1 rounded border border-slate-700">${p.method}</span></td>
+            <td class="p-4 text-right font-bold text-emerald-400">₹${Number(p.amount).toLocaleString('en-IN')}</td>
+            <td class="p-4 text-center">
+              <button onclick="deletePayment('${p.saleId}', '${p.id}')" class="text-rose-400 hover:text-rose-300 p-2"><i class="fa-solid fa-trash"></i></button>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    // Modals & Actions
+    function openModal(id) {
+      document.getElementById(id).classList.remove('hidden');
+      document.getElementById(id).classList.add('flex');
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.add('hidden');
+      document.getElementById(id).classList.remove('flex');
+    }
+
+    function calcEmi() {
+      const bp = Number(document.getElementById('basePrice').value) || 0;
+      const dp = Number(document.getElementById('downPayment').value) || 0;
+      const intPct = Number(document.getElementById('interestPct').value) || 0;
+      const ten = Number(document.getElementById('tenureMonths').value) || 1;
+
+      const fin = bp - dp;
+      const intAmt = fin * (intPct / 100);
+      const tot = fin + intAmt;
+      const emi = tot / ten;
+
+      document.getElementById('calcFinanced').innerText = '₹' + fin.toLocaleString('en-IN');
+      document.getElementById('calcInterest').innerText = '₹' + intAmt.toLocaleString('en-IN');
+      document.getElementById('calcTotal').innerText = '₹' + tot.toLocaleString('en-IN');
+      document.getElementById('calcEmi').innerText = '₹' + emi.toFixed(2);
+    }
+
+    function openSaleModal() {
+      document.getElementById('saleForm').reset();
+      document.getElementById('saleId').value = '';
+      document.getElementById('startDate').value = todayStr;
+      document.getElementById('saleModalTitle').innerText = 'New EMI Sale';
+      calcEmi();
+      openModal('saleModal');
+    }
+
+    function editSale(id) {
+      const sale = allEmis.find(s => s.id === id);
+      if (!sale) return;
+
+      document.getElementById('saleId').value = sale.id;
+      document.getElementById('custName').value = sale.customerName;
+      document.getElementById('custPhone').value = sale.phone;
+      document.getElementById('custDocId').value = sale.docId || '';
+      document.getElementById('custPan').value = sale.pan || '';
+      document.getElementById('custCheque').value = sale.cheque || '';
+      document.getElementById('custAddress').value = sale.address || '';
+      document.getElementById('deviceModel').value = sale.deviceModel;
+      document.getElementById('deviceImei').value = sale.imei || '';
+      document.getElementById('basePrice').value = sale.basePrice;
+      document.getElementById('downPayment').value = sale.downPayment;
+      document.getElementById('interestPct').value = sale.interestPct;
+      document.getElementById('tenureMonths').value = sale.tenureMonths;
+      document.getElementById('startDate').value = sale.startDate;
+      document.getElementById('lateFeePerDay').value = sale.lateFeePerDay || 0;
+
+      document.getElementById('saleModalTitle').innerText = 'Edit EMI Sale';
+      calcEmi();
+      openModal('saleModal');
+    }
+
+    async function saveSale(e) {
+      e.preventDefault();
+      if (!auth.currentUser) return;
+
+      const id = document.getElementById('saleId').value;
+      const saleData = {
+        customerName: document.getElementById('custName').value.trim(),
+        phone: document.getElementById('custPhone').value.trim(),
+        docId: document.getElementById('custDocId').value.trim(),
+        pan: document.getElementById('custPan').value.trim(),
+        cheque: document.getElementById('custCheque').value.trim(),
+        address: document.getElementById('custAddress').value.trim(),
+        deviceModel: document.getElementById('deviceModel').value.trim(),
+        imei: document.getElementById('deviceImei').value.trim(),
+        basePrice: Number(document.getElementById('basePrice').value),
+        downPayment: Number(document.getElementById('downPayment').value),
+        interestPct: Number(document.getElementById('interestPct').value),
+        tenureMonths: Number(document.getElementById('tenureMonths').value),
+        startDate: document.getElementById('startDate').value,
+        lateFeePerDay: Number(document.getElementById('lateFeePerDay').value),
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      };
+
+      try {
+        const colRef = db.collection('stores').doc(auth.currentUser.uid).collection('emis');
+        if (id) {
+          await colRef.doc(id).update(saleData);
+        } else {
+          saleData.payments = [];
+          saleData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+          await colRef.add(saleData);
+        }
+        closeModal('saleModal');
+      } catch (err) {
+        alert("Error saving data: " + err.message);
+      }
+    }
+
+    function openPaymentModal(presetSaleId = '') {
+      document.getElementById('paymentForm').reset();
+      document.getElementById('payDate').value = todayStr;
+      
+      const select = document.getElementById('paySaleSelect');
+      select.innerHTML = '<option value="">-- Select Sale --</option>';
+      allEmis.forEach(s => {
+        const st = calculateStats(s);
+        if (st.totalRemaining > 0) {
+          select.innerHTML += `<option value="${s.id}" ${presetSaleId === s.id ? 'selected' : ''}>${s.customerName} - ${s.deviceModel} (Due: ₹${st.totalRemaining.toLocaleString('en-IN')})</option>`;
+        }
+      });
+      openModal('paymentModal');
+    }
+
+    async function savePayment(e) {
+      e.preventDefault();
+      if (!auth.currentUser) return;
+
+      const saleId = document.getElementById('paySaleSelect').value;
+      if (!saleId) return alert("Select a valid sale.");
+
+      const payData = {
+        id: Date.now().toString(36) + Math.random().toString(36).substring(2),
+        amount: Number(document.getElementById('payAmount').value),
+        date: document.getElementById('payDate').value,
+        method: document.getElementById('payMethod').value
+      };
+
+      try {
+        const docRef = db.collection('stores').doc(auth.currentUser.uid).collection('emis').doc(saleId);
+        const doc = await docRef.get();
+        if (doc.exists) {
+          const data = doc.data();
+          const payments = data.payments || [];
+          payments.push(payData);
+          await docRef.update({ payments });
+          
+          closeModal('paymentModal');
+          
+          // Auto print receipt for this payment
+          const updatedSale = { id: saleId, ...data, payments };
+          printReceipt(updatedSale, payData);
+        }
+      } catch (err) {
+        alert("Error saving payment: " + err.message);
+      }
+    }
+
+    async function deletePayment(saleId, payId) {
+      if (!confirm("Are you sure you want to delete this payment record?")) return;
+      try {
+        const docRef = db.collection('stores').doc(auth.currentUser.uid).collection('emis').doc(saleId);
+        const doc = await docRef.get();
+        if (doc.exists) {
+          const data = doc.data();
+          const payments = (data.payments || []).filter(p => p.id !== payId);
+          await docRef.update({ payments });
+        }
+      } catch (err) {
+        alert("Error deleting payment: " + err.message);
+      }
+    }
+
+    // View Details & Print
+    let currentViewSaleId = null;
+    function viewDetails(id) {
+      const sale = allEmis.find(s => s.id === id);
+      if (!sale) return;
+      currentViewSaleId = id;
+      
+      const st = calculateStats(sale);
+      
+      let instHtml = st.schedule.map(i => {
+        let badge = i.status === 'paid' ? '<span class="text-emerald-400 text-[10px]">PAID</span>' : 
+                    i.status === 'overdue' ? '<span class="text-rose-400 text-[10px]">OVERDUE</span>' : 
+                    i.status === 'partial' ? '<span class="text-amber-400 text-[10px]">PARTIAL</span>' : 
+                    '<span class="text-slate-500 text-[10px]">PENDING</span>';
+        return `
+          <div class="bg-slate-950 border border-slate-800 p-2 rounded-lg text-center">
+            <div class="text-[10px] text-slate-400 mb-1">${i.dueDate}</div>
+            <div class="text-sm font-bold text-white mb-1">₹${i.amount.toFixed(0)}</div>
+            ${badge}
+          </div>
+        `;
+      }).join('');
+
+      let fineHtml = '';
+      if (st.fineDetails.length > 0) {
+        fineHtml = `
+          <div class="mt-4">
+            <h4 class="text-xs font-bold text-rose-400 uppercase mb-2">Late Fine Breakdown</h4>
+            <table class="w-full text-xs text-left border border-slate-700">
+              <thead class="bg-rose-950/30"><tr><th class="p-1 border border-slate-700">Month</th><th class="p-1 border border-slate-700">Due Date</th><th class="p-1 border border-slate-700">Days Late</th><th class="p-1 border border-slate-700">Fine</th></tr></thead>
+              <tbody>
+                ${st.fineDetails.map(f => `<tr><td class="p-1 border border-slate-700">M-${f.month}</td><td class="p-1 border border-slate-700">${f.dueDate}</td><td class="p-1 border border-slate-700 text-rose-400">${f.daysLate}</td><td class="p-1 border border-slate-700">₹${f.fine}</td></tr>`).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+      }
+
+      document.getElementById('detailsContent').innerHTML = `
+        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2 text-sm">
+          <div class="flex justify-between"><span class="text-slate-400">Customer</span><span class="font-bold text-white">${sale.customerName} (${sale.phone})</span></div>
+          <div class="flex justify-between"><span class="text-slate-400">Doc ID / PAN</span><span class="text-slate-300">${sale.docId} ${sale.pan ? '| ' + sale.pan : ''}</span></div>
+          ${sale.cheque ? `<div class="flex justify-between"><span class="text-slate-400">Cheque</span><span class="text-slate-300">${sale.cheque}</span></div>` : ''}
+          <div class="flex justify-between"><span class="text-slate-400">Device</span><span class="font-bold text-white">${sale.deviceModel} (${sale.imei || 'N/A'})</span></div>
+          <div class="flex justify-between"><span class="text-slate-400">Interest Rate</span><span class="text-indigo-400">${sale.interestPct}%</span></div>
+          <div class="flex justify-between"><span class="text-slate-400">Monthly EMI</span><span class="font-bold text-indigo-400">₹${st.emiAmount.toFixed(2)}</span></div>
+          <div class="flex justify-between"><span class="text-slate-400">Total Payable</span><span class="text-white">₹${st.totalPayable.toLocaleString('en-IN')}</span></div>
+          <div class="flex justify-between"><span class="text-slate-400">Remaining Base</span><span class="text-rose-400 font-bold">₹${st.remainingBase.toLocaleString('en-IN')}</span></div>
+          <div class="flex justify-between"><span class="text-slate-400">Late Fine Accrued</span><span class="text-amber-400 font-bold">+ ₹${st.totalFine.toLocaleString('en-IN')}</span></div>
+          <div class="flex justify-between border-t border-slate-700 pt-2"><span class="text-slate-300 font-bold">Total Amount Due</span><span class="text-rose-400 font-bold text-lg">₹${st.totalRemaining.toLocaleString('en-IN')}</span></div>
+        </div>
+        ${fineHtml}
+        <div class="mt-4">
+          <h4 class="text-xs font-bold text-slate-400 uppercase mb-2">Installment Schedule</h4>
+          <div class="grid grid-cols-4 sm:grid-cols-6 gap-2">${instHtml}</div>
+        </div>
+      `;
+      openModal('detailsModal');
+    }
+
+    function printReceiptFromDetails() {
+      if (!currentViewSaleId) return;
+      const sale = allEmis.find(s => s.id === currentViewSaleId);
+      if (sale) printReceipt(sale);
+    }
+
+    function printReceipt(sale, latestPayment = null) {
+      const st = calculateStats(sale);
+      const sName = currentStore ? currentStore.shopName : "BIN EMI TRACKER";
+      const sAddr = currentStore ? currentStore.shopAddress : "";
+      const sPhone = currentStore ? currentStore.shopPhone : "";
+
+      const svgLogo = `
+      <svg style="width: 100%; max-width: 200px; display:block; margin: 0 auto 5px auto;" viewBox="0 0 300 120" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="2" width="296" height="116" rx="8" fill="none" stroke="#000" stroke-width="2" stroke-dasharray="6,4"/>
+        <polygon points="40,20 80,20 100,60 80,100 40,100 20,60" fill="#000"/>
+        <path d="M50,45 L40,60 L50,75 M70,45 L80,60 L70,75 M65,35 L55,85" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+        <text x="120" y="50" font-family="Arial, sans-serif" font-size="32" font-weight="900" fill="#000">SmartFix</text>
+        <text x="120" y="70" font-family="Arial, sans-serif" font-size="10" fill="#000" font-style="italic">"Your Concern, We Customize"</text>
+        <text x="120" y="85" font-family="Arial, sans-serif" font-size="9" fill="#000" font-weight="bold">[ CODE • HARDWARE • DEV ]</text>
+        <text x="120" y="100" font-family="Arial, sans-serif" font-size="10" fill="#000" font-weight="bold">CALL / WHATSAPP: +91 9046356631</text>
+      </svg>`;
+
+      let payInfo = '';
+      if (latestPayment) {
+        payInfo = `
+          <div style="display:flex; justify-content:space-between; margin-top:10px; border-top:1px dashed #000; padding-top:5px;">
+            <span>Amount Paid Now:</span><span style="font-weight:bold; font-size:14px;">₹${latestPayment.amount}</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:3px;">
+            <span>Method:</span><span>${latestPayment.method}</span>
+          </div>
+        `;
+      }
+
+      let finePrint = '';
+      if (st.fineDetails.length > 0) {
+        finePrint = `
+          <div style="font-size:10px; font-weight:bold; margin-top:10px;">Late Fine Details:</div>
+          <table style="width:100%; border-collapse:collapse; margin:5px 0; font-size:9px; text-align:center;">
+            <tr><th style="border:1px solid #000; padding:2px;">Month</th><th style="border:1px solid #000; padding:2px;">Due Date</th><th style="border:1px solid #000; padding:2px;">Days</th><th style="border:1px solid #000; padding:2px;">Fine</th></tr>
+            ${st.fineDetails.map(f => `<tr><td style="border:1px solid #000; padding:2px;">M-${f.month}</td><td style="border:1px solid #000; padding:2px;">${f.dueDate}</td><td style="border:1px solid #000; padding:2px;">${f.daysLate}</td><td style="border:1px solid #000; padding:2px;">₹${f.fine}</td></tr>`).join('')}
+          </table>
+        `;
+      }
+
+      const html = `
+        <div class="receipt-container" style="width:58mm; margin:0 auto; font-family:'Courier New', Courier, monospace; color:#000; background:#fff; padding:5px; font-size:11px; line-height:1.3;">
+          ${svgLogo}
+          <div style="text-align:center; margin-bottom:10px; border-bottom:1px dashed #000; padding-bottom:10px;">
+            <h2 style="font-size:16px; font-weight:bold; margin:0 0 4px 0; text-transform:uppercase;">${sName}</h2>
+            <p style="margin:0; font-size:10px;">${sAddr}</p>
+            <p style="margin:0; font-size:10px;">Ph: ${sPhone}</p>
+          </div>
+          
+          <div style="margin-bottom:10px; border-bottom:1px dashed #000; padding-bottom:10px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:3px;"><span style="font-weight:bold;">Date:</span><span>${latestPayment ? latestPayment.date : todayStr}</span></div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:3px;"><span style="font-weight:bold;">Receipt No:</span><span>${(latestPayment ? latestPayment.id : sale.id).slice(-6).toUpperCase()}</span></div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:3px;"><span style="font-weight:bold;">Customer:</span><span>${sale.customerName}</span></div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:3px;"><span style="font-weight:bold;">Phone:</span><span>${sale.phone}</span></div>
+          </div>
+
+          <table style="width:100%; border-collapse:collapse; margin-bottom:10px;">
+            <tr><th style="text-align:left; padding:4px 0; border-bottom:1px dashed #000; font-size:10px;">Device</th><td style="text-align:right; padding:4px 0; border-bottom:1px dashed #000; font-size:10px;">${sale.deviceModel}</td></tr>
+            ${sale.imei ? `<tr><th style="text-align:left; padding:4px 0; border-bottom:1px dashed #000; font-size:10px;">IMEI</th><td style="text-align:right; padding:4px 0; border-bottom:1px dashed #000; font-size:10px;">${sale.imei}</td></tr>` : ''}
+            <tr><th style="text-align:left; padding:4px 0; border-bottom:1px dashed #000; font-size:10px;">Base Price</th><td style="text-align:right; padding:4px 0; border-bottom:1px dashed #000; font-size:10px;">₹${sale.basePrice}</td></tr>
+            <tr><th style="text-align:left; padding:4px 0; border-bottom:1px dashed #000; font-size:10px;">Down Payment</th><td style="text-align:right; padding:4px 0; border-bottom:1px dashed #000; font-size:10px;">₹${sale.downPayment}</td></tr>
+            <tr><th style="text-align:left; padding:4px 0; border-bottom:1px dashed #000; font-size:10px;">Interest (${sale.interestPct}%)</th><td style="text-align:right; padding:4px 0; border-bottom:1px dashed #000; font-size:10px;">₹${(st.totalPayable - (sale.basePrice - sale.downPayment)).toFixed(0)}</td></tr>
+            <tr><th style="text-align:left; padding:4px 0; border-bottom:1px dashed #000; font-size:10px;">Total Payable</th><td style="text-align:right; padding:4px 0; border-bottom:1px dashed #000; font-size:10px;">₹${st.totalPayable.toFixed(0)}</td></tr>
+            <tr><th style="text-align:left; padding:4px 0; border-bottom:1px dashed #000; font-size:10px;">Tenure</th><td style="text-align:right; padding:4px 0; border-bottom:1px dashed #000; font-size:10px;">${sale.tenureMonths} Months</td></tr>
+            <tr><th style="text-align:left; padding:4px 0; border-bottom:1px dashed #000; font-size:10px;">Monthly EMI</th><td style="text-align:right; padding:4px 0; border-bottom:1px dashed #000; font-size:10px;">₹${st.emiAmount.toFixed(2)}</td></tr>
+          </table>
+
+          <div style="margin-bottom:10px;">
+            <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:4px;"><span style="font-weight:bold;">Total Paid:</span><span>₹${st.totalPaid.toFixed(2)}</span></div>
+            ${st.totalFine > 0 ? `<div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:4px;"><span style="font-weight:bold;">Late Fine:</span><span>+ ₹${st.totalFine.toFixed(2)}</span></div>` : ''}
+            <div style="display:flex; justify-content:space-between; font-size:14px; font-weight:bold; border-top:1px solid #000; padding-top:4px; margin-bottom:4px;"><span>Remaining Due:</span><span>₹${st.totalRemaining.toFixed(2)}</span></div>
+            <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:4px;"><span style="font-weight:bold;">Next Due:</span><span>${st.nextDueDate || 'N/A'}</span></div>
+            ${finePrint}
+            ${payInfo}
+          </div>
+
+          <div style="text-align:center; border-top:1px dashed #000; padding-top:10px; font-size:9px;">
+            <p style="font-weight:bold; margin:0;">Thank you for your business!</p>
+            <p style="margin:2px 0;">Keep this receipt for your records.</p>
+            <p style="margin-top:5px; margin-bottom:0;">Powered by SmartFix</p>
+          </div>
+        </div>
+      `;
+
+      const area = document.getElementById('masterDirectPrintArea');
+      area.innerHTML = html;
+      area.style.display = 'block';
+      document.body.classList.add('mode-thermal');
+
+      setTimeout(() => { window.print(); }, 300);
+    }
+
+    window.addEventListener('afterprint', () => {
+      const area = document.getElementById('masterDirectPrintArea');
+      if (area) { area.innerHTML = ''; area.style.display = 'none'; }
+      document.body.classList.remove('mode-thermal');
+    });
+
+    // Delete Logic with Password Auth
+    function requestDelete(saleId) {
+      currentSaleIdForDelete = saleId;
+      document.getElementById('deletePasswordInput').value = '';
+      document.getElementById('deleteErrorText').classList.add('hidden');
+      openModal('authModal');
+    }
+
+    async function confirmDelete() {
+      if (!auth.currentUser || !currentSaleIdForDelete) return;
+      const pass = document.getElementById('deletePasswordInput').value;
+      const errorElem = document.getElementById('deleteErrorText');
+      errorElem.classList.add('hidden');
+
+      try {
+        const credential = firebase.auth.EmailAuthProvider.credential(auth.currentUser.email, pass);
+        await auth.currentUser.reauthenticateWithCredential(credential);
+        
+        // Password correct, delete document
+        await db.collection('stores').doc(auth.currentUser.uid).collection('emis').doc(currentSaleIdForDelete).delete();
+        
+        closeModal('authModal');
+        currentSaleIdForDelete = null;
+      } catch (err) {
+        errorElem.classList.remove('hidden');
+      }
+    }
+  </script>
+</body>
+</html>
