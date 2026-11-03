@@ -63,6 +63,69 @@
       0%, 100% { transform: translateY(0); }
       50% { transform: translateY(-2px); }
     }
+
+    /* ========== SMARTFIX LIVING LOGO ========== */
+    .smartfix-logo-svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+      overflow: visible;
+      filter: drop-shadow(0 0 4px rgba(165, 180, 252, 0.45));
+      animation: sfLogoGlowPulse 3.2s ease-in-out infinite;
+    }
+    @keyframes sfLogoGlowPulse {
+      0%, 100% { filter: drop-shadow(0 0 3px rgba(165, 180, 252, 0.35)); }
+      50%      { filter: drop-shadow(0 0 11px rgba(167, 139, 250, 0.85)); }
+    }
+
+    /* ========== BIN EMI CARD — SHIMMER SWEEP ========== */
+    .feature-card-shimmer {
+      position: relative;
+      overflow: hidden;
+    }
+    .feature-card-shimmer::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -120%;
+      width: 70%;
+      height: 200%;
+      background: linear-gradient(
+        100deg,
+        transparent 15%,
+        rgba(255, 255, 255, 0.06) 35%,
+        rgba(199, 210, 254, 0.42) 50%,
+        rgba(255, 255, 255, 0.06) 65%,
+        transparent 85%
+      );
+      transform: rotate(15deg);
+      animation: sfCardShimmerSweep 3.8s ease-in-out infinite;
+      pointer-events: none;
+      z-index: 10;
+    }
+    @keyframes sfCardShimmerSweep {
+      0%        { left: -120%; }
+      55%, 100% { left: 120%; }
+    }
+
+    /* ========== FEATURE ICONS — BREATHING ========== */
+    .feature-icon-breathing {
+      animation: sfIconBreath 3.2s ease-in-out infinite;
+      transform-origin: center;
+    }
+    @keyframes sfIconBreath {
+      0%, 100% { transform: scale(1);    opacity: 0.92; }
+      50%      { transform: scale(1.14); opacity: 1;    }
+    }
+
+    /* ========== REDUCED MOTION ========== */
+    @media (prefers-reduced-motion: reduce) {
+      .smartfix-logo-svg,
+      .feature-card-shimmer::before,
+      .feature-icon-breathing {
+        animation: none !important;
+      }
+    }
   </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-indigo-600 selection:text-white">
@@ -81,8 +144,46 @@
         <div class="space-y-6 relative z-10">
           <div class="flex items-center justify-between flex-wrap gap-3">
             <div class="flex items-center gap-3.5">
-              <div class="w-12 h-12 bg-gradient-to-tr from-indigo-600 via-indigo-500 to-violet-500 rounded-2xl flex items-center justify-center text-white text-2xl shadow-lg shadow-indigo-600/50">
-                <i class="fa-solid fa-screwdriver-wrench"></i>
+              <div class="w-12 h-12 bg-gradient-to-tr from-indigo-600 via-indigo-500 to-violet-500 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-600/50 p-1">
+                <svg class="smartfix-logo-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-label="SmartFix Logo">
+                  <defs>
+                    <linearGradient id="sfLogoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%"   stop-color="#ffffff"/>
+                      <stop offset="55%"  stop-color="#e0e7ff"/>
+                      <stop offset="100%" stop-color="#c7d2fe"/>
+                    </linearGradient>
+                  </defs>
+
+                  <!-- Wrench -->
+                  <g transform="rotate(-45 50 50)">
+                    <g>
+                      <animateTransform attributeName="transform" type="rotate"
+                        values="0 50 50; -10 50 50; 0 50 50; 10 50 50; 0 50 50"
+                        keyTimes="0; 0.25; 0.5; 0.75; 1"
+                        calcMode="spline"
+                        keySplines="0.42 0 0.58 1; 0.42 0 0.58 1; 0.42 0 0.58 1; 0.42 0 0.58 1"
+                        dur="3.4s" repeatCount="indefinite"/>
+                      <path d="M 36 8 L 44 8 L 44 26 L 56 26 L 56 8 L 64 8 L 64 34 L 36 34 Z"
+                            fill="url(#sfLogoGrad)"/>
+                      <rect x="45" y="34" width="10" height="54" rx="4" fill="url(#sfLogoGrad)"/>
+                    </g>
+                  </g>
+
+                  <!-- Screwdriver -->
+                  <g transform="rotate(45 50 50)">
+                    <g>
+                      <animateTransform attributeName="transform" type="rotate"
+                        values="0 50 50; 14 50 50; 0 50 50; -10 50 50; 0 50 50"
+                        keyTimes="0; 0.25; 0.5; 0.75; 1"
+                        calcMode="spline"
+                        keySplines="0.42 0 0.58 1; 0.42 0 0.58 1; 0.42 0 0.58 1; 0.42 0 0.58 1"
+                        dur="2.8s" repeatCount="indefinite"/>
+                      <rect x="42" y="58" width="16" height="30" rx="4" fill="url(#sfLogoGrad)"/>
+                      <rect x="47.5" y="24" width="5" height="34" fill="url(#sfLogoGrad)"/>
+                      <rect x="45" y="12" width="10" height="14" rx="1" fill="url(#sfLogoGrad)"/>
+                    </g>
+                  </g>
+                </svg>
               </div>
               <div>
                 <h1 class="text-2xl font-black tracking-tight text-white flex items-center gap-1.5">
@@ -155,47 +256,41 @@
           </div>
 
           <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 pt-1">
-            <div class="p-2.5 rounded-xl bg-slate-900/60 border border-indigo-500/40 bg-indigo-500/5 flex items-center gap-2.5">
-              <div class="w-7 h-7 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-xs flex-shrink-0"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+            <!-- BIN EMI — Special Shimmer -->
+            <div class="feature-card-shimmer p-2.5 rounded-xl bg-slate-900/60 border border-indigo-500/40 bg-indigo-500/5 flex items-center gap-2.5">
+              <div class="w-7 h-7 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-xs flex-shrink-0">
+                <i class="fa-solid fa-file-invoice-dollar"></i>
+              </div>
               <div>
                 <span class="text-[9px] font-bold uppercase text-indigo-400 tracking-wider block">New Feature</span>
                 <span class="text-[11px] text-slate-200 font-semibold leading-tight">BIN EMI Tracking</span>
               </div>
             </div>
 
+            <!-- Breathing icons below -->
             <div class="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 flex items-center gap-2.5">
-              <div class="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-xs flex-shrink-0"><i class="fa-solid fa-print"></i></div>
-              <div>
-                <span class="text-[11px] text-slate-300 font-medium leading-tight">58mm Dual-Print (Bill + Back Tag)</span>
-              </div>
+              <div class="feature-icon-breathing w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-xs flex-shrink-0"><i class="fa-solid fa-print"></i></div>
+              <div><span class="text-[11px] text-slate-300 font-medium leading-tight">58mm Dual-Print (Bill + Back Tag)</span></div>
             </div>
 
             <div class="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 flex items-center gap-2.5">
-              <div class="w-7 h-7 rounded-lg bg-cyan-500/10 text-cyan-400 flex items-center justify-center text-xs flex-shrink-0"><i class="fa-solid fa-mobile-retro"></i></div>
-              <div>
-                <span class="text-[11px] text-slate-300 font-medium leading-tight">Pre-Owned Mobile Sales</span>
-              </div>
+              <div class="feature-icon-breathing w-7 h-7 rounded-lg bg-cyan-500/10 text-cyan-400 flex items-center justify-center text-xs flex-shrink-0" style="animation-delay: 0.4s;"><i class="fa-solid fa-mobile-retro"></i></div>
+              <div><span class="text-[11px] text-slate-300 font-medium leading-tight">Pre-Owned Mobile Sales</span></div>
             </div>
 
             <div class="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 flex items-center gap-2.5">
-              <div class="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center text-xs flex-shrink-0"><i class="fa-solid fa-boxes-stacked"></i></div>
-              <div>
-                <span class="text-[11px] text-slate-300 font-medium leading-tight">Spare Parts Stock & Inventory</span>
-              </div>
+              <div class="feature-icon-breathing w-7 h-7 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center text-xs flex-shrink-0" style="animation-delay: 0.8s;"><i class="fa-solid fa-boxes-stacked"></i></div>
+              <div><span class="text-[11px] text-slate-300 font-medium leading-tight">Spare Parts Stock & Inventory</span></div>
             </div>
 
             <div class="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 flex items-center gap-2.5">
-              <div class="w-7 h-7 rounded-lg bg-purple-500/10 text-purple-400 flex items-center justify-center text-xs flex-shrink-0"><i class="fa-solid fa-cash-register"></i></div>
-              <div>
-                <span class="text-[11px] text-slate-300 font-medium leading-tight">Daily Cash Drawer & UPI Audit</span>
-              </div>
+              <div class="feature-icon-breathing w-7 h-7 rounded-lg bg-purple-500/10 text-purple-400 flex items-center justify-center text-xs flex-shrink-0" style="animation-delay: 1.2s;"><i class="fa-solid fa-cash-register"></i></div>
+              <div><span class="text-[11px] text-slate-300 font-medium leading-tight">Daily Cash Drawer & UPI Audit</span></div>
             </div>
 
             <div class="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 flex items-center gap-2.5">
-              <div class="w-7 h-7 rounded-lg bg-rose-500/10 text-rose-400 flex items-center justify-center text-xs flex-shrink-0"><i class="fa-brands fa-whatsapp"></i></div>
-              <div>
-                <span class="text-[11px] text-slate-300 font-medium leading-tight">1-Click WhatsApp Reminders</span>
-              </div>
+              <div class="feature-icon-breathing w-7 h-7 rounded-lg bg-rose-500/10 text-rose-400 flex items-center justify-center text-xs flex-shrink-0" style="animation-delay: 1.6s;"><i class="fa-brands fa-whatsapp"></i></div>
+              <div><span class="text-[11px] text-slate-300 font-medium leading-tight">1-Click WhatsApp Reminders</span></div>
             </div>
           </div>
         </div>
@@ -2483,6 +2578,11 @@
     window.addEventListener('DOMContentLoaded', () => {
       document.getElementById('currentDateDisplay').innerText = todayStr;
       document.getElementById('dailyReportDatePicker').value = todayStr;
+
+      // Respect user's reduced-motion preference for SVG SMIL animations
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        document.querySelectorAll('svg animateTransform').forEach(a => a.setAttribute('begin', 'indefinite'));
+      }
     });
   </script>
 </body>
