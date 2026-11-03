@@ -39,81 +39,163 @@
       body.mode-a4 { width: 210mm !important; }
       body.mode-a4 #masterDirectPrintArea { width: 210mm !important; max-width: 210mm !important; padding: 12mm !important; font-family: Arial, sans-serif !important; font-size: 11px !important; }
     }
+
+    /* Glow & pulse animations for UI attraction */
+    @keyframes pulseGlow {
+      0%, 100% { opacity: 0.35; transform: scale(1); }
+      50% { opacity: 0.65; transform: scale(1.05); }
+    }
+    .animate-glow {
+      animation: pulseGlow 6s infinite ease-in-out;
+    }
+    .badge-shimmer {
+      background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0) 100%);
+      background-size: 200% 100%;
+      animation: shimmer 2.5s infinite;
+    }
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
   </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-indigo-600 selection:text-white">
 
-  <!-- ==================== PREMIUM AUTH SCREEN ==================== -->
-  <div id="authScreen" class="fixed inset-0 bg-slate-950 z-50 overflow-y-auto flex items-center justify-center p-4 sm:p-6 lg:p-8">
-    <div class="fixed top-1/4 left-1/4 w-96 h-96 bg-indigo-600/20 rounded-full blur-[100px] pointer-events-none"></div>
-    <div class="fixed bottom-1/4 right-1/4 w-96 h-96 bg-violet-600/20 rounded-full blur-[100px] pointer-events-none"></div>
+  <!-- ==================== PREMIUM AUTH SCREEN WITH ADVANCED ADVERTISEMENT ==================== -->
+  <div id="authScreen" class="fixed inset-0 bg-slate-950 z-50 overflow-y-auto flex items-center justify-center p-3 sm:p-6 lg:p-8">
+    <div class="fixed top-1/4 left-1/4 w-96 h-96 bg-indigo-600/20 rounded-full blur-[120px] pointer-events-none animate-glow"></div>
+    <div class="fixed bottom-1/4 right-1/4 w-96 h-96 bg-violet-600/20 rounded-full blur-[120px] pointer-events-none animate-glow" style="animation-delay: 2s;"></div>
 
-    <div class="relative w-full max-w-5xl bg-slate-900/70 backdrop-blur-2xl border border-slate-700/50 rounded-3xl shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-12 my-auto">
+    <div class="relative w-full max-w-6xl bg-slate-900/80 backdrop-blur-2xl border border-slate-700/60 rounded-3xl shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-12 my-auto">
       
-      <!-- Left Panel (Premium Features List) -->
-      <div class="lg:col-span-6 bg-gradient-to-br from-indigo-950/90 via-slate-900 to-slate-950 p-6 sm:p-10 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-slate-700/50 relative overflow-hidden">
-        <div class="absolute -top-24 -left-24 w-64 h-64 bg-indigo-600/20 rounded-full blur-3xl pointer-events-none"></div>
+      <!-- Left Panel (Showcase, Marketing & Feature Advertisement) -->
+      <div class="lg:col-span-7 bg-gradient-to-br from-indigo-950/95 via-slate-900 to-slate-950 p-6 sm:p-8 lg:p-10 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-slate-700/60 relative overflow-hidden">
+        <div class="absolute -top-20 -left-20 w-64 h-64 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none"></div>
 
         <div class="space-y-6 relative z-10">
-          <div class="flex items-center gap-4">
-            <div class="w-12 h-12 bg-gradient-to-tr from-indigo-600 to-violet-500 rounded-2xl flex items-center justify-center text-white text-2xl shadow-lg shadow-indigo-600/40">
-              <i class="fa-solid fa-screwdriver-wrench"></i>
+          <!-- Logo & Brand Header -->
+          <div class="flex items-center justify-between flex-wrap gap-3">
+            <div class="flex items-center gap-3.5">
+              <div class="w-12 h-12 bg-gradient-to-tr from-indigo-600 via-indigo-500 to-violet-500 rounded-2xl flex items-center justify-center text-white text-2xl shadow-lg shadow-indigo-600/50">
+                <i class="fa-solid fa-screwdriver-wrench"></i>
+              </div>
+              <div>
+                <h1 class="text-2xl font-black tracking-tight text-white flex items-center gap-1.5">
+                  SMARTFIX<span class="text-indigo-400">PRO</span>
+                  <span class="text-[9px] px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-bold uppercase tracking-widest">v3.0 Cloud</span>
+                </h1>
+                <p class="text-[11px] text-slate-400 uppercase tracking-widest font-bold">Smart Mobile Workshop & Retail OS</p>
+              </div>
             </div>
-            <div>
-              <h1 class="text-2xl font-extrabold tracking-tight text-white">SMARTFIX<span class="text-indigo-400">PRO</span></h1>
-              <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Workshop OS & POS</p>
+
+            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold badge-shimmer">
+              <i class="fa-solid fa-bolt text-amber-400"></i> Easy 1-Click Setup
             </div>
           </div>
 
-          <div class="space-y-2 pt-2">
-            <h3 class="text-lg sm:text-xl font-bold text-slate-200">Everything Your Mobile Repair Shop Needs</h3>
-            <p class="text-xs text-slate-400 leading-relaxed">Multi-device cloud synchronization, automated invoices, warranty management, and second-hand mobile billing.</p>
+          <!-- Hero Headline & Bengali Advertisement -->
+          <div class="space-y-2 pt-1">
+            <h2 class="text-xl sm:text-2xl font-extrabold text-white leading-tight">
+              একটি মাত্র সফটওয়্যারে আপনার সম্পূর্ণ মোবাইল শপের ম্যানেজমেন্ট!
+            </h2>
+            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+              খাতার হিসাব ও বিলের ঝামেলা ভুলে যান। SmartFix Pro দিয়ে আপনার দোকানকে বানিয়ে তুলুন সম্পূর্ণ ডিজিটাল, দ্রুত ও সুরক্ষিত।
+            </p>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-            <div class="flex items-start gap-3 p-2.5 rounded-xl bg-slate-900/50 border border-slate-800/80">
-              <div class="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-sm flex-shrink-0 border border-emerald-500/20"><i class="fa-solid fa-print"></i></div>
-              <span class="text-[11px] text-slate-300 font-medium leading-tight">58mm Dual-Print<br>(Slip + Tag)</span>
+          <!-- Highlight Cards: PWA & Chrome App Advantage -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+            <div class="p-3.5 rounded-2xl bg-slate-900/80 border border-indigo-500/30 shadow-sm relative overflow-hidden group hover:border-indigo-500/60 transition">
+              <div class="flex items-start gap-3">
+                <div class="w-9 h-9 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-lg flex-shrink-0">
+                  <i class="fa-brands fa-chrome"></i>
+                </div>
+                <div>
+                  <h4 class="text-xs font-bold text-white flex items-center gap-1.5">
+                    পিসিতে নো-ইনস্টল EXE ফিল
+                    <span class="text-[9px] bg-indigo-500/20 text-indigo-300 px-1.5 py-0.2 rounded font-mono">Chrome PWA</span>
+                  </h4>
+                  <p class="text-[11px] text-slate-400 mt-0.5 leading-snug">
+                    গুগল ক্রোম থেকে শুধু <strong>"Install"</strong> বাটনে ক্লিক করলেই ভারী EXE ছাড়াই সম্পূর্ণ কম্পিউটারে সফটওয়্যারের মতো খুলবে।
+                  </p>
+                </div>
+              </div>
             </div>
-            <div class="flex items-start gap-3 p-2.5 rounded-xl bg-slate-900/50 border border-slate-800/80">
-              <div class="w-7 h-7 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-sm flex-shrink-0 border border-indigo-500/20"><i class="fa-solid fa-shield-halved"></i></div>
-              <span class="text-[11px] text-slate-300 font-medium leading-tight">Auto-Restore &<br>Vault Protection</span>
+
+            <div class="p-3.5 rounded-2xl bg-slate-900/80 border border-emerald-500/30 shadow-sm relative overflow-hidden group hover:border-emerald-500/60 transition">
+              <div class="flex items-start gap-3">
+                <div class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-lg flex-shrink-0">
+                  <i class="fa-solid fa-mobile-screen"></i>
+                </div>
+                <div>
+                  <h4 class="text-xs font-bold text-white flex items-center gap-1.5">
+                    মোবাইলে ফুল অ্যাপ এক্সপেরিয়েন্স
+                    <span class="text-[9px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.2 rounded font-mono">Mobile OS</span>
+                  </h4>
+                  <p class="text-[11px] text-slate-400 mt-0.5 leading-snug">
+                    প্লে-স্টোরের কোনো ঝামেলা নেই, ব্রাউজার থেকেই মোবাইলের হোম স্ক্রিনে সরাসরি অ্যাপের মতো ব্যবহার করুন নিমেষেই।
+                  </p>
+                </div>
+              </div>
             </div>
-            <div class="flex items-start gap-3 p-2.5 rounded-xl bg-slate-900/50 border border-slate-800/80">
-              <div class="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center text-sm flex-shrink-0 border border-amber-500/20"><i class="fa-solid fa-boxes-stacked"></i></div>
-              <span class="text-[11px] text-slate-300 font-medium leading-tight">Spare Parts Stock<br>& Inventory</span>
+          </div>
+
+          <!-- Full Features Grid (Including NEW EMI Tracker) -->
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 pt-1">
+            <div class="p-2.5 rounded-xl bg-slate-900/60 border border-indigo-500/40 bg-indigo-500/5 flex items-center gap-2.5">
+              <div class="w-7 h-7 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-xs flex-shrink-0"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+              <div>
+                <span class="text-[9px] font-bold uppercase text-indigo-400 tracking-wider block">New Feature</span>
+                <span class="text-[11px] text-slate-200 font-semibold leading-tight">BIN EMI Tracking</span>
+              </div>
             </div>
-            <div class="flex items-start gap-3 p-2.5 rounded-xl bg-slate-900/50 border border-slate-800/80">
-              <div class="w-7 h-7 rounded-lg bg-cyan-500/10 text-cyan-400 flex items-center justify-center text-sm flex-shrink-0 border border-cyan-500/20"><i class="fa-solid fa-mobile-retro"></i></div>
-              <span class="text-[11px] text-slate-300 font-medium leading-tight">Pre-Owned Mobile<br>Sales & Stock</span>
+
+            <div class="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 flex items-center gap-2.5">
+              <div class="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-xs flex-shrink-0"><i class="fa-solid fa-print"></i></div>
+              <div>
+                <span class="text-[11px] text-slate-300 font-medium leading-tight">58mm থার্মাল ডুয়াল প্রিন্ট (স্লিপ + ব্যাক ট্যাগ)</span>
+              </div>
             </div>
-            <div class="flex items-start gap-3 p-2.5 rounded-xl bg-slate-900/50 border border-slate-800/80">
-              <div class="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-sm flex-shrink-0 border border-emerald-500/20"><i class="fa-brands fa-whatsapp"></i></div>
-              <span class="text-[11px] text-slate-300 font-medium leading-tight">One-Click WhatsApp<br>Reminders</span>
+
+            <div class="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 flex items-center gap-2.5">
+              <div class="w-7 h-7 rounded-lg bg-cyan-500/10 text-cyan-400 flex items-center justify-center text-xs flex-shrink-0"><i class="fa-solid fa-mobile-retro"></i></div>
+              <div>
+                <span class="text-[11px] text-slate-300 font-medium leading-tight">পুরোনো মোবাইল বেচাকেনা ও রেকর্ড</span>
+              </div>
             </div>
-            <div class="flex items-start gap-3 p-2.5 rounded-xl bg-slate-900/50 border border-slate-800/80">
-              <div class="w-7 h-7 rounded-lg bg-purple-500/10 text-purple-400 flex items-center justify-center text-sm flex-shrink-0 border border-purple-500/20"><i class="fa-solid fa-cash-register"></i></div>
-              <span class="text-[11px] text-slate-300 font-medium leading-tight">Daily Cash Drawer<br>& UPI Tracking</span>
+
+            <div class="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 flex items-center gap-2.5">
+              <div class="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center text-xs flex-shrink-0"><i class="fa-solid fa-boxes-stacked"></i></div>
+              <div>
+                <span class="text-[11px] text-slate-300 font-medium leading-tight">স্পেয়ার পার্টস স্টক ও ইনভেন্টরি</span>
+              </div>
             </div>
-            <div class="flex items-start gap-3 p-2.5 rounded-xl bg-slate-900/50 border border-slate-800/80">
-              <div class="w-7 h-7 rounded-lg bg-rose-500/10 text-rose-400 flex items-center justify-center text-sm flex-shrink-0 border border-rose-500/20"><i class="fa-solid fa-barcode"></i></div>
-              <span class="text-[11px] text-slate-300 font-medium leading-tight">Instant Barcode<br>Scan Search</span>
+
+            <div class="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 flex items-center gap-2.5">
+              <div class="w-7 h-7 rounded-lg bg-purple-500/10 text-purple-400 flex items-center justify-center text-xs flex-shrink-0"><i class="fa-solid fa-cash-register"></i></div>
+              <div>
+                <span class="text-[11px] text-slate-300 font-medium leading-tight">দৈনিক ক্যাশ ড্রয়ার ও UPI অডিট</span>
+              </div>
             </div>
-            <div class="flex items-start gap-3 p-2.5 rounded-xl bg-slate-900/50 border border-slate-800/80">
-              <div class="w-7 h-7 rounded-lg bg-orange-500/10 text-orange-400 flex items-center justify-center text-sm flex-shrink-0 border border-orange-500/20"><i class="fa-solid fa-screwdriver-wrench"></i></div>
-              <span class="text-[11px] text-slate-300 font-medium leading-tight">Warranty Claim<br>Management</span>
+
+            <div class="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 flex items-center gap-2.5">
+              <div class="w-7 h-7 rounded-lg bg-rose-500/10 text-rose-400 flex items-center justify-center text-xs flex-shrink-0"><i class="fa-brands fa-whatsapp"></i></div>
+              <div>
+                <span class="text-[11px] text-slate-300 font-medium leading-tight">১-ক্লিকে হোয়াটসঅ্যাপ বকেয়া রিমাইন্ডার</span>
+              </div>
             </div>
           </div>
         </div>
 
+        <!-- Footer Meta -->
         <div class="pt-6 border-t border-slate-800/80 mt-6 flex items-center justify-between text-[11px] text-slate-500 relative z-10">
-          <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Cloud v3.0 Persistent</span>
+          <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Cloud v3.0 Persistent Vault</span>
           <span>Lead Dev: Debapriya Sarkar</span>
         </div>
       </div>
 
       <!-- Right Panel (Auth Forms) -->
-      <div class="lg:col-span-6 p-6 sm:p-10 flex flex-col justify-center space-y-6 relative z-10">
+      <div class="lg:col-span-5 p-6 sm:p-10 flex flex-col justify-center space-y-6 relative z-10">
         <div>
           <h2 class="text-2xl font-bold text-white tracking-wide" id="authTitle">Owner Authorization</h2>
           <p class="text-sm text-slate-400 mt-1" id="authSubtitle">Sign in with your registered workshop credentials</p>
@@ -229,9 +311,9 @@
         <a href="used_mobile.html" title="Second-Hand Mobile Sales & Stock" class="px-3 py-2 rounded-lg text-xs md:text-sm font-semibold transition text-slate-400 hover:text-white hover:bg-slate-900 flex items-center gap-1.5 border border-transparent hover:border-slate-800">
           <i class="fa-solid fa-mobile-retro text-cyan-400"></i><span>Used Mobiles</span>
         </a>
-        <!-- NEW EMI TAB ADDED HERE -->
+        <!-- EMI TAB -->
         <a href="emi.html" title="EMI Tracking System" class="px-3 py-2 rounded-lg text-xs md:text-sm font-semibold transition text-slate-400 hover:text-white hover:bg-slate-900 flex items-center gap-1.5 border border-transparent hover:border-slate-800">
-          <i class="fa-solid fa-file-invoice-dollar text-indigo-400"></i><span>EMI</span>
+          <i class="fa-solid fa-file-invoice-dollar text-indigo-400"></i><span>EMI Tracker</span>
         </a>
         <a href="lcd-Compatibility.html" title="LCD / Folder Compatibility Finder" class="px-3 py-2 rounded-lg text-xs md:text-sm font-semibold transition text-slate-400 hover:text-white hover:bg-slate-900 flex items-center gap-1.5 border border-transparent hover:border-slate-800">
           <i class="fa-solid fa-clone text-indigo-400"></i><span>LCD Finder</span>
@@ -287,7 +369,7 @@
             <textarea id="faultDesc" required rows="2" placeholder="e.g. AMOLED Display Combo Needed / Battery dead" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 text-white transition"></textarea>
           </div>
 
-          <!-- NEW ID VERIFICATION SECTION -->
+          <!-- ID VERIFICATION SECTION -->
           <div class="md:col-span-2 p-4 bg-slate-950 rounded-2xl border border-amber-500/30 space-y-3">
             <div class="flex items-center gap-2 text-amber-400 font-bold text-xs mb-1">
               <i class="fa-solid fa-id-card"></i> ID Verification (Mandatory for FRP Unlock / Software Unlock, Optional for Hardware Repair)
@@ -810,7 +892,7 @@
           <textarea id="editFault" rows="2" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white"></textarea>
         </div>
         
-        <!-- NEW EDIT ID SECTION -->
+        <!-- EDIT ID SECTION -->
         <div class="col-span-2 grid grid-cols-2 gap-3 p-3 bg-slate-950 rounded-xl border border-amber-500/30">
           <div class="col-span-2 text-xs font-bold text-amber-400"><i class="fa-solid fa-id-card mr-1"></i> ID Verification Info</div>
           <div>
@@ -1233,7 +1315,6 @@
       const remarks = document.getElementById('intakeRemarks').value.trim();
       const isPartsOnly = document.getElementById('intakeOnlyPartsOrder').checked;
       
-      // NEW ID FIELDS
       const custIdType = document.getElementById('custIdType').value;
       const custIdNumber = document.getElementById('custIdNumber').value.trim();
 
@@ -1248,7 +1329,7 @@
         refundPaid: 0, deliveryCollected: 0, deliveryPayMethod: "Cash", dueBalance: 0,
         status: isPartsOnly ? "Parts-Ordered" : "Pending", warranty: "No Warranty",
         partName: "", partCost: 0, finalAmount: 0, netProfit: 0, isComplaint: false,
-        idType: custIdType, idNumber: custIdNumber // Added ID fields
+        idType: custIdType, idNumber: custIdNumber
       };
 
       await syncJobToFirestore(newJob);
@@ -1346,7 +1427,6 @@
       renderJobCards();
     }
 
-    // RENDER JOB CARDS (Works for both Tracking and Complaints)
     function renderJobCards() {
       const isComplaintsTab = !document.getElementById('view-complaints').classList.contains('hidden');
       
@@ -1358,7 +1438,6 @@
       container.innerHTML = '';
 
       const filteredByDateAndQuery = repairJobs.filter(job => {
-        // Separate complaints from normal tracking
         if (isComplaintsTab && !job.isComplaint) return false;
         if (!isComplaintsTab && job.isComplaint) return false;
 
@@ -1918,7 +1997,7 @@
 
             <div style="border-top: 1px solid #000; margin: 7px 0 5px 0;"></div>
             
-            <!-- COMPANY BRANDING START (FIXED FOR 58MM) -->
+            <!-- COMPANY BRANDING START (58MM FIXED) -->
             <div style="border: 1.5px dashed #000; padding: 5px 4px; margin: 10px 0; color: #000; background: #fff; border-radius: 4px;">
               <table style="width: 100%; border-collapse: collapse; text-align: left;">
                 <tr>
