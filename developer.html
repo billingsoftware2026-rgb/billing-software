@@ -3,163 +3,347 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SmartFix Pro - Super Admin & Developer Control Portal</title>
+  <title>SmartFix Pro — Developer Master Control</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
-  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <style>
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #020617; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+  </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-indigo-600 selection:text-white">
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased">
 
-  <!-- DEVELOPER AUTH OVERLAY -->
-  <div id="devAuthGate" class="fixed inset-0 bg-slate-950 z-50 flex items-center justify-center p-4">
+  <!-- ═══════════ AUTH GATE ═══════════ -->
+  <div id="authGate" class="fixed inset-0 bg-slate-950 z-50 flex items-center justify-center p-4">
     <div class="fixed top-1/4 left-1/4 w-96 h-96 bg-indigo-600/15 rounded-full blur-3xl pointer-events-none"></div>
     <div class="relative bg-slate-900/90 backdrop-blur-2xl border border-slate-800 p-8 rounded-3xl max-w-sm w-full shadow-2xl space-y-5 text-center">
-      <div class="w-12 h-12 rounded-2xl bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 mx-auto flex items-center justify-center text-xl shadow-lg shadow-indigo-600/30">
+      <div class="w-12 h-12 rounded-2xl bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 mx-auto flex items-center justify-center text-xl">
         <i class="fa-solid fa-shield-halved"></i>
       </div>
       <div>
-        <h2 class="text-xl font-bold text-white tracking-wide">Developer Control Gate</h2>
-        <p class="text-xs text-slate-400 mt-1">Lead Developer: <span class="text-indigo-400 font-semibold">Debapriya Sarkar</span></p>
+        <h2 class="text-xl font-bold text-white">Developer Master Gate</h2>
+        <p class="text-xs text-slate-400 mt-1">Lead Dev: <span class="text-indigo-400 font-semibold">Debapriya Sarkar</span></p>
       </div>
-
-      <form id="devLoginForm" onsubmit="handleDevLogin(event)" class="space-y-3.5 text-xs text-left">
+      <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-3 text-xs text-left">
         <div>
-          <label class="block font-bold uppercase text-slate-400 mb-1">Developer Email</label>
-          <input type="email" id="devEmail" required placeholder="billingsoftware2026@gmail.com" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+          <label class="block font-bold uppercase text-slate-400 mb-1">Email</label>
+          <input type="email" id="devEmail" required placeholder="billingsoftware2026@gmail.com" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:border-indigo-500 focus:outline-none">
         </div>
         <div>
-          <label class="block font-bold uppercase text-slate-400 mb-1">Developer Password</label>
-          <input type="password" id="devPassword" required placeholder="••••••••" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+          <label class="block font-bold uppercase text-slate-400 mb-1">Password</label>
+          <input type="password" id="devPassword" required placeholder="••••••••" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:border-indigo-500 focus:outline-none">
         </div>
-        <p id="devLoginError" class="text-xs text-rose-400 font-semibold hidden"></p>
-        <button type="submit" id="devLoginBtn" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2">
-          <span>Authenticate Root Access</span>
-          <i class="fa-solid fa-arrow-right"></i>
+        <p id="loginError" class="text-xs text-rose-400 font-semibold hidden"></p>
+        <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2">
+          <span>Authenticate</span><i class="fa-solid fa-arrow-right"></i>
         </button>
       </form>
     </div>
   </div>
 
-  <!-- TOP HEADER -->
-  <header class="bg-slate-900/90 backdrop-blur border-b border-slate-800 sticky top-0 z-40">
-    <div class="max-w-7xl mx-auto px-4 py-4 flex flex-wrap items-center justify-between gap-4">
-      <div class="flex items-center gap-3">
-        <div class="bg-gradient-to-tr from-indigo-600 to-violet-500 p-2.5 rounded-xl text-white shadow-lg shadow-indigo-600/30">
-          <i class="fa-solid fa-terminal text-lg"></i>
+  <!-- ═══════════ MAIN APP ═══════════ -->
+  <div id="mainApp" class="hidden flex-col flex-1">
+    <header class="bg-slate-900/90 backdrop-blur border-b border-slate-800 sticky top-0 z-40">
+      <div class="max-w-7xl mx-auto px-4 py-4 flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <div class="bg-gradient-to-tr from-indigo-600 to-violet-500 p-2.5 rounded-xl">
+            <i class="fa-solid fa-terminal text-lg text-white"></i>
+          </div>
+          <div>
+            <h1 class="text-base md:text-lg font-extrabold text-white">Developer Master Control</h1>
+            <p class="text-[11px] text-emerald-400 flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Super Admin · billing-ab24c
+            </p>
+          </div>
         </div>
-        <div>
-          <h1 class="text-lg font-extrabold text-white tracking-tight">SmartFix Pro - Master Developer Portal</h1>
-          <p class="text-xs text-emerald-400 font-medium flex items-center gap-1.5">
-            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Super Admin: Debapriya Sarkar
-          </p>
-        </div>
-      </div>
-      <div class="flex items-center gap-3">
-        <span class="text-xs bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-3 py-1.5 rounded-xl font-mono">
-          Project: billing-ab24c
-        </span>
-        <button onclick="signOutDeveloper()" class="px-3.5 py-1.5 bg-rose-600/20 hover:bg-rose-600 text-rose-400 hover:text-white rounded-xl text-xs font-bold border border-rose-500/30 transition flex items-center gap-1.5">
+        <button onclick="signOut()" class="px-3.5 py-1.5 bg-rose-600/20 hover:bg-rose-600 text-rose-400 hover:text-white rounded-xl text-xs font-bold border border-rose-500/30 flex items-center gap-1.5">
           <i class="fa-solid fa-arrow-right-from-bracket"></i> Sign Out
         </button>
       </div>
-    </div>
-  </header>
+    </header>
 
-  <!-- MAIN CONSOLE -->
-  <main class="max-w-7xl w-full mx-auto p-4 md:p-6 space-y-6 flex-1">
-    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-      <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
-        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Registered Stores</span>
-        <h3 id="statTotalStores" class="text-2xl font-bold text-white mt-1">0</h3>
-      </div>
-      <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
-        <span class="text-[10px] font-bold uppercase tracking-wider text-amber-400">Pending Approvals</span>
-        <h3 id="statPendingStores" class="text-2xl font-bold text-amber-400 mt-1">0</h3>
-      </div>
-      <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
-        <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400">Active Stores</span>
-        <h3 id="statActiveStores" class="text-2xl font-bold text-emerald-400 mt-1">0</h3>
-      </div>
-      <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
-        <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-400">Database Status</span>
-        <h3 class="text-2xl font-bold text-indigo-400 mt-1">Online</h3>
-      </div>
-    </div>
-
-    <!-- STORES TABLE -->
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl space-y-4">
-      <div class="flex flex-wrap justify-between items-center gap-3 border-b border-slate-800 pb-4">
-        <div>
-          <h2 class="text-lg font-bold text-white">Workshop Clients & Approvals</h2>
-          <p class="text-xs text-slate-400">Review pending registrations, authorize stores, or modify credentials</p>
+    <!-- ═══ VIEW: STORE LIST ═══ -->
+    <main id="viewList" class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 space-y-5">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
+          <span class="text-[10px] font-bold uppercase text-slate-400">Total Stores</span>
+          <h3 id="statTotal" class="text-2xl font-bold text-white mt-1">0</h3>
         </div>
-        <button onclick="loadAllStores()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl border border-slate-700 transition">
-          <i class="fa-solid fa-rotate mr-1.5"></i> Refresh Stores
-        </button>
-      </div>
-
-      <div class="overflow-x-auto">
-        <table class="w-full text-left text-xs">
-          <thead class="bg-slate-950 text-slate-400 uppercase font-semibold border-b border-slate-800">
-            <tr>
-              <th class="p-3.5">Store UID</th>
-              <th class="p-3.5">Shop Name & Address</th>
-              <th class="p-3.5">Phone</th>
-              <th class="p-3.5">Email</th>
-              <th class="p-3.5">Saved Password</th>
-              <th class="p-3.5">Status</th>
-              <th class="p-3.5 text-center">Approval & Controls</th>
-            </tr>
-          </thead>
-          <tbody id="storeListTbody" class="divide-y divide-slate-800/60 text-slate-300">
-            <tr><td colspan="7" class="p-6 text-center text-slate-500">Connecting to Firestore...</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </main>
-
-  <!-- EDIT STORE MODAL -->
-  <div id="editStoreModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
-      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-        <h3 class="text-base font-bold text-white">Modify Client Details</h3>
-        <button onclick="closeEditStoreModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
-      </div>
-      
-      <input type="hidden" id="modalStoreUid">
-      
-      <div class="space-y-3 text-xs">
-        <div>
-          <label class="block font-semibold text-slate-400 uppercase tracking-wider mb-1">Shop Name *</label>
-          <input type="text" id="modalShopName" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+        <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
+          <span class="text-[10px] font-bold uppercase text-emerald-400">Approved</span>
+          <h3 id="statApproved" class="text-2xl font-bold text-emerald-400 mt-1">0</h3>
         </div>
-        <div>
-          <label class="block font-semibold text-slate-400 uppercase tracking-wider mb-1">Shop Address *</label>
-          <input type="text" id="modalShopAddress" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+        <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
+          <span class="text-[10px] font-bold uppercase text-amber-400">Pending</span>
+          <h3 id="statPending" class="text-2xl font-bold text-amber-400 mt-1">0</h3>
         </div>
-        <div>
-          <label class="block font-semibold text-slate-400 uppercase tracking-wider mb-1">Helpline Phone *</label>
-          <input type="tel" id="modalShopPhone" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
-        </div>
-        <div>
-          <label class="block font-semibold text-slate-400 uppercase tracking-wider mb-1">Client Account Password *</label>
-          <input type="text" id="modalShopPassword" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-emerald-400 font-mono font-bold focus:outline-none focus:border-indigo-500">
+        <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
+          <span class="text-[10px] font-bold uppercase text-indigo-400">Database</span>
+          <h3 class="text-2xl font-bold text-indigo-400 mt-1">Online</h3>
         </div>
       </div>
 
-      <div class="flex gap-2 pt-3 border-t border-slate-800">
-        <button onclick="closeEditStoreModal()" class="flex-1 py-2.5 rounded-xl border border-slate-800 text-xs text-slate-400 hover:text-white">Cancel</button>
-        <button onclick="saveStoreProfileChanges()" class="flex-1 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-xs font-bold text-white">Save Changes</button>
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3">
+        <div class="flex flex-wrap justify-between items-center gap-3">
+          <div>
+            <h2 class="text-base font-bold text-white">Registered Stores</h2>
+            <p class="text-xs text-slate-400">Search by shop name, phone number, or email — click any card to open full control panel</p>
+          </div>
+          <button onclick="loadStores()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl border border-slate-700">
+            <i class="fa-solid fa-rotate mr-1.5"></i> Refresh
+          </button>
+        </div>
+        <div class="relative">
+          <i class="fa-solid fa-magnifying-glass absolute left-4 top-3 text-slate-500"></i>
+          <input type="text" id="searchInput" oninput="filterStores()" placeholder="Search by shop name, phone, or email..." class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-11 pr-4 py-2.5 text-sm text-white focus:border-indigo-500 focus:outline-none">
+        </div>
       </div>
-    </div>
+
+      <div id="storeGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+    </main>
+
+    <!-- ═══ VIEW: STORE DETAIL ═══ -->
+    <main id="viewDetail" class="hidden flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 space-y-5">
+      <button onclick="backToList()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl border border-slate-700 inline-flex items-center gap-1.5">
+        <i class="fa-solid fa-arrow-left"></i> Back to Store List
+      </button>
+
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5">
+        <div class="flex flex-wrap justify-between items-start gap-3">
+          <div>
+            <h2 id="detailShopName" class="text-xl font-bold text-white"></h2>
+            <p id="detailShopMeta" class="text-xs text-slate-400 mt-1"></p>
+            <p id="detailStoreUid" class="text-[10px] font-mono text-slate-500 mt-1"></p>
+          </div>
+          <span id="detailStatusBadge"></span>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-5">
+          <div class="bg-slate-950 border border-slate-800 p-3 rounded-xl">
+            <span class="text-[10px] uppercase font-bold text-slate-400">Repair Jobs</span>
+            <h4 id="cntJobs" class="text-xl font-bold text-white mt-1">0</h4>
+          </div>
+          <div class="bg-slate-950 border border-slate-800 p-3 rounded-xl">
+            <span class="text-[10px] uppercase font-bold text-indigo-400">EMI Records</span>
+            <h4 id="cntEmis" class="text-xl font-bold text-indigo-400 mt-1">0</h4>
+          </div>
+          <div class="bg-slate-950 border border-slate-800 p-3 rounded-xl">
+            <span class="text-[10px] uppercase font-bold text-emerald-400">LCD Items</span>
+            <h4 id="cntLcd" class="text-xl font-bold text-emerald-400 mt-1">0</h4>
+          </div>
+          <div class="bg-slate-950 border border-slate-800 p-3 rounded-xl">
+            <span class="text-[10px] uppercase font-bold text-cyan-400">Used Mobiles</span>
+            <h4 id="cntMobiles" class="text-xl font-bold text-cyan-400 mt-1">0</h4>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex overflow-x-auto bg-slate-900 border border-slate-800 rounded-2xl p-1.5 gap-1" style="scrollbar-width:none;">
+        <button onclick="showTab('overview')" id="tabBtn-overview" class="tab-btn px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap bg-indigo-600 text-white"><i class="fa-solid fa-info-circle mr-1.5"></i>Overview</button>
+        <button onclick="showTab('jobs')" id="tabBtn-jobs" class="tab-btn px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap text-slate-400 hover:text-white"><i class="fa-solid fa-screwdriver-wrench mr-1.5"></i>Jobs</button>
+        <button onclick="showTab('emis')" id="tabBtn-emis" class="tab-btn px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap text-slate-400 hover:text-white"><i class="fa-solid fa-file-invoice-dollar mr-1.5"></i>EMI</button>
+        <button onclick="showTab('lcd')" id="tabBtn-lcd" class="tab-btn px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap text-slate-400 hover:text-white"><i class="fa-solid fa-layer-group mr-1.5"></i>LCD</button>
+        <button onclick="showTab('mobiles')" id="tabBtn-mobiles" class="tab-btn px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap text-slate-400 hover:text-white"><i class="fa-solid fa-mobile-screen-button mr-1.5"></i>Mobiles</button>
+        <button onclick="showTab('backup')" id="tabBtn-backup" class="tab-btn px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap text-slate-400 hover:text-white"><i class="fa-solid fa-database mr-1.5"></i>Backup</button>
+        <button onclick="showTab('danger')" id="tabBtn-danger" class="tab-btn px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap text-rose-400 hover:text-white"><i class="fa-solid fa-triangle-exclamation mr-1.5"></i>Danger</button>
+      </div>
+
+      <!-- Overview -->
+      <div id="tabContent-overview" class="tab-panel">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4">
+          <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2"><i class="fa-solid fa-store text-indigo-400"></i> Store Profile</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+            <div>
+              <label class="block font-semibold text-slate-400 uppercase mb-1">Shop Name</label>
+              <input type="text" id="editShopName" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:border-indigo-500 focus:outline-none">
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-400 uppercase mb-1">Shop Phone</label>
+              <input type="tel" id="editShopPhone" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:border-indigo-500 focus:outline-none">
+            </div>
+            <div class="md:col-span-2">
+              <label class="block font-semibold text-slate-400 uppercase mb-1">Shop Address</label>
+              <input type="text" id="editShopAddress" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:border-indigo-500 focus:outline-none">
+            </div>
+            <div class="md:col-span-2">
+              <label class="block font-semibold text-slate-400 uppercase mb-1">Owner Email (Login ID — read only)</label>
+              <input type="email" id="editOwnerEmail" disabled class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-500 cursor-not-allowed">
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-2 pt-2 border-t border-slate-800">
+            <button onclick="saveProfile()" class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5">
+              <i class="fa-solid fa-floppy-disk"></i> Save Profile
+            </button>
+            <button onclick="toggleStoreStatus()" id="statusToggleBtn" class="px-4 py-2.5 bg-amber-600/20 hover:bg-amber-600 text-amber-400 hover:text-white border border-amber-500/30 rounded-xl text-xs font-bold flex items-center gap-1.5">
+              <i class="fa-solid fa-ban"></i> <span>Block Store</span>
+            </button>
+            <button onclick="sendPasswordReset()" class="px-4 py-2.5 bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/30 rounded-xl text-xs font-bold flex items-center gap-1.5">
+              <i class="fa-solid fa-key"></i> Send Password Reset Email
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Jobs -->
+      <div id="tabContent-jobs" class="tab-panel hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
+          <div class="p-4 border-b border-slate-800 flex justify-between items-center">
+            <h3 class="text-sm font-bold text-white"><i class="fa-solid fa-screwdriver-wrench text-indigo-400 mr-2"></i>Repair Jobs</h3>
+            <span id="jobsCountBadge" class="text-xs text-slate-400"></span>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs whitespace-nowrap">
+              <thead class="bg-slate-950 text-slate-400 uppercase border-b border-slate-800">
+                <tr>
+                  <th class="p-3">Bill No</th>
+                  <th class="p-3">Date</th>
+                  <th class="p-3">Customer</th>
+                  <th class="p-3">Model</th>
+                  <th class="p-3">Status</th>
+                  <th class="p-3 text-right">Amount</th>
+                  <th class="p-3 text-center">Del</th>
+                </tr>
+              </thead>
+              <tbody id="jobsTableBody" class="divide-y divide-slate-800/60 text-slate-300"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- EMI -->
+      <div id="tabContent-emis" class="tab-panel hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
+          <div class="p-4 border-b border-slate-800 flex justify-between items-center">
+            <h3 class="text-sm font-bold text-white"><i class="fa-solid fa-file-invoice-dollar text-indigo-400 mr-2"></i>EMI Records</h3>
+            <span id="emisCountBadge" class="text-xs text-slate-400"></span>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs whitespace-nowrap">
+              <thead class="bg-slate-950 text-slate-400 uppercase border-b border-slate-800">
+                <tr>
+                  <th class="p-3">Customer</th>
+                  <th class="p-3">Phone</th>
+                  <th class="p-3">Device</th>
+                  <th class="p-3">IMEI</th>
+                  <th class="p-3 text-right">Total</th>
+                  <th class="p-3 text-right">Paid</th>
+                  <th class="p-3 text-center">Del</th>
+                </tr>
+              </thead>
+              <tbody id="emisTableBody" class="divide-y divide-slate-800/60 text-slate-300"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- LCD -->
+      <div id="tabContent-lcd" class="tab-panel hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
+          <div class="p-4 border-b border-slate-800 flex justify-between items-center">
+            <h3 class="text-sm font-bold text-white"><i class="fa-solid fa-layer-group text-emerald-400 mr-2"></i>LCD Inventory</h3>
+            <span id="lcdCountBadge" class="text-xs text-slate-400"></span>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs whitespace-nowrap">
+              <thead class="bg-slate-950 text-slate-400 uppercase border-b border-slate-800">
+                <tr>
+                  <th class="p-3">LCD Name</th>
+                  <th class="p-3">Stock</th>
+                  <th class="p-3 text-right">Cost</th>
+                  <th class="p-3">Rack</th>
+                  <th class="p-3">Compatible</th>
+                  <th class="p-3 text-center">Del</th>
+                </tr>
+              </thead>
+              <tbody id="lcdTableBody" class="divide-y divide-slate-800/60 text-slate-300"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Used Mobiles -->
+      <div id="tabContent-mobiles" class="tab-panel hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
+          <div class="p-4 border-b border-slate-800 flex justify-between items-center">
+            <h3 class="text-sm font-bold text-white"><i class="fa-solid fa-mobile-screen-button text-cyan-400 mr-2"></i>Used Mobiles</h3>
+            <span id="mobilesCountBadge" class="text-xs text-slate-400"></span>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs whitespace-nowrap">
+              <thead class="bg-slate-950 text-slate-400 uppercase border-b border-slate-800">
+                <tr>
+                  <th class="p-3">Device</th>
+                  <th class="p-3">IMEI</th>
+                  <th class="p-3">Status</th>
+                  <th class="p-3 text-right">Buy</th>
+                  <th class="p-3 text-right">Sale</th>
+                  <th class="p-3">Person</th>
+                  <th class="p-3 text-center">Del</th>
+                </tr>
+              </thead>
+              <tbody id="mobilesTableBody" class="divide-y divide-slate-800/60 text-slate-300"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Backup -->
+      <div id="tabContent-backup" class="tab-panel hidden space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5">
+            <h3 class="text-sm font-bold text-white flex items-center gap-2"><i class="fa-solid fa-download text-emerald-400"></i> Download Full Backup</h3>
+            <p class="text-xs text-slate-400 mt-2">Exports every record — jobs, EMI, LCD stock, used mobiles, and store profile — into a single JSON file.</p>
+            <button onclick="downloadBackup()" class="mt-4 w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2">
+              <i class="fa-solid fa-file-export"></i> Download Backup JSON
+            </button>
+          </div>
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5">
+            <h3 class="text-sm font-bold text-white flex items-center gap-2"><i class="fa-solid fa-upload text-indigo-400"></i> Restore from Backup</h3>
+            <p class="text-xs text-slate-400 mt-2">Upload a previously downloaded backup file. Data will be merged into this store.</p>
+            <input type="file" id="restoreFile" accept=".json" class="mt-3 w-full text-xs text-slate-400 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-slate-800 file:text-white hover:file:bg-slate-700">
+            <label class="flex items-center gap-2 text-[11px] text-slate-400 mt-2">
+              <input type="checkbox" id="restoreProfileToo" class="rounded">
+              Also restore store profile (name/address/phone)
+            </label>
+            <button onclick="restoreBackup()" class="mt-3 w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2">
+              <i class="fa-solid fa-cloud-arrow-up"></i> Restore to This Store
+            </button>
+          </div>
+        </div>
+        <p id="backupStatus" class="text-xs text-slate-300"></p>
+      </div>
+
+      <!-- Danger Zone -->
+      <div id="tabContent-danger" class="tab-panel hidden space-y-4">
+        <div class="bg-rose-950/30 border border-rose-500/30 rounded-2xl p-5">
+          <h3 class="text-sm font-bold text-rose-400 uppercase flex items-center gap-2"><i class="fa-solid fa-triangle-exclamation"></i> Danger Zone</h3>
+          <p class="text-xs text-slate-300 mt-2">These actions are permanent. No undo.</p>
+          <div class="mt-4 space-y-3">
+            <div class="bg-slate-900 border border-rose-500/20 rounded-xl p-4">
+              <h4 class="text-xs font-bold text-white">Reset All Data (Keep Store Profile)</h4>
+              <p class="text-[11px] text-slate-400 mt-1">Deletes all jobs, EMI records, LCD stock, and used mobiles. Store profile stays intact.</p>
+              <button onclick="resetStoreData()" class="mt-3 px-4 py-2 bg-rose-600/20 hover:bg-rose-600 text-rose-400 hover:text-white border border-rose-500/30 rounded-lg text-xs font-bold">
+                <i class="fa-solid fa-rotate-left mr-1"></i> Reset All Data
+              </button>
+            </div>
+            <div class="bg-slate-900 border border-rose-500/20 rounded-xl p-4">
+              <h4 class="text-xs font-bold text-white">Delete Store Completely</h4>
+              <p class="text-[11px] text-slate-400 mt-1">Removes the store document AND every subcollection. Firebase Auth account remains — delete manually from Firebase Console if needed.</p>
+              <button onclick="deleteStoreCompletely()" class="mt-3 px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-xs font-bold">
+                <i class="fa-solid fa-trash-can mr-1"></i> Delete Entire Store
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
   </div>
 
   <script>
+    // ═══════════════ CONFIG ═══════════════
     const firebaseConfig = {
       apiKey: "AIzaSyCG357Dtw_ftKsgAyRSsoZUSfMNpx-GGz0",
       authDomain: "billing-ab24c.firebaseapp.com",
@@ -173,166 +357,471 @@
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
+    const DEV_UID = "poj5yljwghwuwem8lpi8clty4qj3";
 
-    // উভয় কেস সাপোর্ট করার জন্য টলারেন্স সেট করা হলো
-    const VALID_DEV_UID = "poj5yljwghwuwem8lpi8clty4qj3"; 
+    let allStores = [];
+    let currentStoreUid = null;
+    let currentStoreData = {};
+    let currentCollections = { jobs: [], emis: [], lcd_inventory: [], used_mobiles: [] };
 
-    async function handleDevLogin(e) {
+    // ═══════════════ HELPERS ═══════════════
+    function esc(str) {
+      if (!str) return '';
+      return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+    }
+    function escAttr(str) {
+      return String(str || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"');
+    }
+
+    // ═══════════════ AUTH ═══════════════
+    async function handleLogin(e) {
       e.preventDefault();
       const email = document.getElementById('devEmail').value.trim();
       const pass = document.getElementById('devPassword').value;
-      const errBox = document.getElementById('devLoginError');
+      const errBox = document.getElementById('loginError');
       errBox.classList.add('hidden');
-
       try {
         const cred = await auth.signInWithEmailAndPassword(email, pass);
-        // UID চেক
-        if (cred.user.uid.toLowerCase() !== VALID_DEV_UID) {
+        if (cred.user.uid !== DEV_UID) {
           await auth.signOut();
-          errBox.innerText = `অ্যাক্সেস ডিনাইড: এই অ্যাকাউন্টটির UID (${cred.user.uid}) ডেভেলপার হিসেবে অনুমোদিত নয়!`;
+          errBox.innerText = `Access denied: This account (${cred.user.uid}) is not authorized.`;
           errBox.classList.remove('hidden');
           return;
         }
-        document.getElementById('devAuthGate').classList.add('hidden');
-        loadAllStores();
       } catch (err) {
-        errBox.innerText = "লগইন ব্যর্থ হয়েছে: " + err.message;
+        errBox.innerText = "Login failed: " + err.message;
         errBox.classList.remove('hidden');
       }
     }
 
-    function signOutDeveloper() {
-      auth.signOut();
-      location.reload();
-    }
+    function signOut() { auth.signOut().then(() => location.reload()); }
 
     auth.onAuthStateChanged((user) => {
-      if (user && user.uid.toLowerCase() === VALID_DEV_UID) {
-        document.getElementById('devAuthGate').classList.add('hidden');
-        loadAllStores();
+      if (user && user.uid === DEV_UID) {
+        document.getElementById('authGate').classList.add('hidden');
+        document.getElementById('mainApp').classList.remove('hidden');
+        document.getElementById('mainApp').classList.add('flex');
+        loadStores();
       } else {
-        document.getElementById('devAuthGate').classList.remove('hidden');
+        document.getElementById('authGate').classList.remove('hidden');
+        document.getElementById('mainApp').classList.add('hidden');
       }
     });
 
-    async function loadAllStores() {
-      const tbody = document.getElementById('storeListTbody');
-      tbody.innerHTML = '<tr><td colspan="7" class="p-6 text-center text-slate-500">Loading store database...</td></tr>';
-
+    // ═══════════════ STORE LIST ═══════════════
+    async function loadStores() {
+      const grid = document.getElementById('storeGrid');
+      grid.innerHTML = '<div class="col-span-full p-6 text-center text-slate-500">Loading stores...</div>';
       try {
         const snap = await db.collection('stores').get();
-        if (snap.empty) {
-          tbody.innerHTML = '<tr><td colspan="7" class="p-6 text-center text-slate-500">No stores registered yet.</td></tr>';
-          return;
-        }
-
-        tbody.innerHTML = '';
-        let total = 0, pending = 0, active = 0;
-
-        snap.forEach(doc => {
-          total++;
-          const s = doc.data();
-          const isApproved = s.status === 'approved';
-          if (isApproved) active++; else pending++;
-
-          const tr = document.createElement('tr');
-          tr.className = "hover:bg-slate-950/40 transition";
-          tr.innerHTML = `
-            <td class="p-3.5 font-mono text-slate-500 text-[10px]">${doc.id.substring(0, 10)}...</td>
-            <td class="p-3.5">
-              <div class="font-bold text-white text-sm">${s.shopName || 'Unnamed'}</div>
-              <div class="text-[10px] text-slate-400">${s.shopAddress || '-'}</div>
-            </td>
-            <td class="p-3.5 font-mono text-indigo-400">${s.shopPhone || '-'}</td>
-            <td class="p-3.5 text-slate-300">${s.ownerEmail || '-'}</td>
-            <td class="p-3.5 font-mono font-bold text-emerald-400 bg-slate-950/40 px-2 py-1 rounded">${s.savedPassword || 'Protected'}</td>
-            <td class="p-3.5">
-              <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${isApproved ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'}">
-                ${isApproved ? 'Approved' : 'Pending Approval'}
-              </span>
-            </td>
-            <td class="p-3.5 text-center flex items-center justify-center gap-1.5">
-              ${isApproved ? `
-                <button onclick="updateStoreStatus('${doc.id}', 'pending')" class="px-2.5 py-1 bg-amber-600/20 hover:bg-amber-600 text-amber-400 hover:text-white border border-amber-500/30 rounded-lg text-xs font-bold transition" title="Revoke Approval">
-                  <i class="fa-solid fa-ban mr-1"></i> Block
-                </button>
-              ` : `
-                <button onclick="updateStoreStatus('${doc.id}', 'approved')" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition shadow" title="Approve Store">
-                  <i class="fa-solid fa-check mr-1"></i> Approve
-                </button>
-              `}
-              <button onclick='openEditStoreModal("${doc.id}", ${JSON.stringify(s)})' class="px-2.5 py-1 bg-indigo-600/20 hover:bg-indigo-600 text-indigo-400 hover:text-white border border-indigo-500/30 rounded-lg text-xs font-semibold transition" title="Edit Store Profile">
-                <i class="fa-solid fa-pen-to-square"></i>
-              </button>
-            </td>
-          `;
-          tbody.appendChild(tr);
-        });
-
-        document.getElementById('statTotalStores').innerText = total;
-        document.getElementById('statPendingStores').innerText = pending;
-        document.getElementById('statActiveStores').innerText = active;
-
+        allStores = [];
+        snap.forEach(doc => allStores.push({ uid: doc.id, ...doc.data() }));
+        allStores.sort((a, b) => (a.shopName || '').localeCompare(b.shopName || ''));
+        updateStats();
+        filterStores();
       } catch (err) {
-        tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-rose-400 font-semibold">Error: ${err.message}</td></tr>`;
+        grid.innerHTML = `<div class="col-span-full p-6 text-center text-rose-400">Error: ${esc(err.message)}</div>`;
       }
     }
 
-    async function updateStoreStatus(uid, newStatus) {
-      const confirmAction = window.confirm(`Change store status to "${newStatus.toUpperCase()}"?`);
-      if (!confirmAction) return;
-
-      try {
-        await db.collection('stores').doc(uid).update({ status: newStatus });
-        loadAllStores();
-      } catch (err) {
-        alert("Action failed: " + err.message);
-      }
+    function updateStats() {
+      document.getElementById('statTotal').innerText = allStores.length;
+      document.getElementById('statApproved').innerText = allStores.filter(s => s.status === 'approved').length;
+      document.getElementById('statPending').innerText = allStores.filter(s => s.status !== 'approved').length;
     }
 
-    function openEditStoreModal(uid, store) {
-      document.getElementById('modalStoreUid').value = uid;
-      document.getElementById('modalShopName').value = store.shopName || '';
-      document.getElementById('modalShopAddress').value = store.shopAddress || '';
-      document.getElementById('modalShopPhone').value = store.shopPhone || '';
-      document.getElementById('modalShopPassword').value = store.savedPassword || '';
-      
-      const modal = document.getElementById('editStoreModal');
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
+    function filterStores() {
+      const q = (document.getElementById('searchInput').value || '').toLowerCase().trim();
+      const filtered = !q ? allStores : allStores.filter(s =>
+        (s.shopName || '').toLowerCase().includes(q) ||
+        (s.shopPhone || '').includes(q) ||
+        (s.ownerEmail || '').toLowerCase().includes(q)
+      );
+      renderStoreGrid(filtered);
     }
 
-    function closeEditStoreModal() {
-      const modal = document.getElementById('editStoreModal');
-      modal.classList.add('hidden');
-      modal.classList.remove('flex');
-    }
-
-    async function saveStoreProfileChanges() {
-      const uid = document.getElementById('modalStoreUid').value;
-      const newName = document.getElementById('modalShopName').value.trim();
-      const newAddress = document.getElementById('modalShopAddress').value.trim();
-      const newPhone = document.getElementById('modalShopPhone').value.trim();
-      const newPassword = document.getElementById('modalShopPassword').value.trim();
-
-      if (!newName || !newAddress || !newPhone) {
-        alert("Please fill all required store fields.");
+    function renderStoreGrid(stores) {
+      const grid = document.getElementById('storeGrid');
+      if (stores.length === 0) {
+        grid.innerHTML = '<div class="col-span-full p-8 text-center text-slate-500 bg-slate-900 border border-slate-800 rounded-2xl">No stores match your search.</div>';
         return;
       }
+      grid.innerHTML = '';
+      stores.forEach(s => {
+        const isApproved = s.status === 'approved';
+        const card = document.createElement('div');
+        card.className = "bg-slate-900 border border-slate-800 rounded-2xl p-4 hover:border-indigo-500/50 cursor-pointer transition";
+        card.onclick = () => openStore(s.uid);
+        card.innerHTML = `
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <h3 class="text-sm font-bold text-white">${esc(s.shopName || 'Unnamed Store')}</h3>
+              <p class="text-[11px] text-slate-400 mt-0.5 truncate">${esc(s.shopAddress || '-')}</p>
+            </div>
+            <span class="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase whitespace-nowrap ${isApproved ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'}">${isApproved ? 'Approved' : 'Pending'}</span>
+          </div>
+          <div class="mt-3 space-y-1 text-[11px]">
+            <div class="flex items-center gap-1.5 text-slate-300 truncate"><i class="fa-solid fa-phone text-emerald-400 text-[10px]"></i>${esc(s.shopPhone || '-')}</div>
+            <div class="flex items-center gap-1.5 text-slate-300 truncate"><i class="fa-solid fa-envelope text-indigo-400 text-[10px]"></i>${esc(s.ownerEmail || '-')}</div>
+          </div>
+          <div class="mt-3 pt-3 border-t border-slate-800 flex justify-between items-center">
+            <span class="text-[9px] font-mono text-slate-500">${esc(s.uid.substring(0, 14))}...</span>
+            <span class="text-[10px] text-indigo-400 font-semibold">Open <i class="fa-solid fa-arrow-right ml-0.5"></i></span>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
 
+    // ═══════════════ STORE DETAIL ═══════════════
+    async function openStore(uid) {
+      currentStoreUid = uid;
+      currentStoreData = allStores.find(s => s.uid === uid);
+      if (!currentStoreData) return;
+      document.getElementById('viewList').classList.add('hidden');
+      document.getElementById('viewDetail').classList.remove('hidden');
+      renderDetailHeader();
+      showTab('overview');
+      await loadStoreCollections();
+    }
+
+    function backToList() {
+      document.getElementById('viewDetail').classList.add('hidden');
+      document.getElementById('viewList').classList.remove('hidden');
+      currentStoreUid = null;
+      currentStoreData = {};
+      currentCollections = { jobs: [], emis: [], lcd_inventory: [], used_mobiles: [] };
+    }
+
+    function renderDetailHeader() {
+      const s = currentStoreData;
+      document.getElementById('detailShopName').innerText = s.shopName || 'Unnamed Store';
+      document.getElementById('detailShopMeta').innerText = `${s.shopAddress || '-'} · ${s.shopPhone || '-'}`;
+      document.getElementById('detailStoreUid').innerText = `UID: ${s.uid}`;
+      const isApproved = s.status === 'approved';
+      document.getElementById('detailStatusBadge').innerHTML = `
+        <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${isApproved ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'}">
+          ${isApproved ? 'Approved' : 'Pending'}
+        </span>`;
+      document.getElementById('editShopName').value = s.shopName || '';
+      document.getElementById('editShopPhone').value = s.shopPhone || '';
+      document.getElementById('editShopAddress').value = s.shopAddress || '';
+      document.getElementById('editOwnerEmail').value = s.ownerEmail || '';
+      const btn = document.getElementById('statusToggleBtn');
+      if (isApproved) btn.innerHTML = '<i class="fa-solid fa-ban"></i> <span>Block Store</span>';
+      else btn.innerHTML = '<i class="fa-solid fa-check"></i> <span>Approve Store</span>';
+    }
+
+    async function loadStoreCollections() {
+      if (!currentStoreUid) return;
       try {
-        await db.collection('stores').doc(uid).update({
-          shopName: newName,
-          shopAddress: newAddress,
-          shopPhone: newPhone,
-          savedPassword: newPassword
-        });
-        alert(`Store "${newName}" updated successfully!`);
-        closeEditStoreModal();
-        loadAllStores();
+        const [j, e, l, m] = await Promise.all([
+          db.collection('stores').doc(currentStoreUid).collection('jobs').get(),
+          db.collection('stores').doc(currentStoreUid).collection('emis').get(),
+          db.collection('stores').doc(currentStoreUid).collection('lcd_inventory').get(),
+          db.collection('stores').doc(currentStoreUid).collection('used_mobiles').get()
+        ]);
+        currentCollections.jobs = j.docs.map(d => ({ _id: d.id, ...d.data() }));
+        currentCollections.emis = e.docs.map(d => ({ _id: d.id, ...d.data() }));
+        currentCollections.lcd_inventory = l.docs.map(d => ({ _id: d.id, ...d.data() }));
+        currentCollections.used_mobiles = m.docs.map(d => ({ _id: d.id, ...d.data() }));
+        document.getElementById('cntJobs').innerText = currentCollections.jobs.length;
+        document.getElementById('cntEmis').innerText = currentCollections.emis.length;
+        document.getElementById('cntLcd').innerText = currentCollections.lcd_inventory.length;
+        document.getElementById('cntMobiles').innerText = currentCollections.used_mobiles.length;
+        renderAllTables();
       } catch (err) {
-        alert("Failed to update store: " + err.message);
+        console.error(err);
+        alert("Failed to load collections: " + err.message);
       }
+    }
+
+    function showTab(name) {
+      document.querySelectorAll('.tab-panel').forEach(el => el.classList.add('hidden'));
+      document.getElementById('tabContent-' + name).classList.remove('hidden');
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.className = 'tab-btn px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap text-slate-400 hover:text-white';
+      });
+      document.getElementById('tabBtn-' + name).className = 'tab-btn px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap bg-indigo-600 text-white';
+    }
+
+    // ═══════════════ TABLES ═══════════════
+    function renderAllTables() {
+      renderJobsTable();
+      renderEmisTable();
+      renderLcdTable();
+      renderMobilesTable();
+    }
+
+    function renderJobsTable() {
+      const tbody = document.getElementById('jobsTableBody');
+      document.getElementById('jobsCountBadge').innerText = currentCollections.jobs.length + ' records';
+      if (currentCollections.jobs.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="p-6 text-center text-slate-500">No repair jobs.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = '';
+      currentCollections.jobs.forEach(j => {
+        const amt = j.finalAmount || j.estCost || 0;
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-950/40';
+        tr.innerHTML = `
+          <td class="p-3 font-mono text-indigo-400">${esc(j.billNo)}</td>
+          <td class="p-3 text-slate-400">${esc(j.intakeDate)}</td>
+          <td class="p-3">${esc(j.customerName)}<br><span class="text-[10px] text-slate-500">${esc(j.phone)}</span></td>
+          <td class="p-3">${esc(j.model)}</td>
+          <td class="p-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${j.status === 'Delivered' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-amber-500/10 text-amber-400'}">${esc(j.status)}</span></td>
+          <td class="p-3 text-right font-bold">₹${amt}</td>
+          <td class="p-3 text-center"><button onclick="deleteRecord('jobs','${escAttr(j._id)}')" class="p-1.5 bg-rose-600/20 hover:bg-rose-600 text-rose-400 hover:text-white rounded text-[10px]"><i class="fa-solid fa-trash"></i></button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderEmisTable() {
+      const tbody = document.getElementById('emisTableBody');
+      document.getElementById('emisCountBadge').innerText = currentCollections.emis.length + ' records';
+      if (currentCollections.emis.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="p-6 text-center text-slate-500">No EMI records.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = '';
+      currentCollections.emis.forEach(e => {
+        const payments = e.payments || [];
+        const totalPaid = payments.reduce((s, p) => s + (Number(p.amount) || 0), 0);
+        const totalPayable = e.totalEmi || e.totalPayable || 0;
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-950/40';
+        tr.innerHTML = `
+          <td class="p-3 font-bold">${esc(e.customerName)}</td>
+          <td class="p-3 font-mono">${esc(e.phone)}</td>
+          <td class="p-3">${esc(e.deviceModel)}</td>
+          <td class="p-3 font-mono text-[10px]">${esc(e.imei)}</td>
+          <td class="p-3 text-right">₹${Number(totalPayable).toFixed(0)}</td>
+          <td class="p-3 text-right text-emerald-400">₹${totalPaid}</td>
+          <td class="p-3 text-center"><button onclick="deleteRecord('emis','${escAttr(e._id)}')" class="p-1.5 bg-rose-600/20 hover:bg-rose-600 text-rose-400 hover:text-white rounded text-[10px]"><i class="fa-solid fa-trash"></i></button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderLcdTable() {
+      const tbody = document.getElementById('lcdTableBody');
+      document.getElementById('lcdCountBadge').innerText = currentCollections.lcd_inventory.length + ' records';
+      if (currentCollections.lcd_inventory.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-slate-500">No LCD items.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = '';
+      currentCollections.lcd_inventory.forEach(l => {
+        const models = (l.models || []).join(', ');
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-950/40';
+        tr.innerHTML = `
+          <td class="p-3 font-bold">${esc(l.name)}</td>
+          <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${Number(l.stock) <= 0 ? 'bg-rose-500/10 text-rose-400' : Number(l.stock) <= 2 ? 'bg-amber-500/10 text-amber-400' : 'bg-emerald-500/10 text-emerald-400'}">${Number(l.stock) || 0} pcs</span></td>
+          <td class="p-3 text-right font-mono">₹${esc(l.price)}</td>
+          <td class="p-3">${esc(l.location || '-')}</td>
+          <td class="p-3 text-[10px] max-w-[200px] truncate" title="${esc(models)}">${esc(models)}</td>
+          <td class="p-3 text-center"><button onclick="deleteRecord('lcd_inventory','${escAttr(l._id)}')" class="p-1.5 bg-rose-600/20 hover:bg-rose-600 text-rose-400 hover:text-white rounded text-[10px]"><i class="fa-solid fa-trash"></i></button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderMobilesTable() {
+      const tbody = document.getElementById('mobilesTableBody');
+      document.getElementById('mobilesCountBadge').innerText = currentCollections.used_mobiles.length + ' records';
+      if (currentCollections.used_mobiles.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="p-6 text-center text-slate-500">No used mobiles.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = '';
+      currentCollections.used_mobiles.forEach(m => {
+        const person = m.status === 'Sold' ? `Buyer: ${m.buyerName || '-'}` : `Seller: ${m.sellerName || '-'}`;
+        const saleAmt = m.status === 'Sold' ? (m.salePrice || 0) : (m.targetSellPrice || 0);
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-950/40';
+        tr.innerHTML = `
+          <td class="p-3 font-bold">${esc(m.brand)} ${esc(m.model)}<br><span class="text-[10px] text-slate-500">${esc(m.variant || '')}</span></td>
+          <td class="p-3 font-mono text-indigo-400">${esc(m.imei)}</td>
+          <td class="p-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${m.status === 'Sold' ? 'bg-slate-800 text-slate-400' : m.status === 'Under-Repair' ? 'bg-amber-500/10 text-amber-400' : 'bg-emerald-500/10 text-emerald-400'}">${esc(m.status)}</span></td>
+          <td class="p-3 text-right font-mono">₹${esc(m.buyPrice)}</td>
+          <td class="p-3 text-right font-mono font-bold">₹${esc(saleAmt)}</td>
+          <td class="p-3 text-[10px]">${esc(person)}</td>
+          <td class="p-3 text-center"><button onclick="deleteRecord('used_mobiles','${escAttr(m._id)}')" class="p-1.5 bg-rose-600/20 hover:bg-rose-600 text-rose-400 hover:text-white rounded text-[10px]"><i class="fa-solid fa-trash"></i></button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function deleteRecord(collectionName, docId) {
+      if (!confirm(`Delete this record from "${collectionName}"?\n\nID: ${docId}\n\nThis is permanent.`)) return;
+      try {
+        await db.collection('stores').doc(currentStoreUid).collection(collectionName).doc(docId).delete();
+        currentCollections[collectionName] = currentCollections[collectionName].filter(r => r._id !== docId);
+        renderAllTables();
+        document.getElementById('cnt' + (collectionName === 'lcd_inventory' ? 'Lcd' : collectionName === 'used_mobiles' ? 'Mobiles' : collectionName === 'emis' ? 'Emis' : 'Jobs')).innerText = currentCollections[collectionName].length;
+        alert("Record deleted.");
+      } catch (err) { alert("Delete failed: " + err.message); }
+    }
+
+    // ═══════════════ OVERVIEW ACTIONS ═══════════════
+    async function saveProfile() {
+      if (!currentStoreUid) return;
+      const shopName = document.getElementById('editShopName').value.trim();
+      const shopPhone = document.getElementById('editShopPhone').value.trim();
+      const shopAddress = document.getElementById('editShopAddress').value.trim();
+      if (!shopName || !shopPhone) { alert("Shop name and phone required."); return; }
+      try {
+        await db.collection('stores').doc(currentStoreUid).update({ shopName, shopPhone, shopAddress });
+        Object.assign(currentStoreData, { shopName, shopPhone, shopAddress });
+        const idx = allStores.findIndex(s => s.uid === currentStoreUid);
+        if (idx !== -1) Object.assign(allStores[idx], { shopName, shopPhone, shopAddress });
+        renderDetailHeader();
+        updateStats();
+        alert("✅ Profile saved successfully!");
+      } catch (err) { alert("Save failed: " + err.message); }
+    }
+
+    async function toggleStoreStatus() {
+      if (!currentStoreUid) return;
+      const newStatus = currentStoreData.status === 'approved' ? 'pending' : 'approved';
+      if (!confirm(`Change store status to "${newStatus.toUpperCase()}"?`)) return;
+      try {
+        await db.collection('stores').doc(currentStoreUid).update({ status: newStatus });
+        currentStoreData.status = newStatus;
+        const idx = allStores.findIndex(s => s.uid === currentStoreUid);
+        if (idx !== -1) allStores[idx].status = newStatus;
+        renderDetailHeader();
+        updateStats();
+      } catch (err) { alert("Status update failed: " + err.message); }
+    }
+
+    async function sendPasswordReset() {
+      const email = currentStoreData.ownerEmail;
+      if (!email) { alert("No email on file for this store."); return; }
+      if (!confirm(`Send password reset email to:\n${email}\n\nContinue?`)) return;
+      try {
+        await auth.sendPasswordResetEmail(email);
+        alert(`✅ Password reset email sent to ${email}`);
+      } catch (err) { alert("Failed: " + err.message); }
+    }
+
+    // ═══════════════ BACKUP / RESTORE ═══════════════
+    async function downloadBackup() {
+      const status = document.getElementById('backupStatus');
+      status.innerText = "Preparing backup...";
+      try {
+        const backup = {
+          version: 1,
+          createdAt: new Date().toISOString(),
+          store: { ...currentStoreData },
+          collections: {
+            jobs: currentCollections.jobs,
+            emis: currentCollections.emis,
+            lcd_inventory: currentCollections.lcd_inventory,
+            used_mobiles: currentCollections.used_mobiles
+          }
+        };
+        const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `smartfix-backup-${(currentStoreData.shopName || 'store').replace(/[^a-z0-9]/gi, '_')}-${new Date().toISOString().slice(0, 10)}.json`;
+        document.body.appendChild(a); a.click(); a.remove();
+        URL.revokeObjectURL(url);
+        status.innerText = `✅ Backup downloaded: ${currentCollections.jobs.length} jobs, ${currentCollections.emis.length} EMI, ${currentCollections.lcd_inventory.length} LCD, ${currentCollections.used_mobiles.length} mobiles.`;
+      } catch (err) {
+        status.innerText = "❌ Backup failed: " + err.message;
+      }
+    }
+
+    async function restoreBackup() {
+      const file = document.getElementById('restoreFile').files[0];
+      const status = document.getElementById('backupStatus');
+      if (!file) { status.innerText = "❌ No file selected."; return; }
+      if (!confirm(`Restore from "${file.name}"?\n\nThis will MERGE data into the current store.`)) return;
+      status.innerText = "Restoring...";
+      try {
+        const backup = JSON.parse(await file.text());
+        if (!backup.collections) throw new Error("Invalid backup format: missing 'collections'.");
+
+        // Optional profile restore
+        if (document.getElementById('restoreProfileToo').checked && backup.store) {
+          const profile = {
+            shopName: backup.store.shopName || currentStoreData.shopName,
+            shopPhone: backup.store.shopPhone || currentStoreData.shopPhone,
+            shopAddress: backup.store.shopAddress || currentStoreData.shopAddress
+          };
+          await db.collection('stores').doc(currentStoreUid).update(profile);
+          Object.assign(currentStoreData, profile);
+          renderDetailHeader();
+        }
+
+        let restored = 0;
+        for (const [colName, items] of Object.entries(backup.collections)) {
+          if (!Array.isArray(items)) continue;
+          for (let i = 0; i < items.length; i += 400) {
+            const batch = db.batch();
+            items.slice(i, i + 400).forEach(item => {
+              const docId = item._id || item.id;
+              if (!docId) return;
+              const { _id, id, ...data } = item;
+              batch.set(db.collection('stores').doc(currentStoreUid).collection(colName).doc(docId), data, { merge: true });
+              restored++;
+            });
+            await batch.commit();
+          }
+        }
+        status.innerText = `✅ Restore complete: ${restored} records synced.`;
+        await loadStoreCollections();
+      } catch (err) {
+        status.innerText = "❌ Restore failed: " + err.message;
+      }
+    }
+
+    // ═══════════════ DANGER ZONE ═══════════════
+    async function deleteCollection(collectionRef) {
+      const batchSize = 400;
+      let total = 0;
+      while (true) {
+        const snap = await collectionRef.limit(batchSize).get();
+        if (snap.empty) break;
+        const batch = db.batch();
+        snap.docs.forEach(d => batch.delete(d.ref));
+        await batch.commit();
+        total += snap.size;
+        if (snap.size < batchSize) break;
+      }
+      return total;
+    }
+
+    async function resetStoreData() {
+      if (!currentStoreUid) return;
+      const input = prompt(`Type "DELETE" (uppercase) to confirm wiping ALL data for:\n"${currentStoreData.shopName}"\n\n(Jobs, EMI, LCD, Mobiles will be deleted. Store profile stays.)`);
+      if (input !== 'DELETE') { alert("Cancelled — no data was touched."); return; }
+      try {
+        const cols = ['jobs', 'emis', 'lcd_inventory', 'used_mobiles'];
+        let total = 0;
+        for (const c of cols) total += await deleteCollection(db.collection('stores').doc(currentStoreUid).collection(c));
+        alert(`✅ Reset complete. ${total} records removed.`);
+        await loadStoreCollections();
+      } catch (err) { alert("Reset failed: " + err.message); }
+    }
+
+    async function deleteStoreCompletely() {
+      if (!currentStoreUid) return;
+      const input = prompt(`Type "DELETE STORE" (uppercase) to permanently remove:\n"${currentStoreData.shopName}"\n\nThis removes the store doc AND all subcollections. NO UNDO.`);
+      if (input !== 'DELETE STORE') { alert("Cancelled."); return; }
+      try {
+        const cols = ['jobs', 'emis', 'lcd_inventory', 'used_mobiles'];
+        for (const c of cols) await deleteCollection(db.collection('stores').doc(currentStoreUid).collection(c));
+        await db.collection('stores').doc(currentStoreUid).delete();
+        alert("✅ Store deleted. Note: Firebase Auth account still exists — delete it manually from Firebase Console if needed.");
+        backToList();
+        await loadStores();
+      } catch (err) { alert("Delete failed: " + err.message); }
     }
   </script>
 </body>
