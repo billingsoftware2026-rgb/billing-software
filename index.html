@@ -202,6 +202,38 @@
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-indigo-600 selection:text-white">
 
+  <!-- ==================== SUSPENDED ACCOUNT SCREEN ==================== -->
+  <div id="suspendedScreen" class="hidden fixed inset-0 bg-slate-950 z-[9999] flex-col items-center justify-center p-6 text-center">
+    <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-rose-600/10 rounded-full blur-[120px] pointer-events-none"></div>
+    
+    <div class="relative z-10 max-w-lg mx-auto space-y-6 animate-fade">
+      <div class="w-24 h-24 bg-gradient-to-tr from-rose-600 to-red-500 rounded-3xl mx-auto flex items-center justify-center text-5xl shadow-2xl shadow-rose-600/40">
+        <i class="fa-solid fa-user-lock text-white"></i>
+      </div>
+      
+      <div class="space-y-2">
+        <h1 class="text-3xl font-black text-white tracking-tight">Account Suspended</h1>
+        <p class="text-sm font-bold text-rose-400 bg-rose-500/10 inline-block px-3 py-1 rounded-full border border-rose-500/20">Access Denied</p>
+      </div>
+
+      <p class="text-slate-300 text-sm leading-relaxed bg-slate-900/80 p-5 rounded-2xl border border-slate-800">
+        Your store account has been temporarily suspended. <br>
+        To know the reason and reactivate your account, please contact our Customer Care.
+      </p>
+
+      <div class="bg-indigo-600/10 border border-indigo-500/30 rounded-2xl p-5 space-y-3">
+        <p class="text-xs font-bold uppercase tracking-wider text-indigo-400">SmartFix Pro Customer Care</p>
+        <a href="tel:+919046356631" class="flex items-center justify-center gap-3 w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-lg font-bold shadow-lg shadow-indigo-600/30 transition active:scale-95">
+          <i class="fa-solid fa-phone-volume animate-pulse"></i> +91 9046356631
+        </a>
+      </div>
+
+      <button onclick="auth.signOut().then(() => location.reload())" class="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold border border-slate-700 transition">
+        <i class="fa-solid fa-arrow-right-from-bracket mr-2"></i> Sign Out / Log Out
+      </button>
+    </div>
+  </div>
+
   <!-- ==================== PREMIUM AUTH SCREEN ==================== -->
   <div id="authScreen" class="fixed inset-0 bg-slate-950 z-50 overflow-y-auto flex items-center justify-center p-3 sm:p-6 lg:p-8">
 
@@ -251,7 +283,6 @@
                       <stop offset="100%" stop-color="#c7d2fe"/>
                     </linearGradient>
                   </defs>
-                  <!-- Wrench -->
                   <g transform="rotate(-45 50 50)">
                     <g>
                       <animateTransform attributeName="transform" type="rotate"
@@ -264,7 +295,6 @@
                       <rect x="45" y="34" width="10" height="54" rx="4" fill="url(#sfLogoGrad)"/>
                     </g>
                   </g>
-                  <!-- Screwdriver -->
                   <g transform="rotate(45 50 50)">
                     <g>
                       <animateTransform attributeName="transform" type="rotate"
@@ -290,7 +320,6 @@
             </div>
           </div>
 
-          <!-- PWA INSTALL ACTION BUTTONS ROW -->
           <div class="flex flex-wrap items-center gap-2.5 pt-1">
             <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold badge-shimmer">
               <i class="fa-solid fa-bolt text-amber-400"></i> Instant 1-Click Setup
@@ -351,7 +380,6 @@
           </div>
 
           <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 pt-1">
-            <!-- BIN EMI — Special Shimmer -->
             <div class="feature-card-shimmer p-2.5 rounded-xl bg-slate-900/60 border border-indigo-500/40 bg-indigo-500/5 flex items-center gap-2.5">
               <div class="w-7 h-7 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-xs flex-shrink-0">
                 <i class="fa-solid fa-file-invoice-dollar"></i>
@@ -466,8 +494,14 @@
           </button>
         </form>
 
-        <div class="pt-6 border-t border-slate-800/80 text-center">
-          <p class="text-xs text-slate-500">
+        <!-- Customer Care & Footer on Auth Screen -->
+        <div class="pt-6 border-t border-slate-800/80 text-center space-y-3">
+          <div class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-slate-900 border border-slate-700 shadow-sm">
+            <i class="fa-solid fa-headset text-indigo-400 text-lg"></i>
+            <span class="text-xs text-slate-300 font-medium">Customer Care:</span>
+            <a href="tel:+919046356631" class="text-sm font-bold text-indigo-400 hover:text-indigo-300 transition">+91 9046356631</a>
+          </div>
+          <p class="text-[11px] text-slate-500">
             SmartFix Pro &copy; 2026 | <span class="text-indigo-400 font-semibold">Developed by Debapriya Sarkar</span>
           </p>
         </div>
@@ -1432,6 +1466,19 @@
           const storeDoc = await db.collection('stores').doc(user.uid).get();
           if (storeDoc.exists) {
             currentStore = storeDoc.data();
+            
+            // 🔴 SUSPENDED ACCOUNT CHECK 🔴
+            if (currentStore.status === 'suspended') {
+              document.getElementById('suspendedScreen').classList.remove('hidden');
+              document.getElementById('suspendedScreen').classList.add('flex');
+              document.getElementById('authScreen').classList.add('hidden');
+              document.querySelector('header').classList.add('hidden');
+              document.querySelector('main').classList.add('hidden');
+              document.querySelector('footer').classList.add('hidden');
+              return; // App load block
+            }
+            // 🔴 END CHECK 🔴
+
             if (Object.prototype.hasOwnProperty.call(currentStore, 'savedPassword') || Object.prototype.hasOwnProperty.call(currentStore, 'password')) {
               try { await db.collection('stores').doc(user.uid).update({ savedPassword: firebase.firestore.FieldValue.delete(), password: firebase.firestore.FieldValue.delete() }); } catch (cleanupErr) {}
               delete currentStore.savedPassword; delete currentStore.password;
@@ -2672,7 +2719,6 @@
 
       if (!authScreen || !stage || !logoBox || !titleSpan) return;
 
-      // If user is already logged in (auth screen hidden), just show final logo instantly
       if (authScreen.classList.contains('hidden')) {
         logoBox.classList.add('logo-revealed', 'logo-glowing');
         return;
@@ -2700,10 +2746,8 @@
           stage.style.transform = 'scale(1)';
           stage.style.display = 'flex';
 
-          // Phase 1: fade in and let tools twist/swing
           requestAnimationFrame(() => stage.classList.add('playing'));
 
-          // Phase 2: after 2.8s, fly the stage into the logo box position
           setTimeout(() => {
             if (authScreen.classList.contains('hidden')) { stage.style.display = 'none'; return; }
 
@@ -2717,18 +2761,15 @@
             stage.style.opacity = '0';
           }, 2800);
 
-          // Phase 3: reveal final logo box
           setTimeout(() => {
             logoBox.classList.add('logo-revealed');
             stage.style.display = 'none';
           }, 3700);
 
-          // Phase 4: glow pulse behind the completed logo
           setTimeout(() => {
             logoBox.classList.add('logo-glowing');
           }, 3850);
 
-          // Safety net
           setTimeout(() => {
             if (!logoBox.classList.contains('logo-revealed')) {
               logoBox.classList.add('logo-revealed', 'logo-glowing');
@@ -2743,10 +2784,8 @@
       document.getElementById('currentDateDisplay').innerText = todayStr;
       document.getElementById('dailyReportDatePicker').value = todayStr;
 
-      // Kick off logo intro animation
       setTimeout(playLogoIntroAnimation, 250);
 
-      // Respect user's reduced-motion preference for SVG SMIL
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
         document.querySelectorAll('svg animateTransform').forEach(a => a.setAttribute('begin', 'indefinite'));
       }
