@@ -149,7 +149,7 @@
           <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
             <div>
               <h2 class="text-xl font-bold text-white">Store Management</h2>
-              <p class="text-xs text-slate-400">Search, edit, suspend, or troubleshoot any store</p>
+              <p class="text-xs text-slate-400">Search, edit, suspend, or troubleshoot any store (Real-time updates)</p>
             </div>
             <div class="flex gap-2 w-full md:w-auto">
               <div class="relative flex-1 md:w-64">
@@ -164,7 +164,7 @@
           <div id="storeGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
         </div>
 
-        <!-- VIEW: STORE DETAIL (Opens when a store is clicked) -->
+        <!-- VIEW: STORE DETAIL -->
         <div id="view-store-detail" class="view-section hidden space-y-4 animate-fade">
           <button onclick="switchView('stores')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-lg inline-flex items-center gap-1.5">
             <i class="fa-solid fa-arrow-left"></i> Back to Stores
@@ -308,7 +308,6 @@
             <p class="text-xs text-slate-400">Step-by-step guide to fix common issues.</p>
           </div>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <!-- Manual Cards -->
             <div class="glass-panel p-5 rounded-2xl border border-slate-800">
               <h3 class="text-sm font-bold text-indigo-400 mb-2"><i class="fa-solid fa-key"></i> Password Reset Problem</h3>
               <p class="text-xs text-slate-300 leading-relaxed">If a store owner forgets their password: <br>1. Go to <b>Manage Stores</b>.<br>2. Open the store profile.<br>3. Click <b>Send Reset Email</b>.<br>4. Tell the owner to check their inbox and set a new password.</p>
@@ -368,9 +367,6 @@
   </div>
 
   <script>
-    // ==========================================
-    // CONFIGURATION
-    // ==========================================
     const firebaseConfig = {
       apiKey: "AIzaSyCG357Dtw_ftKsgAyRSsoZUSfMNpx-GGz0",
       authDomain: "billing-ab24c.firebaseapp.com",
@@ -385,11 +381,9 @@
     const auth = firebase.auth();
     const db = firebase.firestore();
     
-    // Secondary App for creating users without logging out current admin
     const secondaryApp = firebase.initializeApp(firebaseConfig, "Secondary");
     const secondaryAuth = secondaryApp.auth();
 
-    // SUPER ADMIN UID (Case Sensitive)
     const SUPER_ADMIN_UID = "poJ5YLjwGHWUWEm8LPi8clty4qJ3"; 
 
     let currentUser = null;
@@ -398,9 +392,12 @@
     let activeStoreUid = null;
     let storeCollections = {};
 
-    // ==========================================
-    // AUTHENTICATION & INIT
-    // ==========================================
+    let unsubStores = null;
+    let unsubJobs = null;
+    let unsubEmis = null;
+    let unsubLcd = null;
+    let unsubMobiles = null;
+
     async function handleLogin(e) {
       e.preventDefault();
       const email = document.getElementById('devEmail').value.trim();
@@ -418,6 +415,11 @@
     }
 
     function signOut() {
+      if(unsubStores) unsubStores();
+      if(unsubJobs) unsubJobs();
+      if(unsubEmis) unsubEmis();
+      if(unsubLcd) unsubLcd();
+      if(unsubMobiles) unsubMobiles();
       auth.signOut().then(() => location.reload());
     }
 
@@ -437,7 +439,6 @@
       let hasAccess = isSuperAdmin;
       
       if (!hasAccess) {
-        // Check if user is in developers collection
         const devDoc = await db.collection('developers').doc(user.uid).get();
         if (devDoc.exists) hasAccess = true;
       }
@@ -449,7 +450,6 @@
         return;
       }
 
-      // Success
       document.getElementById('authGate').classList.add('hidden');
       document.getElementById('mainApp').classList.remove('hidden');
       document.getElementById('headerEmail').innerText = user.email;
@@ -469,9 +469,6 @@
       if (isSuperAdmin) loadDevelopers();
     }
 
-    // ==========================================
-    // NAVIGATION
-    // ==========================================
     function switchView(viewId) {
       document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
       document.getElementById('view-' + viewId).classList.remove('hidden');
@@ -483,30 +480,27 @@
       if (activeBtn) activeBtn.className = "nav-btn flex items-center gap-3 px-4 py-3 text-sm font-semibold text-white bg-slate-800/50 border-r-2 border-indigo-500 transition";
     }
 
-    // ==========================================
-    // STORE MANAGEMENT
-    // ==========================================
-    async function loadStores() {
-      try {
-        const snap = await db.collection('stores').get();
+    function loadStores() {
+      if(unsubStores) unsubStores();
+
+      unsubStores = db.collection('stores').onSnapshot(snap => {
         allStores = [];
         snap.forEach(doc => allStores.push({ uid: doc.id, ...doc.data() }));
         allStores.sort((a, b) => (a.shopName || '').localeCompare(b.shopName || ''));
         
-        // Update Dashboard Stats
         document.getElementById('statTotal').innerText = allStores.length;
         document.getElementById('statActive').innerText = allStores.filter(s => s.status === 'approved' || !s.status).length;
         document.getElementById('statSuspended').innerText = allStores.filter(s => s.status === 'suspended').length;
         
         renderStoreList();
-      } catch (err) {
-        console.error("Error loading stores:", err);
-        alert("Failed to load stores. Check permissions.");
-      }
+      }, error => {
+        console.error("Error loading stores:", error);
+      });
     }
 
     function renderStoreList() {
       const grid = document.getElementById('storeGrid');
+      if(!grid) return;
       const query = (document.getElementById('storeSearch')?.value || '').toLowerCase();
       
       const filtered = allStores.filter(s => 
@@ -547,7 +541,7 @@
       });
     }
 
-    async function openStoreDetail(uid) {
+    function openStoreDetail(uid) {
       activeStoreUid = uid;
       const store = allStores.find(s => s.uid === uid);
       if (!store) return;
@@ -575,34 +569,52 @@
       switchView('store-detail');
       showDetailTab('profile');
       
-      // Load Collections
+      if(unsubJobs) unsubJobs();
+      if(unsubEmis) unsubEmis();
+      if(unsubLcd) unsubLcd();
+      if(unsubMobiles) unsubMobiles();
+
       document.getElementById('cntJobs').innerText = '...';
       document.getElementById('cntEmis').innerText = '...';
       document.getElementById('cntLcd').innerText = '...';
       document.getElementById('cntMobiles').innerText = '...';
 
-      try {
-        const [j, e, l, m] = await Promise.all([
-          db.collection('stores').doc(uid).collection('jobs').get(),
-          db.collection('stores').doc(uid).collection('emis').get(),
-          db.collection('stores').doc(uid).collection('lcd_inventory').get(),
-          db.collection('stores').doc(uid).collection('used_mobiles').get()
-        ]);
-        storeCollections.jobs = j.docs.map(d => ({ _id: d.id, ...d.data() }));
-        storeCollections.emis = e.docs.map(d => ({ _id: d.id, ...d.data() }));
-        storeCollections.lcd = l.docs.map(d => ({ _id: d.id, ...d.data() }));
-        storeCollections.mobiles = m.docs.map(d => ({ _id: d.id, ...d.data() }));
+      const storeRef = db.collection('stores').doc(uid);
 
-        document.getElementById('cntJobs').innerText = storeCollections.jobs.length;
-        document.getElementById('cntEmis').innerText = storeCollections.emis.length;
+      // Jobs (Sorted by Date)
+      unsubJobs = storeRef.collection('jobs').onSnapshot(snap => {
+        let jobs = snap.docs.map(d => ({ _id: d.id, ...d.data() }));
+        // আগের ডেটা এবং নতুন ডেটা সবসময় তারিখ অনুযায়ী সাজানো থাকবে
+        jobs.sort((a, b) => String(b.intakeDate || '').localeCompare(String(a.intakeDate || '')));
+        storeCollections.jobs = jobs;
+        document.getElementById('cntJobs').innerText = jobs.length;
+        renderJobsTable();
+      });
+
+      // EMI (Sorted by Date)
+      unsubEmis = storeRef.collection('emis').onSnapshot(snap => {
+        let emis = snap.docs.map(d => ({ _id: d.id, ...d.data() }));
+        emis.sort((a, b) => String(b.startDate || '').localeCompare(String(a.startDate || '')));
+        storeCollections.emis = emis;
+        document.getElementById('cntEmis').innerText = emis.length;
+        renderEmisTable();
+      });
+
+      // LCD
+      unsubLcd = storeRef.collection('lcd_inventory').onSnapshot(snap => {
+        storeCollections.lcd = snap.docs.map(d => ({ _id: d.id, ...d.data() }));
         document.getElementById('cntLcd').innerText = storeCollections.lcd.length;
-        document.getElementById('cntMobiles').innerText = storeCollections.mobiles.length;
+        renderLcdTable();
+      });
 
-        renderStoreTables();
-      } catch (err) {
-        console.error(err);
-        alert("Failed to load store data. Check permissions.");
-      }
+      // Mobiles (Sorted by Date)
+      unsubMobiles = storeRef.collection('used_mobiles').onSnapshot(snap => {
+        let mobiles = snap.docs.map(d => ({ _id: d.id, ...d.data() }));
+        mobiles.sort((a, b) => String(b.intakeDate || '').localeCompare(String(a.intakeDate || '')));
+        storeCollections.mobiles = mobiles;
+        document.getElementById('cntMobiles').innerText = mobiles.length;
+        renderMobilesTable();
+      });
     }
 
     function showDetailTab(tab) {
@@ -614,6 +626,75 @@
       document.getElementById('dtab-' + tab).className = "dtab-btn px-4 py-2 rounded-lg text-xs font-semibold whitespace-nowrap bg-indigo-600 text-white transition";
     }
 
+    function renderJobsTable() {
+      const tJobs = document.getElementById('tblJobs');
+      if(!storeCollections.jobs) return;
+
+      tJobs.innerHTML = storeCollections.jobs.map(j => `
+        <tr class="hover:bg-slate-800/30">
+          <td class="p-3 font-mono text-indigo-400">${j.billNo}</td>
+          <td class="p-3 text-slate-400">${j.intakeDate}</td>
+          <td class="p-3 font-bold">${j.customerName}</td>
+          <td class="p-3">${j.model}</td>
+          <td class="p-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-[10px]">${j.status}</span></td>
+          <td class="p-3 text-right font-bold">₹${j.finalAmount || j.estCost || 0}</td>
+          <td class="p-3 text-center"><button onclick="delRec('jobs','${j._id}')" class="text-rose-400 hover:text-white"><i class="fa-solid fa-trash"></i></button></td>
+        </tr>
+      `).join('') || '<tr><td colspan="7" class="p-4 text-center text-slate-500">No jobs</td></tr>';
+    }
+
+    function renderEmisTable() {
+      const tEmis = document.getElementById('tblEmis');
+      if(!storeCollections.emis) return;
+
+      tEmis.innerHTML = storeCollections.emis.map(e => `
+        <tr class="hover:bg-slate-800/30">
+          <td class="p-3 font-bold">${e.customerName}</td>
+          <td class="p-3">${e.deviceModel}</td>
+          <td class="p-3 font-mono text-[10px]">${e.imei}</td>
+          <td class="p-3 text-right">₹${e.totalPayable || e.totalEmi || 0}</td>
+          <td class="p-3 text-center"><button onclick="delRec('emis','${e._id}')" class="text-rose-400 hover:text-white"><i class="fa-solid fa-trash"></i></button></td>
+        </tr>
+      `).join('') || '<tr><td colspan="5" class="p-4 text-center text-slate-500">No EMI</td></tr>';
+    }
+
+    function renderLcdTable() {
+      const tLcd = document.getElementById('tblLcd');
+      if(!storeCollections.lcd) return;
+
+      tLcd.innerHTML = storeCollections.lcd.map(l => `
+        <tr class="hover:bg-slate-800/30">
+          <td class="p-3 font-bold">${l.name}</td>
+          <td class="p-3"><span class="text-emerald-400 font-bold">${l.stock}</span> pcs</td>
+          <td class="p-3 text-right font-mono">₹${l.price}</td>
+          <td class="p-3">${l.location || '-'}</td>
+          <td class="p-3 text-center"><button onclick="delRec('lcd_inventory','${l._id}')" class="text-rose-400 hover:text-white"><i class="fa-solid fa-trash"></i></button></td>
+        </tr>
+      `).join('') || '<tr><td colspan="5" class="p-4 text-center text-slate-500">No LCD Stock</td></tr>';
+    }
+
+    function renderMobilesTable() {
+      const tMob = document.getElementById('tblMobiles');
+      if(!storeCollections.mobiles) return;
+
+      tMob.innerHTML = storeCollections.mobiles.map(m => `
+        <tr class="hover:bg-slate-800/30">
+          <td class="p-3 font-bold">${m.brand} ${m.model}</td>
+          <td class="p-3 font-mono text-indigo-400">${m.imei}</td>
+          <td class="p-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-[10px]">${m.status}</span></td>
+          <td class="p-3 text-right font-mono">₹${m.salePrice || m.targetSellPrice || m.buyPrice}</td>
+          <td class="p-3 text-center"><button onclick="delRec('used_mobiles','${m._id}')" class="text-rose-400 hover:text-white"><i class="fa-solid fa-trash"></i></button></td>
+        </tr>
+      `).join('') || '<tr><td colspan="5" class="p-4 text-center text-slate-500">No Used Mobiles</td></tr>';
+    }
+
+    async function delRec(col, id) {
+      if (!confirm("Delete this record permanently?")) return;
+      try {
+        await db.collection('stores').doc(activeStoreUid).collection(col).doc(id).delete();
+      } catch (err) { alert(err.message); }
+    }
+
     async function toggleStoreStatus() {
       const btn = document.getElementById('detStatusBtn');
       const action = btn.dataset.action;
@@ -623,10 +704,7 @@
       
       try {
         await db.collection('stores').doc(activeStoreUid).update({ status: newStatus });
-        const idx = allStores.findIndex(s => s.uid === activeStoreUid);
-        allStores[idx].status = newStatus;
-        openStoreDetail(activeStoreUid);
-        loadStores();
+        setTimeout(() => openStoreDetail(activeStoreUid), 500); 
       } catch (err) {
         alert("Error updating status: " + err.message);
       }
@@ -640,11 +718,8 @@
         await db.collection('stores').doc(activeStoreUid).update({
           shopName: name, shopPhone: phone, shopAddress: address
         });
-        const idx = allStores.findIndex(s => s.uid === activeStoreUid);
-        Object.assign(allStores[idx], { shopName: name, shopPhone: phone, shopAddress: address });
         alert("Profile updated successfully!");
-        openStoreDetail(activeStoreUid);
-        loadStores();
+        setTimeout(() => openStoreDetail(activeStoreUid), 500);
       } catch (err) {
         alert("Error: " + err.message);
       }
@@ -667,7 +742,6 @@
       if (pin !== "DELETE") return alert("Cancelled.");
       
       try {
-        // Delete collections first
         const cols = ['jobs', 'emis', 'lcd_inventory', 'used_mobiles'];
         for (let c of cols) {
           const snap = await db.collection('stores').doc(activeStoreUid).collection(c).get();
@@ -678,87 +752,17 @@
         await db.collection('stores').doc(activeStoreUid).delete();
         alert("Store deleted permanently.");
         switchView('stores');
-        loadStores();
       } catch (err) {
         alert("Error: " + err.message);
       }
     }
 
-    // ==========================================
-    // TABLES RENDERING
-    // ==========================================
-    function renderStoreTables() {
-      // Jobs
-      const tJobs = document.getElementById('tblJobs');
-      tJobs.innerHTML = storeCollections.jobs.map(j => `
-        <tr class="hover:bg-slate-800/30">
-          <td class="p-3 font-mono text-indigo-400">${j.billNo}</td>
-          <td class="p-3 text-slate-400">${j.intakeDate}</td>
-          <td class="p-3 font-bold">${j.customerName}</td>
-          <td class="p-3">${j.model}</td>
-          <td class="p-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-[10px]">${j.status}</span></td>
-          <td class="p-3 text-right font-bold">₹${j.finalAmount || j.estCost || 0}</td>
-          <td class="p-3 text-center"><button onclick="delRec('jobs','${j._id}')" class="text-rose-400 hover:text-white"><i class="fa-solid fa-trash"></i></button></td>
-        </tr>
-      `).join('') || '<tr><td colspan="7" class="p-4 text-center text-slate-500">No jobs</td></tr>';
-
-      // EMI
-      const tEmis = document.getElementById('tblEmis');
-      tEmis.innerHTML = storeCollections.emis.map(e => `
-        <tr class="hover:bg-slate-800/30">
-          <td class="p-3 font-bold">${e.customerName}</td>
-          <td class="p-3">${e.deviceModel}</td>
-          <td class="p-3 font-mono text-[10px]">${e.imei}</td>
-          <td class="p-3 text-right">₹${e.totalPayable || e.totalEmi || 0}</td>
-          <td class="p-3 text-center"><button onclick="delRec('emis','${e._id}')" class="text-rose-400 hover:text-white"><i class="fa-solid fa-trash"></i></button></td>
-        </tr>
-      `).join('') || '<tr><td colspan="5" class="p-4 text-center text-slate-500">No EMI</td></tr>';
-
-      // LCD
-      const tLcd = document.getElementById('tblLcd');
-      tLcd.innerHTML = storeCollections.lcd.map(l => `
-        <tr class="hover:bg-slate-800/30">
-          <td class="p-3 font-bold">${l.name}</td>
-          <td class="p-3"><span class="text-emerald-400 font-bold">${l.stock}</span> pcs</td>
-          <td class="p-3 text-right font-mono">₹${l.price}</td>
-          <td class="p-3">${l.location || '-'}</td>
-          <td class="p-3 text-center"><button onclick="delRec('lcd_inventory','${l._id}')" class="text-rose-400 hover:text-white"><i class="fa-solid fa-trash"></i></button></td>
-        </tr>
-      `).join('') || '<tr><td colspan="5" class="p-4 text-center text-slate-500">No LCD Stock</td></tr>';
-
-      // Mobiles
-      const tMob = document.getElementById('tblMobiles');
-      tMob.innerHTML = storeCollections.mobiles.map(m => `
-        <tr class="hover:bg-slate-800/30">
-          <td class="p-3 font-bold">${m.brand} ${m.model}</td>
-          <td class="p-3 font-mono text-indigo-400">${m.imei}</td>
-          <td class="p-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-[10px]">${m.status}</span></td>
-          <td class="p-3 text-right font-mono">₹${m.salePrice || m.targetSellPrice || m.buyPrice}</td>
-          <td class="p-3 text-center"><button onclick="delRec('used_mobiles','${m._id}')" class="text-rose-400 hover:text-white"><i class="fa-solid fa-trash"></i></button></td>
-        </tr>
-      `).join('') || '<tr><td colspan="5" class="p-4 text-center text-slate-500">No Used Mobiles</td></tr>';
-    }
-
-    async function delRec(col, id) {
-      if (!confirm("Delete this record permanently?")) return;
-      try {
-        await db.collection('stores').doc(activeStoreUid).collection(col).doc(id).delete();
-        openStoreDetail(activeStoreUid); // reload
-      } catch (err) { alert(err.message); }
-    }
-
-    // ==========================================
-    // BACKUP & RESTORE
-    // ==========================================
     async function downloadStoreBackup() {
       const status = document.getElementById('backupStatus');
       status.innerText = "Preparing backup...";
       try {
         const store = allStores.find(s => s.uid === activeStoreUid);
-        const backup = {
-          storeProfile: store,
-          collections: storeCollections
-        };
+        const backup = { storeProfile: store, collections: storeCollections };
         const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -793,7 +797,6 @@
           }
         }
         status.innerText = `✅ Restored ${count} records.`;
-        openStoreDetail(activeStoreUid);
       } catch (err) {
         status.innerText = "❌ Restore failed: " + err.message;
       }
@@ -812,15 +815,11 @@
           await batch.commit();
         }
         alert("Data wiped successfully.");
-        openStoreDetail(activeStoreUid);
       } catch (err) {
         alert("Error wiping data: " + err.message);
       }
     }
 
-    // ==========================================
-    // CREATE STORE (Using Secondary Auth)
-    // ==========================================
     function openCreateStoreModal() {
       document.getElementById('createStoreForm').reset();
       document.getElementById('createStoreErr').classList.add('hidden');
@@ -841,34 +840,28 @@
       errBox.classList.add('hidden');
 
       try {
-        // Create Auth User using secondary app
         const cred = await secondaryAuth.createUserWithEmailAndPassword(email, pass);
         const newUid = cred.user.uid;
-        await secondaryAuth.signOut(); // sign out secondary immediately
+        await secondaryAuth.signOut();
 
-        // Create Firestore Doc
         await db.collection('stores').doc(newUid).set({
           shopName: document.getElementById('newShopName').value.trim(),
           shopPhone: document.getElementById('newShopPhone').value.trim(),
           shopAddress: document.getElementById('newShopAddress').value.trim(),
           ownerEmail: email,
-          status: 'approved', // Auto approve since created by dev
-          savedPassword: pass, // Save plain text so dev can see it later (optional, but requested by user previously)
+          status: 'approved',
+          savedPassword: pass,
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
 
         alert("Store created successfully!");
         closeModal('createStoreModal');
-        loadStores();
       } catch (err) {
         errBox.innerText = "Error: " + err.message;
         errBox.classList.remove('hidden');
       }
     }
 
-    // ==========================================
-    // DEVELOPER MANAGEMENT
-    // ==========================================
     async function loadDevelopers() {
       if (!isSuperAdmin) return;
       const container = document.getElementById('devListContainer');
@@ -895,7 +888,6 @@
           });
         }
         
-        // Add Super Admin card
         container.innerHTML += `
           <div class="glass-panel p-4 rounded-2xl border border-emerald-500/30 bg-emerald-500/5 flex justify-between items-center">
             <div>
@@ -945,7 +937,6 @@
       }
     }
 
-    // INIT DEFAULTS
     document.addEventListener('DOMContentLoaded', () => {
       switchView('dashboard');
     });
