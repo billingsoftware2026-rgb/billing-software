@@ -142,6 +142,12 @@ input,select,textarea,button{-webkit-tap-highlight-color:transparent}input[type=
 <div><label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Device Model *</label><input type="text" id="deviceModel" required placeholder="e.g. iPhone 13 Pro" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 text-white"></div>
 <div><label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">IMEI / Serial</label><div class="relative"><input type="text" id="deviceImei" placeholder="15-digit IMEI (Optional)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 pr-14 text-sm focus:outline-none focus:border-indigo-500 text-white font-mono"><button type="button" onclick="openScanner('deviceImei')" title="Scan" class="absolute right-2 top-2 w-10 h-10 rounded-lg bg-indigo-600/20 hover:bg-indigo-600 text-indigo-400 hover:text-white flex items-center justify-center"><i class="fa-solid fa-barcode text-lg"></i></button></div></div>
 <div class="md:col-span-2"><label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Reported Problem *</label><textarea id="faultDesc" required rows="2" placeholder="e.g. AMOLED Display Needed" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 text-white"></textarea></div>
+<!-- NEW: Parts Integration Field -->
+<div class="md:col-span-2">
+<label class="block text-xs font-semibold uppercase tracking-wider text-emerald-400 mb-2"><i class="fa-solid fa-boxes-stacked"></i> Link Stock Part (Auto-Deduct)</label>
+<input type="text" id="intakePartName" list="stockPartsDatalist" oninput="onIntakePartInput(this.value)" placeholder="Search & select part from stock..." class="w-full bg-slate-950 border border-emerald-500/40 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 text-white transition">
+<input type="hidden" id="intakePartId">
+</div>
 <div class="md:col-span-2 p-4 bg-slate-950 rounded-2xl border border-amber-500/30 space-y-3">
 <div class="flex items-center gap-2 text-amber-400 font-bold text-xs"><i class="fa-solid fa-id-card"></i> ID Verification (Mandatory for FRP Unlock)</div>
 <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -270,7 +276,12 @@ input,select,textarea,button{-webkit-tap-highlight-color:transparent}input[type=
 <input type="hidden" id="diagBillNo">
 <div><label class="block text-xs font-semibold text-slate-400 uppercase mb-1.5">Refined Diagnosis</label><textarea id="diagFault" rows="3" placeholder="e.g. Display combo burnt..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"></textarea></div>
 <div class="grid grid-cols-2 gap-3"><div><label class="block text-xs font-semibold text-slate-400 uppercase mb-1.5">Revised Estimate (₹)</label><input type="number" id="diagEstimate" min="0" class="w-full bg-slate-950 border border-indigo-500/50 rounded-xl px-3 py-2 text-sm font-bold text-white focus:outline-none focus:border-indigo-500"></div><div><label class="block text-xs font-semibold text-slate-400 uppercase mb-1.5">Parts Cost (₹)</label><input type="number" id="diagPartsCost" min="0" value="0" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"></div></div>
-<div><label class="block text-xs font-semibold text-slate-400 uppercase mb-1.5">Parts Required</label><input type="text" id="diagPartsName" placeholder="e.g. AMOLED Display" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"></div>
+<!-- NEW: Diagnosis Parts Integration -->
+<div>
+<label class="block text-xs font-semibold text-emerald-400 uppercase mb-1.5">Link Stock Part (Optional)</label>
+<input type="text" id="diagPartsName" list="stockPartsDatalist" oninput="onDiagPartInput(this.value)" placeholder="Search stock..." class="w-full bg-slate-950 border border-emerald-500/40 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+<input type="hidden" id="diagPartId">
+</div>
 <div class="flex items-center gap-2 text-xs text-emerald-400 bg-emerald-500/10 p-2.5 rounded-xl border border-emerald-500/20"><i class="fa-brands fa-whatsapp"></i><span>Send WhatsApp estimate</span><input type="checkbox" id="diagNotifyWhatsApp" class="ml-auto w-4 h-4 accent-emerald-600"></div>
 <div class="pt-3 border-t border-slate-800 flex justify-end gap-2"><button onclick="closeDiagnosisModal()" class="px-4 py-2.5 rounded-xl border border-slate-800 text-slate-400 hover:text-white text-xs font-semibold">Cancel</button><button onclick="saveDiagnosis()" id="diagSaveBtn" class="bg-indigo-600 hover:bg-indigo-700 px-5 py-2.5 rounded-xl text-xs font-bold text-white flex items-center gap-2"><i class="fa-solid fa-floppy-disk"></i> Save</button></div>
 </div>
@@ -305,7 +316,12 @@ input,select,textarea,button{-webkit-tap-highlight-color:transparent}input[type=
 <div><label class="block text-xs font-semibold text-slate-400 uppercase mb-1.5">Outcome *</label><select id="modalStatusSelect" onchange="toggleDeliveryOutcomeUI()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500"><option value="Delivered">Repaired & Delivered</option><option value="Unrepairable">Unrepairable / Returned</option></select></div>
 <div id="repairableFields" class="space-y-3">
 <div><label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Warranty *</label><select id="modalWarranty" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"><option value="No Warranty">No Warranty</option><option value="30 Days Service Warranty" selected>30 Days</option><option value="60 Days Service Warranty">60 Days</option><option value="90 Days Warranty (Display & Touch)">90 Days</option><option value="6 Months Warranty">6 Months</option></select></div>
-<div><label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Replaced Parts (Optional)</label><input type="text" id="modalPartName" placeholder="e.g. AMOLED Display" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"></div>
+<!-- NEW: Delivery Parts Integration -->
+<div>
+<label class="block text-xs font-semibold text-emerald-400 uppercase mb-1">Replaced Parts (Search Stock)</label>
+<input type="text" id="modalPartName" list="stockPartsDatalist" oninput="onDeliveryPartInput(this.value)" placeholder="e.g. AMOLED Display" class="w-full bg-slate-950 border border-emerald-500/40 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+<input type="hidden" id="modalPartId">
+</div>
 <div class="grid grid-cols-2 gap-3"><div><label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Parts Cost (₹)</label><input type="number" id="modalPartCost" value="0" min="0" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"></div><div><label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Final Bill (₹) *</label><input type="number" id="modalFinalAmount" min="0" oninput="handleFinalAmountChange()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm font-bold text-white focus:outline-none focus:border-indigo-500"></div></div>
 <div id="deliveryDiscountInfo" class="hidden text-xs bg-amber-500/10 border border-amber-500/30 p-2.5 rounded-xl"><div class="flex justify-between text-amber-300 font-bold"><span><i class="fa-solid fa-percent mr-1"></i>Loyalty Discount:</span><span id="modalDiscountDisp">0%</span></div><div class="flex justify-between text-slate-300 text-[11px] mt-0.5"><span id="modalDiscountReason"></span><span id="modalDiscountAmountDisp">-₹0</span></div></div>
 <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-2 text-xs">
@@ -331,6 +347,12 @@ input,select,textarea,button{-webkit-tap-highlight-color:transparent}input[type=
 <div><label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Model</label><input type="text" id="editModel" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white"></div>
 <div><label class="block text-xs font-semibold text-slate-400 uppercase mb-1">IMEI</label><input type="text" id="editImei" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm font-mono text-white"></div>
 <div class="col-span-2"><label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Problem</label><textarea id="editFault" rows="2" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white"></textarea></div>
+<!-- NEW: Edit Parts Integration -->
+<div class="col-span-2">
+<label class="block text-xs font-semibold text-emerald-400 uppercase mb-1">Linked Stock Part (Optional)</label>
+<input type="text" id="editPartName" list="stockPartsDatalist" oninput="onEditPartInput(this.value)" placeholder="Search stock..." class="w-full bg-slate-950 border border-emerald-500/40 rounded-xl px-3 py-2 text-sm text-white">
+<input type="hidden" id="editPartId">
+</div>
 <div class="col-span-2 grid grid-cols-2 gap-3 p-3 bg-slate-950 rounded-xl border border-amber-500/30"><div class="col-span-2 text-xs font-bold text-amber-400"><i class="fa-solid fa-id-card mr-1"></i> ID Info</div><div><label class="block text-[10px] font-semibold text-slate-400 uppercase mb-1">Type</label><select id="editIdType" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-white"><option value="">None</option><option value="Aadhaar Card">Aadhaar</option><option value="Voter ID Card">Voter ID</option><option value="Driving License">DL</option></select></div><div><label class="block text-[10px] font-semibold text-slate-400 uppercase mb-1">Number</label><input type="text" id="editIdNumber" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-white font-mono"></div></div>
 <div class="col-span-2"><label class="block text-xs font-semibold text-amber-400 uppercase mb-1">Remarks 🔒</label><input type="text" id="editRemarks" class="w-full bg-slate-950 border border-amber-500/40 rounded-xl px-3 py-2 text-sm text-white"></div>
 <div><label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Status</label><select id="editStatusSelect" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white"><option value="Pending">Pending</option><option value="Parts-Ordered">Parts Ordered</option><option value="Ready">Ready</option><option value="Delivered">Delivered</option><option value="Unrepairable">Unrepairable</option></select></div>
@@ -351,6 +373,9 @@ input,select,textarea,button{-webkit-tap-highlight-color:transparent}input[type=
 </div>
 </div>
 
+<!-- DATALIST FOR STOCK PARTS -->
+<datalist id="stockPartsDatalist"></datalist>
+
 <div id="masterDirectPrintArea" style="display: none;"></div>
 <footer class="bg-slate-900 border-t border-slate-800 py-4 mt-auto"><div class="max-w-7xl mx-auto px-4 text-center"><p class="text-xs text-slate-400">SmartFix Pro &copy; 2026 | Mobile Workshop Management System</p><p class="text-xs font-semibold text-indigo-400 mt-1"><i class="fa-solid fa-code mr-1"></i> Developed by Debapriya Sarkar</p></div></footer>
 
@@ -359,7 +384,8 @@ const firebaseConfig={apiKey:"AIzaSyCG357Dtw_ftKsgAyRSsoZUSfMNpx-GGz0",authDomai
 firebase.initializeApp(firebaseConfig);
 const auth=firebase.auth();
 const db=firebase.firestore();
-let isOwnerAuthenticated=false,pendingDestinationTab=null,currentStatusFilter="ALL",currentCustomerTierFilter="ALL",currentStore=null,currentAuthMode="login",repairJobs=[],deferredPrompt=null,currentViewingJobBill=null,currentViewingCustomerPhone=null,customersCache={},hasAutoRestoredJobs=false,unsubJobsSnapshot=null,unsubCustomersSnapshot=null,isSubmittingIntake=false,cachedJobsList=null,html5QrCode;
+let isOwnerAuthenticated=false,pendingDestinationTab=null,currentStatusFilter="ALL",currentCustomerTierFilter="ALL",currentStore=null,currentAuthMode="login",repairJobs=[],deferredPrompt=null,currentViewingJobBill=null,currentViewingCustomerPhone=null,customersCache={},hasAutoRestoredJobs=false,unsubJobsSnapshot=null,unsubCustomersSnapshot=null,unsubLcdSnapshot=null,isSubmittingIntake=false,cachedJobsList=null,html5QrCode;
+let lcdInventory = [];
 let currentIntakeDiscount={percent:0,tier:'New',reason:'',amount:0};
 
 function escapeHtml(str){if(str===null||str===undefined)return '';return String(str).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
@@ -402,21 +428,27 @@ async function autoRestoreMirroredJobsIfCloudEmpty(userUid,cloudDocsCount){if(ha
 
 function isWarrantyValid(job){if(!job.warranty||job.warranty==="No Warranty"||job.warranty==="None"||job.warranty.includes('No Warranty'))return false;if(!job.deliveryDate||job.deliveryDate==="--")return false;const dd=new Date(job.deliveryDate),today=new Date();dd.setHours(0,0,0,0);today.setHours(0,0,0,0);if(today<dd)return false;const diff=Math.round((today-dd)/(1000*60*60*24));let max=0;if(job.warranty.includes('30 Days'))max=30;else if(job.warranty.includes('60 Days'))max=60;else if(job.warranty.includes('90 Days'))max=90;else if(job.warranty.includes('6 Months'))max=180;else return true;return diff<=max;}
 
-async function checkAndFileWarranty(originalBillNo){const job=repairJobs.find(j=>j.billNo===originalBillNo);if(!job)return;if(!isWarrantyValid(job)){alert(`Warranty Claim Denied!\n\nWarranty: ${job.warranty}\nDelivered: ${job.deliveryDate}`);return;}if(!window.confirm(`Register Warranty Claim for ${job.customerName}?\n\nDevice: ${job.model}`))return;let newBill;do{newBill='CMP-'+Math.floor(1000+Math.random()*9000);}while(repairJobs.some(j=>j.billNo===newBill));const newJob={billNo:newBill,intakeDate:localDateString(),deliveryDate:"--",customerName:job.customerName,phone:job.phone,model:job.model,imei:job.imei,fault:"Warranty Claim for Bill "+originalBillNo,remarks:"Original: "+job.fault,estCost:0,advPaid:0,advPayMethod:"Cash",refundPaid:0,deliveryCollected:0,deliveryPayMethod:"Cash",dueBalance:0,status:"Pending",warranty:job.warranty,partName:"",partCost:0,finalAmount:0,netProfit:0,isComplaint:true,originalBill:originalBillNo,idType:job.idType||"",idNumber:job.idNumber||"",diagnosedEstimate:0,diagnosedNote:"",discountPercent:0,discountAmount:0,discountTier:"Warranty",discountReason:"Warranty Claim",followUps:[{type:"System",time:new Date().toLocaleString(),note:`Warranty Claim from ${originalBillNo}`}]};await syncJobToFirestore(newJob);alert("✅ Warranty Claim Registered.");activateTab('complaints');}
+async function checkAndFileWarranty(originalBillNo){const job=repairJobs.find(j=>j.billNo===originalBillNo);if(!job)return;if(!isWarrantyValid(job)){alert(`Warranty Claim Denied!\n\nWarranty: ${job.warranty}\nDelivered: ${job.deliveryDate}`);return;}if(!window.confirm(`Register Warranty Claim for ${job.customerName}?\n\nDevice: ${job.model}`))return;let newBill;do{newBill='CMP-'+Math.floor(1000+Math.random()*9000);}while(repairJobs.some(j=>j.billNo===newBill));const newJob={billNo:newBill,intakeDate:localDateString(),deliveryDate:"--",customerName:job.customerName,phone:job.phone,model:job.model,imei:job.imei,fault:"Warranty Claim for Bill "+originalBillNo,remarks:"Original: "+job.fault,estCost:0,advPaid:0,advPayMethod:"Cash",refundPaid:0,deliveryCollected:0,deliveryPayMethod:"Cash",dueBalance:0,status:"Pending",warranty:job.warranty,partName:"",partId:"",partCost:0,finalAmount:0,netProfit:0,isComplaint:true,originalBill:originalBillNo,idType:job.idType||"",idNumber:job.idNumber||"",diagnosedEstimate:0,diagnosedNote:"",discountPercent:0,discountAmount:0,discountTier:"Warranty",discountReason:"Warranty Claim",followUps:[{type:"System",time:new Date().toLocaleString(),note:`Warranty Claim from ${originalBillNo}`}]};await syncJobToFirestore(newJob);alert("✅ Warranty Claim Registered.");activateTab('complaints');}
 
 function togglePasswordVisibility(fieldId,btn){const input=document.getElementById(fieldId);const icon=btn.querySelector('i');if(input.type==='password'){input.type='text';icon.className='fa-solid fa-eye-slash text-xs text-indigo-400';}else{input.type='password';icon.className='fa-solid fa-eye text-xs text-slate-500';}}
 function toggleAuthMode(mode){currentAuthMode=mode;document.getElementById('authErrorMsg').classList.add('hidden');if(mode==='register'){document.getElementById('btnLoginTab').className="flex-1 py-2.5 rounded-lg text-slate-400 hover:text-white transition flex items-center justify-center gap-1.5";document.getElementById('btnRegisterTab').className="flex-1 py-2.5 rounded-lg bg-indigo-600 text-white shadow transition flex items-center justify-center gap-1.5";document.getElementById('shopMetaFields').classList.remove('hidden');document.getElementById('authTitle').innerText="Register Your Workshop";document.getElementById('authSubtitle').innerText="Set up your store details";document.getElementById('authSubmitBtn').innerHTML='<span>Create Store</span><i class="fa-solid fa-arrow-right text-xs"></i>';}else{document.getElementById('btnLoginTab').className="flex-1 py-2.5 rounded-lg bg-indigo-600 text-white shadow transition flex items-center justify-center gap-1.5";document.getElementById('btnRegisterTab').className="flex-1 py-2.5 rounded-lg text-slate-400 hover:text-white transition flex items-center justify-center gap-1.5";document.getElementById('shopMetaFields').classList.add('hidden');document.getElementById('authTitle').innerText="Owner Authorization";document.getElementById('authSubtitle').innerText="Sign in with your credentials";document.getElementById('authSubmitBtn').innerHTML='<span>Sign In</span><i class="fa-solid fa-arrow-right text-xs"></i>';}}
 
 async function handleAuth(e){e.preventDefault();const email=document.getElementById('authEmail').value.trim();const pass=document.getElementById('authPassword').value;const errorBox=document.getElementById('authErrorMsg');const errorText=document.getElementById('authErrorText');errorBox.classList.add('hidden');try{if(currentAuthMode==='register'){const sName=document.getElementById('regShopName').value.trim();const sAddr=document.getElementById('regShopAddress').value.trim();const sPhone=document.getElementById('regShopPhone').value.trim();if(!sName||!sAddr||!sPhone){errorText.innerText="Please complete all shop details.";errorBox.classList.remove('hidden');return;}const cred=await auth.createUserWithEmailAndPassword(email,pass);const storeData={shopName:sName,shopAddress:sAddr,shopPhone:sPhone,ownerEmail:email,promoOffer:"FREE TEMPERED GLASS with Warranty Display Replacement",createdAt:firebase.firestore.FieldValue.serverTimestamp()};try{await db.collection('stores').doc(cred.user.uid).set(storeData);localStorage.setItem(storeMirrorKey(),JSON.stringify(storeData));}catch(storeErr){try{await cred.user.delete();}catch(_){}throw storeErr;}}else{await auth.signInWithEmailAndPassword(email,pass);}}catch(err){errorText.innerText=err.message;errorBox.classList.remove('hidden');}}
 
-function signOutShop(){if(unsubJobsSnapshot){try{unsubJobsSnapshot();}catch(_){}unsubJobsSnapshot=null;}if(unsubCustomersSnapshot){try{unsubCustomersSnapshot();}catch(_){}unsubCustomersSnapshot=null;}auth.signOut().finally(()=>location.reload());}
+function signOutShop(){
+if(unsubJobsSnapshot){try{unsubJobsSnapshot();}catch(_){}unsubJobsSnapshot=null;}
+if(unsubCustomersSnapshot){try{unsubCustomersSnapshot();}catch(_){}unsubCustomersSnapshot=null;}
+if(unsubLcdSnapshot){try{unsubLcdSnapshot();}catch(_){}unsubLcdSnapshot=null;}
+auth.signOut().finally(()=>location.reload());
+}
 
 async function savePromoOffer(){if(!auth.currentUser)return;const newText=document.getElementById('promoOfferInput').value.trim();if(!newText){alert('Please enter a promo text.');return;}try{await db.collection('stores').doc(auth.currentUser.uid).update({promoOffer:newText});if(currentStore)currentStore.promoOffer=newText;localStorage.setItem(storeMirrorKey(),JSON.stringify(currentStore));document.getElementById('currentPromoDisplay').innerText=newText;alert('✅ Promo offer updated successfully!');}catch(e){alert('Failed: '+e.message);}}
 
 auth.onAuthStateChanged(async(user)=>{
 if(unsubJobsSnapshot){try{unsubJobsSnapshot();}catch(_){}unsubJobsSnapshot=null;}
 if(unsubCustomersSnapshot){try{unsubCustomersSnapshot();}catch(_){}unsubCustomersSnapshot=null;}
-hasAutoRestoredJobs=false;cachedJobsList=null;customersCache={};
+if(unsubLcdSnapshot){try{unsubLcdSnapshot();}catch(_){}unsubLcdSnapshot=null;}
+hasAutoRestoredJobs=false;cachedJobsList=null;customersCache={};lcdInventory=[];
 if(user){
 try{const storeDoc=await db.collection('stores').doc(user.uid).get();
 if(storeDoc.exists){currentStore=storeDoc.data();
@@ -440,9 +472,77 @@ renderDailyCashReport();renderJobCards();if(isOwnerAuthenticated)renderLedgerTab
 },(err)=>{repairJobs=getMirroredJobsFromLocal();renderDailyCashReport();renderJobCards();if(isOwnerAuthenticated)renderLedgerTable();});
 
 unsubCustomersSnapshot=db.collection('stores').doc(user.uid).collection('customers').onSnapshot((snapshot)=>{customersCache={};snapshot.forEach(doc=>{customersCache[doc.id]={id:doc.id,...doc.data()};});if(!document.getElementById('view-customers').classList.contains('hidden'))renderCustomers();},()=>{});
+
+// NEW: LCD Inventory Listener
+unsubLcdSnapshot=db.collection('stores').doc(user.uid).collection('lcd_inventory').onSnapshot((snapshot)=>{
+lcdInventory=[];snapshot.forEach(doc=>{lcdInventory.push({id:doc.id,...doc.data()});});
+refreshStockPartsDatalist();
+});
+
 }else{document.getElementById('authScreen').classList.remove('hidden');}
 });
 
+// NEW: Parts Datalist Functions
+function refreshStockPartsDatalist(){
+const dl=document.getElementById('stockPartsDatalist');if(!dl)return;
+let html='';
+lcdInventory.forEach(item=>{
+if(Number(item.stock)>0){
+html+=`<option value="${escapeHtml(item.name)}">Stock: ${item.stock} | Price: ₹${item.price}</option>`;
+}
+});
+dl.innerHTML=html;
+}
+
+function onIntakePartInput(val){
+const part=lcdInventory.find(p=>p.name===val);
+if(part){
+document.getElementById('intakePartId').value=part.id;
+document.getElementById('estCost').value=part.price;
+}else{
+document.getElementById('intakePartId').value='';
+}
+}
+
+function onEditPartInput(val){
+const part=lcdInventory.find(p=>p.name===val);
+if(part){
+document.getElementById('editPartId').value=part.id;
+document.getElementById('editEstCost').value=part.price;
+}else{
+document.getElementById('editPartId').value='';
+}
+}
+
+function onDiagPartInput(val){
+const part=lcdInventory.find(p=>p.name===val);
+if(part){
+document.getElementById('diagPartsCost').value=part.price;
+document.getElementById('diagPartId').value=part.id;
+}else{
+document.getElementById('diagPartId').value='';
+}
+}
+
+function onDeliveryPartInput(val){
+const part=lcdInventory.find(p=>p.name===val);
+if(part){
+document.getElementById('modalPartCost').value=part.price;
+document.getElementById('modalPartId').value=part.id;
+}else{
+document.getElementById('modalPartId').value='';
+}
+}
+
+async function adjustStockForJob(oldPartId,newPartId){
+if(oldPartId===newPartId)return;
+if(!auth.currentUser)return;
+const userUid=auth.currentUser.uid;
+if(oldPartId){try{await db.collection('stores').doc(userUid).collection('lcd_inventory').doc(oldPartId).update({stock:firebase.firestore.FieldValue.increment(1)});}catch(e){console.warn('Error returning stock',e);}}
+if(newPartId){try{await db.collection('stores').doc(userUid).collection('lcd_inventory').doc(newPartId).update({stock:firebase.firestore.FieldValue.increment(-1)});}catch(e){console.warn('Error deducting stock',e);}}
+}
+
+// REST OF CRM FUNCTIONS
 function calculateLoyaltyDiscount(stats){const visits=stats.totalVisits||0,spend=stats.totalSpent||0,due=stats.totalDue||0;if(visits===0)return{percent:0,tier:'New',reason:'New Customer',nextNote:'Next visit: 2% loyalty discount!'};if(due>0)return{percent:2,tier:'Returning',reason:'Returning Customer (has pending balance)'};if(visits>=10||spend>=20000)return{percent:10,tier:'Platinum',reason:'Best Customer - 10% Loyalty Reward 🏆'};if(visits>=5||spend>=8000)return{percent:5,tier:'Gold',reason:'Loyal Customer - 5% Discount 🥇'};return{percent:2,tier:'Silver',reason:'Returning Customer - 2% Discount 🥈'};}
 
 function getCustomerStats(phone){const key=normalizePhoneLocal(phone);const jobs=repairJobs.filter(j=>normalizePhoneLocal(j.phone)===key);let totalVisits=0,totalSpent=0,totalDue=0;let firstVisit='',lastVisit='',name='';const seenBills=new Set();jobs.forEach(job=>{if(!job.billNo||seenBills.has(job.billNo))return;seenBills.add(job.billNo);totalVisits++;if(job.status==='Delivered')totalSpent+=parseFloat(job.finalAmount)||0;if(job.status!=='Unrepairable')totalDue+=parseFloat(job.dueBalance)||0;const date=job.intakeDate||'';if(!firstVisit||(date&&date<firstVisit))firstVisit=date;if(!lastVisit||(date&&date>lastVisit))lastVisit=date;if(job.customerName&&(!name||name==='Unknown'))name=job.customerName;});return{phone:key,jobs,totalVisits,totalSpent,totalDue,firstVisit,lastVisit,name};}
@@ -489,7 +589,7 @@ document.getElementById('tierCountGold').innerText=all.filter(c=>c.tier==='Gold'
 document.getElementById('tierCountSilver').innerText=all.filter(c=>c.tier==='Silver'||c.tier==='Returning').length;
 document.getElementById('tierCountBronze').innerText=all.filter(c=>c.tier==='Bronze').length;
 let filtered=q?all.filter(c=>String(c.name).toLowerCase().includes(q)||String(c.phone).includes(q)):all;
-if(currentCustomerTierFilter!=='ALL'){if(currentCustomerTierFilter==='SILVER'){filtered=filtered.filter(c=>c.tier==='Silver'||c.tier==='Returning');}else{filtered=filtered.filter(c=>c.tier===currentCustomerTierFilter);}}
+if(currentCustomerTierFilter!=='ALL'){if(currentCustomerTierFilter==='SILVER'){filtered=filtered.filter(c=>c.tier==='Silver'||c.tier==='Returning');}else{filtered=filtered.filter(c=>String(c.tier).toUpperCase()===currentCustomerTierFilter);}}
 filtered.sort((a,b)=>String(b.lastVisit||'').localeCompare(String(a.lastVisit||'')));
 document.getElementById('crmTotalCust').innerText=all.length;
 document.getElementById('crmRepeatCust').innerText=all.filter(c=>(c.totalVisits||1)>=2).length;
@@ -569,7 +669,10 @@ try{await db.collection('stores').doc(userUid).collection('jobs').doc(job.billNo
 
 function scheduleRetry(billNo,uid,attempt){if(attempt>5)return;const delay=Math.min(60000,3000*Math.pow(2,attempt-1));setTimeout(async()=>{try{const current=repairJobs.find(j=>j.billNo===billNo);if(!current)return;const clean={...current};['createdAt','updatedAt','restoredAt'].forEach(k=>{if(clean[k]?.__type)delete clean[k];});await db.collection('stores').doc(uid).collection('jobs').doc(billNo).set({...clean,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});}catch(e){scheduleRetry(billNo,uid,attempt+1);}},delay);}
 
-async function deleteJobFromFirestore(billNo){let currentList=getMirroredJobsFromLocal();currentList=currentList.filter(j=>j.billNo!==billNo);mirrorJobsToLocalStorage(currentList);repairJobs=repairJobs.filter(j=>j.billNo!==billNo);if(!auth.currentUser)return;try{await db.collection('stores').doc(auth.currentUser.uid).collection('jobs').doc(billNo).delete();}catch(e){console.warn(e.message);}}
+async function deleteJobFromFirestore(billNo){
+const job=repairJobs.find(j=>j.billNo===billNo);
+if(job&&job.partId){await adjustStockForJob(job.partId,'');}
+let currentList=getMirroredJobsFromLocal();currentList=currentList.filter(j=>j.billNo!==billNo);mirrorJobsToLocalStorage(currentList);repairJobs=repairJobs.filter(j=>j.billNo!==billNo);if(!auth.currentUser)return;try{await db.collection('stores').doc(auth.currentUser.uid).collection('jobs').doc(billNo).delete();}catch(e){console.warn(e.message);}}
 
 function requestTabAccess(tabId){if(tabId==='backup'){activateTab('backup');return;}if(tabId==='reports'){if(isOwnerAuthenticated)activateTab('reports');else{pendingDestinationTab='reports';openPasswordModal();}return;}activateTab(tabId);}
 
@@ -603,9 +706,12 @@ const appliedDiscountPercent=parseFloat(document.getElementById('appliedDiscount
 const appliedDiscountTier=document.getElementById('appliedDiscountTier').value||'New';
 const appliedDiscountReason=document.getElementById('appliedDiscountReason').value||'';
 const discountAmount=appliedDiscountPercent>0?Math.round(est*appliedDiscountPercent/100):0;
-const newJob={billNo:generatedBill,intakeDate:today,deliveryDate:"--",customerName:document.getElementById('custName').value.trim(),phone:document.getElementById('custPhone').value.trim(),model:document.getElementById('deviceModel').value.trim(),imei:document.getElementById('deviceImei').value.trim()||"N/A",fault:document.getElementById('faultDesc').value.trim(),remarks:remarks,estCost:est,advPaid:adv,advPayMethod:payMethod,diagnosedEstimate:0,diagnosedNote:'',refundPaid:0,deliveryCollected:0,deliveryPayMethod:"Cash",dueBalance:0,status:isPartsOnly?"Parts-Ordered":"Pending",warranty:"No Warranty",partName:"",partCost:0,finalAmount:0,netProfit:0,isComplaint:false,idType:custIdType,idNumber:custIdNumber,discountPercent:appliedDiscountPercent,discountTier:appliedDiscountTier,discountReason:appliedDiscountReason,discountAmount:discountAmount,followUps:[{type:"System",time:new Date().toLocaleString(),note:`Intake created${appliedDiscountPercent>0?` with ${appliedDiscountPercent}% ${appliedDiscountTier} discount`:''}`}]};
+const partName=document.getElementById('intakePartName').value.trim();
+const partId=document.getElementById('intakePartId').value;
+const newJob={billNo:generatedBill,intakeDate:today,deliveryDate:"--",customerName:document.getElementById('custName').value.trim(),phone:document.getElementById('custPhone').value.trim(),model:document.getElementById('deviceModel').value.trim(),imei:document.getElementById('deviceImei').value.trim()||"N/A",fault:document.getElementById('faultDesc').value.trim(),remarks:remarks,estCost:est,advPaid:adv,advPayMethod:payMethod,diagnosedEstimate:0,diagnosedNote:'',refundPaid:0,deliveryCollected:0,deliveryPayMethod:"Cash",dueBalance:0,status:isPartsOnly?"Parts-Ordered":"Pending",warranty:"No Warranty",partName:partName,partId:partId,partCost:0,finalAmount:0,netProfit:0,isComplaint:false,idType:custIdType,idNumber:custIdNumber,discountPercent:appliedDiscountPercent,discountTier:appliedDiscountTier,discountReason:appliedDiscountReason,discountAmount:discountAmount,followUps:[{type:"System",time:new Date().toLocaleString(),note:`Intake created${appliedDiscountPercent>0?` with ${appliedDiscountPercent}% ${appliedDiscountTier} discount`:''}`}]};
 printDirectThermalVoucher(newJob,true);
 syncJobToFirestore(newJob);
+if(partId)adjustStockForJob('',partId);
 e.target.reset();
 hideCustomerRecognition();
 activateTab('dailyCash');
@@ -797,10 +903,18 @@ async function toggleDeviceReady(billNo){const idx=repairJobs.findIndex(j=>j.bil
 function checkAdminThenEdit(billNo){if(isOwnerAuthenticated)openEditModal(billNo);else{pendingDestinationTab='edit_'+billNo;openPasswordModal();}}
 function requestDirectDelete(billNo){if(isOwnerAuthenticated)executeConfirmedDeletion(billNo);else{pendingDestinationTab='delete_'+billNo;openPasswordModal();}}
 
-function openDiagnosisModal(billNo){const job=repairJobs.find(j=>j.billNo===billNo);if(!job)return;document.getElementById('diagBillNo').value=billNo;document.getElementById('diagFault').value=job.diagnosedNote||job.fault||'';document.getElementById('diagEstimate').value=job.diagnosedEstimate||job.estCost||0;document.getElementById('diagPartsCost').value=job.partCost||0;document.getElementById('diagPartsName').value=job.partName||'';document.getElementById('diagNotifyWhatsApp').checked=false;document.getElementById('diagnosisModal').classList.remove('hidden');document.getElementById('diagnosisModal').classList.add('flex');}
+function openDiagnosisModal(billNo){const job=repairJobs.find(j=>j.billNo===billNo);if(!job)return;document.getElementById('diagBillNo').value=billNo;document.getElementById('diagFault').value=job.diagnosedNote||job.fault||'';document.getElementById('diagEstimate').value=job.diagnosedEstimate||job.estCost||0;document.getElementById('diagPartsCost').value=job.partCost||0;document.getElementById('diagPartsName').value=job.partName||'';document.getElementById('diagPartId').value=job.partId||'';document.getElementById('diagNotifyWhatsApp').checked=false;document.getElementById('diagnosisModal').classList.remove('hidden');document.getElementById('diagnosisModal').classList.add('flex');}
 function closeDiagnosisModal(){document.getElementById('diagnosisModal').classList.add('hidden');document.getElementById('diagnosisModal').classList.remove('flex');}
 
-async function saveDiagnosis(){const billNo=document.getElementById('diagBillNo').value;const idx=repairJobs.findIndex(j=>j.billNo===billNo);if(idx===-1)return;const btn=document.getElementById('diagSaveBtn');const origHTML=btn.innerHTML;btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Saving...';try{const newNote=document.getElementById('diagFault').value.trim();const newEst=parseFloat(document.getElementById('diagEstimate').value)||0;const newParts=parseFloat(document.getElementById('diagPartsCost').value)||0;const partsName=document.getElementById('diagPartsName').value.trim();const notify=document.getElementById('diagNotifyWhatsApp').checked;repairJobs[idx].diagnosedNote=newNote;repairJobs[idx].diagnosedEstimate=newEst;repairJobs[idx].estCost=newEst;repairJobs[idx].partCost=newParts;repairJobs[idx].partName=partsName;if(repairJobs[idx].discountPercent>0){repairJobs[idx].discountAmount=Math.round(newEst*repairJobs[idx].discountPercent/100);}if(!repairJobs[idx].followUps)repairJobs[idx].followUps=[];repairJobs[idx].followUps.unshift({type:"Diagnosis",time:new Date().toLocaleString(),note:`Estimate revised to ₹${newEst}. ${newNote}`});renderJobCards();renderDailyCashReport();if(isOwnerAuthenticated)renderLedgerTable();closeDiagnosisModal();syncJobToFirestore(repairJobs[idx]);if(notify)setTimeout(()=>handleStatusWhatsApp(billNo),400);}catch(e){alert('Failed: '+e.message);}finally{btn.disabled=false;btn.innerHTML=origHTML;}}
+async function saveDiagnosis(){const billNo=document.getElementById('diagBillNo').value;const idx=repairJobs.findIndex(j=>j.billNo===billNo);if(idx===-1)return;const btn=document.getElementById('diagSaveBtn');const origHTML=btn.innerHTML;btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Saving...';try{const newNote=document.getElementById('diagFault').value.trim();const newEst=parseFloat(document.getElementById('diagEstimate').value)||0;const newParts=parseFloat(document.getElementById('diagPartsCost').value)||0;const partsName=document.getElementById('diagPartsName').value.trim();const notify=document.getElementById('diagNotifyWhatsApp').checked;
+const newPartId=document.getElementById('diagPartId').value;const oldPartId=repairJobs[idx].partId||'';
+repairJobs[idx].partId=newPartId;
+repairJobs[idx].diagnosedNote=newNote;repairJobs[idx].diagnosedEstimate=newEst;repairJobs[idx].estCost=newEst;repairJobs[idx].partCost=newParts;repairJobs[idx].partName=partsName;
+if(repairJobs[idx].discountPercent>0){repairJobs[idx].discountAmount=Math.round(newEst*repairJobs[idx].discountPercent/100);}if(!repairJobs[idx].followUps)repairJobs[idx].followUps=[];repairJobs[idx].followUps.unshift({type:"Diagnosis",time:new Date().toLocaleString(),note:`Estimate revised to ₹${newEst}. ${newNote}`});
+renderJobCards();renderDailyCashReport();if(isOwnerAuthenticated)renderLedgerTable();closeDiagnosisModal();
+syncJobToFirestore(repairJobs[idx]);
+await adjustStockForJob(oldPartId,newPartId);
+if(notify)setTimeout(()=>handleStatusWhatsApp(billNo),400);}catch(e){alert('Failed: '+e.message);}finally{btn.disabled=false;btn.innerHTML=origHTML;}}
 
 function openDeliveryModal(billNo,estAmount,advPaid){
 const job=repairJobs.find(j=>j.billNo===billNo);if(!job){alert('Job not found');return;}
@@ -811,6 +925,7 @@ document.getElementById('modalWarranty').value="30 Days Service Warranty";
 const suggestedAmount=(parseFloat(job.diagnosedEstimate)||0)>0?job.diagnosedEstimate:estAmount;
 document.getElementById('modalFinalAmount').value=suggestedAmount;
 document.getElementById('modalPartName').value=job.partName||'';
+document.getElementById('modalPartId').value=job.partId||'';
 document.getElementById('modalPartCost').value=job.partCost||0;
 document.getElementById('unrepairableAdvAmount').innerText="₹"+advPaid;
 document.getElementById('modalRefundAmount').value=advPaid;
@@ -824,9 +939,38 @@ toggleDeliveryOutcomeUI();handleFinalAmountChange();
 document.getElementById('deliveryModal').classList.remove('hidden');document.getElementById('deliveryModal').classList.add('flex');
 }
 
-function handleFinalAmountChange(){const adv=parseFloat(document.getElementById('modalAdvPaidHidden').value)||0;const finalAmt=parseFloat(document.getElementById('modalFinalAmount').value)||0;const remainingPayable=Math.max(0,finalAmt-adv);document.getElementById('modalDeliveryAdvDisp').innerText="₹"+adv;document.getElementById('modalDeliveryRemDueDisp').innerText="₹"+remainingPayable;document.getElementById('modalDeliveryCashCollected').value=remainingPayable;document.getElementById('modalCustomerFinalDue').innerText="₹0";const overpayNotice=document.getElementById('overpayNotice');const overpayAmount=document.getElementById('overpayAmount');if(adv>finalAmt){overpayNotice.classList.remove('hidden');overpayAmount.innerText='₹'+(adv-finalAmt);}else{overpayNotice.classList.add('hidden');}}
+function handleFinalAmountChange(){
+const adv=parseFloat(document.getElementById('modalAdvPaidHidden').value)||0;
+const finalAmt=parseFloat(document.getElementById('modalFinalAmount').value)||0;
+const billNo=document.getElementById('modalBillNo').value;
+const job=repairJobs.find(j=>j.billNo===billNo);
+const discPct=job?(parseFloat(job.discountPercent)||0):0;
+const discAmt=Math.round(finalAmt*discPct/100);
+if(discPct>0){document.getElementById('modalDiscountAmountDisp').innerText='-₹'+discAmt;}
+const netPayable=Math.max(0,finalAmt-discAmt);
+const remainingPayable=Math.max(0,netPayable-adv);
+document.getElementById('modalDeliveryAdvDisp').innerText="₹"+adv;
+document.getElementById('modalDeliveryRemDueDisp').innerText="₹"+remainingPayable;
+document.getElementById('modalDeliveryCashCollected').value=remainingPayable;
+document.getElementById('modalCustomerFinalDue').innerText="₹0";
+const overpayNotice=document.getElementById('overpayNotice');
+const overpayAmount=document.getElementById('overpayAmount');
+if(adv>netPayable){overpayNotice.classList.remove('hidden');overpayAmount.innerText='₹'+(adv-netPayable);}else{overpayNotice.classList.add('hidden');}
+}
 
-function updateDeliveryPaymentMath(){const adv=parseFloat(document.getElementById('modalAdvPaidHidden').value)||0;const finalAmt=parseFloat(document.getElementById('modalFinalAmount').value)||0;const remainingPayable=Math.max(0,finalAmt-adv);const collected=parseFloat(document.getElementById('modalDeliveryCashCollected').value)||0;const pendingDue=Math.max(0,remainingPayable-collected);document.getElementById('modalCustomerFinalDue').innerText="₹"+pendingDue;}
+function updateDeliveryPaymentMath(){
+const adv=parseFloat(document.getElementById('modalAdvPaidHidden').value)||0;
+const finalAmt=parseFloat(document.getElementById('modalFinalAmount').value)||0;
+const billNo=document.getElementById('modalBillNo').value;
+const job=repairJobs.find(j=>j.billNo===billNo);
+const discPct=job?(parseFloat(job.discountPercent)||0):0;
+const discAmt=Math.round(finalAmt*discPct/100);
+const netPayable=Math.max(0,finalAmt-discAmt);
+const remainingPayable=Math.max(0,netPayable-adv);
+const collected=parseFloat(document.getElementById('modalDeliveryCashCollected').value)||0;
+const pendingDue=Math.max(0,remainingPayable-collected);
+document.getElementById('modalCustomerFinalDue').innerText="₹"+pendingDue;
+}
 
 function toggleDeliveryOutcomeUI(){const status=document.getElementById('modalStatusSelect').value;if(status==="Unrepairable"){document.getElementById('repairableFields').style.display="none";document.getElementById('unrepairableRefundFields').classList.remove('hidden');}else{document.getElementById('repairableFields').style.display="block";document.getElementById('unrepairableRefundFields').classList.add('hidden');}}
 function closeDeliveryModal(){document.getElementById('deliveryModal').classList.add('hidden');document.getElementById('deliveryModal').classList.remove('flex');}
@@ -837,7 +981,19 @@ const btn=document.getElementById('deliverySubmitBtn');const origHTML=btn.innerH
 try{
 repairJobs[idx].deliveryDate=today;
 if(status==="Unrepairable"){repairJobs[idx].status="Unrepairable";repairJobs[idx].warranty="No Warranty";repairJobs[idx].partName="Unrepairable / Returned";repairJobs[idx].partCost=0;repairJobs[idx].finalAmount=0;repairJobs[idx].estCost=0;repairJobs[idx].refundPaid=advPaid;repairJobs[idx].deliveryCollected=0;repairJobs[idx].dueBalance=0;repairJobs[idx].netProfit=0;}
-else{const pName=document.getElementById('modalPartName').value.trim();const pCost=parseFloat(document.getElementById('modalPartCost').value)||0;const fAmount=parseFloat(document.getElementById('modalFinalAmount').value)||0;const warranty=document.getElementById('modalWarranty').value;const collected=parseFloat(document.getElementById('modalDeliveryCashCollected').value)||0;const delMethod=document.getElementById('modalDeliveryPaymentMethod').value||"Cash";const remainingPayable=Math.max(0,fAmount-advPaid);const pendingDue=Math.max(0,remainingPayable-collected);const overpaid=Math.max(0,advPaid-fAmount);const calculatedProfit=Math.max(0,fAmount-pCost);repairJobs[idx].status="Delivered";repairJobs[idx].warranty=warranty;repairJobs[idx].partName=pName;repairJobs[idx].partCost=pCost;repairJobs[idx].finalAmount=fAmount;repairJobs[idx].deliveryCollected=collected;repairJobs[idx].deliveryPayMethod=delMethod;repairJobs[idx].dueBalance=pendingDue;repairJobs[idx].refundPaid=overpaid;repairJobs[idx].netProfit=calculatedProfit;if(overpaid>0)alert(`Note: Advance (₹${advPaid}) exceeded bill (₹${fAmount}). ₹${overpaid} must be refunded.`);}
+else{const pName=document.getElementById('modalPartName').value.trim();const pCost=parseFloat(document.getElementById('modalPartCost').value)||0;const fAmount=parseFloat(document.getElementById('modalFinalAmount').value)||0;const warranty=document.getElementById('modalWarranty').value;const collected=parseFloat(document.getElementById('modalDeliveryCashCollected').value)||0;const delMethod=document.getElementById('modalDeliveryPaymentMethod').value||"Cash";
+const discPct=parseFloat(repairJobs[idx].discountPercent)||0;
+const discAmt=Math.round(fAmount*discPct/100);
+const netPayable=Math.max(0,fAmount-discAmt);
+const remainingPayable=Math.max(0,netPayable-advPaid);
+const pendingDue=Math.max(0,remainingPayable-collected);
+const overpaid=Math.max(0,advPaid-netPayable);
+const calculatedProfit=Math.max(0,netPayable-pCost);
+repairJobs[idx].status="Delivered";repairJobs[idx].warranty=warranty;repairJobs[idx].partName=pName;repairJobs[idx].partCost=pCost;repairJobs[idx].finalAmount=fAmount;repairJobs[idx].discountAmount=discAmt;repairJobs[idx].deliveryCollected=collected;repairJobs[idx].deliveryPayMethod=delMethod;repairJobs[idx].dueBalance=pendingDue;repairJobs[idx].refundPaid=overpaid;repairJobs[idx].netProfit=calculatedProfit;
+const newPartId=document.getElementById('modalPartId').value;const oldPartId=repairJobs[idx].partId||'';repairJobs[idx].partId=newPartId;
+await adjustStockForJob(oldPartId,newPartId);
+if(overpaid>0)alert(`Note: Advance (₹${advPaid}) exceeded bill (₹${netPayable}). ₹${overpaid} must be refunded.`);
+}
 if(!repairJobs[idx].followUps)repairJobs[idx].followUps=[];repairJobs[idx].followUps.unshift({type:"Delivery",time:new Date().toLocaleString(),note:`Status: ${status}`});
 printDirectThermalVoucher(repairJobs[idx],false);
 closeDeliveryModal();
@@ -846,14 +1002,22 @@ syncJobToFirestore(repairJobs[idx]);
 }catch(e){alert('Failed: '+e.message);}finally{btn.disabled=false;btn.innerHTML=origHTML;}
 }
 
-function openEditModal(billNo){const job=repairJobs.find(j=>j.billNo===billNo);if(!job)return;document.getElementById('editBillNo').value=job.billNo;document.getElementById('editModalBillBadge').innerText=job.billNo;document.getElementById('editCustName').value=job.customerName;document.getElementById('editCustPhone').value=job.phone;document.getElementById('editModel').value=job.model;document.getElementById('editImei').value=job.imei;document.getElementById('editFault').value=job.fault;document.getElementById('editIdType').value=job.idType||'';document.getElementById('editIdNumber').value=job.idNumber||'';document.getElementById('editRemarks').value=job.remarks||'';document.getElementById('editStatusSelect').value=job.status;document.getElementById('editEstCost').value=(job.status==='Unrepairable'?0:(job.finalAmount||job.diagnosedEstimate||job.estCost));document.getElementById('editAdvPaid').value=job.advPaid;document.getElementById('editDueBalance').value=(job.status==='Unrepairable'?0:(job.dueBalance||0));document.getElementById('editModal').classList.remove('hidden');document.getElementById('editModal').classList.add('flex');}
+function openEditModal(billNo){const job=repairJobs.find(j=>j.billNo===billNo);if(!job)return;document.getElementById('editBillNo').value=job.billNo;document.getElementById('editModalBillBadge').innerText=job.billNo;document.getElementById('editCustName').value=job.customerName;document.getElementById('editCustPhone').value=job.phone;document.getElementById('editModel').value=job.model;document.getElementById('editImei').value=job.imei;document.getElementById('editFault').value=job.fault;document.getElementById('editPartName').value=job.partName||'';document.getElementById('editPartId').value=job.partId||'';document.getElementById('editIdType').value=job.idType||'';document.getElementById('editIdNumber').value=job.idNumber||'';document.getElementById('editRemarks').value=job.remarks||'';document.getElementById('editStatusSelect').value=job.status;document.getElementById('editEstCost').value=(job.status==='Unrepairable'?0:(job.finalAmount||job.diagnosedEstimate||job.estCost));document.getElementById('editAdvPaid').value=job.advPaid;document.getElementById('editDueBalance').value=(job.status==='Unrepairable'?0:(job.dueBalance||0));document.getElementById('editModal').classList.remove('hidden');document.getElementById('editModal').classList.add('flex');}
 function closeEditModal(){document.getElementById('editModal').classList.add('hidden');document.getElementById('editModal').classList.remove('flex');}
 
-async function saveEditedJob(){const bNo=document.getElementById('editBillNo').value;const idx=repairJobs.findIndex(j=>j.billNo===bNo);if(idx===-1)return;const newStatus=document.getElementById('editStatusSelect').value;repairJobs[idx].customerName=document.getElementById('editCustName').value.trim();repairJobs[idx].phone=document.getElementById('editCustPhone').value.trim();repairJobs[idx].model=document.getElementById('editModel').value.trim();repairJobs[idx].imei=document.getElementById('editImei').value.trim();repairJobs[idx].fault=document.getElementById('editFault').value.trim();repairJobs[idx].idType=document.getElementById('editIdType').value;repairJobs[idx].idNumber=document.getElementById('editIdNumber').value.trim();repairJobs[idx].remarks=document.getElementById('editRemarks').value.trim();repairJobs[idx].status=newStatus;
+async function saveEditedJob(){const bNo=document.getElementById('editBillNo').value;const idx=repairJobs.findIndex(j=>j.billNo===bNo);if(idx===-1)return;const newStatus=document.getElementById('editStatusSelect').value;
+const newPartId=document.getElementById('editPartId').value;
+const oldPartId=repairJobs[idx].partId||'';
+repairJobs[idx].partId=newPartId;
+repairJobs[idx].partName=document.getElementById('editPartName').value.trim();
+repairJobs[idx].customerName=document.getElementById('editCustName').value.trim();repairJobs[idx].phone=document.getElementById('editCustPhone').value.trim();repairJobs[idx].model=document.getElementById('editModel').value.trim();repairJobs[idx].imei=document.getElementById('editImei').value.trim();repairJobs[idx].fault=document.getElementById('editFault').value.trim();repairJobs[idx].idType=document.getElementById('editIdType').value;repairJobs[idx].idNumber=document.getElementById('editIdNumber').value.trim();repairJobs[idx].remarks=document.getElementById('editRemarks').value.trim();repairJobs[idx].status=newStatus;
 const inputCost=parseFloat(document.getElementById('editEstCost').value)||0;
 if(newStatus==='Unrepairable'){repairJobs[idx].finalAmount=0;repairJobs[idx].estCost=0;repairJobs[idx].partCost=0;repairJobs[idx].netProfit=0;repairJobs[idx].dueBalance=0;repairJobs[idx].refundPaid=parseFloat(repairJobs[idx].advPaid)||0;}
 else{repairJobs[idx].finalAmount=inputCost;repairJobs[idx].estCost=inputCost;repairJobs[idx].diagnosedEstimate=inputCost;repairJobs[idx].advPaid=parseFloat(document.getElementById('editAdvPaid').value)||0;repairJobs[idx].dueBalance=parseFloat(document.getElementById('editDueBalance').value)||0;const pCost=parseFloat(repairJobs[idx].partCost)||0;repairJobs[idx].netProfit=Math.max(0,inputCost-pCost);if(repairJobs[idx].discountPercent>0){repairJobs[idx].discountAmount=Math.round(inputCost*repairJobs[idx].discountPercent/100);}}
-closeEditModal();renderJobCards();renderDailyCashReport();if(isOwnerAuthenticated)renderLedgerTable();syncJobToFirestore(repairJobs[idx]);}
+closeEditModal();renderJobCards();renderDailyCashReport();if(isOwnerAuthenticated)renderLedgerTable();
+syncJobToFirestore(repairJobs[idx]);
+await adjustStockForJob(oldPartId,newPartId);
+}
 
 function confirmDeleteJobFromModal(){const billNo=document.getElementById('editBillNo').value;if(!billNo)return;executeConfirmedDeletion(billNo);}
 async function executeConfirmedDeletion(billNo){if(!window.confirm(`Delete Bill "${billNo}" permanently?`))return;try{await deleteJobFromFirestore(billNo);closeEditModal();renderJobCards();renderDailyCashReport();if(isOwnerAuthenticated)renderLedgerTable();}catch(err){alert("Error: "+err.message);}}
