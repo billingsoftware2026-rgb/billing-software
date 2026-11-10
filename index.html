@@ -143,7 +143,7 @@ input,select,textarea,button{-webkit-tap-highlight-color:transparent}input[type=
 <div><label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">IMEI / Serial</label><div class="relative"><input type="text" id="deviceImei" placeholder="15-digit IMEI (Optional)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 pr-14 text-sm focus:outline-none focus:border-indigo-500 text-white font-mono"><button type="button" onclick="openScanner('deviceImei')" title="Scan" class="absolute right-2 top-2 w-10 h-10 rounded-lg bg-indigo-600/20 hover:bg-indigo-600 text-indigo-400 hover:text-white flex items-center justify-center"><i class="fa-solid fa-barcode text-lg"></i></button></div></div>
 <div class="md:col-span-2"><label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Reported Problem *</label><textarea id="faultDesc" required rows="2" placeholder="e.g. AMOLED Display Needed" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 text-white"></textarea></div>
 
-<!-- NEW: Auto Stock Part Link -->
+<!-- Auto Stock Part Link -->
 <div class="relative md:col-span-2">
 <label class="block text-xs font-semibold uppercase tracking-wider text-emerald-400 mb-2"><i class="fa-solid fa-boxes-stacked"></i> Link Stock Part (Optional)</label>
 <input type="text" id="intakePartName" oninput="renderPartDropdown('intakePartName', 'intakePartDropdown', this.value, '')" onfocus="renderPartDropdown('intakePartName', 'intakePartDropdown', this.value, '')" placeholder="Search by model (e.g. A18, C11) or part name..." class="w-full bg-slate-950 border border-emerald-500/40 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 text-white transition" autocomplete="off">
@@ -209,7 +209,18 @@ input,select,textarea,button{-webkit-tap-highlight-color:transparent}input[type=
 
 <section id="view-customers" class="tab-panel hidden space-y-6">
 <div class="bg-slate-900 border border-emerald-500/30 rounded-3xl p-5 md:p-6 shadow-xl space-y-4">
-<div class="flex flex-col md:flex-row items-center justify-between gap-4"><div class="flex items-center gap-3"><div class="w-11 h-11 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center"><i class="fa-solid fa-users text-xl"></i></div><div><h2 class="text-xl font-bold text-white">Customer CRM & Loyalty</h2><p class="text-xs text-slate-400">Auto-detects tier & discount from phone</p></div></div><div class="relative w-full md:w-80"><i class="fa-solid fa-magnifying-glass absolute left-4 top-3 text-slate-500"></i><input type="text" id="customerSearchInput" oninput="debouncedRenderCustomers()" placeholder="Search name or phone..." class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-11 pr-4 py-2.5 text-sm focus:outline-none focus:border-emerald-500 text-white placeholder-slate-500"></div></div>
+<div class="flex flex-col md:flex-row items-center justify-between gap-4">
+<div class="flex items-center gap-3">
+<div class="w-11 h-11 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center"><i class="fa-solid fa-users text-xl"></i></div>
+<div><h2 class="text-xl font-bold text-white">Customer CRM & Loyalty</h2><p class="text-xs text-slate-400">Auto-detects tier & discount from phone</p></div>
+</div>
+<div class="flex items-center gap-2 w-full md:w-auto">
+<div class="relative w-full md:w-64"><i class="fa-solid fa-magnifying-glass absolute left-4 top-3 text-slate-500"></i><input type="text" id="customerSearchInput" oninput="debouncedRenderCustomers()" placeholder="Search name or phone..." class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-11 pr-4 py-2.5 text-sm focus:outline-none focus:border-emerald-500 text-white placeholder-slate-500"></div>
+<button onclick="openTierSettingsModal()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold transition flex items-center gap-2 border border-slate-700 shadow-sm whitespace-nowrap">
+<i class="fa-solid fa-gear"></i> Settings
+</button>
+</div>
+</div>
 <div class="flex flex-wrap gap-2 pt-2 border-t border-slate-800/80" id="tierFilterButtons">
 <button onclick="filterCustomerTier('ALL',event)" class="tier-filter-btn active px-3 py-1.5 rounded-xl text-xs font-bold bg-indigo-600 text-white border border-indigo-500">All (<span id="tierCountAll">0</span>)</button>
 <button onclick="filterCustomerTier('PLATINUM',event)" class="tier-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-950 text-purple-300 border border-purple-500/40">🏆 Platinum (<span id="tierCountPlatinum">0</span>)</button>
@@ -280,7 +291,7 @@ input,select,textarea,button{-webkit-tap-highlight-color:transparent}input[type=
 <div><label class="block text-xs font-semibold text-slate-400 uppercase mb-1.5">Refined Diagnosis</label><textarea id="diagFault" rows="3" placeholder="e.g. Display combo burnt..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"></textarea></div>
 <div class="grid grid-cols-2 gap-3"><div><label class="block text-xs font-semibold text-slate-400 uppercase mb-1.5">Revised Estimate (₹)</label><input type="number" id="diagEstimate" min="0" class="w-full bg-slate-950 border border-indigo-500/50 rounded-xl px-3 py-2 text-sm font-bold text-white focus:outline-none focus:border-indigo-500"></div><div><label class="block text-xs font-semibold text-slate-400 uppercase mb-1.5">Parts Cost (₹)</label><input type="number" id="diagPartsCost" min="0" value="0" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"></div></div>
 
-<!-- NEW: Diagnosis Part Dropdown -->
+<!-- Diagnosis Part Dropdown -->
 <div class="relative">
 <label class="block text-xs font-semibold text-emerald-400 uppercase mb-1.5">Link Stock Part (Optional)</label>
 <input type="text" id="diagPartsName" oninput="renderPartDropdown('diagPartsName', 'diagPartDropdown', this.value, 'diagPartsCost')" onfocus="renderPartDropdown('diagPartsName', 'diagPartDropdown', this.value, 'diagPartsCost')" placeholder="Search stock..." class="w-full bg-slate-950 border border-emerald-500/40 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500" autocomplete="off">
@@ -323,7 +334,7 @@ input,select,textarea,button{-webkit-tap-highlight-color:transparent}input[type=
 <div id="repairableFields" class="space-y-3">
 <div><label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Warranty *</label><select id="modalWarranty" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"><option value="No Warranty">No Warranty</option><option value="30 Days Service Warranty" selected>30 Days</option><option value="60 Days Service Warranty">60 Days</option><option value="90 Days Warranty (Display & Touch)">90 Days</option><option value="6 Months Warranty">6 Months</option></select></div>
 
-<!-- NEW: Delivery Part Dropdown -->
+<!-- Delivery Part Dropdown -->
 <div class="relative">
 <label class="block text-xs font-semibold text-emerald-400 uppercase mb-1">Replaced Parts (Search Stock)</label>
 <input type="text" id="modalPartName" oninput="renderPartDropdown('modalPartName', 'modalPartDropdown', this.value, 'modalPartCost')" onfocus="renderPartDropdown('modalPartName', 'modalPartDropdown', this.value, 'modalPartCost')" placeholder="e.g. AMOLED Display" class="w-full bg-slate-950 border border-emerald-500/40 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500" autocomplete="off">
@@ -357,7 +368,7 @@ input,select,textarea,button{-webkit-tap-highlight-color:transparent}input[type=
 <div><label class="block text-xs font-semibold text-slate-400 uppercase mb-1">IMEI</label><input type="text" id="editImei" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm font-mono text-white"></div>
 <div class="col-span-2"><label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Problem</label><textarea id="editFault" rows="2" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white"></textarea></div>
 
-<!-- NEW: Edit Part Dropdown -->
+<!-- Edit Part Dropdown -->
 <div class="relative col-span-2">
 <label class="block text-xs font-semibold text-emerald-400 uppercase mb-1">Linked Stock Part (Optional)</label>
 <input type="text" id="editPartName" oninput="renderPartDropdown('editPartName', 'editPartDropdown', this.value, '')" onfocus="renderPartDropdown('editPartName', 'editPartDropdown', this.value, '')" placeholder="Search stock..." class="w-full bg-slate-950 border border-emerald-500/40 rounded-xl px-3 py-2 text-sm text-white" autocomplete="off">
@@ -385,6 +396,68 @@ input,select,textarea,button{-webkit-tap-highlight-color:transparent}input[type=
 </div>
 </div>
 
+<!-- Tier Settings Modal -->
+<div id="tierSettingsModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50 overflow-y-auto">
+  <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 my-6">
+    <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+      <h3 class="text-base font-bold text-white flex items-center gap-2"><i class="fa-solid fa-gear text-emerald-400"></i> Loyalty Discount Settings</h3>
+      <button onclick="closeTierSettingsModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+    </div>
+    <p class="text-xs text-slate-400">Set the discount percentage for each tier. The system will automatically assign the tier based on customer visits & spending.</p>
+    
+    <div class="space-y-3 pt-2">
+      <div class="flex items-center justify-between bg-slate-950 p-3 rounded-xl border border-purple-500/30">
+        <div>
+            <label class="text-sm font-bold text-purple-300 block">🏆 Platinum Discount</label>
+            <span class="text-[10px] text-slate-500">(5+ Visits & ₹10k+ Spent)</span>
+        </div>
+        <div class="flex items-center gap-1">
+            <input type="number" id="setDiscountPlatinum" min="0" max="100" class="w-16 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-right text-white font-bold">
+            <span class="text-slate-400 text-sm">%</span>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between bg-slate-950 p-3 rounded-xl border border-amber-500/30">
+        <div>
+            <label class="text-sm font-bold text-amber-300 block">🥇 Gold Discount</label>
+            <span class="text-[10px] text-slate-500">(4+ Visits & ₹6k+ Spent)</span>
+        </div>
+        <div class="flex items-center gap-1">
+            <input type="number" id="setDiscountGold" min="0" max="100" class="w-16 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-right text-white font-bold">
+            <span class="text-slate-400 text-sm">%</span>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between bg-slate-950 p-3 rounded-xl border border-slate-500/30">
+        <div>
+            <label class="text-sm font-bold text-slate-200 block">🥈 Silver Discount</label>
+            <span class="text-[10px] text-slate-500">(3+ Visits)</span>
+        </div>
+        <div class="flex items-center gap-1">
+            <input type="number" id="setDiscountSilver" min="0" max="100" class="w-16 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-right text-white font-bold">
+            <span class="text-slate-400 text-sm">%</span>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between bg-slate-950 p-3 rounded-xl border border-orange-500/30">
+        <div>
+            <label class="text-sm font-bold text-orange-300 block">🥉 Bronze Discount</label>
+            <span class="text-[10px] text-slate-500">(1-2 Visits)</span>
+        </div>
+        <div class="flex items-center gap-1">
+            <input type="number" id="setDiscountBronze" min="0" max="100" class="w-16 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-right text-white font-bold">
+            <span class="text-slate-400 text-sm">%</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="pt-4 border-t border-slate-800 flex justify-end gap-2">
+      <button onclick="closeTierSettingsModal()" class="px-4 py-2.5 rounded-xl border border-slate-800 text-slate-400 hover:text-white text-xs font-semibold">Cancel</button>
+      <button onclick="saveTierSettings()" class="bg-indigo-600 hover:bg-indigo-700 px-5 py-2.5 rounded-xl text-xs font-bold text-white flex items-center gap-2"><i class="fa-solid fa-floppy-disk"></i> Save Settings</button>
+    </div>
+  </div>
+</div>
+
 <div id="masterDirectPrintArea" style="display: none;"></div>
 <footer class="bg-slate-900 border-t border-slate-800 py-4 mt-auto"><div class="max-w-7xl mx-auto px-4 text-center"><p class="text-xs text-slate-400">SmartFix Pro &copy; 2026 | Mobile Workshop Management System</p><p class="text-xs font-semibold text-indigo-400 mt-1"><i class="fa-solid fa-code mr-1"></i> Developed by Debapriya Sarkar</p></div></footer>
 
@@ -396,6 +469,7 @@ const db=firebase.firestore();
 let isOwnerAuthenticated=false,pendingDestinationTab=null,currentStatusFilter="ALL",currentCustomerTierFilter="ALL",currentStore=null,currentAuthMode="login",repairJobs=[],deferredPrompt=null,currentViewingJobBill=null,currentViewingCustomerPhone=null,customersCache={},hasAutoRestoredJobs=false,unsubJobsSnapshot=null,unsubCustomersSnapshot=null,unsubLcdSnapshot=null,isSubmittingIntake=false,cachedJobsList=null,html5QrCode;
 let lcdInventory = [];
 let currentIntakeDiscount={percent:0,tier:'New',reason:'',amount:0};
+let defaultTierDiscounts = { Platinum: 10, Gold: 5, Silver: 2, Bronze: 0 };
 
 function escapeHtml(str){if(str===null||str===undefined)return '';return String(str).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 const esc=escapeHtml;
@@ -442,7 +516,7 @@ async function checkAndFileWarranty(originalBillNo){const job=repairJobs.find(j=
 function togglePasswordVisibility(fieldId,btn){const input=document.getElementById(fieldId);const icon=btn.querySelector('i');if(input.type==='password'){input.type='text';icon.className='fa-solid fa-eye-slash text-xs text-indigo-400';}else{input.type='password';icon.className='fa-solid fa-eye text-xs text-slate-500';}}
 function toggleAuthMode(mode){currentAuthMode=mode;document.getElementById('authErrorMsg').classList.add('hidden');if(mode==='register'){document.getElementById('btnLoginTab').className="flex-1 py-2.5 rounded-lg text-slate-400 hover:text-white transition flex items-center justify-center gap-1.5";document.getElementById('btnRegisterTab').className="flex-1 py-2.5 rounded-lg bg-indigo-600 text-white shadow transition flex items-center justify-center gap-1.5";document.getElementById('shopMetaFields').classList.remove('hidden');document.getElementById('authTitle').innerText="Register Your Workshop";document.getElementById('authSubtitle').innerText="Set up your store details";document.getElementById('authSubmitBtn').innerHTML='<span>Create Store</span><i class="fa-solid fa-arrow-right text-xs"></i>';}else{document.getElementById('btnLoginTab').className="flex-1 py-2.5 rounded-lg bg-indigo-600 text-white shadow transition flex items-center justify-center gap-1.5";document.getElementById('btnRegisterTab').className="flex-1 py-2.5 rounded-lg text-slate-400 hover:text-white transition flex items-center justify-center gap-1.5";document.getElementById('shopMetaFields').classList.add('hidden');document.getElementById('authTitle').innerText="Owner Authorization";document.getElementById('authSubtitle').innerText="Sign in with your credentials";document.getElementById('authSubmitBtn').innerHTML='<span>Sign In</span><i class="fa-solid fa-arrow-right text-xs"></i>';}}
 
-async function handleAuth(e){e.preventDefault();const email=document.getElementById('authEmail').value.trim();const pass=document.getElementById('authPassword').value;const errorBox=document.getElementById('authErrorMsg');const errorText=document.getElementById('authErrorText');errorBox.classList.add('hidden');try{if(currentAuthMode==='register'){const sName=document.getElementById('regShopName').value.trim();const sAddr=document.getElementById('regShopAddress').value.trim();const sPhone=document.getElementById('regShopPhone').value.trim();if(!sName||!sAddr||!sPhone){errorText.innerText="Please complete all shop details.";errorBox.classList.remove('hidden');return;}const cred=await auth.createUserWithEmailAndPassword(email,pass);const storeData={shopName:sName,shopAddress:sAddr,shopPhone:sPhone,ownerEmail:email,promoOffer:"FREE TEMPERED GLASS with Warranty Display Replacement",createdAt:firebase.firestore.FieldValue.serverTimestamp()};try{await db.collection('stores').doc(cred.user.uid).set(storeData);localStorage.setItem(storeMirrorKey(),JSON.stringify(storeData));}catch(storeErr){try{await cred.user.delete();}catch(_){}throw storeErr;}}else{await auth.signInWithEmailAndPassword(email,pass);}}catch(err){errorText.innerText=err.message;errorBox.classList.remove('hidden');}}
+async function handleAuth(e){e.preventDefault();const email=document.getElementById('authEmail').value.trim();const pass=document.getElementById('authPassword').value;const errorBox=document.getElementById('authErrorMsg');const errorText=document.getElementById('authErrorText');errorBox.classList.add('hidden');try{if(currentAuthMode==='register'){const sName=document.getElementById('regShopName').value.trim();const sAddr=document.getElementById('regShopAddress').value.trim();const sPhone=document.getElementById('regShopPhone').value.trim();if(!sName||!sAddr||!sPhone){errorText.innerText="Please complete all shop details.";errorBox.classList.remove('hidden');return;}const cred=await auth.createUserWithEmailAndPassword(email,pass);const storeData={shopName:sName,shopAddress:sAddr,shopPhone:sPhone,ownerEmail:email,promoOffer:"FREE TEMPERED GLASS with Warranty Display Replacement",tierDiscounts:{Platinum:10,Gold:5,Silver:2,Bronze:0},createdAt:firebase.firestore.FieldValue.serverTimestamp()};try{await db.collection('stores').doc(cred.user.uid).set(storeData);localStorage.setItem(storeMirrorKey(),JSON.stringify(storeData));}catch(storeErr){try{await cred.user.delete();}catch(_){}throw storeErr;}}else{await auth.signInWithEmailAndPassword(email,pass);}}catch(err){errorText.innerText=err.message;errorBox.classList.remove('hidden');}}
 
 function signOutShop(){
 if(unsubJobsSnapshot){try{unsubJobsSnapshot();}catch(_){}unsubJobsSnapshot=null;}
@@ -465,10 +539,13 @@ if(currentStore.status==='suspended'){document.getElementById('suspendedScreen')
 if(Object.prototype.hasOwnProperty.call(currentStore,'savedPassword')||Object.prototype.hasOwnProperty.call(currentStore,'password')){try{await db.collection('stores').doc(user.uid).update({savedPassword:firebase.firestore.FieldValue.delete(),password:firebase.firestore.FieldValue.delete()});}catch(_){}delete currentStore.savedPassword;delete currentStore.password;}
 document.getElementById('navShopName').innerText=currentStore.shopName||'SMARTFIX PRO';
 localStorage.setItem(storeMirrorKey(),JSON.stringify(currentStore));
+if(currentStore.tierDiscounts) {
+  defaultTierDiscounts = { ...defaultTierDiscounts, ...currentStore.tierDiscounts };
+}
 const promoInput=document.getElementById('promoOfferInput');if(promoInput)promoInput.value=getPromoOffer();
 const promoDisp=document.getElementById('currentPromoDisplay');if(promoDisp)promoDisp.innerText=getPromoOffer();
-}else{const localStore=localStorage.getItem(storeMirrorKey());currentStore=localStore?JSON.parse(localStore):{shopName:"TULSI MOBILE STORE",shopAddress:"Main Road",shopPhone:"9876543210",promoOffer:"FREE TEMPERED GLASS with Warranty Display Replacement"};document.getElementById('navShopName').innerText=currentStore.shopName||'SMARTFIX PRO';}
-}catch(e){const localStore=localStorage.getItem(storeMirrorKey());currentStore=localStore?JSON.parse(localStore):{shopName:"TULSI MOBILE STORE",shopAddress:"Main Road",shopPhone:"9876543210",promoOffer:"FREE TEMPERED GLASS with Warranty Display Replacement"};document.getElementById('navShopName').innerText=currentStore.shopName||'SMARTFIX PRO';}
+}else{const localStore=localStorage.getItem(storeMirrorKey());currentStore=localStore?JSON.parse(localStore):{shopName:"TULSI MOBILE STORE",shopAddress:"Main Road",shopPhone:"9876543210",promoOffer:"FREE TEMPERED GLASS with Warranty Display Replacement",tierDiscounts:{Platinum:10,Gold:5,Silver:2,Bronze:0}};document.getElementById('navShopName').innerText=currentStore.shopName||'SMARTFIX PRO';}
+}catch(e){const localStore=localStorage.getItem(storeMirrorKey());currentStore=localStore?JSON.parse(localStore):{shopName:"TULSI MOBILE STORE",shopAddress:"Main Road",shopPhone:"9876543210",promoOffer:"FREE TEMPERED GLASS with Warranty Display Replacement",tierDiscounts:{Platinum:10,Gold:5,Silver:2,Bronze:0}};document.getElementById('navShopName').innerText=currentStore.shopName||'SMARTFIX PRO';}
 
 document.getElementById('authScreen').classList.add('hidden');
 
@@ -482,7 +559,6 @@ renderDailyCashReport();renderJobCards();if(isOwnerAuthenticated)renderLedgerTab
 
 unsubCustomersSnapshot=db.collection('stores').doc(user.uid).collection('customers').onSnapshot((snapshot)=>{customersCache={};snapshot.forEach(doc=>{customersCache[doc.id]={id:doc.id,...doc.data()};});if(!document.getElementById('view-customers').classList.contains('hidden'))renderCustomers();},()=>{});
 
-// LCD Inventory Listener
 unsubLcdSnapshot=db.collection('stores').doc(user.uid).collection('lcd_inventory').onSnapshot((snapshot)=>{
 lcdInventory=[];snapshot.forEach(doc=>{lcdInventory.push({id:doc.id,...doc.data()});});
 });
@@ -532,16 +608,13 @@ function renderPartDropdown(inputId, dropdownId, query, priceFieldId) {
 function selectPartFromDropdown(inputId, dropdownId, partId, partName, partPrice, priceFieldId) {
   document.getElementById(inputId).value = partName;
   
-  // Set hidden ID based on which input it is
   if (inputId === 'intakePartName') document.getElementById('intakePartId').value = partId;
   if (inputId === 'diagPartsName') document.getElementById('diagPartId').value = partId;
   if (inputId === 'modalPartName') document.getElementById('modalPartId').value = partId;
   if (inputId === 'editPartName') document.getElementById('editPartId').value = partId;
   
-  // Auto-fill Price ONLY if priceFieldId is provided
   if (priceFieldId && priceFieldId !== 'none') {
     document.getElementById(priceFieldId).value = partPrice;
-    // If it's the Delivery modal, recalculate the Final Payable amount
     if(inputId === 'modalPartName' && typeof handleFinalAmountChange === 'function') {
       handleFinalAmountChange();
     }
@@ -550,7 +623,6 @@ function selectPartFromDropdown(inputId, dropdownId, partId, partName, partPrice
   document.getElementById(dropdownId).classList.add('hidden');
 }
 
-// Close dropdowns when clicking outside
 document.addEventListener('click', function(e) {
   if (!e.target.closest('.relative')) {
     ['intakePartDropdown', 'diagPartDropdown', 'modalPartDropdown', 'editPartDropdown'].forEach(id => {
@@ -581,12 +653,34 @@ if(newPartId){try{await db.collection('stores').doc(userUid).collection('lcd_inv
 }
 
 // REST OF CRM FUNCTIONS
-function calculateLoyaltyDiscount(stats){const visits=stats.totalVisits||0,spend=stats.totalSpent||0,due=stats.totalDue||0;if(visits===0)return{percent:0,tier:'New',reason:'New Customer',nextNote:'Next visit: 2% loyalty discount!'};if(due>0)return{percent:2,tier:'Returning',reason:'Returning Customer (has pending balance)'};if(visits>=10||spend>=20000)return{percent:10,tier:'Platinum',reason:'Best Customer - 10% Loyalty Reward 🏆'};if(visits>=5||spend>=8000)return{percent:5,tier:'Gold',reason:'Loyal Customer - 5% Discount 🥇'};return{percent:2,tier:'Silver',reason:'Returning Customer - 2% Discount 🥈'};}
+function calculateLoyaltyDiscount(stats) {
+    const tier = computeTier(stats.totalSpent, stats.totalVisits, stats.totalDue);
+    
+    if (tier === 'Returning') {
+        return { percent: 0, tier: 'Returning', reason: 'Customer has pending dues. No discount.' };
+    }
+    
+    const discountPct = defaultTierDiscounts[tier] !== undefined ? defaultTierDiscounts[tier] : 0;
+    let reason = '';
+    
+    if (tier === 'Platinum') reason = 'Best Customer - ' + discountPct + '% Reward 🏆';
+    else if (tier === 'Gold') reason = 'Loyal Customer - ' + discountPct + '% Discount 🥇';
+    else if (tier === 'Silver') reason = 'Silver Customer - ' + discountPct + '% Discount 🥈';
+    else if (tier === 'Bronze') reason = 'Bronze Customer - ' + discountPct + '% Discount 🥉';
+
+    return { percent: discountPct, tier: tier, reason: reason };
+}
 
 function getCustomerStats(phone){const key=normalizePhoneLocal(phone);const jobs=repairJobs.filter(j=>normalizePhoneLocal(j.phone)===key);let totalVisits=0,totalSpent=0,totalDue=0;let firstVisit='',lastVisit='',name='';const seenBills=new Set();jobs.forEach(job=>{if(!job.billNo||seenBills.has(job.billNo))return;seenBills.add(job.billNo);totalVisits++;if(job.status==='Delivered')totalSpent+=parseFloat(job.finalAmount)||0;if(job.status!=='Unrepairable')totalDue+=parseFloat(job.dueBalance)||0;const date=job.intakeDate||'';if(!firstVisit||(date&&date<firstVisit))firstVisit=date;if(!lastVisit||(date&&date>lastVisit))lastVisit=date;if(job.customerName&&(!name||name==='Unknown'))name=job.customerName;});return{phone:key,jobs,totalVisits,totalSpent,totalDue,firstVisit,lastVisit,name};}
 
-function computeTier(spend,visits,due){if(due>0)return 'Returning';if(spend>=20000||visits>=10)return 'Platinum';if(spend>=8000||visits>=5)return 'Gold';if(spend>=2000||visits>=2)return 'Silver';return 'Bronze';}
-function getTierIcon(tier){if(tier==='Platinum')return '🏆';if(tier==='Gold')return '🥇';if(tier==='Silver')return '🥈';if(tier==='Returning')return '🔄';return '🥉';}
+function computeTier(spend,visits,due) {
+    if (due > 0) return 'Returning';
+    if (visits >= 5 && spend >= 10000) return 'Platinum';
+    if (visits >= 4 && spend >= 6000) return 'Gold';
+    if (visits >= 3) return 'Silver';
+    return 'Bronze';
+}
+function getTierIcon(tier){if(tier==='Platinum')return '🏆';if(tier==='Gold')return '🥇';if(tier==='Silver')return '🥈';if(tier==='Returning')return '🔴';return '🥉';}
 
 function onPhoneInput(phone){
 const recognitionBanner=document.getElementById('customerRecognitionBanner');
@@ -620,22 +714,43 @@ function hideCustomerRecognition(){document.getElementById('customerRecognitionB
 
 function getAllCustomers(){const map={};repairJobs.forEach(job=>{const key=normalizePhoneLocal(job.phone);if(!key||key.length<10)return;if(!map[key])map[key]={phone:key,tags:[],notes:''};});Object.values(customersCache).forEach(c=>{const key=c.phone||c.id;if(!key)return;if(!map[key])map[key]={phone:key,tags:[],notes:''};if(c.tags)map[key].tags=c.tags;if(c.notes)map[key].notes=c.notes;});Object.values(map).forEach(c=>{const stats=getCustomerStats(c.phone);Object.assign(c,stats);if(!c.name&&customersCache[c.phone]?.name)c.name=customersCache[c.phone].name;if(!c.name)c.name='Unknown';c.tier=computeTier(c.totalSpent,c.totalVisits,c.totalDue);c.discount=calculateLoyaltyDiscount(stats);});return Object.values(map);}
 
-function renderCustomers(){const grid=document.getElementById('customerCardGrid');if(!grid)return;const q=(document.getElementById('customerSearchInput')?.value||'').trim().toLowerCase();const all=getAllCustomers();
+function renderCustomers(){
+const grid=document.getElementById('customerCardGrid');if(!grid)return;
+const q=(document.getElementById('customerSearchInput')?.value||'').trim().toLowerCase();
+const all=getAllCustomers();
+
 document.getElementById('tierCountAll').innerText=all.length;
 document.getElementById('tierCountPlatinum').innerText=all.filter(c=>c.tier==='Platinum').length;
 document.getElementById('tierCountGold').innerText=all.filter(c=>c.tier==='Gold').length;
-document.getElementById('tierCountSilver').innerText=all.filter(c=>c.tier==='Silver'||c.tier==='Returning').length;
+document.getElementById('tierCountSilver').innerText=all.filter(c=>c.tier==='Silver').length;
 document.getElementById('tierCountBronze').innerText=all.filter(c=>c.tier==='Bronze').length;
+
 let filtered=q?all.filter(c=>String(c.name).toLowerCase().includes(q)||String(c.phone).includes(q)):all;
-if(currentCustomerTierFilter!=='ALL'){if(currentCustomerTierFilter==='SILVER'){filtered=filtered.filter(c=>c.tier==='Silver'||c.tier==='Returning');}else{filtered=filtered.filter(c=>String(c.tier).toUpperCase()===currentCustomerTierFilter);}}
+if(currentCustomerTierFilter!=='ALL'){
+  if(currentCustomerTierFilter==='SILVER'){filtered=filtered.filter(c=>c.tier==='Silver');}
+  else{filtered=filtered.filter(c=>String(c.tier).toUpperCase()===currentCustomerTierFilter);}
+}
 filtered.sort((a,b)=>String(b.lastVisit||'').localeCompare(String(a.lastVisit||'')));
+
 document.getElementById('crmTotalCust').innerText=all.length;
 document.getElementById('crmRepeatCust').innerText=all.filter(c=>(c.totalVisits||1)>=2).length;
 document.getElementById('crmVipCust').innerText=all.filter(c=>c.tier==='Platinum'||c.tier==='Gold').length;
 document.getElementById('crmTotalSpend').innerText='₹'+all.reduce((s,c)=>s+(c.totalSpent||0),0);
+
 grid.innerHTML='';
 if(filtered.length===0){grid.innerHTML=`<div class="col-span-full py-10 text-center text-slate-500 bg-slate-900 border border-slate-800 rounded-3xl"><i class="fa-solid fa-users-slash text-3xl mb-2 text-slate-600"></i><p class="text-sm font-medium">No customers match this filter</p></div>`;return;}
-filtered.forEach(c=>{const tierIcon=getTierIcon(c.tier);const card=document.createElement('div');card.className="bg-slate-900 border border-slate-800 hover:border-emerald-500/50 p-3.5 rounded-2xl flex flex-col justify-between shadow-sm transition cursor-pointer";card.onclick=()=>openCustomerHistoryModal(c.phone);const discountBadge=c.discount.percent>0?`<span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">${c.discount.percent}% OFF</span>`:`<span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-slate-700 text-slate-400 border border-slate-600">0%</span>`;card.innerHTML=`
+
+filtered.forEach(c=>{
+  const tierIcon=getTierIcon(c.tier);
+  const card=document.createElement('div');
+  card.className="bg-slate-900 border border-slate-800 hover:border-emerald-500/50 p-3.5 rounded-2xl flex flex-col justify-between shadow-sm transition cursor-pointer";
+  card.onclick=()=>openCustomerHistoryModal(c.phone);
+  
+  const discountBadge=c.discount.percent>0
+    ? `<span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">${c.discount.percent}% OFF</span>`
+    : `<span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-slate-700 text-slate-400 border border-slate-600">0%</span>`;
+    
+  card.innerHTML=`
 <div class="space-y-1.5">
 <div class="flex items-center justify-between">
 <div class="flex items-center gap-2"><div class="w-9 h-9 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-sm">${escapeHtml((c.name||'?').charAt(0).toUpperCase())}</div><div class="min-w-0"><h4 class="text-sm font-bold text-white truncate">${escapeHtml(c.name||'Unknown')}</h4><p class="text-[11px] text-slate-400 font-mono">${escapeHtml(c.phone||'')}</p></div></div>
@@ -664,7 +779,15 @@ function renderCustomerModalJobs(jobs){const jobsDiv=document.getElementById('cu
 <div class="text-right flex-shrink-0"><p class="text-emerald-400 font-bold text-sm">₹${amount}</p><button data-bill="${escapeHtml(job.billNo)}" onclick="event.stopPropagation(); closeCustomerHistoryModal(); openJobDetailModal(this.dataset.bill)" class="text-[10px] text-indigo-400 underline">View</button></div>
 `;jobsDiv.appendChild(div);});}
 
-function openCustomerHistoryModal(phone){const key=normalizePhoneLocal(phone);const stats=getCustomerStats(key);const custDoc=customersCache[key]||{};const name=(stats.jobs[0]?.customerName)||custDoc.name||'Unknown';const tags=custDoc.tags||[];const notes=custDoc.notes||'';currentViewingCustomerPhone=key;
+function openCustomerHistoryModal(phone){
+const key=normalizePhoneLocal(phone);
+const stats=getCustomerStats(key);
+const custDoc=customersCache[key]||{};
+const name=(stats.jobs[0]?.customerName)||custDoc.name||'Unknown';
+const tags=custDoc.tags||[];
+const notes=custDoc.notes||'';
+currentViewingCustomerPhone=key;
+
 document.getElementById('custHistName').innerText=name;
 document.getElementById('custHistPhone').innerText=key;
 document.getElementById('custHistVisits').innerText=stats.totalVisits;
@@ -674,11 +797,14 @@ const tier=computeTier(stats.totalSpent,stats.totalVisits,stats.totalDue);
 document.getElementById('custHistTier').innerText=getTierIcon(tier)+' '+tier;
 document.getElementById('custHistExistingNotes').innerText=notes?`Current: "${notes}"`:'';
 document.getElementById('custHistNotesInput').value='';
+
 const discount=calculateLoyaltyDiscount(stats);
 const banner=document.getElementById('custHistDiscountBanner');
 const promoText=esc(getPromoOffer());
+
 if(discount.tier==='New'){banner.className="rounded-xl p-3 border border-amber-500/30 bg-amber-500/10 text-xs";banner.innerHTML=`<div class="flex items-center gap-2 text-amber-300 font-bold"><i class="fa-solid fa-gift"></i> New Customer</div><p class="text-slate-300 text-[11px] mt-1">${discount.nextNote||'Next visit: 2% loyalty discount!'}</p><div class="flex items-center gap-2 text-rose-300 font-bold mt-2 pt-2 border-t border-amber-500/20"><i class="fa-solid fa-percent"></i> 🎁 ${promoText}</div>`;banner.classList.remove('hidden');}
-else{banner.className="rounded-xl p-3 border border-emerald-500/30 bg-emerald-500/10 text-xs";banner.innerHTML=`<div class="flex items-center justify-between"><div class="flex items-center gap-2 text-emerald-300 font-bold"><i class="fa-solid fa-percent"></i> ${discount.percent}% Loyalty Discount</div><span class="text-[10px] text-slate-400">${escapeHtml(discount.reason)}</span></div><div class="flex items-center gap-2 text-rose-300 font-bold mt-2 pt-2 border-t border-emerald-500/20"><i class="fa-solid fa-gift"></i> 🎁 ${promoText}</div>`;banner.classList.remove('hidden');}
+else{banner.className="rounded-xl p-3 border border-emerald-500/30 bg-emerald-500/10 text-xs";banner.innerHTML=`<div class="flex items-center justify-between"><div class="flex items-center gap-2 text-emerald-300 font-bold"><i class="fa-solid fa-percent"></i> ${discount.percent}% Discount</div><span class="text-[10px] text-slate-400">${escapeHtml(discount.reason)}</span></div><div class="flex items-center gap-2 text-rose-300 font-bold mt-2 pt-2 border-t border-emerald-500/20"><i class="fa-solid fa-gift"></i> 🎁 ${promoText}</div>`;banner.classList.remove('hidden');}
+
 renderCustomerModalTags(tags);renderCustomerModalJobs(stats.jobs);
 document.getElementById('customerHistoryModal').classList.remove('hidden');document.getElementById('customerHistoryModal').classList.add('flex');}
 
@@ -691,6 +817,48 @@ async function promptAddTag(){if(!currentViewingCustomerPhone||!auth.currentUser
 async function removeCustomerTag(tag){if(!currentViewingCustomerPhone||!auth.currentUser)return;const key=currentViewingCustomerPhone;const newTags=(customersCache[key]?.tags||[]).filter(t=>t!==tag);try{await db.collection('stores').doc(auth.currentUser.uid).collection('customers').doc(key).set({phone:key,tags:newTags,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});customersCache[key]={...(customersCache[key]||{}),tags:newTags};renderCustomerModalTags(newTags);}catch(e){alert('Failed: '+e.message);}}
 
 function sendCustomerBroadcast(){if(!currentViewingCustomerPhone)return;const waPhone=normalizePhoneForWhatsApp(currentViewingCustomerPhone);if(!waPhone||waPhone.length<10){alert('Invalid phone');return;}const stats=getCustomerStats(currentViewingCustomerPhone);const discount=calculateLoyaltyDiscount(stats);const sName=currentStore?currentStore.shopName:'SmartFix';let message=`Dear ${stats.name||'Customer'},\n\nGreetings from *${sName}*! 👋\n\n`;if(discount.percent>0)message+=`🎁 You have *${discount.percent}% loyalty discount* on your next visit!\n\n`;else if(discount.tier==='New')message+=`🎁 Thank you for your visit! Next time: *2% loyalty discount*!\n\n`;message+=`🎁 *${getPromoOffer()}*\n\n`;message+=`📞 Helpline: +91 ${currentStore?.shopPhone||''}`;window.open(`https://wa.me/${waPhone}?text=${encodeURIComponent(message)}`,'_blank');}
+
+// NEW Tier Settings Functions
+function openTierSettingsModal() {
+  document.getElementById('setDiscountPlatinum').value = defaultTierDiscounts.Platinum !== undefined ? defaultTierDiscounts.Platinum : 10;
+  document.getElementById('setDiscountGold').value = defaultTierDiscounts.Gold !== undefined ? defaultTierDiscounts.Gold : 5;
+  document.getElementById('setDiscountSilver').value = defaultTierDiscounts.Silver !== undefined ? defaultTierDiscounts.Silver : 2;
+  document.getElementById('setDiscountBronze').value = defaultTierDiscounts.Bronze !== undefined ? defaultTierDiscounts.Bronze : 0;
+  document.getElementById('tierSettingsModal').classList.remove('hidden');
+  document.getElementById('tierSettingsModal').classList.add('flex');
+}
+
+function closeTierSettingsModal() {
+  document.getElementById('tierSettingsModal').classList.add('hidden');
+  document.getElementById('tierSettingsModal').classList.remove('flex');
+}
+
+async function saveTierSettings() {
+  if (!auth.currentUser) return;
+  
+  const newDiscounts = {
+      Platinum: parseFloat(document.getElementById('setDiscountPlatinum').value) || 0,
+      Gold: parseFloat(document.getElementById('setDiscountGold').value) || 0,
+      Silver: parseFloat(document.getElementById('setDiscountSilver').value) || 0,
+      Bronze: parseFloat(document.getElementById('setDiscountBronze').value) || 0
+  };
+  
+  try {
+      await db.collection('stores').doc(auth.currentUser.uid).update({ tierDiscounts: newDiscounts });
+      defaultTierDiscounts = newDiscounts;
+      if (currentStore) currentStore.tierDiscounts = newDiscounts;
+      localStorage.setItem(storeMirrorKey(), JSON.stringify(currentStore));
+      
+      alert('✅ Discount settings updated successfully!');
+      closeTierSettingsModal();
+      
+      if(!document.getElementById('view-customers').classList.contains('hidden')) {
+          renderCustomers();
+      }
+  } catch (e) {
+      alert('Failed to save settings: ' + e.message);
+  }
+}
 
 async function syncJobToFirestore(job){const cleanJob={...job};['createdAt','updatedAt','restoredAt'].forEach(k=>{if(cleanJob[k]&&cleanJob[k].__type==='timestamp')delete cleanJob[k];});
 const currentList=getMirroredJobsFromLocal();
