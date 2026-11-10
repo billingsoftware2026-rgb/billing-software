@@ -67,7 +67,7 @@ input,select,textarea,button{-webkit-tap-highlight-color:transparent}input[type=
 <div class="space-y-6 relative z-10">
 <div class="flex items-center justify-between flex-wrap gap-3"><div class="flex items-center gap-3.5">
 <div class="w-12 h-12 bg-gradient-to-tr from-indigo-600 via-indigo-500 to-violet-500 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-600/50 p-1" id="finalLogoBox"><svg class="smartfix-logo-svg" viewBox="0 0 100 100"><defs><linearGradient id="sfLogoGrad"><stop offset="0%" stop-color="#ffffff"/><stop offset="55%" stop-color="#e0e7ff"/><stop offset="100%" stop-color="#c7d2fe"/></linearGradient></defs><g transform="rotate(-45 50 50)"><path d="M 36 8 L 44 8 L 44 26 L 56 26 L 56 8 L 64 8 L 64 34 L 36 34 Z" fill="url(#sfLogoGrad)"/><rect x="45" y="34" width="10" height="54" rx="4" fill="url(#sfLogoGrad)"/></g><g transform="rotate(45 50 50)"><rect x="42" y="58" width="16" height="30" rx="4" fill="url(#sfLogoGrad)"/><rect x="47.5" y="24" width="5" height="34" fill="url(#sfLogoGrad)"/><rect x="45" y="12" width="10" height="14" rx="1" fill="url(#sfLogoGrad)"/></g></svg></div>
-<div id="authTitleArea"><h1 class="text-2xl font-black tracking-tight text-white flex items-center gap-1.5"><span id="smartfixTitleSpan">SMARTFIX<span class="text-indigo-400">PRO</span></span><span class="text-[9px] px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-bold uppercase tracking-widest">v3.3</span></h1><p class="text-[11px] text-slate-400 uppercase tracking-widest font-bold">Smart Mobile Workshop OS</p></div>
+<div id="authTitleArea"><h1 class="text-2xl font-black tracking-tight text-white flex items-center gap-1.5"><span id="smartfixTitleSpan">SMARTFIX<span class="text-indigo-400">PRO</span></span><span class="text-[9px] px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-bold uppercase tracking-widest">v3.4</span></h1><p class="text-[11px] text-slate-400 uppercase tracking-widest font-bold">Smart Mobile Workshop OS</p></div>
 </div></div>
 <div class="flex flex-wrap items-center gap-2.5 pt-1">
 <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold badge-shimmer"><i class="fa-solid fa-bolt text-amber-400"></i> Instant 1-Click Setup</div>
@@ -88,7 +88,7 @@ input,select,textarea,button{-webkit-tap-highlight-color:transparent}input[type=
 <div class="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 flex items-center gap-2.5"><div class="feature-icon-breathing w-7 h-7 rounded-lg bg-rose-500/10 text-rose-400 flex items-center justify-center text-xs" style="animation-delay:.6s"><i class="fa-brands fa-whatsapp"></i></div><div><span class="text-[11px] text-slate-300 font-medium">WhatsApp Reminders</span></div></div>
 </div>
 </div>
-<div class="pt-6 border-t border-slate-800/80 mt-6 flex items-center justify-between text-[11px] text-slate-500 relative z-10"><span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Cloud v3.3 Persistent Vault</span><span>Lead Dev: Debapriya Sarkar</span></div>
+<div class="pt-6 border-t border-slate-800/80 mt-6 flex items-center justify-between text-[11px] text-slate-500 relative z-10"><span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Cloud v3.4 Persistent Vault</span><span>Lead Dev: Debapriya Sarkar</span></div>
 </div>
 <div class="lg:col-span-5 p-6 sm:p-10 flex flex-col justify-center space-y-6 relative z-10">
 <div><h2 class="text-2xl font-bold text-white" id="authTitle">Owner Authorization</h2><p class="text-sm text-slate-400 mt-1" id="authSubtitle">Sign in with your registered workshop credentials</p></div>
@@ -142,12 +142,15 @@ input,select,textarea,button{-webkit-tap-highlight-color:transparent}input[type=
 <div><label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Device Model *</label><input type="text" id="deviceModel" required placeholder="e.g. iPhone 13 Pro" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 text-white"></div>
 <div><label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">IMEI / Serial</label><div class="relative"><input type="text" id="deviceImei" placeholder="15-digit IMEI (Optional)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 pr-14 text-sm focus:outline-none focus:border-indigo-500 text-white font-mono"><button type="button" onclick="openScanner('deviceImei')" title="Scan" class="absolute right-2 top-2 w-10 h-10 rounded-lg bg-indigo-600/20 hover:bg-indigo-600 text-indigo-400 hover:text-white flex items-center justify-center"><i class="fa-solid fa-barcode text-lg"></i></button></div></div>
 <div class="md:col-span-2"><label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Reported Problem *</label><textarea id="faultDesc" required rows="2" placeholder="e.g. AMOLED Display Needed" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 text-white"></textarea></div>
-<!-- NEW: Parts Integration Field -->
-<div class="md:col-span-2">
-<label class="block text-xs font-semibold uppercase tracking-wider text-emerald-400 mb-2"><i class="fa-solid fa-boxes-stacked"></i> Link Stock Part (Auto-Deduct)</label>
-<input type="text" id="intakePartName" list="stockPartsDatalist" oninput="onIntakePartInput(this.value)" placeholder="Search & select part from stock..." class="w-full bg-slate-950 border border-emerald-500/40 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 text-white transition">
+
+<!-- NEW: Auto Stock Part Link -->
+<div class="relative md:col-span-2">
+<label class="block text-xs font-semibold uppercase tracking-wider text-emerald-400 mb-2"><i class="fa-solid fa-boxes-stacked"></i> Link Stock Part (Optional)</label>
+<input type="text" id="intakePartName" oninput="renderPartDropdown('intakePartName', 'intakePartDropdown', this.value, '')" onfocus="renderPartDropdown('intakePartName', 'intakePartDropdown', this.value, '')" placeholder="Search by model (e.g. A18, C11) or part name..." class="w-full bg-slate-950 border border-emerald-500/40 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 text-white transition" autocomplete="off">
+<div id="intakePartDropdown" class="hidden absolute w-full mt-1 bg-slate-900 border border-slate-700 rounded-xl max-h-48 overflow-y-auto z-50 shadow-2xl"></div>
 <input type="hidden" id="intakePartId">
 </div>
+
 <div class="md:col-span-2 p-4 bg-slate-950 rounded-2xl border border-amber-500/30 space-y-3">
 <div class="flex items-center gap-2 text-amber-400 font-bold text-xs"><i class="fa-solid fa-id-card"></i> ID Verification (Mandatory for FRP Unlock)</div>
 <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -276,12 +279,15 @@ input,select,textarea,button{-webkit-tap-highlight-color:transparent}input[type=
 <input type="hidden" id="diagBillNo">
 <div><label class="block text-xs font-semibold text-slate-400 uppercase mb-1.5">Refined Diagnosis</label><textarea id="diagFault" rows="3" placeholder="e.g. Display combo burnt..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"></textarea></div>
 <div class="grid grid-cols-2 gap-3"><div><label class="block text-xs font-semibold text-slate-400 uppercase mb-1.5">Revised Estimate (₹)</label><input type="number" id="diagEstimate" min="0" class="w-full bg-slate-950 border border-indigo-500/50 rounded-xl px-3 py-2 text-sm font-bold text-white focus:outline-none focus:border-indigo-500"></div><div><label class="block text-xs font-semibold text-slate-400 uppercase mb-1.5">Parts Cost (₹)</label><input type="number" id="diagPartsCost" min="0" value="0" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"></div></div>
-<!-- NEW: Diagnosis Parts Integration -->
-<div>
+
+<!-- NEW: Diagnosis Part Dropdown -->
+<div class="relative">
 <label class="block text-xs font-semibold text-emerald-400 uppercase mb-1.5">Link Stock Part (Optional)</label>
-<input type="text" id="diagPartsName" list="stockPartsDatalist" oninput="onDiagPartInput(this.value)" placeholder="Search stock..." class="w-full bg-slate-950 border border-emerald-500/40 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+<input type="text" id="diagPartsName" oninput="renderPartDropdown('diagPartsName', 'diagPartDropdown', this.value, 'diagPartsCost')" onfocus="renderPartDropdown('diagPartsName', 'diagPartDropdown', this.value, 'diagPartsCost')" placeholder="Search stock..." class="w-full bg-slate-950 border border-emerald-500/40 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500" autocomplete="off">
+<div id="diagPartDropdown" class="hidden absolute w-full mt-1 bg-slate-900 border border-slate-700 rounded-xl max-h-48 overflow-y-auto z-50 shadow-2xl"></div>
 <input type="hidden" id="diagPartId">
 </div>
+
 <div class="flex items-center gap-2 text-xs text-emerald-400 bg-emerald-500/10 p-2.5 rounded-xl border border-emerald-500/20"><i class="fa-brands fa-whatsapp"></i><span>Send WhatsApp estimate</span><input type="checkbox" id="diagNotifyWhatsApp" class="ml-auto w-4 h-4 accent-emerald-600"></div>
 <div class="pt-3 border-t border-slate-800 flex justify-end gap-2"><button onclick="closeDiagnosisModal()" class="px-4 py-2.5 rounded-xl border border-slate-800 text-slate-400 hover:text-white text-xs font-semibold">Cancel</button><button onclick="saveDiagnosis()" id="diagSaveBtn" class="bg-indigo-600 hover:bg-indigo-700 px-5 py-2.5 rounded-xl text-xs font-bold text-white flex items-center gap-2"><i class="fa-solid fa-floppy-disk"></i> Save</button></div>
 </div>
@@ -316,12 +322,15 @@ input,select,textarea,button{-webkit-tap-highlight-color:transparent}input[type=
 <div><label class="block text-xs font-semibold text-slate-400 uppercase mb-1.5">Outcome *</label><select id="modalStatusSelect" onchange="toggleDeliveryOutcomeUI()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500"><option value="Delivered">Repaired & Delivered</option><option value="Unrepairable">Unrepairable / Returned</option></select></div>
 <div id="repairableFields" class="space-y-3">
 <div><label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Warranty *</label><select id="modalWarranty" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"><option value="No Warranty">No Warranty</option><option value="30 Days Service Warranty" selected>30 Days</option><option value="60 Days Service Warranty">60 Days</option><option value="90 Days Warranty (Display & Touch)">90 Days</option><option value="6 Months Warranty">6 Months</option></select></div>
-<!-- NEW: Delivery Parts Integration -->
-<div>
+
+<!-- NEW: Delivery Part Dropdown -->
+<div class="relative">
 <label class="block text-xs font-semibold text-emerald-400 uppercase mb-1">Replaced Parts (Search Stock)</label>
-<input type="text" id="modalPartName" list="stockPartsDatalist" oninput="onDeliveryPartInput(this.value)" placeholder="e.g. AMOLED Display" class="w-full bg-slate-950 border border-emerald-500/40 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+<input type="text" id="modalPartName" oninput="renderPartDropdown('modalPartName', 'modalPartDropdown', this.value, 'modalPartCost')" onfocus="renderPartDropdown('modalPartName', 'modalPartDropdown', this.value, 'modalPartCost')" placeholder="e.g. AMOLED Display" class="w-full bg-slate-950 border border-emerald-500/40 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500" autocomplete="off">
+<div id="modalPartDropdown" class="hidden absolute w-full mt-1 bg-slate-900 border border-slate-700 rounded-xl max-h-48 overflow-y-auto z-50 shadow-2xl"></div>
 <input type="hidden" id="modalPartId">
 </div>
+
 <div class="grid grid-cols-2 gap-3"><div><label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Parts Cost (₹)</label><input type="number" id="modalPartCost" value="0" min="0" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"></div><div><label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Final Bill (₹) *</label><input type="number" id="modalFinalAmount" min="0" oninput="handleFinalAmountChange()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm font-bold text-white focus:outline-none focus:border-indigo-500"></div></div>
 <div id="deliveryDiscountInfo" class="hidden text-xs bg-amber-500/10 border border-amber-500/30 p-2.5 rounded-xl"><div class="flex justify-between text-amber-300 font-bold"><span><i class="fa-solid fa-percent mr-1"></i>Loyalty Discount:</span><span id="modalDiscountDisp">0%</span></div><div class="flex justify-between text-slate-300 text-[11px] mt-0.5"><span id="modalDiscountReason"></span><span id="modalDiscountAmountDisp">-₹0</span></div></div>
 <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-2 text-xs">
@@ -347,12 +356,15 @@ input,select,textarea,button{-webkit-tap-highlight-color:transparent}input[type=
 <div><label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Model</label><input type="text" id="editModel" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white"></div>
 <div><label class="block text-xs font-semibold text-slate-400 uppercase mb-1">IMEI</label><input type="text" id="editImei" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm font-mono text-white"></div>
 <div class="col-span-2"><label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Problem</label><textarea id="editFault" rows="2" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white"></textarea></div>
-<!-- NEW: Edit Parts Integration -->
-<div class="col-span-2">
+
+<!-- NEW: Edit Part Dropdown -->
+<div class="relative col-span-2">
 <label class="block text-xs font-semibold text-emerald-400 uppercase mb-1">Linked Stock Part (Optional)</label>
-<input type="text" id="editPartName" list="stockPartsDatalist" oninput="onEditPartInput(this.value)" placeholder="Search stock..." class="w-full bg-slate-950 border border-emerald-500/40 rounded-xl px-3 py-2 text-sm text-white">
+<input type="text" id="editPartName" oninput="renderPartDropdown('editPartName', 'editPartDropdown', this.value, '')" onfocus="renderPartDropdown('editPartName', 'editPartDropdown', this.value, '')" placeholder="Search stock..." class="w-full bg-slate-950 border border-emerald-500/40 rounded-xl px-3 py-2 text-sm text-white" autocomplete="off">
+<div id="editPartDropdown" class="hidden absolute w-full mt-1 bg-slate-900 border border-slate-700 rounded-xl max-h-48 overflow-y-auto z-50 shadow-2xl"></div>
 <input type="hidden" id="editPartId">
 </div>
+
 <div class="col-span-2 grid grid-cols-2 gap-3 p-3 bg-slate-950 rounded-xl border border-amber-500/30"><div class="col-span-2 text-xs font-bold text-amber-400"><i class="fa-solid fa-id-card mr-1"></i> ID Info</div><div><label class="block text-[10px] font-semibold text-slate-400 uppercase mb-1">Type</label><select id="editIdType" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-white"><option value="">None</option><option value="Aadhaar Card">Aadhaar</option><option value="Voter ID Card">Voter ID</option><option value="Driving License">DL</option></select></div><div><label class="block text-[10px] font-semibold text-slate-400 uppercase mb-1">Number</label><input type="text" id="editIdNumber" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-white font-mono"></div></div>
 <div class="col-span-2"><label class="block text-xs font-semibold text-amber-400 uppercase mb-1">Remarks 🔒</label><input type="text" id="editRemarks" class="w-full bg-slate-950 border border-amber-500/40 rounded-xl px-3 py-2 text-sm text-white"></div>
 <div><label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Status</label><select id="editStatusSelect" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white"><option value="Pending">Pending</option><option value="Parts-Ordered">Parts Ordered</option><option value="Ready">Ready</option><option value="Delivered">Delivered</option><option value="Unrepairable">Unrepairable</option></select></div>
@@ -372,9 +384,6 @@ input,select,textarea,button{-webkit-tap-highlight-color:transparent}input[type=
 <div class="flex items-center justify-between gap-3 pt-2"><button onclick="closePasswordModal()" class="flex-1 py-2.5 rounded-xl border border-slate-800 text-xs font-semibold text-slate-400 hover:text-white">Cancel</button><button onclick="verifyAdminPassword()" class="flex-1 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-xs font-bold text-white">Authenticate</button></div>
 </div>
 </div>
-
-<!-- DATALIST FOR STOCK PARTS -->
-<datalist id="stockPartsDatalist"></datalist>
 
 <div id="masterDirectPrintArea" style="display: none;"></div>
 <footer class="bg-slate-900 border-t border-slate-800 py-4 mt-auto"><div class="max-w-7xl mx-auto px-4 text-center"><p class="text-xs text-slate-400">SmartFix Pro &copy; 2026 | Mobile Workshop Management System</p><p class="text-xs font-semibold text-indigo-400 mt-1"><i class="fa-solid fa-code mr-1"></i> Developed by Debapriya Sarkar</p></div></footer>
@@ -473,66 +482,95 @@ renderDailyCashReport();renderJobCards();if(isOwnerAuthenticated)renderLedgerTab
 
 unsubCustomersSnapshot=db.collection('stores').doc(user.uid).collection('customers').onSnapshot((snapshot)=>{customersCache={};snapshot.forEach(doc=>{customersCache[doc.id]={id:doc.id,...doc.data()};});if(!document.getElementById('view-customers').classList.contains('hidden'))renderCustomers();},()=>{});
 
-// NEW: LCD Inventory Listener
+// LCD Inventory Listener
 unsubLcdSnapshot=db.collection('stores').doc(user.uid).collection('lcd_inventory').onSnapshot((snapshot)=>{
 lcdInventory=[];snapshot.forEach(doc=>{lcdInventory.push({id:doc.id,...doc.data()});});
-refreshStockPartsDatalist();
 });
 
 }else{document.getElementById('authScreen').classList.remove('hidden');}
 });
 
-// NEW: Parts Datalist Functions
-function refreshStockPartsDatalist(){
-const dl=document.getElementById('stockPartsDatalist');if(!dl)return;
-let html='';
-lcdInventory.forEach(item=>{
-if(Number(item.stock)>0){
-html+=`<option value="${escapeHtml(item.name)}">Stock: ${item.stock} | Price: ₹${item.price}</option>`;
+// ==================== CUSTOM PART SEARCH DROPDOWN ====================
+function renderPartDropdown(inputId, dropdownId, query, priceFieldId) {
+  const dropdown = document.getElementById(dropdownId);
+  if (!query || query.trim().length < 1) {
+    dropdown.classList.add('hidden');
+    return;
+  }
+  
+  const q = query.toLowerCase();
+  const matches = lcdInventory.filter(item => {
+    const nameMatch = (item.name || '').toLowerCase().includes(q);
+    const modelMatch = (item.models || []).some(m => m.toLowerCase().includes(q));
+    return nameMatch || modelMatch;
+  });
+
+  if (matches.length === 0) {
+    dropdown.innerHTML = `<div class="p-3 text-xs text-slate-500 text-center">No matching part found in stock</div>`;
+    dropdown.classList.remove('hidden');
+    return;
+  }
+
+  dropdown.innerHTML = matches.map(item => {
+    const isOut = Number(item.stock) <= 0;
+    const matchedModels = (item.models || []).filter(m => m.toLowerCase().includes(q)).join(', ');
+    return `
+      <div onclick="selectPartFromDropdown('${inputId}', '${dropdownId}', '${item.id}', '${attrSafe(item.name)}', ${item.price || 0}, '${priceFieldId}')" class="p-3 hover:bg-slate-800 cursor-pointer border-b border-slate-700/50 last:border-0 transition">
+          <div class="text-sm font-bold text-white flex justify-between">
+              <span>${esc(item.name)}</span>
+              <span class="${isOut ? 'text-rose-400' : 'text-emerald-400'} text-xs font-mono bg-slate-950 px-1.5 py-0.5 rounded">Stock: ${item.stock}</span>
+          </div>
+          <div class="text-[11px] text-emerald-400 mt-1 font-bold">Price: ₹${item.price}</div>
+          <div class="text-[10px] text-slate-400 truncate mt-0.5">${matchedModels ? '<span class="text-indigo-400 font-bold">Matched Model: ' + esc(matchedModels) + '</span>' : 'Compatible: ' + esc((item.models||[]).slice(0, 4).join(', ')) + '...'}</div>
+      </div>
+    `;
+  }).join('');
+  
+  dropdown.classList.remove('hidden');
 }
+
+function selectPartFromDropdown(inputId, dropdownId, partId, partName, partPrice, priceFieldId) {
+  document.getElementById(inputId).value = partName;
+  
+  // Set hidden ID based on which input it is
+  if (inputId === 'intakePartName') document.getElementById('intakePartId').value = partId;
+  if (inputId === 'diagPartsName') document.getElementById('diagPartId').value = partId;
+  if (inputId === 'modalPartName') document.getElementById('modalPartId').value = partId;
+  if (inputId === 'editPartName') document.getElementById('editPartId').value = partId;
+  
+  // Auto-fill Price ONLY if priceFieldId is provided
+  if (priceFieldId && priceFieldId !== 'none') {
+    document.getElementById(priceFieldId).value = partPrice;
+    // If it's the Delivery modal, recalculate the Final Payable amount
+    if(inputId === 'modalPartName' && typeof handleFinalAmountChange === 'function') {
+      handleFinalAmountChange();
+    }
+  }
+  
+  document.getElementById(dropdownId).classList.add('hidden');
+}
+
+// Close dropdowns when clicking outside
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.relative')) {
+    ['intakePartDropdown', 'diagPartDropdown', 'modalPartDropdown', 'editPartDropdown'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.classList.add('hidden');
+    });
+  }
 });
-dl.innerHTML=html;
-}
 
-function onIntakePartInput(val){
-const part=lcdInventory.find(p=>p.name===val);
-if(part){
-document.getElementById('intakePartId').value=part.id;
-document.getElementById('estCost').value=part.price;
-}else{
-document.getElementById('intakePartId').value='';
+function attrSafe(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/\\/g, '\\\\')
+    .replace(/'/g, "\\'");
 }
-}
-
-function onEditPartInput(val){
-const part=lcdInventory.find(p=>p.name===val);
-if(part){
-document.getElementById('editPartId').value=part.id;
-document.getElementById('editEstCost').value=part.price;
-}else{
-document.getElementById('editPartId').value='';
-}
-}
-
-function onDiagPartInput(val){
-const part=lcdInventory.find(p=>p.name===val);
-if(part){
-document.getElementById('diagPartsCost').value=part.price;
-document.getElementById('diagPartId').value=part.id;
-}else{
-document.getElementById('diagPartId').value='';
-}
-}
-
-function onDeliveryPartInput(val){
-const part=lcdInventory.find(p=>p.name===val);
-if(part){
-document.getElementById('modalPartCost').value=part.price;
-document.getElementById('modalPartId').value=part.id;
-}else{
-document.getElementById('modalPartId').value='';
-}
-}
+// ========================================================================
 
 async function adjustStockForJob(oldPartId,newPartId){
 if(oldPartId===newPartId)return;
