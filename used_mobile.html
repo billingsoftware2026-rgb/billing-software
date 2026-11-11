@@ -121,7 +121,6 @@
           <i class="fa-solid fa-screwdriver-wrench text-emerald-400"></i>
           <span>Repair POS</span>
         </a>
-        <!-- Bluetooth Thermal Direct Connect Button -->
         <button onclick="connectBluetoothThermal()" id="btnBtThermal" title="Connect 58mm Bluetooth Printer" class="px-2.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-emerald-400 rounded-lg font-bold border border-slate-800 transition flex items-center gap-1">
           <i class="fa-brands fa-bluetooth text-blue-400"></i>
           <span id="btThermalLabel">BT Print</span>
@@ -140,19 +139,16 @@
         <h4 id="kpiReadyCount" class="text-2xl font-black text-emerald-400 mt-1">0</h4>
         <p class="text-[10px] text-slate-500">Available to sell</p>
       </div>
-
       <div class="bg-slate-900 border border-amber-500/30 p-4 rounded-2xl bg-amber-500/5">
         <span class="text-[10px] font-bold uppercase tracking-wider text-amber-400">Under Repair</span>
         <h4 id="kpiRepairCount" class="text-2xl font-black text-amber-400 mt-1">0</h4>
         <p class="text-[10px] text-slate-500">Refurbishing in workshop</p>
       </div>
-
       <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
         <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Devices Sold</span>
         <h4 id="kpiSoldCount" class="text-2xl font-black text-white mt-1">0</h4>
         <p class="text-[10px] text-slate-500">Deliveries completed</p>
       </div>
-
       <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
         <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-400">Total Stock Investment</span>
         <h4 id="kpiStockCost" class="text-2xl font-black text-indigo-400 mt-1">₹0</h4>
@@ -266,7 +262,7 @@
 
         <div class="flex flex-wrap items-center gap-2">
           <button onclick="exportTodaySalesPDF()" class="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-lg shadow-indigo-600/30 transition flex items-center gap-1.5">
-            <i class="fa-solid fa-calendar-day"></i> Today's Sales PDF (1-Click)
+            <i class="fa-solid fa-calendar-day"></i> Today's Sales PDF
           </button>
           <button onclick="exportSalesPDF()" class="px-3.5 py-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 font-semibold text-xs flex items-center gap-1.5 transition">
             <i class="fa-solid fa-file-pdf"></i> Custom Range PDF
@@ -277,7 +273,6 @@
         </div>
       </div>
 
-      <!-- Date Filter -->
       <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex flex-wrap items-center justify-between gap-3 text-xs">
         <div class="flex flex-wrap items-center gap-2">
           <span class="text-slate-400 font-semibold">Presets:</span>
@@ -293,7 +288,6 @@
         </div>
       </div>
 
-      <!-- Ledger Table -->
       <div class="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-xl">
         <div class="overflow-x-auto">
           <table class="w-full text-left text-sm" id="salesTable">
@@ -380,7 +374,7 @@
         </div>
 
         <div>
-          <label class="block uppercase font-bold text-slate-400 mb-1">Device Image URL (Optional - Leave blank for Auto Brand Visual)</label>
+          <label class="block uppercase font-bold text-slate-400 mb-1">Device Image URL (Optional)</label>
           <input type="url" id="phoneCustomImg" placeholder="https://example.com/phone-image.jpg" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs">
         </div>
 
@@ -428,6 +422,30 @@
             <div>
               <input type="text" id="sellerIdProof" placeholder="Govt ID / Doc Type" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white">
             </div>
+          </div>
+        </div>
+
+        <!-- Terms & Conditions & Signature -->
+        <div class="p-3.5 bg-slate-950 rounded-2xl border border-rose-500/30 space-y-3">
+          <span class="block text-[11px] uppercase font-bold text-rose-400"><i class="fa-solid fa-file-contract mr-1"></i> Seller Declaration & Terms (Mandatory)</span>
+          
+          <div class="text-[11px] text-slate-300 leading-relaxed bg-slate-900 p-3 rounded-xl border border-slate-700 max-h-40 overflow-y-auto">
+            <p class="font-bold text-white mb-1">By signing below, the seller agrees to the following:</p>
+            <ol class="list-decimal pl-4 space-y-1.5">
+              <li><strong>No Returns:</strong> Once the device is sold, it cannot be returned or refunded under any circumstances.</li>
+              <li><strong>Legal Liability:</strong> If any legal issue (such as theft, robbery, or police case) arises regarding this device in the future, the seller will bear 100% of the legal responsibility. The shop/workshop will not be held liable.</li>
+              <li><strong>Proof of Ownership:</strong> The seller hereby confirms that this device is NOT stolen, blacklisted, or involved in any illegal activities.</li>
+              <li><strong>Right to Sell:</strong> The seller confirms that they are the rightful owner of this device and possess the legal right to sell it.</li>
+            </ol>
+          </div>
+
+          <div class="relative mt-2">
+            <div class="flex justify-between items-center mb-1">
+              <label class="text-[11px] font-bold text-slate-400">Seller Signature <span class="text-rose-400">*</span></label>
+              <button type="button" onclick="clearSignature()" class="text-[10px] text-rose-400 hover:text-white bg-rose-500/10 px-2 py-1 rounded">Clear Signature</button>
+            </div>
+            <!-- Signature Canvas -->
+            <canvas id="signatureCanvas" width="400" height="150" class="w-full bg-white rounded-xl border border-slate-600 touch-none cursor-crosshair"></canvas>
           </div>
         </div>
 
@@ -483,7 +501,7 @@
 
   <!-- VIEW DEVICE DETAILS MODAL -->
   <div id="detailsModal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
       <div class="flex items-center justify-between pb-3 border-b border-slate-800">
         <h3 class="text-base font-bold text-white flex items-center gap-2">
           <i class="fa-solid fa-circle-info text-indigo-400"></i> Full Mobile Specifications & Audit
@@ -674,10 +692,9 @@
     let isOwnerUnlocked = false;
     let pendingTargetView = null;
     let currentShowcaseFilter = 'all';
-
-    // Bluetooth Printer variables
-    let btDevice = null;
-    let btCharacteristic = null;
+    
+    // Signature Pad Variables
+    let sigCanvas, sigCtx, isDrawing = false;
 
     function showToast(msg) {
       const toast = document.getElementById('toast');
@@ -686,33 +703,78 @@
       setTimeout(() => toast.classList.add('translate-y-20', 'opacity-0'), 2500);
     }
 
-    // Direct Web Bluetooth Pairing Function
-    async function connectBluetoothThermal() {
-      const lbl = document.getElementById('btThermalLabel');
-      try {
-        if (!navigator.bluetooth) {
-          alert("Web Bluetooth is not supported in this browser. Please use Chrome browser on Android.");
-          return;
-        }
+    // ================= SIGNATURE PAD LOGIC =================
+    function initSignaturePad() {
+      sigCanvas = document.getElementById('signatureCanvas');
+      if (!sigCanvas) return;
+      
+      // Adjust canvas resolution for better quality on high-DPI screens
+      const rect = sigCanvas.getBoundingClientRect();
+      sigCanvas.width = rect.width * 2;
+      sigCanvas.height = rect.height * 2;
+      sigCtx = sigCanvas.getContext('2d');
+      sigCtx.scale(2, 2);
+      sigCtx.lineWidth = 2.5;
+      sigCtx.lineCap = 'round';
+      sigCtx.strokeStyle = '#000000';
 
-        lbl.innerText = "Pairing...";
-        btDevice = await navigator.bluetooth.requestDevice({
-          filters: [{ services: ['000018f0-0000-1000-8000-00805f9b34fb'] }],
-          optionalServices: ['000018f0-0000-1000-8000-00805f9b34fb', 'e7810a71-73ae-499d-8c15-faa9aef0c3f2']
-        });
+      // Mouse Events
+      sigCanvas.addEventListener('mousedown', startSig);
+      sigCanvas.addEventListener('mousemove', drawSig);
+      sigCanvas.addEventListener('mouseup', stopSig);
+      sigCanvas.addEventListener('mouseout', stopSig);
 
-        const server = await btDevice.gatt.connect();
-        const service = await server.getPrimaryService('000018f0-0000-1000-8000-00805f9b34fb');
-        const characteristics = await service.getCharacteristics();
-        btCharacteristic = characteristics.find(c => c.properties.write || c.properties.writeWithoutResponse);
+      // Touch Events
+      sigCanvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+      sigCanvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+      sigCanvas.addEventListener('touchend', stopSig);
+    }
 
-        lbl.innerText = "Connected";
-        document.getElementById('btnBtThermal').classList.replace('text-slate-300', 'text-emerald-400');
-        alert("Bluetooth Thermal Printer Connected Successfully!");
-      } catch (err) {
-        lbl.innerText = "BT Print";
-        alert("Bluetooth info: If not direct pairing, install 'RawBT Print Service' from Play Store for 100% smooth background thermal prints.");
+    function getSigPos(evt) {
+      const rect = sigCanvas.getBoundingClientRect();
+      let clientX, clientY;
+      if (evt.touches && evt.touches.length > 0) {
+        clientX = evt.touches[0].clientX; clientY = evt.touches[0].clientY;
+      } else {
+        clientX = evt.clientX; clientY = evt.clientY;
       }
+      return { x: clientX - rect.left, y: clientY - rect.top };
+    }
+
+    function startSig(e) {
+      isDrawing = true;
+      const pos = getSigPos(e);
+      sigCtx.beginPath();
+      sigCtx.moveTo(pos.x, pos.y);
+    }
+
+    function drawSig(e) {
+      if (!isDrawing) return;
+      e.preventDefault();
+      const pos = getSigPos(e);
+      sigCtx.lineTo(pos.x, pos.y);
+      sigCtx.stroke();
+    }
+
+    function stopSig() { isDrawing = false; }
+    function handleTouchStart(e) { startSig(e); }
+    function handleTouchMove(e) { drawSig(e); }
+    
+    function clearSignature() {
+      if (!sigCtx || !sigCanvas) return;
+      sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height);
+    }
+
+    function isCanvasBlank(canvas) {
+      if(!canvas) return true;
+      const blank = document.createElement('canvas');
+      blank.width = canvas.width; blank.height = canvas.height;
+      return canvas.toDataURL() === blank.toDataURL();
+    }
+    // =======================================================
+
+    async function connectBluetoothThermal() {
+      alert("Bluetooth info: Please use Chrome on Android. If direct pairing fails, install 'RawBT Print Service' from Play Store for 100% smooth background thermal prints.");
     }
 
     auth.onAuthStateChanged(async (user) => {
@@ -789,29 +851,17 @@
       let logoText = brand.toUpperCase();
 
       if (b.includes('samsung')) {
-        brandColor = "from-blue-700 via-sky-800 to-slate-950";
-        brandIcon = "fa-solid fa-mobile";
-        logoText = "SAMSUNG GALAXY";
+        brandColor = "from-blue-700 via-sky-800 to-slate-950"; brandIcon = "fa-solid fa-mobile"; logoText = "SAMSUNG GALAXY";
       } else if (b.includes('apple') || b.includes('iphone')) {
-        brandColor = "from-neutral-700 via-slate-800 to-neutral-950";
-        brandIcon = "fa-brands fa-apple";
-        logoText = "APPLE IPHONE";
+        brandColor = "from-neutral-700 via-slate-800 to-neutral-950"; brandIcon = "fa-brands fa-apple"; logoText = "APPLE IPHONE";
       } else if (b.includes('vivo') || b.includes('iqoo')) {
-        brandColor = "from-blue-500 via-indigo-800 to-slate-950";
-        brandIcon = "fa-solid fa-mobile-screen-button";
-        logoText = "VIVO SMARTPHONE";
+        brandColor = "from-blue-500 via-indigo-800 to-slate-950"; brandIcon = "fa-solid fa-mobile-screen-button"; logoText = "VIVO SMARTPHONE";
       } else if (b.includes('realme')) {
-        brandColor = "from-amber-600 via-yellow-700 to-slate-950";
-        brandIcon = "fa-solid fa-bolt";
-        logoText = "REALME DARE TO LEAP";
+        brandColor = "from-amber-600 via-yellow-700 to-slate-950"; brandIcon = "fa-solid fa-bolt"; logoText = "REALME DARE TO LEAP";
       } else if (b.includes('xiaomi') || b.includes('redmi') || b.includes('poco')) {
-        brandColor = "from-orange-600 via-amber-800 to-slate-950";
-        brandIcon = "fa-solid fa-mobile-retro";
-        logoText = "XIAOMI / REDMI";
+        brandColor = "from-orange-600 via-amber-800 to-slate-950"; brandIcon = "fa-solid fa-mobile-retro"; logoText = "XIAOMI / REDMI";
       } else if (b.includes('oneplus')) {
-        brandColor = "from-rose-700 via-red-900 to-slate-950";
-        brandIcon = "fa-solid fa-plus";
-        logoText = "ONEPLUS NEVER SETTLE";
+        brandColor = "from-rose-700 via-red-900 to-slate-950"; brandIcon = "fa-solid fa-plus"; logoText = "ONEPLUS NEVER SETTLE";
       }
 
       return `
@@ -968,6 +1018,14 @@
           <p><span class="text-slate-400">Seller Mobile:</span> <a href="tel:${item.sellerPhone}" class="text-emerald-400 font-mono">${item.sellerPhone}</a></p>
           <p><span class="text-slate-400">Verification ID:</span> <span class="text-slate-300">${item.sellerIdProof || 'None'}</span></p>
         </div>
+
+        ${item.sellerSignature ? `
+          <div class="bg-slate-950 p-3 rounded-2xl border border-rose-500/30 space-y-1 mt-2">
+            <span class="text-[10px] font-bold text-rose-400 uppercase">Seller Agreement & Signature:</span>
+            <p class="text-[9px] text-slate-500 mb-2">Verified on: ${item.termsAcceptedAt ? new Date(item.termsAcceptedAt).toLocaleString() : 'N/A'}</p>
+            <div class="bg-white rounded-lg p-2 inline-block"><img src="${item.sellerSignature}" class="h-16 object-contain" alt="Signature"></div>
+          </div>
+        ` : ''}
 
         ${item.status === 'Sold' ? `
           <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800 space-y-1">
@@ -1187,6 +1245,9 @@
             ${item.status === 'Sold' ? `<span class="text-emerald-400">Buyer: ${item.buyerName}</span>` : `<span class="text-slate-400">Seller: ${item.sellerName}</span>`}
           </td>
           <td class="p-4 text-right space-x-1.5">
+            <button onclick="viewDeviceDetails('${item.docId}')" class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs" title="View Details">
+              <i class="fa-solid fa-eye"></i>
+            </button>
             <button onclick="openEditDeviceModal('${item.docId}')" class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs" title="Edit Device">
               <i class="fa-solid fa-pen"></i>
             </button>
@@ -1382,6 +1443,9 @@
       document.getElementById('needsRepairSwitch').checked = false;
       document.getElementById('repairNoteBox').classList.add('hidden');
       document.getElementById('intakeModal').classList.remove('hidden');
+      
+      // Initialize Signature Pad when modal opens
+      setTimeout(initSignaturePad, 150); 
     }
     function closeIntakeModal() {
       document.getElementById('intakeModal').classList.add('hidden');
@@ -1390,6 +1454,13 @@
     async function savePhonePurchase(e) {
       e.preventDefault();
       if (!currentUser) return;
+
+      // Signature Validation
+      if (!sigCanvas || isCanvasBlank(sigCanvas)) {
+        alert("Seller Signature is mandatory! Please sign in the white box at the bottom.");
+        return;
+      }
+      const signatureImg = sigCanvas.toDataURL('image/png');
 
       const needsRepair = document.getElementById('needsRepairSwitch').checked;
       const newDevice = {
@@ -1405,6 +1476,8 @@
         sellerName: document.getElementById('sellerName').value.trim(),
         sellerPhone: document.getElementById('sellerPhone').value.trim(),
         sellerIdProof: document.getElementById('sellerIdProof').value.trim(),
+        sellerSignature: signatureImg, 
+        termsAcceptedAt: new Date().toISOString(),
         status: needsRepair ? "Under-Repair" : "Ready",
         repairDiagnosis: needsRepair ? document.getElementById('repairDiagnosis').value.trim() : "",
         intakeDate: new Date().toISOString().split('T')[0],
@@ -1504,7 +1577,6 @@
 
       const receiptHTML = `
         <div style="width: 100%; text-align: center; margin: 0; padding: 0;">
-          <!-- Shop Header -->
           <h2 style="font-size: 13px; font-weight: 900; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">${sName}</h2>
           <p style="font-size: 8.5px; margin: 2px 0 1px 0;">${sAddr}</p>
           <p style="font-size: 8.5px; margin: 1px 0;">Helpdesk: +91 ${sPhone}</p>
@@ -1514,7 +1586,6 @@
           <p style="font-size: 8px; margin: 2px 0 0 0;">Memo No: <strong>${invoiceNo}</strong></p>
           <div style="border-top: 1px dashed #000; margin: 4px 0;"></div>
 
-          <!-- Customer & Date -->
           <table style="width: 100%; font-size: 9px; border-collapse: collapse; text-align: left; line-height: 1.35;">
             <tr><td>Date:</td><td style="text-align: right;">${item.saleDate || item.intakeDate}</td></tr>
             <tr><td>Buyer:</td><td style="text-align: right;"><strong>${item.buyerName || 'Walk-in'}</strong></td></tr>
@@ -1523,7 +1594,6 @@
 
           <div style="border-top: 1px dashed #000; margin: 4px 0;"></div>
 
-          <!-- Device Specs -->
           <table style="width: 100%; font-size: 9px; border-collapse: collapse; text-align: left; line-height: 1.35;">
             <tr><td colspan="2" style="font-weight: bold; font-size: 10px;">${item.brand} ${item.model}</td></tr>
             <tr><td>Storage:</td><td style="text-align: right;">${item.variant || 'Standard'}</td></tr>
@@ -1533,7 +1603,6 @@
 
           <div style="border-top: 1.5px solid #000; margin: 4px 0;"></div>
 
-          <!-- Settlement Math -->
           <table style="width: 100%; font-size: 9.5px; border-collapse: collapse; line-height: 1.4;">
             <tr><td>Unit Price:</td><td style="text-align: right;">Rs. ${Number(item.salePrice).toFixed(2)}</td></tr>
             <tr><td>Tax / GST:</td><td style="text-align: right;">Rs. 0.00</td></tr>
@@ -1547,14 +1616,12 @@
             </tr>
           </table>
 
-          <!-- Warranty Badge -->
           <div style="margin: 5px 0 4px 0; font-size: 9px; font-weight: bold; border: 1px solid #000; padding: 3px 2px; text-transform: uppercase;">
             Store Warranty: ${item.warranty || 'No Warranty'}
           </div>
 
           <div style="border-top: 1px dashed #000; margin: 4px 0 3px 0;"></div>
 
-          <!-- Terms & Condition Notice -->
           <div style="font-size: 7.5px; line-height: 1.25; text-align: left; color: #111;">
             <strong>TERMS & CONDITIONS:</strong><br>
             1. Pre-owned phones are verified with identity proof of the original seller.<br>
@@ -1564,7 +1631,6 @@
 
           <div style="border-top: 1px dashed #000; margin: 10px 0 4px 0;"></div>
 
-          <!-- Signature & Seal Blocks -->
           <table style="width: 100%; font-size: 7.5px; margin-top: 10px; border-collapse: collapse;">
             <tr>
               <td style="text-align: center; width: 50%;">____________________<br>Customer Signature</td>
@@ -1573,7 +1639,6 @@
           </table>
 
           <div style="border-top: 1px dashed #000; margin: 6px 0 2px 0;"></div>
-          <!-- DEVELOPER CREDIT -->
           <p style="text-align: center; font-size: 7.5px; margin: 4px 0 0 0; color: #333;">
             SmartFix Pro &copy; 2026 | Mobile Workshop Management System<br>
             <strong>Developed by Debapriya Sarkar</strong>
