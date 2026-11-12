@@ -96,7 +96,8 @@
           <div class="glass-panel p-5 rounded-2xl border border-slate-800">
             <div class="flex flex-wrap justify-between items-start gap-4">
               <div><h2 id="detShopName" class="text-2xl font-bold text-white"></h2><p id="detShopMeta" class="text-xs text-slate-400 mt-1"></p><p id="detShopUid" class="text-[10px] font-mono text-slate-500 mt-1"></p></div>
-              <div class="flex gap-2">
+              <div class="flex flex-wrap gap-2">
+                <button onclick="sendStoreCredentialsWhatsApp()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold shadow transition flex items-center gap-1.5"><i class="fa-brands fa-whatsapp text-sm"></i> Send Details on WhatsApp</button>
                 <button onclick="toggleStoreStatus()" id="detStatusBtn" class="px-3 py-1.5 rounded-xl text-xs font-bold border transition"></button>
                 <button onclick="deleteStore()" class="px-3 py-1.5 bg-rose-600/20 hover:bg-rose-600 text-rose-400 hover:text-white border border-rose-500/30 rounded-xl text-xs font-bold transition"><i class="fa-solid fa-trash"></i> Delete</button>
               </div>
@@ -122,16 +123,27 @@
           <!-- TAB: Profile -->
           <div id="dcnt-profile" class="dtab-content">
             <div class="glass-panel p-5 rounded-2xl border border-slate-800 space-y-4">
-              <h3 class="text-sm font-bold text-white"><i class="fa-solid fa-store text-indigo-400 mr-2"></i>Store Profile Settings</h3>
+              <h3 class="text-sm font-bold text-white"><i class="fa-solid fa-store text-indigo-400 mr-2"></i>Store Profile & Credentials</h3>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                 <div><label class="block font-semibold text-slate-400 uppercase mb-1">Shop Name</label><input type="text" id="editShopName" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:border-indigo-500 focus:outline-none"></div>
-                <div><label class="block font-semibold text-slate-400 uppercase mb-1">Phone</label><input type="tel" id="editShopPhone" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:border-indigo-500 focus:outline-none"></div>
+                <div><label class="block font-semibold text-slate-400 uppercase mb-1">Phone (WhatsApp)</label><input type="tel" id="editShopPhone" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:border-indigo-500 focus:outline-none"></div>
                 <div class="md:col-span-2"><label class="block font-semibold text-slate-400 uppercase mb-1">Address</label><input type="text" id="editShopAddress" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:border-indigo-500 focus:outline-none"></div>
-                <div class="md:col-span-2"><label class="block font-semibold text-slate-400 uppercase mb-1">Owner Email (Login ID)</label><input type="email" id="editOwnerEmail" disabled class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-500 cursor-not-allowed"></div>
+                <div><label class="block font-semibold text-slate-400 uppercase mb-1">Owner Email (Login ID)</label><input type="email" id="editOwnerEmail" disabled class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-400 font-mono cursor-not-allowed"></div>
+                <div>
+                  <label class="block font-semibold text-emerald-400 uppercase mb-1">Saved Password Record (For WhatsApp Share)</label>
+                  <div class="relative">
+                    <input type="text" id="editSavedPassword" placeholder="Not recorded yet" class="w-full bg-slate-900 border border-emerald-500/40 rounded-xl px-3 py-2 pr-10 text-emerald-300 font-mono focus:border-emerald-500 focus:outline-none">
+                    <button type="button" onclick="copyTextField('editSavedPassword')" title="Copy Password" class="absolute right-2.5 top-2 text-slate-400 hover:text-white"><i class="fa-solid fa-copy"></i></button>
+                  </div>
+                </div>
+              </div>
+              <div class="bg-slate-900/70 border border-slate-800 rounded-xl p-3 text-[11px] text-slate-400">
+                <i class="fa-solid fa-circle-info text-indigo-400 mr-1"></i> <strong>Note on Password Reset:</strong> If a store owner forgets their password, click <b>Send Reset Email</b> (ask them to check Spam/Promotions folder too) OR share their saved credentials directly via <b>Send Details on WhatsApp</b>.
               </div>
               <div class="pt-3 border-t border-slate-800 flex flex-wrap gap-2">
                 <button onclick="saveStoreProfile()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-bold transition"><i class="fa-solid fa-floppy-disk mr-1"></i> Save Changes</button>
-                <button onclick="sendPasswordReset()" class="px-4 py-2 bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/30 rounded-lg text-xs font-bold transition"><i class="fa-solid fa-key mr-1"></i> Send Reset Email</button>
+                <button onclick="sendPasswordReset()" class="px-4 py-2 bg-amber-600/20 hover:bg-amber-600 text-amber-300 hover:text-white border border-amber-500/30 rounded-lg text-xs font-bold transition"><i class="fa-solid fa-key mr-1"></i> Send Reset Email</button>
+                <button onclick="sendStoreCredentialsWhatsApp()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold transition flex items-center gap-1.5"><i class="fa-brands fa-whatsapp"></i> Share ID & Password on WhatsApp</button>
               </div>
             </div>
 
@@ -147,10 +159,10 @@
                   <label class="block font-semibold text-slate-400 uppercase mb-1">Plan Type</label>
                   <select id="devPlanType" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:border-amber-500 focus:outline-none">
                     <option value="Trial">Trial (30 Days - No CRM)</option>
-                    <option value="6 Months">6 Months (No Promo/Loyalty)</option>
-                    <option value="1 Year">1 Year (Full Access)</option>
-                    <option value="2 Years">2 Years (Full Access)</option>
-                    <option value="Custom">Custom (Full Access)</option>
+                    <option value="6 Months">6 Months (CRM + Backup + Used Mobile)</option>
+                    <option value="1 Year">1 Year (Full Access + Loyalty & Promo)</option>
+                    <option value="2 Years">2 Years (Full Access + Loyalty & Promo)</option>
+                    <option value="Custom">Custom (Full Access + Loyalty & Promo)</option>
                   </select>
                 </div>
                 <div class="md:col-span-2">
@@ -193,7 +205,7 @@
           <!-- TAB: Backup -->
           <div id="dcnt-backup" class="dtab-content hidden">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div class="glass-panel p-5 rounded-2xl border border-slate-800"><h3 class="text-sm font-bold text-white"><i class="fa-solid fa-download text-emerald-400 mr-2"></i>Full Backup</h3><p class="text-xs text-slate-400 mt-2 mb-4">Download all data into a single JSON file.</p><button onclick="downloadStoreBackup()" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-file-export"></i> Download JSON</button></div>
+              <div class="glass-panel p-5 rounded-2xl border border-slate-800"><h3 class="text-sm font-bold text-white"><i class="fa-solid fa-download text-emerald-400 mr-2"></i>Full Backup</h3><p class="text-xs text-slate-400 mt-2 mb-4">Download all data into a single JSON file (compatible with Store App).</p><button onclick="downloadStoreBackup()" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-file-export"></i> Download JSON</button></div>
               <div class="glass-panel p-5 rounded-2xl border border-slate-800"><h3 class="text-sm font-bold text-white"><i class="fa-solid fa-upload text-indigo-400 mr-2"></i>Restore Data</h3><input type="file" id="restoreFile" accept=".json" class="block w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-white hover:file:bg-slate-700 mt-2 mb-3"><button onclick="restoreStoreBackup()" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-cloud-arrow-up"></i> Restore JSON</button></div>
             </div>
             <p id="backupStatus" class="text-xs text-slate-400 mt-3"></p>
@@ -203,7 +215,7 @@
           <div id="dcnt-danger" class="dtab-content hidden">
             <div class="bg-rose-950/20 border border-rose-500/30 rounded-2xl p-5 space-y-4">
               <h3 class="text-sm font-bold text-rose-400 uppercase tracking-wider"><i class="fa-solid fa-triangle-exclamation mr-2"></i>Danger Zone</h3>
-              <div class="bg-slate-900 border border-slate-800 rounded-xl p-4"><h4 class="text-xs font-bold text-white">Reset All Store Data</h4><p class="text-[11px] text-slate-400 mt-1 mb-3">Deletes all Jobs, EMI, LCD, and Used Mobiles. The store login remains active.</p><button onclick="resetStoreData()" class="px-4 py-2 bg-rose-600/20 hover:bg-rose-600 text-rose-400 hover:text-white border border-rose-500/30 rounded-lg text-xs font-bold transition"><i class="fa-solid fa-rotate-left mr-1"></i> Wipe Store Data</button></div>
+              <div class="bg-slate-900 border border-slate-800 rounded-xl p-4"><h4 class="text-xs font-bold text-white">Reset All Store Data</h4><p class="text-[11px] text-slate-400 mt-1 mb-3">Deletes all Jobs, Customers, EMI, LCD, and Used Mobiles. The store login remains active.</p><button onclick="resetStoreData()" class="px-4 py-2 bg-rose-600/20 hover:bg-rose-600 text-rose-400 hover:text-white border border-rose-500/30 rounded-lg text-xs font-bold transition"><i class="fa-solid fa-rotate-left mr-1"></i> Wipe Store Data</button></div>
             </div>
           </div>
         </div>
@@ -221,8 +233,8 @@
         <div id="view-manual" class="view-section hidden space-y-6 animate-fade">
           <div><h2 class="text-xl font-bold text-white">Developer Troubleshooting Manual</h2><p class="text-xs text-slate-400">Step-by-step guide to fix common issues.</p></div>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="glass-panel p-5 rounded-2xl border border-slate-800"><h3 class="text-sm font-bold text-indigo-400 mb-2"><i class="fa-solid fa-key"></i> Password Reset Problem</h3><p class="text-xs text-slate-300 leading-relaxed">If a store owner forgets their password: <br>1. Go to <b>Manage Stores</b>.<br>2. Open the store profile.<br>3. Click <b>Send Reset Email</b>.<br>4. Tell the owner to check their inbox and set a new password.</p></div>
-            <div class="glass-panel p-5 rounded-2xl border border-slate-800"><h3 class="text-sm font-bold text-emerald-400 mb-2"><i class="fa-solid fa-database"></i> Data Loss / Missing Bills</h3><p class="text-xs text-slate-300 leading-relaxed">If a store reports missing jobs:<br>1. Open the store profile.<br>2. Go to the <b>Backup</b> tab.<br>3. If they have a manual JSON backup, upload it in <b>Restore Data</b>.<br>4. If no backup, you can manually add the bill in their app using their login.</p></div>
+            <div class="glass-panel p-5 rounded-2xl border border-slate-800"><h3 class="text-sm font-bold text-indigo-400 mb-2"><i class="fa-solid fa-key"></i> Password Reset & WhatsApp Share</h3><p class="text-xs text-slate-300 leading-relaxed">If a store owner forgets their password: <br>1. Go to <b>Manage Stores</b> and open the store profile.<br>2. Check the <b>Saved Password Record</b> field and click <b>Share ID & Password on WhatsApp</b>.<br>3. If they changed their password earlier, click <b>Send Reset Email</b> and ask them to check their Spam/Promotions folder as well.</p></div>
+            <div class="glass-panel p-5 rounded-2xl border border-slate-800"><h3 class="text-sm font-bold text-emerald-400 mb-2"><i class="fa-solid fa-database"></i> Data Loss / Missing Bills</h3><p class="text-xs text-slate-300 leading-relaxed">If a store reports missing jobs:<br>1. Open the store profile.<br>2. Go to the <b>Backup</b> tab.<br>3. Upload their JSON backup in <b>Restore Data</b> to merge all bills, customers, EMI, and stock automatically.</p></div>
           </div>
         </div>
       </main>
@@ -237,8 +249,12 @@
         <div><label class="block text-slate-400 mb-1">Shop Name *</label><input type="text" id="newShopName" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white"></div>
         <div><label class="block text-slate-400 mb-1">Owner Email *</label><input type="email" id="newShopEmail" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white"></div>
         <div><label class="block text-slate-400 mb-1">Temp Password * (min 6 chars)</label><input type="text" id="newShopPass" required minlength="6" value="Smart@123" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-emerald-400 font-mono"></div>
-        <div><label class="block text-slate-400 mb-1">Phone *</label><input type="tel" id="newShopPhone" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white"></div>
+        <div><label class="block text-slate-400 mb-1">Phone (WhatsApp) *</label><input type="tel" id="newShopPhone" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white"></div>
         <div><label class="block text-slate-400 mb-1">Address</label><input type="text" id="newShopAddress" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white"></div>
+        <div class="flex items-center gap-2 pt-1">
+          <input type="checkbox" id="sendWhatsAppOnCreate" checked class="w-4 h-4 accent-emerald-500">
+          <label for="sendWhatsAppOnCreate" class="text-emerald-300 font-semibold">Send Store ID & Password on WhatsApp immediately</label>
+        </div>
         <p id="createStoreErr" class="text-rose-400 hidden"></p>
         <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl transition shadow-lg mt-2">Create Store (30 Day Trial)</button>
       </form>
@@ -287,10 +303,23 @@
     let unsubLcd = null;
     let unsubMobiles = null;
 
-    // Helper to get local date string (fixes timezone issues)
     function localDateString(d = new Date()) {
       const y = d.getFullYear(); const m = String(d.getMonth()+1).padStart(2,'0'); const day = String(d.getDate()).padStart(2,'0');
       return `${y}-${m}-${day}`;
+    }
+
+    function normalizePhoneForWhatsApp(phone) {
+      if (!phone) return '';
+      let c = String(phone).replace(/[^0-9]/g, '');
+      if (c.length === 11 && c.startsWith('0')) c = c.slice(1);
+      if (c.length === 10) return '91' + c;
+      return c;
+    }
+
+    function copyTextField(id) {
+      const el = document.getElementById(id);
+      if (!el || !el.value) return;
+      navigator.clipboard.writeText(el.value).then(() => alert("Copied to clipboard!")).catch(() => {});
     }
 
     async function handleLogin(e) {
@@ -368,7 +397,6 @@
       document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
       document.getElementById('view-' + viewId).classList.remove('hidden');
       
-      // FIX: Cleanup listeners when leaving Store Detail view to prevent memory leaks
       if (viewId !== 'store-detail') {
           if(unsubJobs) { unsubJobs(); unsubJobs = null; }
           if(unsubEmis) { unsubEmis(); unsubEmis = null; }
@@ -476,6 +504,7 @@
       document.getElementById('editShopPhone').value = store.shopPhone || '';
       document.getElementById('editShopAddress').value = store.shopAddress || '';
       document.getElementById('editOwnerEmail').value = store.ownerEmail || '';
+      document.getElementById('editSavedPassword').value = store.savedPassword || '';
 
       document.getElementById('devSubEnd').value = store.subscriptionEnd || '';
       document.getElementById('devPlanType').value = store.planType || 'Trial';
@@ -497,8 +526,7 @@
 
       unsubJobs = storeRef.collection('jobs').onSnapshot(snap => {
         let jobs = snap.docs.map(d => ({ _id: d.id, ...d.data() }));
-        // FIX: Sort Jobs by Date (Latest First)
-        jobs.sort((a, b) => String(b.intakeDate || '').localeCompare(String(a.intakeDate || '')));
+        jobs.sort((a, b) => (b.createdAtMs || 0) - (a.createdAtMs || 0) || String(b.intakeDate || '').localeCompare(String(a.intakeDate || '')));
         storeCollections.jobs = jobs;
         document.getElementById('cntJobs').innerText = jobs.length;
         renderJobsTable();
@@ -506,7 +534,6 @@
 
       unsubEmis = storeRef.collection('emis').onSnapshot(snap => {
         let emis = snap.docs.map(d => ({ _id: d.id, ...d.data() }));
-        // FIX: Sort EMI by Date
         emis.sort((a, b) => String(b.startDate || '').localeCompare(String(a.startDate || '')));
         storeCollections.emis = emis;
         document.getElementById('cntEmis').innerText = emis.length;
@@ -523,7 +550,6 @@
 
       unsubMobiles = storeRef.collection('used_mobiles').onSnapshot(snap => {
         let mobiles = snap.docs.map(d => ({ _id: d.id, ...d.data() }));
-        // FIX: Sort Used Mobiles by Date
         mobiles.sort((a, b) => String(b.intakeDate || '').localeCompare(String(a.intakeDate || '')));
         storeCollections.mobiles = mobiles;
         document.getElementById('cntMobiles').innerText = mobiles.length;
@@ -538,6 +564,32 @@
         btn.className = "dtab-btn px-4 py-2 rounded-lg text-xs font-semibold whitespace-nowrap text-slate-400 hover:text-white transition";
       });
       document.getElementById('dtab-' + tab).className = "dtab-btn px-4 py-2 rounded-lg text-xs font-semibold whitespace-nowrap bg-indigo-600 text-white transition";
+    }
+
+    function sendStoreCredentialsWhatsApp() {
+      const store = allStores.find(s => s.uid === activeStoreUid);
+      if (!store) return;
+      const phoneInput = document.getElementById('editShopPhone')?.value.trim() || store.shopPhone || '';
+      const waPhone = normalizePhoneForWhatsApp(phoneInput);
+      if (!waPhone || waPhone.length < 10) {
+        alert("Valid store WhatsApp phone number not found!");
+        return;
+      }
+      const shopName = document.getElementById('editShopName')?.value.trim() || store.shopName || 'SmartFix Store';
+      const email = store.ownerEmail || '';
+      const savedPass = document.getElementById('editSavedPassword')?.value.trim() || store.savedPassword || '(Use your registered password or Reset Link)';
+      const plan = document.getElementById('devPlanType')?.value || store.planType || 'Trial';
+      const exp = document.getElementById('devSubEnd')?.value || store.subscriptionEnd || 'N/A';
+
+      const msg = `🎉 *Welcome to SmartFix Pro!* 🎉\n\n` +
+        `🏪 *Store:* ${shopName}\n` +
+        `📧 *Login Email:* ${email}\n` +
+        `🔑 *Password:* ${savedPass}\n` +
+        `👑 *Plan:* ${plan} (Valid till: ${exp})\n\n` +
+        `🌐 *Login Portal:* https://sfx.work.gd\n` +
+        `📞 *Developer Support:* +91 9046356631`;
+
+      window.open(`https://wa.me/${waPhone}?text=${encodeURIComponent(msg)}`, '_blank');
     }
 
     // ================= SUBSCRIPTION LOGIC =================
@@ -558,13 +610,10 @@
         const store = allStores.find(s => s.uid === activeStoreUid);
         let currentEnd = store.subscriptionEnd ? new Date(store.subscriptionEnd) : new Date();
         
-        // FIX: Handle Invalid Date if subscriptionEnd is corrupted
         if (isNaN(currentEnd.getTime())) currentEnd = new Date(); 
-        if (currentEnd < new Date()) currentEnd = new Date(); // if expired, start from today
+        if (currentEnd < new Date()) currentEnd = new Date();
         
         currentEnd.setMonth(currentEnd.getMonth() + months);
-        
-        // FIX: Use localDateString to prevent timezone shift (1 day off bug)
         const newDateStr = localDateString(currentEnd);
         
         document.getElementById('devSubEnd').value = newDateStr;
@@ -658,8 +707,9 @@
       const name = document.getElementById('editShopName').value.trim();
       const phone = document.getElementById('editShopPhone').value.trim();
       const address = document.getElementById('editShopAddress').value.trim();
+      const savedPass = document.getElementById('editSavedPassword').value.trim();
       try {
-        await db.collection('stores').doc(activeStoreUid).update({ shopName: name, shopPhone: phone, shopAddress: address });
+        await db.collection('stores').doc(activeStoreUid).update({ shopName: name, shopPhone: phone, shopAddress: address, savedPassword: savedPass });
         alert("Profile updated successfully!");
         setTimeout(() => openStoreDetail(activeStoreUid), 500);
       } catch (err) { alert("Error: " + err.message); }
@@ -669,19 +719,21 @@
       const email = document.getElementById('editOwnerEmail').value;
       if (!email) return alert("No email found");
       if (!confirm(`Send password reset email to ${email}?`)) return;
-      try { await auth.sendPasswordResetEmail(email); alert("Password reset email sent!"); } catch (err) { alert("Error: " + err.message); }
+      try { await auth.sendPasswordResetEmail(email); alert("Password reset email sent! Tell the owner to check Inbox & Spam folder."); } catch (err) { alert("Error: " + err.message); }
     }
 
     async function deleteStore() {
       const pin = prompt("Type DELETE to permanently remove this store and all its data:");
       if (pin !== "DELETE") return alert("Cancelled.");
       try {
-        const cols = ['jobs', 'emis', 'lcd_inventory', 'used_mobiles'];
+        const cols = ['jobs', 'customers', 'emis', 'lcd_inventory', 'used_mobiles'];
         for (let c of cols) {
           const snap = await db.collection('stores').doc(activeStoreUid).collection(c).get();
-          const batch = db.batch();
-          snap.docs.forEach(d => batch.delete(d.ref));
-          await batch.commit();
+          for (let i = 0; i < snap.docs.length; i += 400) {
+            const batch = db.batch();
+            snap.docs.slice(i, i + 400).forEach(d => batch.delete(d.ref));
+            await batch.commit();
+          }
         }
         await db.collection('stores').doc(activeStoreUid).delete();
         alert("Store deleted permanently.");
@@ -694,15 +746,29 @@
       status.innerText = "Preparing backup...";
       try {
         const store = allStores.find(s => s.uid === activeStoreUid);
-        const backup = { storeProfile: store, collections: storeCollections };
-        const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+        const custSnap = await db.collection('stores').doc(activeStoreUid).collection('customers').get();
+        const customers = custSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+        const cleanJobs = (storeCollections.jobs || []).map(({ _id, ...rest }) => rest);
+        const cleanInv = (storeCollections.lcd || []).map(({ _id, ...rest }) => ({ id: _id, ...rest }));
+        const payload = {
+          format: 'SMARTFIX_STORE_BACKUP',
+          version: 4,
+          createdAt: new Date().toISOString(),
+          originStoreId: activeStoreUid,
+          store: store,
+          jobs: cleanJobs,
+          customers: customers,
+          inventory: cleanInv,
+          collections: storeCollections
+        };
+        const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `backup_${store.shopName.replace(/\s+/g, '_')}_${new Date().toISOString().slice(0,10)}.json`;
+        a.download = `SmartFix-Backup-${store.shopName.replace(/\s+/g, '_')}-${localDateString()}.json`;
         document.body.appendChild(a); a.click(); a.remove();
         URL.revokeObjectURL(url);
-        status.innerText = "✅ Backup downloaded successfully.";
+        status.innerText = "✅ Full Backup downloaded (Compatible with both DevOps & Store App).";
       } catch (err) { status.innerText = "❌ Backup failed: " + err.message; }
     }
 
@@ -714,30 +780,54 @@
       status.innerText = "Restoring...";
       try {
         const data = JSON.parse(await file.text());
-        if (!data.collections) throw new Error("Invalid backup format");
         let count = 0;
-        for (const [col, items] of Object.entries(data.collections)) {
-          for (let item of items) {
-            const docId = item._id || item.id;
-            delete item._id; delete item.id;
-            await db.collection('stores').doc(activeStoreUid).collection(col).doc(docId).set(item, { merge: true });
+        if (data.collections) {
+          for (const [col, items] of Object.entries(data.collections)) {
+            for (let item of items) {
+              const docId = item._id || item.id || item.billNo;
+              if (!docId) continue;
+              const copy = { ...item }; delete copy._id;
+              await db.collection('stores').doc(activeStoreUid).collection(col).doc(String(docId)).set(copy, { merge: true });
+              count++;
+            }
+          }
+        } else if (data.format === 'SMARTFIX_STORE_BACKUP' && Array.isArray(data.jobs)) {
+          for (let job of data.jobs) {
+            const docId = job.billNo || job.id;
+            if (!docId) continue;
+            await db.collection('stores').doc(activeStoreUid).collection('jobs').doc(String(docId)).set(job, { merge: true });
             count++;
           }
+          if (Array.isArray(data.customers)) {
+            for (let c of data.customers) {
+              const cid = c.phone || c.id;
+              if (cid) { await db.collection('stores').doc(activeStoreUid).collection('customers').doc(String(cid)).set(c, { merge: true }); count++; }
+            }
+          }
+          if (Array.isArray(data.inventory)) {
+            for (let inv of data.inventory) {
+              if (inv.id) { await db.collection('stores').doc(activeStoreUid).collection('lcd_inventory').doc(String(inv.id)).set(inv, { merge: true }); count++; }
+            }
+          }
+        } else {
+          throw new Error("Invalid backup format");
         }
         status.innerText = `✅ Restored ${count} records.`;
       } catch (err) { status.innerText = "❌ Restore failed: " + err.message; }
     }
 
     async function resetStoreData() {
-      const pin = prompt(`Type WIPE to delete all Jobs, EMI, LCD & Mobiles for this store.`);
+      const pin = prompt(`Type WIPE to delete all Jobs, Customers, EMI, LCD & Mobiles for this store.`);
       if (pin !== "WIPE") return alert("Cancelled.");
       try {
-        const cols = ['jobs', 'emis', 'lcd_inventory', 'used_mobiles'];
+        const cols = ['jobs', 'customers', 'emis', 'lcd_inventory', 'used_mobiles'];
         for (let c of cols) {
           const snap = await db.collection('stores').doc(activeStoreUid).collection(c).get();
-          const batch = db.batch();
-          snap.docs.forEach(d => batch.delete(d.ref));
-          await batch.commit();
+          for (let i = 0; i < snap.docs.length; i += 400) {
+            const batch = db.batch();
+            snap.docs.slice(i, i + 400).forEach(d => batch.delete(d.ref));
+            await batch.commit();
+          }
         }
         alert("Data wiped successfully.");
       } catch (err) { alert("Error wiping data: " + err.message); }
@@ -759,6 +849,10 @@
       e.preventDefault();
       const email = document.getElementById('newShopEmail').value.trim();
       const pass = document.getElementById('newShopPass').value;
+      const shopName = document.getElementById('newShopName').value.trim();
+      const shopPhone = document.getElementById('newShopPhone').value.trim();
+      const shopAddress = document.getElementById('newShopAddress').value.trim();
+      const sendWa = document.getElementById('sendWhatsAppOnCreate').checked;
       const errBox = document.getElementById('createStoreErr');
       errBox.classList.add('hidden');
 
@@ -771,9 +865,9 @@
         const subEndStr = localDateString(trialEnd);
 
         await db.collection('stores').doc(newUid).set({
-          shopName: document.getElementById('newShopName').value.trim(),
-          shopPhone: document.getElementById('newShopPhone').value.trim(),
-          shopAddress: document.getElementById('newShopAddress').value.trim(),
+          shopName: shopName,
+          shopPhone: shopPhone,
+          shopAddress: shopAddress,
           ownerEmail: email,
           status: 'approved',
           savedPassword: pass,
@@ -784,8 +878,23 @@
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
 
-        alert("Store created successfully with 30-day trial!");
         closeModal('createStoreModal');
+
+        if (sendWa) {
+          const waPhone = normalizePhoneForWhatsApp(shopPhone);
+          if (waPhone && waPhone.length >= 10) {
+            const msg = `🎉 *Welcome to SmartFix Pro!* 🎉\n\n` +
+              `🏪 *Store:* ${shopName}\n` +
+              `📧 *Login Email:* ${email}\n` +
+              `🔑 *Password:* ${pass}\n` +
+              `👑 *Plan:* 30-Day Free Trial (Valid till: ${subEndStr})\n\n` +
+              `🌐 *Login Portal:* https://sfx.work.gd\n` +
+              `📞 *Developer Support:* +91 9046356631`;
+            window.open(`https://wa.me/${waPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+          }
+        } else {
+          alert("Store created successfully with 30-day trial!");
+        }
       } catch (err) {
         errBox.innerText = "Error: " + err.message;
         errBox.classList.remove('hidden');
