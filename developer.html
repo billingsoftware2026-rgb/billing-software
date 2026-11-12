@@ -13,195 +13,97 @@
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: #020617; }
     ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-    .glass-panel {
-      background: rgba(15, 23, 42, 0.6);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-    }
-    .tab-btn.active {
-      background: linear-gradient(90deg, #4f46e5, #7c3aed);
-      color: white;
-      border-color: transparent;
-    }
+    .glass-panel { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
+    .tab-btn.active { background: linear-gradient(90deg, #4f46e5, #7c3aed); color: white; border-color: transparent; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     .animate-fade { animation: fadeIn 0.3s ease-out forwards; }
   </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen font-sans antialiased selection:bg-indigo-600 selection:text-white flex flex-col">
 
-  <!-- LOGIN GATE -->
   <div id="authGate" class="fixed inset-0 bg-slate-950 z-[100] flex items-center justify-center p-4">
     <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-indigo-600/20 rounded-full blur-[120px] pointer-events-none animate-pulse"></div>
     <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-violet-600/20 rounded-full blur-[120px] pointer-events-none animate-pulse" style="animation-delay: 2s;"></div>
-    
     <div class="relative glass-panel p-8 rounded-3xl max-w-md w-full shadow-2xl space-y-6 text-center animate-fade">
-      <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-500 mx-auto flex items-center justify-center text-2xl shadow-lg shadow-indigo-600/30">
-        <i class="fa-solid fa-shield-halved text-white"></i>
-      </div>
-      <div>
-        <h2 class="text-2xl font-black text-white tracking-tight">Master Developer Gate</h2>
-        <p class="text-xs text-indigo-400 font-semibold mt-1 uppercase tracking-widest">SmartFix Pro Root Access</p>
-      </div>
+      <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-500 mx-auto flex items-center justify-center text-2xl shadow-lg shadow-indigo-600/30"><i class="fa-solid fa-shield-halved text-white"></i></div>
+      <div><h2 class="text-2xl font-black text-white tracking-tight">Master Developer Gate</h2><p class="text-xs text-indigo-400 font-semibold mt-1 uppercase tracking-widest">SmartFix Pro Root Access</p></div>
       <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4 text-left">
-        <div>
-          <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1.5">Developer Email</label>
-          <input type="email" id="devEmail" required placeholder="dev@smartfix.com" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 transition">
-        </div>
-        <div>
-          <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1.5">Password</label>
-          <input type="password" id="devPassword" required placeholder="••••••••" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 transition">
-        </div>
+        <div><label class="block text-[10px] font-bold uppercase text-slate-400 mb-1.5">Developer Email</label><input type="email" id="devEmail" required placeholder="dev@smartfix.com" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 transition"></div>
+        <div><label class="block text-[10px] font-bold uppercase text-slate-400 mb-1.5">Password</label><input type="password" id="devPassword" required placeholder="••••••••" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 transition"></div>
         <p id="loginError" class="text-xs text-rose-400 font-semibold hidden bg-rose-500/10 p-2.5 rounded-lg border border-rose-500/20"></p>
-        <button type="submit" class="w-full py-3.5 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white rounded-xl text-sm font-bold shadow-lg shadow-indigo-600/30 transition flex items-center justify-center gap-2">
-          <span>Authenticate</span> <i class="fa-solid fa-arrow-right"></i>
-        </button>
+        <button type="submit" class="w-full py-3.5 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white rounded-xl text-sm font-bold shadow-lg shadow-indigo-600/30 transition flex items-center justify-center gap-2"><span>Authenticate</span> <i class="fa-solid fa-arrow-right"></i></button>
       </form>
     </div>
   </div>
 
-  <!-- MAIN APP (Hidden by default) -->
   <div id="mainApp" class="hidden flex-1 flex flex-col h-screen overflow-hidden">
-    
-    <!-- HEADER -->
     <header class="glass-panel border-b border-slate-800 sticky top-0 z-40 flex-none">
       <div class="px-4 md:px-6 py-3 flex items-center justify-between">
         <div class="flex items-center gap-3">
-          <div class="bg-gradient-to-tr from-indigo-600 to-violet-500 p-2 rounded-xl shadow-lg shadow-indigo-600/30">
-            <i class="fa-solid fa-terminal text-white text-lg"></i>
-          </div>
-          <div>
-            <h1 class="text-lg font-bold text-white tracking-tight">SmartFix Pro <span class="text-indigo-400">DevOps</span></h1>
-            <p class="text-[10px] text-emerald-400 flex items-center gap-1.5 font-semibold">
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> 
-              <span id="roleBadge">Super Admin</span> · billing-ab24c
-            </p>
-          </div>
+          <div class="bg-gradient-to-tr from-indigo-600 to-violet-500 p-2 rounded-xl shadow-lg shadow-indigo-600/30"><i class="fa-solid fa-terminal text-white text-lg"></i></div>
+          <div><h1 class="text-lg font-bold text-white tracking-tight">SmartFix Pro <span class="text-indigo-400">DevOps</span></h1><p class="text-[10px] text-emerald-400 flex items-center gap-1.5 font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> <span id="roleBadge">Super Admin</span> · billing-ab24c</p></div>
         </div>
         <div class="flex items-center gap-2">
-          <div class="hidden md:block text-right mr-2">
-            <p id="headerEmail" class="text-xs font-semibold text-white"></p>
-            <p id="headerUid" class="text-[9px] text-slate-500 font-mono"></p>
-          </div>
-          <button onclick="signOut()" class="px-3 py-2 bg-slate-800/80 hover:bg-rose-600 text-slate-300 hover:text-white rounded-xl text-xs font-bold border border-slate-700 transition flex items-center gap-2">
-            <i class="fa-solid fa-power-off"></i> <span class="hidden sm:inline">Sign Out</span>
-          </button>
+          <div class="hidden md:block text-right mr-2"><p id="headerEmail" class="text-xs font-semibold text-white"></p><p id="headerUid" class="text-[9px] text-slate-500 font-mono"></p></div>
+          <button onclick="signOut()" class="px-3 py-2 bg-slate-800/80 hover:bg-rose-600 text-slate-300 hover:text-white rounded-xl text-xs font-bold border border-slate-700 transition flex items-center gap-2"><i class="fa-solid fa-power-off"></i> <span class="hidden sm:inline">Sign Out</span></button>
         </div>
       </div>
     </header>
 
-    <!-- LAYOUT -->
     <div class="flex-1 flex overflow-hidden">
-      
-      <!-- SIDEBAR -->
       <aside class="w-16 md:w-64 glass-panel border-r border-slate-800 flex flex-col py-4 gap-2 flex-none overflow-y-auto">
-        <button onclick="switchView('dashboard')" id="nav-dashboard" class="nav-btn flex items-center gap-3 px-4 py-3 text-sm font-semibold text-white bg-slate-800/50 border-r-2 border-indigo-500 transition">
-          <i class="fa-solid fa-chart-pie w-5 text-center"></i> <span class="hidden md:inline">Dashboard</span>
-        </button>
-        <button onclick="switchView('stores')" id="nav-stores" class="nav-btn flex items-center gap-3 px-4 py-3 text-sm font-semibold text-slate-400 hover:text-white hover:bg-slate-800/30 transition">
-          <i class="fa-solid fa-store w-5 text-center"></i> <span class="hidden md:inline">Manage Stores</span>
-        </button>
-        <button onclick="switchView('developers')" id="nav-developers" class="nav-btn flex items-center gap-3 px-4 py-3 text-sm font-semibold text-slate-400 hover:text-white hover:bg-slate-800/30 transition">
-          <i class="fa-solid fa-users-gear w-5 text-center"></i> <span class="hidden md:inline">Developers</span>
-        </button>
-        <button onclick="switchView('manual')" id="nav-manual" class="nav-btn flex items-center gap-3 px-4 py-3 text-sm font-semibold text-slate-400 hover:text-white hover:bg-slate-800/30 transition">
-          <i class="fa-solid fa-book w-5 text-center"></i> <span class="hidden md:inline">Troubleshooting Manual</span>
-        </button>
+        <button onclick="switchView('dashboard')" id="nav-dashboard" class="nav-btn flex items-center gap-3 px-4 py-3 text-sm font-semibold text-white bg-slate-800/50 border-r-2 border-indigo-500 transition"><i class="fa-solid fa-chart-pie w-5 text-center"></i> <span class="hidden md:inline">Dashboard</span></button>
+        <button onclick="switchView('stores')" id="nav-stores" class="nav-btn flex items-center gap-3 px-4 py-3 text-sm font-semibold text-slate-400 hover:text-white hover:bg-slate-800/30 transition"><i class="fa-solid fa-store w-5 text-center"></i> <span class="hidden md:inline">Manage Stores</span></button>
+        <button onclick="switchView('developers')" id="nav-developers" class="nav-btn flex items-center gap-3 px-4 py-3 text-sm font-semibold text-slate-400 hover:text-white hover:bg-slate-800/30 transition"><i class="fa-solid fa-users-gear w-5 text-center"></i> <span class="hidden md:inline">Developers</span></button>
+        <button onclick="switchView('manual')" id="nav-manual" class="nav-btn flex items-center gap-3 px-4 py-3 text-sm font-semibold text-slate-400 hover:text-white hover:bg-slate-800/30 transition"><i class="fa-solid fa-book w-5 text-center"></i> <span class="hidden md:inline">Troubleshooting Manual</span></button>
       </aside>
 
-      <!-- CONTENT AREA -->
       <main class="flex-1 overflow-y-auto p-4 md:p-6 bg-slate-950">
-        
-        <!-- VIEW: DASHBOARD -->
         <div id="view-dashboard" class="view-section space-y-6 animate-fade">
           <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div class="glass-panel p-5 rounded-2xl border border-slate-800">
-              <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Stores</span>
-              <h3 id="statTotal" class="text-3xl font-black text-white mt-1">0</h3>
-            </div>
-            <div class="glass-panel p-5 rounded-2xl border border-emerald-500/20 bg-emerald-500/5">
-              <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400">Active Stores</span>
-              <h3 id="statActive" class="text-3xl font-black text-emerald-400 mt-1">0</h3>
-            </div>
-            <div class="glass-panel p-5 rounded-2xl border border-rose-500/20 bg-rose-500/5">
-              <span class="text-[10px] font-bold uppercase tracking-wider text-rose-400">Suspended</span>
-              <h3 id="statSuspended" class="text-3xl font-black text-rose-400 mt-1">0</h3>
-            </div>
-            <div class="glass-panel p-5 rounded-2xl border border-indigo-500/20 bg-indigo-500/5">
-              <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-400">System Health</span>
-              <h3 class="text-3xl font-black text-indigo-400 mt-1"><i class="fa-solid fa-heart-pulse"></i></h3>
-            </div>
+            <div class="glass-panel p-5 rounded-2xl border border-slate-800"><span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Stores</span><h3 id="statTotal" class="text-3xl font-black text-white mt-1">0</h3></div>
+            <div class="glass-panel p-5 rounded-2xl border border-emerald-500/20 bg-emerald-500/5"><span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400">Active Stores</span><h3 id="statActive" class="text-3xl font-black text-emerald-400 mt-1">0</h3></div>
+            <div class="glass-panel p-5 rounded-2xl border border-rose-500/20 bg-rose-500/5"><span class="text-[10px] font-bold uppercase tracking-wider text-rose-400">Suspended</span><h3 id="statSuspended" class="text-3xl font-black text-rose-400 mt-1">0</h3></div>
+            <div class="glass-panel p-5 rounded-2xl border border-indigo-500/20 bg-indigo-500/5"><span class="text-[10px] font-bold uppercase tracking-wider text-indigo-400">System Health</span><h3 class="text-3xl font-black text-indigo-400 mt-1"><i class="fa-solid fa-heart-pulse"></i></h3></div>
           </div>
           <div class="glass-panel rounded-2xl border border-slate-800 p-6">
             <h3 class="text-base font-bold text-white mb-4"><i class="fa-solid fa-bolt text-amber-400 mr-2"></i>Quick Actions</h3>
             <div class="flex flex-wrap gap-3">
-              <button onclick="openCreateStoreModal()" class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-indigo-600/30 transition flex items-center gap-2">
-                <i class="fa-solid fa-plus"></i> Create New Store
-              </button>
-              <button onclick="switchView('manual')" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold border border-slate-700 transition flex items-center gap-2">
-                <i class="fa-solid fa-book-medical"></i> Read Troubleshooting Guide
-              </button>
+              <button onclick="openCreateStoreModal()" class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-indigo-600/30 transition flex items-center gap-2"><i class="fa-solid fa-plus"></i> Create New Store</button>
+              <button onclick="switchView('manual')" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold border border-slate-700 transition flex items-center gap-2"><i class="fa-solid fa-book-medical"></i> Read Troubleshooting Guide</button>
             </div>
           </div>
         </div>
 
-        <!-- VIEW: STORES -->
         <div id="view-stores" class="view-section hidden space-y-4 animate-fade">
           <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
-            <div>
-              <h2 class="text-xl font-bold text-white">Store Management</h2>
-              <p class="text-xs text-slate-400">Search, edit, suspend, or troubleshoot any store (Real-time updates)</p>
-            </div>
+            <div><h2 class="text-xl font-bold text-white">Store Management</h2><p class="text-xs text-slate-400">Search, edit, suspend, or troubleshoot any store</p></div>
             <div class="flex gap-2 w-full md:w-auto">
-              <div class="relative flex-1 md:w-64">
-                <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-500 text-xs"></i>
-                <input type="text" id="storeSearch" oninput="renderStoreList()" placeholder="Search shop, phone, email..." class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
-              </div>
-              <button onclick="openCreateStoreModal()" class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-lg transition">
-                <i class="fa-solid fa-plus"></i> New Store
-              </button>
+              <div class="relative flex-1 md:w-64"><i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-500 text-xs"></i><input type="text" id="storeSearch" oninput="renderStoreList()" placeholder="Search shop, phone, email..." class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"></div>
+              <button onclick="openCreateStoreModal()" class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-lg transition"><i class="fa-solid fa-plus"></i> New Store</button>
             </div>
           </div>
           <div id="storeGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
         </div>
 
-        <!-- VIEW: STORE DETAIL -->
         <div id="view-store-detail" class="view-section hidden space-y-4 animate-fade">
-          <button onclick="switchView('stores')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-lg inline-flex items-center gap-1.5">
-            <i class="fa-solid fa-arrow-left"></i> Back to Stores
-          </button>
+          <button onclick="switchView('stores')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-lg inline-flex items-center gap-1.5"><i class="fa-solid fa-arrow-left"></i> Back to Stores</button>
           <div class="glass-panel p-5 rounded-2xl border border-slate-800">
             <div class="flex flex-wrap justify-between items-start gap-4">
-              <div>
-                <h2 id="detShopName" class="text-2xl font-bold text-white"></h2>
-                <p id="detShopMeta" class="text-xs text-slate-400 mt-1"></p>
-                <p id="detShopUid" class="text-[10px] font-mono text-slate-500 mt-1"></p>
-              </div>
+              <div><h2 id="detShopName" class="text-2xl font-bold text-white"></h2><p id="detShopMeta" class="text-xs text-slate-400 mt-1"></p><p id="detShopUid" class="text-[10px] font-mono text-slate-500 mt-1"></p></div>
               <div class="flex gap-2">
                 <button onclick="toggleStoreStatus()" id="detStatusBtn" class="px-3 py-1.5 rounded-xl text-xs font-bold border transition"></button>
                 <button onclick="deleteStore()" class="px-3 py-1.5 bg-rose-600/20 hover:bg-rose-600 text-rose-400 hover:text-white border border-rose-500/30 rounded-xl text-xs font-bold transition"><i class="fa-solid fa-trash"></i> Delete</button>
               </div>
             </div>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-5">
-              <div class="bg-slate-900/50 p-3 rounded-xl border border-slate-800">
-                <span class="text-[10px] uppercase font-bold text-slate-400">Repair Jobs</span>
-                <h4 id="cntJobs" class="text-lg font-bold text-white mt-0.5">0</h4>
-              </div>
-              <div class="bg-slate-900/50 p-3 rounded-xl border border-slate-800">
-                <span class="text-[10px] uppercase font-bold text-indigo-400">EMI Records</span>
-                <h4 id="cntEmis" class="text-lg font-bold text-indigo-400 mt-0.5">0</h4>
-              </div>
-              <div class="bg-slate-900/50 p-3 rounded-xl border border-slate-800">
-                <span class="text-[10px] uppercase font-bold text-emerald-400">LCD Stock</span>
-                <h4 id="cntLcd" class="text-lg font-bold text-emerald-400 mt-0.5">0</h4>
-              </div>
-              <div class="bg-slate-900/50 p-3 rounded-xl border border-slate-800">
-                <span class="text-[10px] uppercase font-bold text-cyan-400">Used Mobiles</span>
-                <h4 id="cntMobiles" class="text-lg font-bold text-cyan-400 mt-0.5">0</h4>
-              </div>
+              <div class="bg-slate-900/50 p-3 rounded-xl border border-slate-800"><span class="text-[10px] uppercase font-bold text-slate-400">Repair Jobs</span><h4 id="cntJobs" class="text-lg font-bold text-white mt-0.5">0</h4></div>
+              <div class="bg-slate-900/50 p-3 rounded-xl border border-slate-800"><span class="text-[10px] uppercase font-bold text-indigo-400">EMI Records</span><h4 id="cntEmis" class="text-lg font-bold text-indigo-400 mt-0.5">0</h4></div>
+              <div class="bg-slate-900/50 p-3 rounded-xl border border-slate-800"><span class="text-[10px] uppercase font-bold text-emerald-400">LCD Stock</span><h4 id="cntLcd" class="text-lg font-bold text-emerald-400 mt-0.5">0</h4></div>
+              <div class="bg-slate-900/50 p-3 rounded-xl border border-slate-800"><span class="text-[10px] uppercase font-bold text-cyan-400">Used Mobiles</span><h4 id="cntMobiles" class="text-lg font-bold text-cyan-400 mt-0.5">0</h4></div>
             </div>
           </div>
 
-          <!-- Store Tabs -->
           <div class="flex overflow-x-auto glass-panel p-1.5 rounded-xl border border-slate-800 gap-1" style="scrollbar-width:none;">
             <button onclick="showDetailTab('profile')" id="dtab-profile" class="dtab-btn px-4 py-2 rounded-lg text-xs font-semibold whitespace-nowrap bg-indigo-600 text-white"><i class="fa-solid fa-user-pen mr-1.5"></i>Profile</button>
             <button onclick="showDetailTab('jobs')" id="dtab-jobs" class="dtab-btn px-4 py-2 rounded-lg text-xs font-semibold whitespace-nowrap text-slate-400 hover:text-white"><i class="fa-solid fa-screwdriver-wrench mr-1.5"></i>Jobs</button>
@@ -212,7 +114,6 @@
             <button onclick="showDetailTab('danger')" id="dtab-danger" class="dtab-btn px-4 py-2 rounded-lg text-xs font-semibold whitespace-nowrap text-rose-400 hover:text-white"><i class="fa-solid fa-triangle-exclamation mr-1.5"></i>Danger</button>
           </div>
 
-          <!-- TAB: Profile -->
           <div id="dcnt-profile" class="dtab-content">
             <div class="glass-panel p-5 rounded-2xl border border-slate-800 space-y-4">
               <h3 class="text-sm font-bold text-white"><i class="fa-solid fa-store text-indigo-400 mr-2"></i>Store Profile Settings</h3>
@@ -227,119 +128,96 @@
                 <button onclick="sendPasswordReset()" class="px-4 py-2 bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/30 rounded-lg text-xs font-bold transition"><i class="fa-solid fa-key mr-1"></i> Send Reset Email</button>
               </div>
             </div>
+
+            <!-- PREMIUM SUBSCRIPTION CONTROLS -->
+            <div class="glass-panel p-5 rounded-2xl border border-amber-500/30 space-y-4 mt-4">
+              <h3 class="text-sm font-bold text-white flex items-center gap-2"><i class="fa-solid fa-crown text-amber-400"></i> License & Subscription Controls</h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                <div>
+                  <label class="block font-semibold text-slate-400 uppercase mb-1">Subscription End Date</label>
+                  <input type="date" id="devSubEnd" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:border-amber-500 focus:outline-none">
+                </div>
+                <div>
+                  <label class="block font-semibold text-slate-400 uppercase mb-1">Plan Type</label>
+                  <select id="devPlanType" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:border-amber-500 focus:outline-none">
+                    <option value="Trial">Trial (30 Days - No CRM)</option>
+                    <option value="6 Months">6 Months (No Promo/Loyalty)</option>
+                    <option value="1 Year">1 Year (Full Access)</option>
+                    <option value="2 Years">2 Years (Full Access)</option>
+                    <option value="Custom">Custom (Full Access)</option>
+                  </select>
+                </div>
+                <div class="md:col-span-2">
+                  <label class="block font-semibold text-slate-400 uppercase mb-1">Quick Adjust</label>
+                  <div class="flex flex-wrap gap-2">
+                    <button type="button" onclick="adjustSubTime(6, '6 Months')" class="px-2.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition">+6 Months</button>
+                    <button type="button" onclick="adjustSubTime(12, '1 Year')" class="px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold transition">+1 Year</button>
+                    <button type="button" onclick="adjustSubTime(24, '2 Years')" class="px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold transition">+2 Years</button>
+                    <button type="button" onclick="adjustSubTime(-1, 'Custom')" class="px-2.5 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-bold transition">-1 Month</button>
+                    <button type="button" onclick="adjustSubTime(-12, 'Custom')" class="px-2.5 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-bold transition">-1 Year</button>
+                  </div>
+                </div>
+              </div>
+              <div class="pt-2">
+                <button type="button" onclick="saveDevSubscription()" class="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-lg text-xs font-bold transition flex items-center gap-2"><i class="fa-solid fa-floppy-disk"></i> Save Subscription</button>
+              </div>
+            </div>
           </div>
 
-          <!-- TAB: Jobs -->
           <div id="dcnt-jobs" class="dtab-content hidden">
-            <div class="glass-panel rounded-2xl border border-slate-800 overflow-hidden">
-              <div class="overflow-x-auto"><table class="w-full text-left text-xs whitespace-nowrap"><thead class="bg-slate-900 text-slate-400 border-b border-slate-800 uppercase"><tr><th class="p-3">Bill</th><th class="p-3">Date</th><th class="p-3">Customer</th><th class="p-3">Model</th><th class="p-3">Status</th><th class="p-3 text-right">Amt</th><th class="p-3 text-center">Del</th></tr></thead><tbody id="tblJobs" class="divide-y divide-slate-800/60 text-slate-300"></tbody></table></div>
-            </div>
+            <div class="glass-panel rounded-2xl border border-slate-800 overflow-hidden"><div class="overflow-x-auto"><table class="w-full text-left text-xs whitespace-nowrap"><thead class="bg-slate-900 text-slate-400 border-b border-slate-800 uppercase"><tr><th class="p-3">Bill</th><th class="p-3">Date</th><th class="p-3">Customer</th><th class="p-3">Model</th><th class="p-3">Status</th><th class="p-3 text-right">Amt</th><th class="p-3 text-center">Del</th></tr></thead><tbody id="tblJobs" class="divide-y divide-slate-800/60 text-slate-300"></tbody></table></div></div>
           </div>
 
-          <!-- TAB: EMI -->
           <div id="dcnt-emis" class="dtab-content hidden">
-            <div class="glass-panel rounded-2xl border border-slate-800 overflow-hidden">
-              <div class="overflow-x-auto"><table class="w-full text-left text-xs whitespace-nowrap"><thead class="bg-slate-900 text-slate-400 border-b border-slate-800 uppercase"><tr><th class="p-3">Customer</th><th class="p-3">Device</th><th class="p-3">IMEI</th><th class="p-3 text-right">Total</th><th class="p-3 text-center">Del</th></tr></thead><tbody id="tblEmis" class="divide-y divide-slate-800/60 text-slate-300"></tbody></table></div>
-            </div>
+            <div class="glass-panel rounded-2xl border border-slate-800 overflow-hidden"><div class="overflow-x-auto"><table class="w-full text-left text-xs whitespace-nowrap"><thead class="bg-slate-900 text-slate-400 border-b border-slate-800 uppercase"><tr><th class="p-3">Customer</th><th class="p-3">Device</th><th class="p-3">IMEI</th><th class="p-3 text-right">Total</th><th class="p-3 text-center">Del</th></tr></thead><tbody id="tblEmis" class="divide-y divide-slate-800/60 text-slate-300"></tbody></table></div></div>
           </div>
 
-          <!-- TAB: LCD -->
           <div id="dcnt-lcd" class="dtab-content hidden">
-            <div class="glass-panel rounded-2xl border border-slate-800 overflow-hidden">
-              <div class="overflow-x-auto"><table class="w-full text-left text-xs whitespace-nowrap"><thead class="bg-slate-900 text-slate-400 border-b border-slate-800 uppercase"><tr><th class="p-3">Name</th><th class="p-3">Stock</th><th class="p-3 text-right">Price</th><th class="p-3">Rack</th><th class="p-3 text-center">Del</th></tr></thead><tbody id="tblLcd" class="divide-y divide-slate-800/60 text-slate-300"></tbody></table></div>
-            </div>
+            <div class="glass-panel rounded-2xl border border-slate-800 overflow-hidden"><div class="overflow-x-auto"><table class="w-full text-left text-xs whitespace-nowrap"><thead class="bg-slate-900 text-slate-400 border-b border-slate-800 uppercase"><tr><th class="p-3">Name</th><th class="p-3">Stock</th><th class="p-3 text-right">Price</th><th class="p-3">Rack</th><th class="p-3 text-center">Del</th></tr></thead><tbody id="tblLcd" class="divide-y divide-slate-800/60 text-slate-300"></tbody></table></div></div>
           </div>
 
-          <!-- TAB: Mobiles -->
           <div id="dcnt-mobiles" class="dtab-content hidden">
-            <div class="glass-panel rounded-2xl border border-slate-800 overflow-hidden">
-              <div class="overflow-x-auto"><table class="w-full text-left text-xs whitespace-nowrap"><thead class="bg-slate-900 text-slate-400 border-b border-slate-800 uppercase"><tr><th class="p-3">Device</th><th class="p-3">IMEI</th><th class="p-3">Status</th><th class="p-3 text-right">Price</th><th class="p-3 text-center">Del</th></tr></thead><tbody id="tblMobiles" class="divide-y divide-slate-800/60 text-slate-300"></tbody></table></div>
-            </div>
+            <div class="glass-panel rounded-2xl border border-slate-800 overflow-hidden"><div class="overflow-x-auto"><table class="w-full text-left text-xs whitespace-nowrap"><thead class="bg-slate-900 text-slate-400 border-b border-slate-800 uppercase"><tr><th class="p-3">Device</th><th class="p-3">IMEI</th><th class="p-3">Status</th><th class="p-3 text-right">Price</th><th class="p-3 text-center">Del</th></tr></thead><tbody id="tblMobiles" class="divide-y divide-slate-800/60 text-slate-300"></tbody></table></div></div>
           </div>
 
-          <!-- TAB: Backup -->
           <div id="dcnt-backup" class="dtab-content hidden">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div class="glass-panel p-5 rounded-2xl border border-slate-800">
-                <h3 class="text-sm font-bold text-white"><i class="fa-solid fa-download text-emerald-400 mr-2"></i>Full Backup</h3>
-                <p class="text-xs text-slate-400 mt-2 mb-4">Download all data (Jobs, EMI, LCD, Mobiles) into a single JSON file.</p>
-                <button onclick="downloadStoreBackup()" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-file-export"></i> Download JSON</button>
-              </div>
-              <div class="glass-panel p-5 rounded-2xl border border-slate-800">
-                <h3 class="text-sm font-bold text-white"><i class="fa-solid fa-upload text-indigo-400 mr-2"></i>Restore Data</h3>
-                <input type="file" id="restoreFile" accept=".json" class="block w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-white hover:file:bg-slate-700 mt-2 mb-3">
-                <button onclick="restoreStoreBackup()" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-cloud-arrow-up"></i> Restore JSON</button>
-              </div>
+              <div class="glass-panel p-5 rounded-2xl border border-slate-800"><h3 class="text-sm font-bold text-white"><i class="fa-solid fa-download text-emerald-400 mr-2"></i>Full Backup</h3><p class="text-xs text-slate-400 mt-2 mb-4">Download all data into a single JSON file.</p><button onclick="downloadStoreBackup()" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-file-export"></i> Download JSON</button></div>
+              <div class="glass-panel p-5 rounded-2xl border border-slate-800"><h3 class="text-sm font-bold text-white"><i class="fa-solid fa-upload text-indigo-400 mr-2"></i>Restore Data</h3><input type="file" id="restoreFile" accept=".json" class="block w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-white hover:file:bg-slate-700 mt-2 mb-3"><button onclick="restoreStoreBackup()" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-cloud-arrow-up"></i> Restore JSON</button></div>
             </div>
             <p id="backupStatus" class="text-xs text-slate-400 mt-3"></p>
           </div>
 
-          <!-- TAB: Danger -->
           <div id="dcnt-danger" class="dtab-content hidden">
             <div class="bg-rose-950/20 border border-rose-500/30 rounded-2xl p-5 space-y-4">
               <h3 class="text-sm font-bold text-rose-400 uppercase tracking-wider"><i class="fa-solid fa-triangle-exclamation mr-2"></i>Danger Zone</h3>
-              <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
-                <h4 class="text-xs font-bold text-white">Reset All Store Data (Keep Profile)</h4>
-                <p class="text-[11px] text-slate-400 mt-1 mb-3">Deletes all Jobs, EMI, LCD, and Used Mobiles. The store login remains active.</p>
-                <button onclick="resetStoreData()" class="px-4 py-2 bg-rose-600/20 hover:bg-rose-600 text-rose-400 hover:text-white border border-rose-500/30 rounded-lg text-xs font-bold transition"><i class="fa-solid fa-rotate-left mr-1"></i> Wipe Store Data</button>
-              </div>
+              <div class="bg-slate-900 border border-slate-800 rounded-xl p-4"><h4 class="text-xs font-bold text-white">Reset All Store Data</h4><p class="text-[11px] text-slate-400 mt-1 mb-3">Deletes all Jobs, EMI, LCD, and Used Mobiles. The store login remains active.</p><button onclick="resetStoreData()" class="px-4 py-2 bg-rose-600/20 hover:bg-rose-600 text-rose-400 hover:text-white border border-rose-500/30 rounded-lg text-xs font-bold transition"><i class="fa-solid fa-rotate-left mr-1"></i> Wipe Store Data</button></div>
             </div>
           </div>
         </div>
 
-        <!-- VIEW: DEVELOPERS -->
         <div id="view-developers" class="view-section hidden space-y-4 animate-fade">
           <div class="flex justify-between items-center">
-            <div>
-              <h2 class="text-xl font-bold text-white">Developer Team</h2>
-              <p class="text-xs text-slate-400">Add or remove team members with admin access.</p>
-            </div>
-            <button onclick="openAddDevModal()" id="addDevBtn" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold shadow-lg transition flex items-center gap-1.5">
-              <i class="fa-solid fa-plus"></i> Add Developer
-            </button>
+            <div><h2 class="text-xl font-bold text-white">Developer Team</h2><p class="text-xs text-slate-400">Add or remove team members with admin access.</p></div>
+            <button onclick="openAddDevModal()" id="addDevBtn" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold shadow-lg transition flex items-center gap-1.5"><i class="fa-solid fa-plus"></i> Add Developer</button>
           </div>
           <div id="devListContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
         </div>
 
-        <!-- VIEW: MANUAL -->
         <div id="view-manual" class="view-section hidden space-y-6 animate-fade">
-          <div>
-            <h2 class="text-xl font-bold text-white">Developer Troubleshooting Manual</h2>
-            <p class="text-xs text-slate-400">Step-by-step guide to fix common issues.</p>
-          </div>
+          <div><h2 class="text-xl font-bold text-white">Developer Troubleshooting Manual</h2><p class="text-xs text-slate-400">Step-by-step guide to fix common issues.</p></div>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="glass-panel p-5 rounded-2xl border border-slate-800">
-              <h3 class="text-sm font-bold text-indigo-400 mb-2"><i class="fa-solid fa-key"></i> Password Reset Problem</h3>
-              <p class="text-xs text-slate-300 leading-relaxed">If a store owner forgets their password: <br>1. Go to <b>Manage Stores</b>.<br>2. Open the store profile.<br>3. Click <b>Send Reset Email</b>.<br>4. Tell the owner to check their inbox and set a new password.</p>
-            </div>
-            <div class="glass-panel p-5 rounded-2xl border border-slate-800">
-              <h3 class="text-sm font-bold text-emerald-400 mb-2"><i class="fa-solid fa-database"></i> Data Loss / Missing Bills</h3>
-              <p class="text-xs text-slate-300 leading-relaxed">If a store reports missing jobs:<br>1. Open the store profile.<br>2. Go to the <b>Backup</b> tab.<br>3. If they have a manual JSON backup, upload it in <b>Restore Data</b>.<br>4. If no backup, you can manually add the bill in their app using their login.</p>
-            </div>
-            <div class="glass-panel p-5 rounded-2xl border border-slate-800">
-              <h3 class="text-sm font-bold text-rose-400 mb-2"><i class="fa-solid fa-user-slash"></i> Suspending a Non-Paying Store</h3>
-              <p class="text-xs text-slate-300 leading-relaxed">If a store hasn't paid their subscription:<br>1. Open their profile.<br>2. Click <b>Suspend Store</b>.<br>3. Their app will show a "Suspended" error on next load.<br>4. Once they pay, click <b>Activate Store</b>.</p>
-            </div>
-            <div class="glass-panel p-5 rounded-2xl border border-slate-800">
-              <h3 class="text-sm font-bold text-amber-400 mb-2"><i class="fa-solid fa-bug"></i> Firebase Permission Errors</h3>
-              <p class="text-xs text-slate-300 leading-relaxed">If you see "Missing or insufficient permissions":<br>1. Your UID might not be in the `developers` collection.<br>2. Ask the Super Admin to add your UID (`poJ5Y...`).<br>3. If you are the Super Admin, check Firestore Rules.</p>
-            </div>
+            <div class="glass-panel p-5 rounded-2xl border border-slate-800"><h3 class="text-sm font-bold text-indigo-400 mb-2"><i class="fa-solid fa-key"></i> Password Reset Problem</h3><p class="text-xs text-slate-300 leading-relaxed">If a store owner forgets their password: <br>1. Go to <b>Manage Stores</b>.<br>2. Open the store profile.<br>3. Click <b>Send Reset Email</b>.<br>4. Tell the owner to check their inbox and set a new password.</p></div>
+            <div class="glass-panel p-5 rounded-2xl border border-slate-800"><h3 class="text-sm font-bold text-emerald-400 mb-2"><i class="fa-solid fa-database"></i> Data Loss / Missing Bills</h3><p class="text-xs text-slate-300 leading-relaxed">If a store reports missing jobs:<br>1. Open the store profile.<br>2. Go to the <b>Backup</b> tab.<br>3. If they have a manual JSON backup, upload it in <b>Restore Data</b>.<br>4. If no backup, you can manually add the bill in their app using their login.</p></div>
           </div>
         </div>
-
       </main>
     </div>
   </div>
 
-  <!-- MODALS -->
-
-  <!-- Modal: Create Store -->
   <div id="createStoreModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
     <div class="glass-panel w-full max-w-md p-6 rounded-3xl shadow-2xl space-y-4 animate-fade">
-      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-        <h3 class="text-base font-bold text-white"><i class="fa-solid fa-store text-indigo-400 mr-2"></i>Create New Store</h3>
-        <button onclick="closeModal('createStoreModal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
-      </div>
+      <div class="flex justify-between items-center border-b border-slate-800 pb-3"><h3 class="text-base font-bold text-white"><i class="fa-solid fa-store text-indigo-400 mr-2"></i>Create New Store</h3><button onclick="closeModal('createStoreModal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button></div>
       <form id="createStoreForm" onsubmit="submitCreateStore(event)" class="space-y-3 text-xs">
         <div><label class="block text-slate-400 mb-1">Shop Name *</label><input type="text" id="newShopName" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white"></div>
         <div><label class="block text-slate-400 mb-1">Owner Email *</label><input type="email" id="newShopEmail" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white"></div>
@@ -347,22 +225,18 @@
         <div><label class="block text-slate-400 mb-1">Phone *</label><input type="tel" id="newShopPhone" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white"></div>
         <div><label class="block text-slate-400 mb-1">Address</label><input type="text" id="newShopAddress" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white"></div>
         <p id="createStoreErr" class="text-rose-400 hidden"></p>
-        <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl transition shadow-lg mt-2">Create Store & Auth Account</button>
+        <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl transition shadow-lg mt-2">Create Store (30 Day Trial)</button>
       </form>
     </div>
   </div>
 
-  <!-- Modal: Add Developer -->
   <div id="addDevModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
     <div class="glass-panel w-full max-w-sm p-6 rounded-3xl shadow-2xl space-y-4 animate-fade text-center">
       <div class="w-12 h-12 bg-indigo-600/20 text-indigo-400 rounded-2xl mx-auto flex items-center justify-center text-xl"><i class="fa-solid fa-user-plus"></i></div>
       <h3 class="text-base font-bold text-white">Grant Developer Access</h3>
       <p class="text-xs text-slate-400">Enter the Firebase Auth UID of the user you want to promote as a Developer.</p>
       <input type="text" id="newDevUid" placeholder="e.g. poJ5YLjwGHWUWEm8LPi8clty4qJ3" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-center text-sm font-mono text-white focus:border-indigo-500 focus:outline-none">
-      <div class="flex gap-2">
-        <button onclick="closeModal('addDevModal')" class="flex-1 py-2.5 rounded-xl border border-slate-700 text-slate-400 hover:text-white text-xs font-bold">Cancel</button>
-        <button onclick="addDeveloper()" class="flex-1 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold">Add Dev</button>
-      </div>
+      <div class="flex gap-2"><button onclick="closeModal('addDevModal')" class="flex-1 py-2.5 rounded-xl border border-slate-700 text-slate-400 hover:text-white text-xs font-bold">Cancel</button><button onclick="addDeveloper()" class="flex-1 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold">Add Dev</button></div>
     </div>
   </div>
 
@@ -397,6 +271,11 @@
     let unsubEmis = null;
     let unsubLcd = null;
     let unsubMobiles = null;
+
+    function localDateString(d = new Date()) {
+      const y = d.getFullYear(); const m = String(d.getMonth()+1).padStart(2,'0'); const day = String(d.getDate()).padStart(2,'0');
+      return `${y}-${m}-${day}`;
+    }
 
     async function handleLogin(e) {
       e.preventDefault();
@@ -493,9 +372,7 @@
         document.getElementById('statSuspended').innerText = allStores.filter(s => s.status === 'suspended').length;
         
         renderStoreList();
-      }, error => {
-        console.error("Error loading stores:", error);
-      });
+      }, error => console.error("Error loading stores:", error));
     }
 
     function renderStoreList() {
@@ -520,20 +397,29 @@
         const card = document.createElement('div');
         card.className = "glass-panel p-4 rounded-2xl border border-slate-800 hover:border-indigo-500/50 cursor-pointer transition group";
         card.onclick = () => openStoreDetail(s.uid);
+        
+        let planBadge = '';
+        if (s.planType === 'Trial') planBadge = '<span class="text-[9px] bg-amber-500/20 text-amber-400 px-1.5 py-0.5 rounded">Trial</span>';
+        else if (s.planType === '6 Months') planBadge = '<span class="text-[9px] bg-indigo-500/20 text-indigo-400 px-1.5 py-0.5 rounded">6 Months</span>';
+        else if (s.planType === '1 Year' || s.planType === '2 Years' || s.planType === 'Custom') planBadge = '<span class="text-[9px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded">Premium</span>';
+        
         card.innerHTML = `
           <div class="flex justify-between items-start gap-2">
             <div>
               <h3 class="text-sm font-bold text-white group-hover:text-indigo-400 transition">${s.shopName || 'Unnamed Store'}</h3>
               <p class="text-[11px] text-slate-400 mt-0.5 truncate">${s.shopAddress || '-'}</p>
             </div>
-            <span class="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase ${isSuspended ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20' : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'}">${isSuspended ? 'Suspended' : 'Active'}</span>
+            <div class="flex flex-col items-end gap-1">
+                <span class="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase ${isSuspended ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20' : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'}">${isSuspended ? 'Suspended' : 'Active'}</span>
+                ${planBadge}
+            </div>
           </div>
           <div class="mt-3 space-y-1 text-[11px]">
             <div class="flex items-center gap-1.5 text-slate-300"><i class="fa-solid fa-phone text-emerald-400"></i>${s.shopPhone || '-'}</div>
             <div class="flex items-center gap-1.5 text-slate-300"><i class="fa-solid fa-envelope text-indigo-400"></i>${s.ownerEmail || '-'}</div>
           </div>
           <div class="mt-3 pt-3 border-t border-slate-800 flex justify-between items-center">
-            <span class="text-[9px] font-mono text-slate-500">${s.uid.substring(0, 10)}...</span>
+            <span class="text-[9px] font-mono text-slate-500">Exp: ${s.subscriptionEnd || 'N/A'}</span>
             <span class="text-[10px] text-indigo-400 font-bold opacity-0 group-hover:opacity-100 transition"><i class="fa-solid fa-arrow-right"></i></span>
           </div>
         `;
@@ -566,6 +452,9 @@
       document.getElementById('editShopAddress').value = store.shopAddress || '';
       document.getElementById('editOwnerEmail').value = store.ownerEmail || '';
 
+      document.getElementById('devSubEnd').value = store.subscriptionEnd || '';
+      document.getElementById('devPlanType').value = store.planType || 'Trial';
+
       switchView('store-detail');
       showDetailTab('profile');
       
@@ -581,36 +470,28 @@
 
       const storeRef = db.collection('stores').doc(uid);
 
-      // Jobs (Sorted by Date)
       unsubJobs = storeRef.collection('jobs').onSnapshot(snap => {
         let jobs = snap.docs.map(d => ({ _id: d.id, ...d.data() }));
-        // আগের ডেটা এবং নতুন ডেটা সবসময় তারিখ অনুযায়ী সাজানো থাকবে
-        jobs.sort((a, b) => String(b.intakeDate || '').localeCompare(String(a.intakeDate || '')));
         storeCollections.jobs = jobs;
         document.getElementById('cntJobs').innerText = jobs.length;
         renderJobsTable();
       });
 
-      // EMI (Sorted by Date)
       unsubEmis = storeRef.collection('emis').onSnapshot(snap => {
         let emis = snap.docs.map(d => ({ _id: d.id, ...d.data() }));
-        emis.sort((a, b) => String(b.startDate || '').localeCompare(String(a.startDate || '')));
         storeCollections.emis = emis;
         document.getElementById('cntEmis').innerText = emis.length;
         renderEmisTable();
       });
 
-      // LCD
       unsubLcd = storeRef.collection('lcd_inventory').onSnapshot(snap => {
         storeCollections.lcd = snap.docs.map(d => ({ _id: d.id, ...d.data() }));
         document.getElementById('cntLcd').innerText = storeCollections.lcd.length;
         renderLcdTable();
       });
 
-      // Mobiles (Sorted by Date)
       unsubMobiles = storeRef.collection('used_mobiles').onSnapshot(snap => {
         let mobiles = snap.docs.map(d => ({ _id: d.id, ...d.data() }));
-        mobiles.sort((a, b) => String(b.intakeDate || '').localeCompare(String(a.intakeDate || '')));
         storeCollections.mobiles = mobiles;
         document.getElementById('cntMobiles').innerText = mobiles.length;
         renderMobilesTable();
@@ -626,10 +507,44 @@
       document.getElementById('dtab-' + tab).className = "dtab-btn px-4 py-2 rounded-lg text-xs font-semibold whitespace-nowrap bg-indigo-600 text-white transition";
     }
 
+    // ================= SUBSCRIPTION LOGIC =================
+    async function saveDevSubscription() {
+        const newEnd = document.getElementById('devSubEnd').value;
+        const newPlan = document.getElementById('devPlanType').value;
+        try {
+            await db.collection('stores').doc(activeStoreUid).update({ 
+                subscriptionEnd: newEnd,
+                planType: newPlan 
+            });
+            alert("✅ Subscription updated successfully!");
+            openStoreDetail(activeStoreUid);
+        } catch(e) { alert("Error: " + e.message); }
+    }
+
+    async function adjustSubTime(months, newPlanType) {
+        const store = allStores.find(s => s.uid === activeStoreUid);
+        let currentEnd = store.subscriptionEnd ? new Date(store.subscriptionEnd) : new Date();
+        if (currentEnd < new Date()) currentEnd = new Date(); // if expired, start from today
+        
+        currentEnd.setMonth(currentEnd.getMonth() + months);
+        const newDateStr = currentEnd.toISOString().split('T')[0];
+        
+        document.getElementById('devSubEnd').value = newDateStr;
+        document.getElementById('devPlanType').value = newPlanType;
+
+        try {
+            await db.collection('stores').doc(activeStoreUid).update({ 
+                subscriptionEnd: newDateStr,
+                planType: newPlanType
+            });
+            openStoreDetail(activeStoreUid);
+        } catch(e) { alert("Error adjusting time: " + e.message); }
+    }
+    // =======================================================
+
     function renderJobsTable() {
       const tJobs = document.getElementById('tblJobs');
       if(!storeCollections.jobs) return;
-
       tJobs.innerHTML = storeCollections.jobs.map(j => `
         <tr class="hover:bg-slate-800/30">
           <td class="p-3 font-mono text-indigo-400">${j.billNo}</td>
@@ -646,7 +561,6 @@
     function renderEmisTable() {
       const tEmis = document.getElementById('tblEmis');
       if(!storeCollections.emis) return;
-
       tEmis.innerHTML = storeCollections.emis.map(e => `
         <tr class="hover:bg-slate-800/30">
           <td class="p-3 font-bold">${e.customerName}</td>
@@ -661,7 +575,6 @@
     function renderLcdTable() {
       const tLcd = document.getElementById('tblLcd');
       if(!storeCollections.lcd) return;
-
       tLcd.innerHTML = storeCollections.lcd.map(l => `
         <tr class="hover:bg-slate-800/30">
           <td class="p-3 font-bold">${l.name}</td>
@@ -676,7 +589,6 @@
     function renderMobilesTable() {
       const tMob = document.getElementById('tblMobiles');
       if(!storeCollections.mobiles) return;
-
       tMob.innerHTML = storeCollections.mobiles.map(m => `
         <tr class="hover:bg-slate-800/30">
           <td class="p-3 font-bold">${m.brand} ${m.model}</td>
@@ -690,24 +602,18 @@
 
     async function delRec(col, id) {
       if (!confirm("Delete this record permanently?")) return;
-      try {
-        await db.collection('stores').doc(activeStoreUid).collection(col).doc(id).delete();
-      } catch (err) { alert(err.message); }
+      try { await db.collection('stores').doc(activeStoreUid).collection(col).doc(id).delete(); } catch (err) { alert(err.message); }
     }
 
     async function toggleStoreStatus() {
       const btn = document.getElementById('detStatusBtn');
       const action = btn.dataset.action;
       const newStatus = action === 'suspend' ? 'suspended' : 'approved';
-      
       if (!confirm(`Are you sure you want to ${action} this store?`)) return;
-      
       try {
         await db.collection('stores').doc(activeStoreUid).update({ status: newStatus });
         setTimeout(() => openStoreDetail(activeStoreUid), 500); 
-      } catch (err) {
-        alert("Error updating status: " + err.message);
-      }
+      } catch (err) { alert("Error updating status: " + err.message); }
     }
 
     async function saveStoreProfile() {
@@ -715,32 +621,22 @@
       const phone = document.getElementById('editShopPhone').value.trim();
       const address = document.getElementById('editShopAddress').value.trim();
       try {
-        await db.collection('stores').doc(activeStoreUid).update({
-          shopName: name, shopPhone: phone, shopAddress: address
-        });
+        await db.collection('stores').doc(activeStoreUid).update({ shopName: name, shopPhone: phone, shopAddress: address });
         alert("Profile updated successfully!");
         setTimeout(() => openStoreDetail(activeStoreUid), 500);
-      } catch (err) {
-        alert("Error: " + err.message);
-      }
+      } catch (err) { alert("Error: " + err.message); }
     }
 
     async function sendPasswordReset() {
       const email = document.getElementById('editOwnerEmail').value;
       if (!email) return alert("No email found");
       if (!confirm(`Send password reset email to ${email}?`)) return;
-      try {
-        await auth.sendPasswordResetEmail(email);
-        alert("Password reset email sent!");
-      } catch (err) {
-        alert("Error: " + err.message);
-      }
+      try { await auth.sendPasswordResetEmail(email); alert("Password reset email sent!"); } catch (err) { alert("Error: " + err.message); }
     }
 
     async function deleteStore() {
       const pin = prompt("Type DELETE to permanently remove this store and all its data:");
       if (pin !== "DELETE") return alert("Cancelled.");
-      
       try {
         const cols = ['jobs', 'emis', 'lcd_inventory', 'used_mobiles'];
         for (let c of cols) {
@@ -752,9 +648,7 @@
         await db.collection('stores').doc(activeStoreUid).delete();
         alert("Store deleted permanently.");
         switchView('stores');
-      } catch (err) {
-        alert("Error: " + err.message);
-      }
+      } catch (err) { alert("Error: " + err.message); }
     }
 
     async function downloadStoreBackup() {
@@ -771,22 +665,18 @@
         document.body.appendChild(a); a.click(); a.remove();
         URL.revokeObjectURL(url);
         status.innerText = "✅ Backup downloaded successfully.";
-      } catch (err) {
-        status.innerText = "❌ Backup failed: " + err.message;
-      }
+      } catch (err) { status.innerText = "❌ Backup failed: " + err.message; }
     }
 
     async function restoreStoreBackup() {
       const file = document.getElementById('restoreFile').files[0];
       if (!file) return alert("Select a file first");
       if (!confirm("This will merge data into the current store. Continue?")) return;
-      
       const status = document.getElementById('backupStatus');
       status.innerText = "Restoring...";
       try {
         const data = JSON.parse(await file.text());
         if (!data.collections) throw new Error("Invalid backup format");
-        
         let count = 0;
         for (const [col, items] of Object.entries(data.collections)) {
           for (let item of items) {
@@ -797,15 +687,12 @@
           }
         }
         status.innerText = `✅ Restored ${count} records.`;
-      } catch (err) {
-        status.innerText = "❌ Restore failed: " + err.message;
-      }
+      } catch (err) { status.innerText = "❌ Restore failed: " + err.message; }
     }
 
     async function resetStoreData() {
       const pin = prompt(`Type WIPE to delete all Jobs, EMI, LCD & Mobiles for this store.`);
       if (pin !== "WIPE") return alert("Cancelled.");
-      
       try {
         const cols = ['jobs', 'emis', 'lcd_inventory', 'used_mobiles'];
         for (let c of cols) {
@@ -815,9 +702,7 @@
           await batch.commit();
         }
         alert("Data wiped successfully.");
-      } catch (err) {
-        alert("Error wiping data: " + err.message);
-      }
+      } catch (err) { alert("Error wiping data: " + err.message); }
     }
 
     function openCreateStoreModal() {
@@ -844,6 +729,9 @@
         const newUid = cred.user.uid;
         await secondaryAuth.signOut();
 
+        const trialEnd = new Date(); trialEnd.setDate(trialEnd.getDate() + 30);
+        const subEndStr = trialEnd.toISOString().split('T')[0];
+
         await db.collection('stores').doc(newUid).set({
           shopName: document.getElementById('newShopName').value.trim(),
           shopPhone: document.getElementById('newShopPhone').value.trim(),
@@ -851,10 +739,14 @@
           ownerEmail: email,
           status: 'approved',
           savedPassword: pass,
+          subscriptionEnd: subEndStr,
+          planType: 'Trial',
+          enableLoyalty: false,
+          enablePromo: false,
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
 
-        alert("Store created successfully!");
+        alert("Store created successfully with 30-day trial!");
         closeModal('createStoreModal');
       } catch (err) {
         errBox.innerText = "Error: " + err.message;
@@ -878,10 +770,7 @@
             const d = doc.data();
             container.innerHTML += `
               <div class="glass-panel p-4 rounded-2xl border border-slate-800 flex justify-between items-center">
-                <div>
-                  <h4 class="text-sm font-bold text-white">${d.name || 'Developer'}</h4>
-                  <p class="text-[10px] font-mono text-slate-500">${doc.id}</p>
-                </div>
+                <div><h4 class="text-sm font-bold text-white">${d.name || 'Developer'}</h4><p class="text-[10px] font-mono text-slate-500">${doc.id}</p></div>
                 <button onclick="removeDeveloper('${doc.id}')" class="p-2 bg-rose-600/20 hover:bg-rose-600 text-rose-400 hover:text-white rounded-lg transition"><i class="fa-solid fa-user-minus"></i></button>
               </div>
             `;
@@ -890,16 +779,11 @@
         
         container.innerHTML += `
           <div class="glass-panel p-4 rounded-2xl border border-emerald-500/30 bg-emerald-500/5 flex justify-between items-center">
-            <div>
-              <h4 class="text-sm font-bold text-emerald-400">Super Admin (You)</h4>
-              <p class="text-[10px] font-mono text-slate-500">${SUPER_ADMIN_UID}</p>
-            </div>
+            <div><h4 class="text-sm font-bold text-emerald-400">Super Admin (You)</h4><p class="text-[10px] font-mono text-slate-500">${SUPER_ADMIN_UID}</p></div>
             <i class="fa-solid fa-crown text-amber-400 text-lg"></i>
           </div>
         `;
-      } catch (err) {
-        container.innerHTML = `<div class="text-rose-400 text-sm">Error: ${err.message}</div>`;
-      }
+      } catch (err) { container.innerHTML = `<div class="text-rose-400 text-sm">Error: ${err.message}</div>`; }
     }
 
     function openAddDevModal() {
@@ -912,35 +796,20 @@
       const uid = document.getElementById('newDevUid').value.trim();
       if (!uid) return alert("Enter a valid UID");
       if (uid === SUPER_ADMIN_UID) return alert("This is already the Super Admin.");
-      
       try {
-        await db.collection('developers').doc(uid).set({
-          addedBy: currentUser.uid,
-          addedAt: firebase.firestore.FieldValue.serverTimestamp(),
-          name: 'Team Member'
-        });
+        await db.collection('developers').doc(uid).set({ addedBy: currentUser.uid, addedAt: firebase.firestore.FieldValue.serverTimestamp(), name: 'Team Member' });
         alert("Developer added successfully!");
         closeModal('addDevModal');
         loadDevelopers();
-      } catch (err) {
-        alert("Failed to add: " + err.message);
-      }
+      } catch (err) { alert("Failed to add: " + err.message); }
     }
 
     async function removeDeveloper(uid) {
       if (!confirm("Remove this developer's access?")) return;
-      try {
-        await db.collection('developers').doc(uid).delete();
-        loadDevelopers();
-      } catch (err) {
-        alert("Failed to remove: " + err.message);
-      }
+      try { await db.collection('developers').doc(uid).delete(); loadDevelopers(); } catch (err) { alert("Failed to remove: " + err.message); }
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
-      switchView('dashboard');
-    });
-
+    document.addEventListener('DOMContentLoaded', () => { switchView('dashboard'); });
   </script>
 </body>
 </html>
