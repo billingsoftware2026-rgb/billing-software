@@ -43,15 +43,56 @@ input,select,textarea,button{-webkit-tap-highlight-color:transparent}input[type=
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-indigo-600 selection:text-white">
 
-<div id="suspendedScreen" class="hidden fixed inset-0 bg-slate-950 z-[9999] flex-col items-center justify-center p-6 text-center">
+<!-- LICENSE EXPIRED SCREEN -->
+<div id="licenseExpiredScreen" class="hidden fixed inset-0 bg-slate-950 z-[9999] flex-col items-center justify-center p-6 text-center">
 <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-rose-600/10 rounded-full blur-[120px] pointer-events-none"></div>
-<div class="relative z-10 max-w-lg mx-auto space-y-6">
-<div class="w-24 h-24 bg-gradient-to-tr from-rose-600 to-red-500 rounded-3xl mx-auto flex items-center justify-center text-5xl shadow-2xl shadow-rose-600/40"><i class="fa-solid fa-user-lock text-white"></i></div>
-<div class="space-y-2"><h1 class="text-3xl font-black text-white">Account Suspended</h1><p class="text-sm font-bold text-rose-400 bg-rose-500/10 inline-block px-3 py-1 rounded-full border border-rose-500/20">Access Denied</p></div>
-<p class="text-slate-300 text-sm leading-relaxed bg-slate-900/80 p-5 rounded-2xl border border-slate-800">Your store account has been temporarily suspended.<br>Please contact Customer Care.</p>
-<div class="bg-indigo-600/10 border border-indigo-500/30 rounded-2xl p-5 space-y-3"><p class="text-xs font-bold uppercase tracking-wider text-indigo-400">Customer Care</p><a href="tel:+919046356631" class="flex items-center justify-center gap-3 w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-lg font-bold"><i class="fa-solid fa-phone-volume animate-pulse"></i> +91 9046356631</a></div>
+<div class="relative z-10 max-w-lg mx-auto space-y-6 animate-fade">
+<div class="w-24 h-24 bg-gradient-to-tr from-rose-600 to-red-500 rounded-3xl mx-auto flex items-center justify-center text-5xl shadow-2xl shadow-rose-600/40"><i class="fa-solid fa-clock-rotate-left text-white"></i></div>
+<div class="space-y-2"><h1 class="text-3xl font-black text-white tracking-tight">License Expired</h1><p class="text-sm font-bold text-rose-400 bg-rose-500/10 inline-block px-3 py-1 rounded-full border border-rose-500/20">Access Denied</p></div>
+<p class="text-slate-300 text-sm leading-relaxed bg-slate-900/80 p-5 rounded-2xl border border-slate-800">Your subscription has expired. <br>To continue using SmartFix Pro, please purchase a premium plan.</p>
+<div class="bg-indigo-600/10 border border-indigo-500/30 rounded-2xl p-5 space-y-3"><p class="text-xs font-bold uppercase tracking-wider text-indigo-400">Contact Customer Care</p><a href="tel:+919046356631" class="flex items-center justify-center gap-3 w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-lg font-bold shadow-lg shadow-indigo-600/30 transition active:scale-95"><i class="fa-solid fa-phone-volume animate-pulse"></i> +91 9046356631</a></div>
 <button onclick="signOutShop()" class="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold border border-slate-700"><i class="fa-solid fa-arrow-right-from-bracket mr-2"></i> Sign Out</button>
 </div>
+</div>
+
+<!-- TRIAL WARNING MODAL -->
+<div id="trialWarningModal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md hidden items-center justify-center p-4 z-[60]">
+    <div class="bg-slate-900 border border-amber-500/50 rounded-3xl max-w-md w-full p-8 shadow-2xl text-center space-y-5 animate-fade">
+        <div class="w-20 h-20 rounded-full bg-amber-500/20 text-amber-400 mx-auto flex items-center justify-center text-4xl shadow-[0_0_30px_rgba(245,158,11,0.3)]">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+        <div>
+            <h3 class="text-2xl font-black text-white">License Expiring Soon</h3>
+            <p class="text-sm text-slate-300 mt-2 leading-relaxed" id="trialWarningMsg">Your license is about to expire. Please contact customer care to renew.</p>
+        </div>
+        <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2">
+            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Customer Care</p>
+            <a href="tel:+919046356631" class="flex items-center justify-center gap-2 text-lg font-black text-emerald-400 hover:text-emerald-300 transition">
+                <i class="fa-solid fa-phone-volume animate-pulse"></i> +91 9046356631
+            </a>
+        </div>
+        <button onclick="closeTrialWarning()" class="w-full py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold transition text-sm">OK, I Understand</button>
+    </div>
+</div>
+
+<!-- PREMIUM UPGRADE MODAL -->
+<div id="premiumUpgradeModal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md hidden items-center justify-center p-4 z-[60]">
+    <div class="bg-slate-900 border border-amber-500/50 rounded-3xl max-w-md w-full p-8 shadow-2xl text-center space-y-5 animate-fade">
+        <div class="w-20 h-20 rounded-full bg-amber-500/20 text-amber-400 mx-auto flex items-center justify-center text-4xl shadow-[0_0_30px_rgba(245,158,11,0.3)]">
+            <i class="fa-solid fa-crown"></i>
+        </div>
+        <div>
+            <h3 class="text-2xl font-black text-white" id="premiumModalTitle">Premium Feature Locked</h3>
+            <p class="text-sm text-slate-300 mt-2 leading-relaxed" id="premiumModalDesc">You do not have access to this feature in your current plan. Please upgrade to a 1-Year plan or contact the developer.</p>
+        </div>
+        <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2">
+            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Developer Contact</p>
+            <a href="tel:+919046356631" class="flex items-center justify-center gap-2 text-lg font-black text-emerald-400 hover:text-emerald-300 transition">
+                <i class="fa-solid fa-phone-volume animate-pulse"></i> +91 9046356631
+            </a>
+        </div>
+        <button onclick="closePremiumModal()" class="w-full py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold transition text-sm">Got it, thanks!</button>
+    </div>
 </div>
 
 <div id="authScreen" class="fixed inset-0 bg-slate-950 z-50 overflow-y-auto flex items-center justify-center p-3 sm:p-6 lg:p-8">
@@ -67,7 +108,7 @@ input,select,textarea,button{-webkit-tap-highlight-color:transparent}input[type=
 <div class="space-y-6 relative z-10">
 <div class="flex items-center justify-between flex-wrap gap-3"><div class="flex items-center gap-3.5">
 <div class="w-12 h-12 bg-gradient-to-tr from-indigo-600 via-indigo-500 to-violet-500 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-600/50 p-1" id="finalLogoBox"><svg class="smartfix-logo-svg" viewBox="0 0 100 100"><defs><linearGradient id="sfLogoGrad"><stop offset="0%" stop-color="#ffffff"/><stop offset="55%" stop-color="#e0e7ff"/><stop offset="100%" stop-color="#c7d2fe"/></linearGradient></defs><g transform="rotate(-45 50 50)"><path d="M 36 8 L 44 8 L 44 26 L 56 26 L 56 8 L 64 8 L 64 34 L 36 34 Z" fill="url(#sfLogoGrad)"/><rect x="45" y="34" width="10" height="54" rx="4" fill="url(#sfLogoGrad)"/></g><g transform="rotate(45 50 50)"><rect x="42" y="58" width="16" height="30" rx="4" fill="url(#sfLogoGrad)"/><rect x="47.5" y="24" width="5" height="34" fill="url(#sfLogoGrad)"/><rect x="45" y="12" width="10" height="14" rx="1" fill="url(#sfLogoGrad)"/></g></svg></div>
-<div id="authTitleArea"><h1 class="text-2xl font-black tracking-tight text-white flex items-center gap-1.5"><span id="smartfixTitleSpan">SMARTFIX<span class="text-indigo-400">PRO</span></span><span class="text-[9px] px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-bold uppercase tracking-widest">v3.4</span></h1><p class="text-[11px] text-slate-400 uppercase tracking-widest font-bold">Smart Mobile Workshop OS</p></div>
+<div id="authTitleArea"><h1 class="text-2xl font-black tracking-tight text-white flex items-center gap-1.5"><span id="smartfixTitleSpan">SMARTFIX<span class="text-indigo-400">PRO</span></span><span class="text-[9px] px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-bold uppercase tracking-widest">v3.5</span></h1><p class="text-[11px] text-slate-400 uppercase tracking-widest font-bold">Smart Mobile Workshop OS</p></div>
 </div></div>
 <div class="flex flex-wrap items-center gap-2.5 pt-1">
 <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold badge-shimmer"><i class="fa-solid fa-bolt text-amber-400"></i> Instant 1-Click Setup</div>
@@ -88,7 +129,7 @@ input,select,textarea,button{-webkit-tap-highlight-color:transparent}input[type=
 <div class="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 flex items-center gap-2.5"><div class="feature-icon-breathing w-7 h-7 rounded-lg bg-rose-500/10 text-rose-400 flex items-center justify-center text-xs" style="animation-delay:.6s"><i class="fa-brands fa-whatsapp"></i></div><div><span class="text-[11px] text-slate-300 font-medium">WhatsApp Reminders</span></div></div>
 </div>
 </div>
-<div class="pt-6 border-t border-slate-800/80 mt-6 flex items-center justify-between text-[11px] text-slate-500 relative z-10"><span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Cloud v3.4 Persistent Vault</span><span>Lead Dev: Debapriya Sarkar</span></div>
+<div class="pt-6 border-t border-slate-800/80 mt-6 flex items-center justify-between text-[11px] text-slate-500 relative z-10"><span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Cloud v3.5 Persistent Vault</span><span>Lead Dev: Debapriya Sarkar</span></div>
 </div>
 <div class="lg:col-span-5 p-6 sm:p-10 flex flex-col justify-center space-y-6 relative z-10">
 <div><h2 class="text-2xl font-bold text-white" id="authTitle">Owner Authorization</h2><p class="text-sm text-slate-400 mt-1" id="authSubtitle">Sign in with your registered workshop credentials</p></div>
@@ -118,9 +159,9 @@ input,select,textarea,button{-webkit-tap-highlight-color:transparent}input[type=
 <button onclick="requestTabAccess('trackJobs')" id="tab-trackJobs" class="px-3 py-2 rounded-lg text-xs md:text-sm font-semibold text-slate-400 hover:text-white flex items-center gap-1.5"><i class="fa-solid fa-layer-group"></i><span>Tracking</span></button>
 <button onclick="requestTabAccess('complaints')" id="tab-complaints" class="px-3 py-2 rounded-lg text-xs md:text-sm font-semibold text-slate-400 hover:text-white flex items-center gap-1.5"><i class="fa-solid fa-shield-halved text-amber-400"></i><span>Complaints</span></button>
 <button onclick="requestTabAccess('customers')" id="tab-customers" class="px-3 py-2 rounded-lg text-xs md:text-sm font-semibold text-slate-400 hover:text-white flex items-center gap-1.5"><i class="fa-solid fa-users text-emerald-400"></i><span>CRM</span></button>
-<a href="parts.html" class="px-3 py-2 rounded-lg text-xs md:text-sm font-semibold text-slate-400 hover:text-white flex items-center gap-1.5"><i class="fa-solid fa-boxes-stacked text-amber-400"></i><span>Stock</span></a>
-<a href="used_mobile.html" class="px-3 py-2 rounded-lg text-xs md:text-sm font-semibold text-slate-400 hover:text-white flex items-center gap-1.5"><i class="fa-solid fa-mobile-retro text-cyan-400"></i><span>Used</span></a>
+<button onclick="requestUsedMobile()" class="px-3 py-2 rounded-lg text-xs md:text-sm font-semibold text-slate-400 hover:text-white flex items-center gap-1.5"><i class="fa-solid fa-mobile-retro text-cyan-400"></i><span>Used</span></button>
 <a href="emi.html" class="px-3 py-2 rounded-lg text-xs md:text-sm font-semibold text-slate-400 hover:text-white flex items-center gap-1.5"><i class="fa-solid fa-file-invoice-dollar text-indigo-400"></i><span>EMI</span></a>
+<a href="parts.html" class="px-3 py-2 rounded-lg text-xs md:text-sm font-semibold text-slate-400 hover:text-white flex items-center gap-1.5"><i class="fa-solid fa-boxes-stacked text-amber-400"></i><span>Stock</span></a>
 <button onclick="requestTabAccess('reports')" id="tab-reports" class="px-3 py-2 rounded-lg text-xs md:text-sm font-semibold text-slate-400 hover:text-white flex items-center gap-1.5"><i class="fa-solid fa-lock text-[11px] text-amber-400"></i><span>Ledger</span></button>
 <button onclick="requestTabAccess('backup')" id="tab-backup" class="px-3 py-2 rounded-lg text-xs md:text-sm font-semibold text-slate-400 hover:text-white flex items-center gap-1.5"><i class="fa-solid fa-database text-emerald-400"></i><span>Backup</span></button>
 <button onclick="signOutShop()" title="Sign Out" class="px-2.5 py-2 text-slate-400 hover:text-rose-400 text-xs"><i class="fa-solid fa-arrow-right-from-bracket"></i></button>
@@ -143,7 +184,6 @@ input,select,textarea,button{-webkit-tap-highlight-color:transparent}input[type=
 <div><label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">IMEI / Serial</label><div class="relative"><input type="text" id="deviceImei" placeholder="15-digit IMEI (Optional)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 pr-14 text-sm focus:outline-none focus:border-indigo-500 text-white font-mono"><button type="button" onclick="openScanner('deviceImei')" title="Scan" class="absolute right-2 top-2 w-10 h-10 rounded-lg bg-indigo-600/20 hover:bg-indigo-600 text-indigo-400 hover:text-white flex items-center justify-center"><i class="fa-solid fa-barcode text-lg"></i></button></div></div>
 <div class="md:col-span-2"><label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Reported Problem *</label><textarea id="faultDesc" required rows="2" placeholder="e.g. AMOLED Display Needed" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 text-white"></textarea></div>
 
-<!-- Auto Stock Part Link -->
 <div class="relative md:col-span-2">
 <label class="block text-xs font-semibold uppercase tracking-wider text-emerald-400 mb-2"><i class="fa-solid fa-boxes-stacked"></i> Link Stock Part (Optional)</label>
 <input type="text" id="intakePartName" oninput="renderPartDropdown('intakePartName', 'intakePartDropdown', this.value, '')" onfocus="renderPartDropdown('intakePartName', 'intakePartDropdown', this.value, '')" placeholder="Search by model (e.g. A18, C11) or part name..." class="w-full bg-slate-950 border border-emerald-500/40 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 text-white transition" autocomplete="off">
@@ -216,7 +256,7 @@ input,select,textarea,button{-webkit-tap-highlight-color:transparent}input[type=
 </div>
 <div class="flex items-center gap-2 w-full md:w-auto">
 <div class="relative w-full md:w-64"><i class="fa-solid fa-magnifying-glass absolute left-4 top-3 text-slate-500"></i><input type="text" id="customerSearchInput" oninput="debouncedRenderCustomers()" placeholder="Search name or phone..." class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-11 pr-4 py-2.5 text-sm focus:outline-none focus:border-emerald-500 text-white placeholder-slate-500"></div>
-<button onclick="openTierSettingsModal()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold transition flex items-center gap-2 border border-slate-700 shadow-sm whitespace-nowrap">
+<button onclick="checkLoyaltyAccess()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold transition flex items-center gap-2 border border-slate-700 shadow-sm whitespace-nowrap">
 <i class="fa-solid fa-gear"></i> Settings
 </button>
 </div>
@@ -266,7 +306,18 @@ input,select,textarea,button{-webkit-tap-highlight-color:transparent}input[type=
 </div>
 
 <div class="bg-slate-950 border border-indigo-500/30 rounded-2xl p-5 mt-4 space-y-4">
-<h3 class="text-white font-bold text-sm">Premium Feature Access (ON/OFF)</h3>
+<div class="flex justify-between items-center">
+    <div>
+        <h3 class="text-white font-bold text-sm">Subscription Status</h3>
+        <p class="text-[11px] text-slate-400">Your premium access validity.</p>
+    </div>
+    <span id="subStatusBadge" class="px-3 py-1 rounded-full text-[10px] font-bold uppercase bg-slate-800 text-slate-400 border border-slate-700">Loading...</span>
+</div>
+<div class="bg-slate-900 p-3 rounded-xl border border-slate-800 flex justify-between items-center text-xs">
+    <span class="text-slate-400">Valid Until:</span>
+    <span id="subStatusDate" class="font-mono font-bold text-white">--</span>
+</div>
+<h3 class="text-white font-bold text-sm pt-2">Premium Feature Access (ON/OFF)</h3>
 <label class="flex items-center justify-between cursor-pointer border-b border-slate-800 pb-3">
     <div>
         <span class="text-sm font-bold text-slate-200">Loyalty Discount Engine</span>
@@ -312,7 +363,6 @@ input,select,textarea,button{-webkit-tap-highlight-color:transparent}input[type=
 <div><label class="block text-xs font-semibold text-slate-400 uppercase mb-1.5">Refined Diagnosis</label><textarea id="diagFault" rows="3" placeholder="e.g. Display combo burnt..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"></textarea></div>
 <div class="grid grid-cols-2 gap-3"><div><label class="block text-xs font-semibold text-slate-400 uppercase mb-1.5">Revised Estimate (₹)</label><input type="number" id="diagEstimate" min="0" class="w-full bg-slate-950 border border-indigo-500/50 rounded-xl px-3 py-2 text-sm font-bold text-white focus:outline-none focus:border-indigo-500"></div><div><label class="block text-xs font-semibold text-slate-400 uppercase mb-1.5">Parts Cost (₹)</label><input type="number" id="diagPartsCost" min="0" value="0" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"></div></div>
 
-<!-- Diagnosis Part Dropdown -->
 <div class="relative">
 <label class="block text-xs font-semibold text-emerald-400 uppercase mb-1.5">Link Stock Part (Optional)</label>
 <input type="text" id="diagPartsName" oninput="renderPartDropdown('diagPartsName', 'diagPartDropdown', this.value, 'diagPartsCost')" onfocus="renderPartDropdown('diagPartsName', 'diagPartDropdown', this.value, 'diagPartsCost')" placeholder="Search stock..." class="w-full bg-slate-950 border border-emerald-500/40 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500" autocomplete="off">
@@ -355,7 +405,6 @@ input,select,textarea,button{-webkit-tap-highlight-color:transparent}input[type=
 <div id="repairableFields" class="space-y-3">
 <div><label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Warranty *</label><select id="modalWarranty" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"><option value="No Warranty">No Warranty</option><option value="30 Days Service Warranty" selected>30 Days</option><option value="60 Days Service Warranty">60 Days</option><option value="90 Days Warranty (Display & Touch)">90 Days</option><option value="6 Months Warranty">6 Months</option></select></div>
 
-<!-- Delivery Part Dropdown -->
 <div class="relative">
 <label class="block text-xs font-semibold text-emerald-400 uppercase mb-1">Replaced Parts (Search Stock)</label>
 <input type="text" id="modalPartName" oninput="renderPartDropdown('modalPartName', 'modalPartDropdown', this.value, 'modalPartCost')" onfocus="renderPartDropdown('modalPartName', 'modalPartDropdown', this.value, 'modalPartCost')" placeholder="e.g. AMOLED Display" class="w-full bg-slate-950 border border-emerald-500/40 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500" autocomplete="off">
@@ -389,7 +438,6 @@ input,select,textarea,button{-webkit-tap-highlight-color:transparent}input[type=
 <div><label class="block text-xs font-semibold text-slate-400 uppercase mb-1">IMEI</label><input type="text" id="editImei" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm font-mono text-white"></div>
 <div class="col-span-2"><label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Problem</label><textarea id="editFault" rows="2" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white"></textarea></div>
 
-<!-- Edit Part Dropdown -->
 <div class="relative col-span-2">
 <label class="block text-xs font-semibold text-emerald-400 uppercase mb-1">Linked Stock Part (Optional)</label>
 <input type="text" id="editPartName" oninput="renderPartDropdown('editPartName', 'editPartDropdown', this.value, '')" onfocus="renderPartDropdown('editPartName', 'editPartDropdown', this.value, '')" placeholder="Search stock..." class="w-full bg-slate-950 border border-emerald-500/40 rounded-xl px-3 py-2 text-sm text-white" autocomplete="off">
@@ -417,7 +465,6 @@ input,select,textarea,button{-webkit-tap-highlight-color:transparent}input[type=
 </div>
 </div>
 
-<!-- Tier Settings Modal -->
 <div id="tierSettingsModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50 overflow-y-auto">
   <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 my-6">
     <div class="flex items-center justify-between border-b border-slate-800 pb-3">
@@ -492,6 +539,12 @@ let lcdInventory = [];
 let currentIntakeDiscount={percent:0,tier:'New',reason:'',amount:0};
 let defaultTierDiscounts = { Platinum: 10, Gold: 5, Silver: 2, Bronze: 0 };
 
+// ACCESS FLAGS
+let isPremium = false;
+let canUseCRM = false;
+let canUseLoyalty = false;
+let canUsePromo = false;
+
 function escapeHtml(str){if(str===null||str===undefined)return '';return String(str).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 const esc=escapeHtml;
 function debounce(fn,ms=200){let t;return function(...a){clearTimeout(t);t=setTimeout(()=>fn.apply(this,a),ms);};}
@@ -508,13 +561,27 @@ const debouncedRenderCustomers=debounce(()=>renderCustomers(),200);
 
 function getPromoOffer(){return (currentStore&&currentStore.promoOffer)||"FREE TEMPERED GLASS with Warranty Display Replacement";}
 
+function showPremiumModal(title = "Premium Feature Locked", desc = "Your account does not have access to this premium feature. Please upgrade your subscription or contact the developer to unlock it.") {
+    document.getElementById('premiumModalTitle').innerText = title;
+    document.getElementById('premiumModalDesc').innerText = desc;
+    document.getElementById('premiumUpgradeModal').classList.remove('hidden');
+    document.getElementById('premiumUpgradeModal').classList.add('flex');
+}
+function closePremiumModal() {
+    document.getElementById('premiumUpgradeModal').classList.add('hidden');
+    document.getElementById('premiumUpgradeModal').classList.remove('flex');
+}
+
+function closeTrialWarning() {
+    document.getElementById('trialWarningModal').classList.add('hidden');
+    document.getElementById('trialWarningModal').classList.remove('flex');
+}
+
 function getEffectiveDiscount(job) {
-    const isLoyaltyEnabled = currentStore ? currentStore.enableLoyalty !== false : true;
-    return isLoyaltyEnabled ? (parseFloat(job.discountPercent) || 0) : 0;
+    return (isPremium && canUseLoyalty) ? (parseFloat(job.discountPercent) || 0) : 0;
 }
 function getEffectivePromo() {
-    const isPromoEnabled = currentStore ? currentStore.enablePromo !== false : true;
-    return isPromoEnabled ? getPromoOffer() : '';
+    return (isPremium && canUsePromo) ? getPromoOffer() : '';
 }
 
 window.addEventListener('beforeinstallprompt',(e)=>{e.preventDefault();deferredPrompt=e;});
@@ -546,7 +613,19 @@ async function checkAndFileWarranty(originalBillNo){const job=repairJobs.find(j=
 function togglePasswordVisibility(fieldId,btn){const input=document.getElementById(fieldId);const icon=btn.querySelector('i');if(input.type==='password'){input.type='text';icon.className='fa-solid fa-eye-slash text-xs text-indigo-400';}else{input.type='password';icon.className='fa-solid fa-eye text-xs text-slate-500';}}
 function toggleAuthMode(mode){currentAuthMode=mode;document.getElementById('authErrorMsg').classList.add('hidden');if(mode==='register'){document.getElementById('btnLoginTab').className="flex-1 py-2.5 rounded-lg text-slate-400 hover:text-white transition flex items-center justify-center gap-1.5";document.getElementById('btnRegisterTab').className="flex-1 py-2.5 rounded-lg bg-indigo-600 text-white shadow transition flex items-center justify-center gap-1.5";document.getElementById('shopMetaFields').classList.remove('hidden');document.getElementById('authTitle').innerText="Register Your Workshop";document.getElementById('authSubtitle').innerText="Set up your store details";document.getElementById('authSubmitBtn').innerHTML='<span>Create Store</span><i class="fa-solid fa-arrow-right text-xs"></i>';}else{document.getElementById('btnLoginTab').className="flex-1 py-2.5 rounded-lg bg-indigo-600 text-white shadow transition flex items-center justify-center gap-1.5";document.getElementById('btnRegisterTab').className="flex-1 py-2.5 rounded-lg text-slate-400 hover:text-white transition flex items-center justify-center gap-1.5";document.getElementById('shopMetaFields').classList.add('hidden');document.getElementById('authTitle').innerText="Owner Authorization";document.getElementById('authSubtitle').innerText="Sign in with your credentials";document.getElementById('authSubmitBtn').innerHTML='<span>Sign In</span><i class="fa-solid fa-arrow-right text-xs"></i>';}}
 
-async function handleAuth(e){e.preventDefault();const email=document.getElementById('authEmail').value.trim();const pass=document.getElementById('authPassword').value;const errorBox=document.getElementById('authErrorMsg');const errorText=document.getElementById('authErrorText');errorBox.classList.add('hidden');try{if(currentAuthMode==='register'){const sName=document.getElementById('regShopName').value.trim();const sAddr=document.getElementById('regShopAddress').value.trim();const sPhone=document.getElementById('regShopPhone').value.trim();if(!sName||!sAddr||!sPhone){errorText.innerText="Please complete all shop details.";errorBox.classList.remove('hidden');return;}const cred=await auth.createUserWithEmailAndPassword(email,pass);const storeData={shopName:sName,shopAddress:sAddr,shopPhone:sPhone,ownerEmail:email,promoOffer:"FREE TEMPERED GLASS with Warranty Display Replacement",tierDiscounts:{Platinum:10,Gold:5,Silver:2,Bronze:0},enableLoyalty:true,enablePromo:true,createdAt:firebase.firestore.FieldValue.serverTimestamp()};try{await db.collection('stores').doc(cred.user.uid).set(storeData);localStorage.setItem(storeMirrorKey(),JSON.stringify(storeData));}catch(storeErr){try{await cred.user.delete();}catch(_){}throw storeErr;}}else{await auth.signInWithEmailAndPassword(email,pass);}}catch(err){errorText.innerText=err.message;errorBox.classList.remove('hidden');}}
+async function handleAuth(e){
+e.preventDefault();const email=document.getElementById('authEmail').value.trim();const pass=document.getElementById('authPassword').value;const errorBox=document.getElementById('authErrorMsg');const errorText=document.getElementById('authErrorText');errorBox.classList.add('hidden');
+try{
+if(currentAuthMode==='register'){
+const sName=document.getElementById('regShopName').value.trim();const sAddr=document.getElementById('regShopAddress').value.trim();const sPhone=document.getElementById('regShopPhone').value.trim();
+if(!sName||!sAddr||!sPhone){errorText.innerText="Please complete all shop details.";errorBox.classList.remove('hidden');return;}
+const cred=await auth.createUserWithEmailAndPassword(email,pass);
+const trialEnd = new Date(); trialEnd.setDate(trialEnd.getDate() + 30);
+const subEndStr = localDateString(trialEnd);
+const storeData={shopName:sName,shopAddress:sAddr,shopPhone:sPhone,ownerEmail:email,promoOffer:"FREE TEMPERED GLASS with Warranty Display Replacement",tierDiscounts:{Platinum:10,Gold:5,Silver:2,Bronze:0},enableLoyalty:false,enablePromo:false,subscriptionEnd:subEndStr,planType:"Trial",createdAt:firebase.firestore.FieldValue.serverTimestamp()};
+try{await db.collection('stores').doc(cred.user.uid).set(storeData);localStorage.setItem(storeMirrorKey(),JSON.stringify(storeData));}catch(storeErr){try{await cred.user.delete();}catch(_){}throw storeErr;}
+}else{await auth.signInWithEmailAndPassword(email,pass);}
+}catch(err){errorText.innerText=err.message;errorBox.classList.remove('hidden');}}
 
 function signOutShop(){
 if(unsubJobsSnapshot){try{unsubJobsSnapshot();}catch(_){}unsubJobsSnapshot=null;}
@@ -558,7 +637,11 @@ auth.signOut().finally(()=>location.reload());
 async function savePromoOffer(){if(!auth.currentUser)return;const newText=document.getElementById('promoOfferInput').value.trim();if(!newText){alert('Please enter a promo text.');return;}try{await db.collection('stores').doc(auth.currentUser.uid).update({promoOffer:newText});if(currentStore)currentStore.promoOffer=newText;localStorage.setItem(storeMirrorKey(),JSON.stringify(currentStore));document.getElementById('currentPromoDisplay').innerText=newText;alert('✅ Promo offer updated successfully!');}catch(e){alert('Failed: '+e.message);}}
 
 async function saveFeatureToggle(field, value) {
-    if (!auth.currentUser) return;
+    if (!canUseLoyalty && !canUsePromo) {
+        document.getElementById(field === 'enableLoyalty' ? 'toggleLoyalty' : 'togglePromo').checked = !value;
+        showPremiumModal("Upgrade to 1-Year Plan", "Loyalty and Promo features are only available for 1-Year plans or higher. Please upgrade now.");
+        return;
+    }
     try {
         await db.collection('stores').doc(auth.currentUser.uid).update({ [field]: value });
         if (currentStore) currentStore[field] = value;
@@ -583,19 +666,63 @@ if(currentStore.status==='suspended'){document.getElementById('suspendedScreen')
 if(Object.prototype.hasOwnProperty.call(currentStore,'savedPassword')||Object.prototype.hasOwnProperty.call(currentStore,'password')){try{await db.collection('stores').doc(user.uid).update({savedPassword:firebase.firestore.FieldValue.delete(),password:firebase.firestore.FieldValue.delete()});}catch(_){}delete currentStore.savedPassword;delete currentStore.password;}
 document.getElementById('navShopName').innerText=currentStore.shopName||'SMARTFIX PRO';
 localStorage.setItem(storeMirrorKey(),JSON.stringify(currentStore));
-if(currentStore.tierDiscounts) {
-  defaultTierDiscounts = { ...defaultTierDiscounts, ...currentStore.tierDiscounts };
-}
+if(currentStore.tierDiscounts) { defaultTierDiscounts = { ...defaultTierDiscounts, ...currentStore.tierDiscounts }; }
 const promoInput=document.getElementById('promoOfferInput');if(promoInput)promoInput.value=getPromoOffer();
 const promoDisp=document.getElementById('currentPromoDisplay');if(promoDisp)promoDisp.innerText=getPromoOffer();
-// Set Feature Toggles
-const toggleLoyalty = document.getElementById('toggleLoyalty');
-if(toggleLoyalty) toggleLoyalty.checked = currentStore.enableLoyalty !== false;
-const togglePromo = document.getElementById('togglePromo');
-if(togglePromo) togglePromo.checked = currentStore.enablePromo !== false;
 
-}else{const localStore=localStorage.getItem(storeMirrorKey());currentStore=localStore?JSON.parse(localStore):{shopName:"TULSI MOBILE STORE",shopAddress:"Main Road",shopPhone:"9876543210",promoOffer:"FREE TEMPERED GLASS with Warranty Display Replacement",tierDiscounts:{Platinum:10,Gold:5,Silver:2,Bronze:0},enableLoyalty:true,enablePromo:true};document.getElementById('navShopName').innerText=currentStore.shopName||'SMARTFIX PRO';}
-}catch(e){const localStore=localStorage.getItem(storeMirrorKey());currentStore=localStore?JSON.parse(localStore):{shopName:"TULSI MOBILE STORE",shopAddress:"Main Road",shopPhone:"9876543210",promoOffer:"FREE TEMPERED GLASS with Warranty Display Replacement",tierDiscounts:{Platinum:10,Gold:5,Silver:2,Bronze:0},enableLoyalty:true,enablePromo:true};document.getElementById('navShopName').innerText=currentStore.shopName||'SMARTFIX PRO';}
+// PREMIUM ACCESS CHECKS
+const subEndStr = currentStore.subscriptionEnd || '2000-01-01';
+const planType = currentStore.planType || 'Trial';
+const todayDate = new Date(todayStr);
+const subEndDate = new Date(subEndStr);
+const daysDiff = Math.ceil((subEndDate - todayDate) / (1000 * 60 * 60 * 24));
+const isExpired = daysDiff < 0;
+
+isPremium = !isExpired;
+canUseCRM = !isExpired && (planType !== 'Trial');
+canUseLoyalty = !isExpired && (planType === '1 Year' || planType === '2 Years' || planType === 'Custom');
+canUsePromo = canUseLoyalty;
+
+const subStatusBadge = document.getElementById('subStatusBadge');
+const subStatusDate = document.getElementById('subStatusDate');
+if(subStatusBadge && subStatusDate) {
+    if (isExpired) {
+        subStatusBadge.className = "px-3 py-1 rounded-full text-[10px] font-bold uppercase bg-rose-500/20 text-rose-400 border border-rose-500/30";
+        subStatusBadge.innerText = "Expired";
+    } else {
+        subStatusBadge.className = "px-3 py-1 rounded-full text-[10px] font-bold uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+        subStatusBadge.innerText = "Premium Active";
+    }
+    subStatusDate.innerText = subEndStr;
+}
+
+const toggleLoyalty = document.getElementById('toggleLoyalty');
+if(toggleLoyalty) toggleLoyalty.checked = currentStore.enableLoyalty === true;
+const togglePromo = document.getElementById('togglePromo');
+if(togglePromo) togglePromo.checked = currentStore.enablePromo === true;
+
+if (isExpired) {
+    // Show license expired
+    document.getElementById('licenseExpiredScreen').classList.remove('hidden');
+    document.getElementById('licenseExpiredScreen').classList.add('flex');
+    document.getElementById('authScreen').classList.add('hidden');
+    document.querySelector('header').classList.add('hidden');
+    document.querySelector('main').classList.add('hidden');
+    document.querySelector('footer').classList.add('hidden');
+    return;
+} else if (daysDiff <= 5) {
+    // Show trial warning popup
+    const lastWarnDate = localStorage.getItem('lastWarn_' + user.uid);
+    if (lastWarnDate !== todayStr) {
+        document.getElementById('trialWarningMsg').innerText = `Your license is going to expire in ${daysDiff} days. Please contact customer care to renew your license and avoid interruption.`;
+        document.getElementById('trialWarningModal').classList.remove('hidden');
+        document.getElementById('trialWarningModal').classList.add('flex');
+        localStorage.setItem('lastWarn_' + user.uid, todayStr);
+    }
+}
+
+}else{const localStore=localStorage.getItem(storeMirrorKey());currentStore=localStore?JSON.parse(localStore):{shopName:"TULSI MOBILE STORE",shopAddress:"Main Road",shopPhone:"9876543210",promoOffer:"FREE TEMPERED GLASS with Warranty Display Replacement",tierDiscounts:{Platinum:10,Gold:5,Silver:2,Bronze:0},enableLoyalty:false,enablePromo:false,subscriptionEnd:localDateString(new Date(new Date().setDate(new Date().getDate() + 30))),planType:"Trial"};document.getElementById('navShopName').innerText=currentStore.shopName||'SMARTFIX PRO';}
+}catch(e){const localStore=localStorage.getItem(storeMirrorKey());currentStore=localStore?JSON.parse(localStore):{shopName:"TULSI MOBILE STORE",shopAddress:"Main Road",shopPhone:"9876543210",promoOffer:"FREE TEMPERED GLASS with Warranty Display Replacement",tierDiscounts:{Platinum:10,Gold:5,Silver:2,Bronze:0},enableLoyalty:false,enablePromo:false,subscriptionEnd:localDateString(new Date(new Date().setDate(new Date().getDate() + 30))),planType:"Trial"};document.getElementById('navShopName').innerText=currentStore.shopName||'SMARTFIX PRO';}
 
 document.getElementById('authScreen').classList.add('hidden');
 
@@ -619,24 +746,17 @@ lcdInventory=[];snapshot.forEach(doc=>{lcdInventory.push({id:doc.id,...doc.data(
 // ==================== CUSTOM PART SEARCH DROPDOWN ====================
 function renderPartDropdown(inputId, dropdownId, query, priceFieldId) {
   const dropdown = document.getElementById(dropdownId);
-  if (!query || query.trim().length < 1) {
-    dropdown.classList.add('hidden');
-    return;
-  }
-  
+  if (!query || query.trim().length < 1) { dropdown.classList.add('hidden'); return; }
   const q = query.toLowerCase();
   const matches = lcdInventory.filter(item => {
     const nameMatch = (item.name || '').toLowerCase().includes(q);
     const modelMatch = (item.models || []).some(m => m.toLowerCase().includes(q));
     return nameMatch || modelMatch;
   });
-
   if (matches.length === 0) {
     dropdown.innerHTML = `<div class="p-3 text-xs text-slate-500 text-center">No matching part found in stock</div>`;
-    dropdown.classList.remove('hidden');
-    return;
+    dropdown.classList.remove('hidden'); return;
   }
-
   dropdown.innerHTML = matches.map(item => {
     const isOut = Number(item.stock) <= 0;
     const matchedModels = (item.models || []).filter(m => m.toLowerCase().includes(q)).join(', ');
@@ -651,25 +771,21 @@ function renderPartDropdown(inputId, dropdownId, query, priceFieldId) {
       </div>
     `;
   }).join('');
-  
   dropdown.classList.remove('hidden');
 }
 
 function selectPartFromDropdown(inputId, dropdownId, partId, partName, partPrice, priceFieldId) {
   document.getElementById(inputId).value = partName;
-  
   if (inputId === 'intakePartName') document.getElementById('intakePartId').value = partId;
   if (inputId === 'diagPartsName') document.getElementById('diagPartId').value = partId;
   if (inputId === 'modalPartName') document.getElementById('modalPartId').value = partId;
   if (inputId === 'editPartName') document.getElementById('editPartId').value = partId;
-  
   if (priceFieldId && priceFieldId !== 'none') {
     document.getElementById(priceFieldId).value = partPrice;
     if(inputId === 'modalPartName' && typeof handleFinalAmountChange === 'function') {
       handleFinalAmountChange();
     }
   }
-  
   document.getElementById(dropdownId).classList.add('hidden');
 }
 
@@ -684,13 +800,7 @@ document.addEventListener('click', function(e) {
 
 function attrSafe(str) {
   if (!str) return '';
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/\\/g, '\\\\')
-    .replace(/'/g, "\\'");
+  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
 }
 // ========================================================================
 
@@ -704,25 +814,17 @@ if(newPartId){try{await db.collection('stores').doc(userUid).collection('lcd_inv
 
 // REST OF CRM FUNCTIONS
 function calculateLoyaltyDiscount(stats) {
-    const isLoyaltyEnabled = currentStore ? currentStore.enableLoyalty !== false : true;
-    if (!isLoyaltyEnabled) {
+    if (!isPremium || !canUseLoyalty) {
         return { percent: 0, tier: 'New', reason: 'Loyalty disabled' };
     }
-
     const tier = computeTier(stats.totalSpent, stats.totalVisits, stats.totalDue);
-    
-    if (tier === 'Returning') {
-        return { percent: 0, tier: 'Returning', reason: 'Customer has pending dues. No discount.' };
-    }
-    
+    if (tier === 'Returning') { return { percent: 0, tier: 'Returning', reason: 'Customer has pending dues. No discount.' }; }
     const discountPct = defaultTierDiscounts[tier] !== undefined ? defaultTierDiscounts[tier] : 0;
     let reason = '';
-    
     if (tier === 'Platinum') reason = 'Best Customer - ' + discountPct + '% Reward 🏆';
     else if (tier === 'Gold') reason = 'Loyal Customer - ' + discountPct + '% Discount 🥇';
     else if (tier === 'Silver') reason = 'Silver Customer - ' + discountPct + '% Discount 🥈';
     else if (tier === 'Bronze') reason = 'Bronze Customer - ' + discountPct + '% Discount 🥉';
-
     return { percent: discountPct, tier: tier, reason: reason };
 }
 
@@ -744,15 +846,13 @@ const newCustomerBanner=document.getElementById('newCustomerBanner');
 const key=normalizePhoneLocal(phone);
 recognitionBanner.classList.add('hidden');newCustomerBanner.classList.add('hidden');
 
-const isLoyaltyEnabled = currentStore ? currentStore.enableLoyalty !== false : true;
-if(!isLoyaltyEnabled){
+if(!isPremium || !canUseLoyalty){
     currentIntakeDiscount={percent:0,tier:'New',reason:'',amount:0};
     document.getElementById('appliedDiscountPercent').value='0';
     document.getElementById('appliedDiscountTier').value='New';
     document.getElementById('appliedDiscountReason').value='';
     return;
 }
-
 if(!key||key.length<10){currentIntakeDiscount={percent:0,tier:'New',reason:'',amount:0};document.getElementById('appliedDiscountPercent').value='0';document.getElementById('appliedDiscountTier').value='New';document.getElementById('appliedDiscountReason').value='';return;}
 const stats=getCustomerStats(key);
 const discount=calculateLoyaltyDiscount(stats);
@@ -766,7 +866,7 @@ else{recognitionContent.innerHTML=`
 <p class="text-emerald-300 font-bold">👋 Welcome back, ${escapeHtml(stats.name)}!</p>
 <p class="text-slate-200 text-[11px] mt-0.5">${stats.totalVisits} visit(s) · ₹${stats.totalSpent} lifetime · ${discount.tier} Tier</p>
 <div class="mt-2 p-2 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-between"><div class="flex items-center gap-1.5"><i class="fa-solid fa-percent text-amber-400 text-sm"></i><span class="text-amber-300 font-bold text-sm">${discount.percent}% DISCOUNT</span></div><span class="text-[10px] text-slate-400">${escapeHtml(discount.reason)}</span></div>
-${currentStore && currentStore.enablePromo !== false ? `<div class="mt-1.5 p-2 rounded-lg bg-rose-500/10 border border-rose-500/30 flex items-center justify-between"><div class="flex items-center gap-1.5"><i class="fa-solid fa-gift text-rose-400 text-sm"></i><span class="text-rose-300 font-bold text-sm">🎁 FREE GIFT</span></div><span class="text-[10px] text-slate-400">${promoText}</span></div>` : ''}
+${isPremium && canUsePromo ? `<div class="mt-1.5 p-2 rounded-lg bg-rose-500/10 border border-rose-500/30 flex items-center justify-between"><div class="flex items-center gap-1.5"><i class="fa-solid fa-gift text-rose-400 text-sm"></i><span class="text-rose-300 font-bold text-sm">🎁 FREE GIFT</span></div><span class="text-[10px] text-slate-400">${promoText}</span></div>` : ''}
 <button type="button" onclick="openCustomerHistoryModal('${escapeHtml(key)}')" class="mt-2 text-[10px] text-emerald-400 underline">View Full Profile</button>
 `;
 recognitionBanner.classList.remove('hidden');
@@ -783,7 +883,6 @@ function renderCustomers(){
 const grid=document.getElementById('customerCardGrid');if(!grid)return;
 const q=(document.getElementById('customerSearchInput')?.value||'').trim().toLowerCase();
 const all=getAllCustomers();
-const isLoyaltyEnabled = currentStore ? currentStore.enableLoyalty !== false : true;
 
 document.getElementById('tierCountAll').innerText=all.length;
 document.getElementById('tierCountPlatinum').innerText=all.filter(c=>c.tier==='Platinum').length;
@@ -813,7 +912,7 @@ filtered.forEach(c=>{
   card.onclick=()=>openCustomerHistoryModal(c.phone);
   
   let discountBadge = '';
-  if (isLoyaltyEnabled) {
+  if (isPremium && canUseLoyalty) {
       discountBadge = c.discount.percent>0
         ? `<span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">${c.discount.percent}% OFF</span>`
         : `<span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-slate-700 text-slate-400 border border-slate-600">0%</span>`;
@@ -870,9 +969,8 @@ document.getElementById('custHistNotesInput').value='';
 const discount=calculateLoyaltyDiscount(stats);
 const banner=document.getElementById('custHistDiscountBanner');
 const promoText=getEffectivePromo();
-const isLoyaltyEnabled = currentStore ? currentStore.enableLoyalty !== false : true;
 
-if(!isLoyaltyEnabled){
+if(!isPremium || !canUseLoyalty){
     banner.classList.add('hidden');
 } else if(discount.tier==='New'){
     banner.className="rounded-xl p-3 border border-amber-500/30 bg-amber-500/10 text-xs";
@@ -898,6 +996,18 @@ async function removeCustomerTag(tag){if(!currentViewingCustomerPhone||!auth.cur
 function sendCustomerBroadcast(){if(!currentViewingCustomerPhone)return;const waPhone=normalizePhoneForWhatsApp(currentViewingCustomerPhone);if(!waPhone||waPhone.length<10){alert('Invalid phone');return;}const stats=getCustomerStats(currentViewingCustomerPhone);const discount=calculateLoyaltyDiscount(stats);const sName=currentStore?currentStore.shopName:'SmartFix';let message=`Dear ${stats.name||'Customer'},\n\nGreetings from *${sName}*! 👋\n\n`;if(discount.percent>0)message+=`🎁 You have *${discount.percent}% loyalty discount* on your next visit!\n\n`;else if(discount.tier==='New')message+=`🎁 Thank you for your visit! Next time: *2% loyalty discount*!\n\n`;const promo = getEffectivePromo(); if(promo) message+=`🎁 *${promo}*\n\n`;message+=`📞 Helpline: +91 ${currentStore?.shopPhone||''}`;window.open(`https://wa.me/${waPhone}?text=${encodeURIComponent(message)}`,'_blank');}
 
 // NEW Tier Settings Functions
+function checkLoyaltyAccess() {
+    if (!isPremium) {
+        showPremiumModal("Subscription Expired", "Your license has expired. Please contact customer care to renew.");
+        return;
+    }
+    if (!canUseLoyalty) {
+        showPremiumModal("Upgrade to 1-Year Plan", "Loyalty discounts are only available for 1-Year plans or higher. Please upgrade to unlock.");
+        return;
+    }
+    openTierSettingsModal();
+}
+
 function openTierSettingsModal() {
   document.getElementById('setDiscountPlatinum').value = defaultTierDiscounts.Platinum !== undefined ? defaultTierDiscounts.Platinum : 10;
   document.getElementById('setDiscountGold').value = defaultTierDiscounts.Gold !== undefined ? defaultTierDiscounts.Gold : 5;
@@ -959,7 +1069,25 @@ const job=repairJobs.find(j=>j.billNo===billNo);
 if(job&&job.partId){await adjustStockForJob(job.partId,'');}
 let currentList=getMirroredJobsFromLocal();currentList=currentList.filter(j=>j.billNo!==billNo);mirrorJobsToLocalStorage(currentList);repairJobs=repairJobs.filter(j=>j.billNo!==billNo);if(!auth.currentUser)return;try{await db.collection('stores').doc(auth.currentUser.uid).collection('jobs').doc(billNo).delete();}catch(e){console.warn(e.message);}}
 
-function requestTabAccess(tabId){if(tabId==='backup'){activateTab('backup');return;}if(tabId==='reports'){if(isOwnerAuthenticated)activateTab('reports');else{pendingDestinationTab='reports';openPasswordModal();}return;}activateTab(tabId);}
+function requestTabAccess(tabId){
+    if(tabId === 'customers') {
+        if(!canUseCRM) { showPremiumModal("Premium Feature Locked", "CRM is not available in your current trial plan. Please upgrade to access."); return; }
+        activateTab('customers');
+    } else if (tabId === 'backup') {
+        if(!canUseCRM) { showPremiumModal("Premium Feature Locked", "Backup is not available in your current trial plan. Please upgrade to access."); return; }
+        activateTab('backup');
+    } else if(tabId==='reports'){
+        if(isOwnerAuthenticated)activateTab('reports');
+        else{pendingDestinationTab='reports';openPasswordModal();}
+    } else {
+        activateTab(tabId);
+    }
+}
+
+function requestUsedMobile() {
+    if(!canUseCRM) { showPremiumModal("Premium Feature Locked", "Used Mobile IMEI tracker requires a paid subscription. Please upgrade."); return; }
+    window.location.href = 'used_mobile.html';
+}
 
 function openPasswordModal(){document.getElementById('adminPasswordInput').value='';document.getElementById('passwordError').classList.add('hidden');document.getElementById('passwordModal').classList.remove('hidden');document.getElementById('passwordModal').classList.add('flex');setTimeout(()=>document.getElementById('adminPasswordInput').focus(),50);}
 function closePasswordModal(){document.getElementById('passwordModal').classList.add('hidden');document.getElementById('passwordModal').classList.remove('flex');pendingDestinationTab=null;}
@@ -988,10 +1116,9 @@ const isPartsOnly=document.getElementById('intakeOnlyPartsOrder').checked;
 const custIdType=document.getElementById('custIdType').value;
 const custIdNumber=document.getElementById('custIdNumber').value.trim();
 
-const isLoyaltyEnabled = currentStore ? currentStore.enableLoyalty !== false : true;
-const appliedDiscountPercent=isLoyaltyEnabled ? (parseFloat(document.getElementById('appliedDiscountPercent').value)||0) : 0;
-const appliedDiscountTier=isLoyaltyEnabled ? (document.getElementById('appliedDiscountTier').value||'New') : 'New';
-const appliedDiscountReason=isLoyaltyEnabled ? (document.getElementById('appliedDiscountReason').value||'') : '';
+const appliedDiscountPercent=(isPremium && canUseLoyalty) ? (parseFloat(document.getElementById('appliedDiscountPercent').value)||0) : 0;
+const appliedDiscountTier=(isPremium && canUseLoyalty) ? (document.getElementById('appliedDiscountTier').value||'New') : 'New';
+const appliedDiscountReason=(isPremium && canUseLoyalty) ? (document.getElementById('appliedDiscountReason').value||'') : '';
 
 const discountAmount=appliedDiscountPercent>0?Math.round(est*appliedDiscountPercent/100):0;
 const partName=document.getElementById('intakePartName').value.trim();
@@ -1070,7 +1197,7 @@ const diagAmt=parseFloat(job.diagnosedEstimate)||0;
 const diagNote=job.diagnosedNote?`\n🔍 *Diagnosis:* ${job.diagnosedNote}`:'';
 const estimateLine=diagAmt>0?`\n💰 *Estimated Cost:* ₹${diagAmt}`:'';
 const discPct=getEffectiveDiscount(job);
-const discLine=discPct>0?`\n🎁 *You have ${discPct}% loyalty discount applied!*`:(currentStore&&currentStore.enableLoyalty!==false?`\n🎁 *Thank you! Next visit: 2% loyalty discount!*`:'');
+const discLine=discPct>0?`\n🎁 *You have ${discPct}% loyalty discount applied!*`:(isPremium && canUseLoyalty?`\n🎁 *Thank you! Next visit: 2% loyalty discount!*`:'');
 const promoText = getEffectivePromo();
 let message=`Dear *${job.customerName}*,\n\nGreetings from *${sName}*! 👋\n\n📄 *Bill:* ${job.billNo}\n📱 *Device:* ${job.model}\n`;
 if(job.imei&&job.imei!=='N/A')message+=`🔢 *IMEI:* ${job.imei}\n`;
@@ -1199,8 +1326,7 @@ async function saveDiagnosis(){const billNo=document.getElementById('diagBillNo'
 const newPartId=document.getElementById('diagPartId').value;const oldPartId=repairJobs[idx].partId||'';
 repairJobs[idx].partId=newPartId;
 repairJobs[idx].diagnosedNote=newNote;repairJobs[idx].diagnosedEstimate=newEst;repairJobs[idx].estCost=newEst;repairJobs[idx].partCost=newParts;repairJobs[idx].partName=partsName;
-const isLoyaltyEnabled = currentStore ? currentStore.enableLoyalty !== false : true;
-if(isLoyaltyEnabled && repairJobs[idx].discountPercent>0){repairJobs[idx].discountAmount=Math.round(newEst*repairJobs[idx].discountPercent/100);}if(!repairJobs[idx].followUps)repairJobs[idx].followUps=[];repairJobs[idx].followUps.unshift({type:"Diagnosis",time:new Date().toLocaleString(),note:`Estimate revised to ₹${newEst}. ${newNote}`});
+if(isPremium && canUseLoyalty && repairJobs[idx].discountPercent>0){repairJobs[idx].discountAmount=Math.round(newEst*repairJobs[idx].discountPercent/100);}if(!repairJobs[idx].followUps)repairJobs[idx].followUps=[];repairJobs[idx].followUps.unshift({type:"Diagnosis",time:new Date().toLocaleString(),note:`Estimate revised to ₹${newEst}. ${newNote}`});
 renderJobCards();renderDailyCashReport();if(isOwnerAuthenticated)renderLedgerTable();closeDiagnosisModal();
 syncJobToFirestore(repairJobs[idx]);
 await adjustStockForJob(oldPartId,newPartId);
@@ -1304,8 +1430,7 @@ repairJobs[idx].customerName=document.getElementById('editCustName').value.trim(
 const inputCost=parseFloat(document.getElementById('editEstCost').value)||0;
 if(newStatus==='Unrepairable'){repairJobs[idx].finalAmount=0;repairJobs[idx].estCost=0;repairJobs[idx].partCost=0;repairJobs[idx].netProfit=0;repairJobs[idx].dueBalance=0;repairJobs[idx].refundPaid=parseFloat(repairJobs[idx].advPaid)||0;}
 else{repairJobs[idx].finalAmount=inputCost;repairJobs[idx].estCost=inputCost;repairJobs[idx].diagnosedEstimate=inputCost;repairJobs[idx].advPaid=parseFloat(document.getElementById('editAdvPaid').value)||0;repairJobs[idx].dueBalance=parseFloat(document.getElementById('editDueBalance').value)||0;const pCost=parseFloat(repairJobs[idx].partCost)||0;repairJobs[idx].netProfit=Math.max(0,inputCost-pCost);
-const isLoyaltyEnabled = currentStore ? currentStore.enableLoyalty !== false : true;
-if(isLoyaltyEnabled && repairJobs[idx].discountPercent>0){repairJobs[idx].discountAmount=Math.round(inputCost*repairJobs[idx].discountPercent/100);}}
+if(isPremium && canUseLoyalty && repairJobs[idx].discountPercent>0){repairJobs[idx].discountAmount=Math.round(inputCost*repairJobs[idx].discountPercent/100);}}
 closeEditModal();renderJobCards();renderDailyCashReport();if(isOwnerAuthenticated)renderLedgerTable();
 syncJobToFirestore(repairJobs[idx]);
 await adjustStockForJob(oldPartId,newPartId);
@@ -1382,7 +1507,6 @@ const advPaid=parseFloat(job.advPaid)||0;const delCollected=parseFloat(job.deliv
 const discPct=getEffectiveDiscount(job);
 const discAmt=discPct > 0 ? (parseFloat(job.discountAmount) || 0) : 0;
 const promoText=getEffectivePromo();
-const isLoyaltyEnabled = currentStore ? currentStore.enableLoyalty !== false : true;
 
 let paymentStatusText="PENDING";
 if(isUnrepairable)paymentStatusText="RETURNED (CLOSED)";else if(isDelivered)paymentStatusText=due>0?"PARTIAL (PENDING: Rs. "+due+")":"PAID IN FULL ("+esc(job.deliveryPayMethod||"Cash")+")";else paymentStatusText=advPaid>0?"ADVANCE PAID ("+esc(job.advPayMethod||"Cash")+")":"PAYMENT DUE";
@@ -1425,7 +1549,7 @@ ${due>0&&!isUnrepairable?`<tr><td style="font-weight: 900; color: #000;">Pending
 <tr><td>NET PAYABLE:</td><td style="text-align: right;">Rs. ${Math.max(0,totalOrEst-discAmt).toFixed(2)}</td></tr>
 <tr><td style="font-size: 9.5px;">Payment Mode:</td><td style="text-align: right; font-size: 9.5px;">${paymentStatusText}</td></tr>
 </table>
-${isLoyaltyEnabled ? (discPct>0 ? `<div style="margin: 5px 0; border: 1.5px dashed #000; padding: 4px; text-align: center; font-size: 10px; font-weight: 900; color: #000;">🎁 YOU SAVED Rs. ${discAmt.toFixed(2)} (${esc(job.discountTier||'')} LOYALTY) 🎁</div>` : `<div style="margin: 5px 0; border: 1.5px dashed #000; padding: 4px; text-align: center; font-size: 10px; font-weight: 900; color: #000;">🎁 THANK YOU! NEXT VISIT: 2% LOYALTY DISCOUNT 🎁</div>`) : ''}
+${isPremium && canUseLoyalty ? (discPct>0 ? `<div style="margin: 5px 0; border: 1.5px dashed #000; padding: 4px; text-align: center; font-size: 10px; font-weight: 900; color: #000;">🎁 YOU SAVED Rs. ${discAmt.toFixed(2)} (${esc(job.discountTier||'')} LOYALTY) 🎁</div>` : `<div style="margin: 5px 0; border: 1.5px dashed #000; padding: 4px; text-align: center; font-size: 10px; font-weight: 900; color: #000;">🎁 THANK YOU! NEXT VISIT: 2% LOYALTY DISCOUNT 🎁</div>`) : ''}
 ${promoText ? `<div style="margin: 6px 0 4px 0; border: 1.5px dashed #000; padding: 5px 4px; text-align: center; font-size: 10px; font-weight: 900; color: #000; background: #fff;">🎁 ${promoText.toUpperCase()} 🎁<br><span style="font-size: 9px; font-weight: 700;">(Bring this bill to claim)</span></div>` : ''}
 <div style="margin: 6px 0 4px 0; border: 1.5px solid #000; padding: 4px; text-align: center; font-size: 9.5px; font-weight: 900; letter-spacing: 0.3px; color: #000;">WARRANTY: ${esc((job.warranty||'NO WARRANTY').toUpperCase())}</div>
 <div style="border-top: 1px solid #000; margin: 5px 0;"></div>
@@ -1468,7 +1592,7 @@ if(isDualIntake){const tagBarcode=createBarcodeSvg(job.billNo);printHTML+=`
 <p style="margin: 2px 0;"><strong style="font-weight:900;">CUST:</strong> ${esc(job.customerName)} (${esc(job.phone)})</p>
 <p style="margin: 2px 0;"><strong style="font-weight:900;">ADV:</strong> Rs. ${advPaid.toFixed(2)} (${esc(job.advPayMethod||'Cash')})</p>
 ${displayEst>0?`<p style="margin: 2px 0;"><strong style="font-weight:900;">EST:</strong> Rs. ${displayEst.toFixed(2)}</p>`:''}
-${isLoyaltyEnabled && discPct>0?`<p style="margin: 2px 0; background: #fff; border: 1px solid #000; padding: 2px;"><strong style="font-weight:900;">🎁 DISCOUNT:</strong> ${discPct}% (Rs. ${discAmt})</p>`:''}
+${isPremium && canUseLoyalty && discPct>0?`<p style="margin: 2px 0; background: #fff; border: 1px solid #000; padding: 2px;"><strong style="font-weight:900;">🎁 DISCOUNT:</strong> ${discPct}% (Rs. ${discAmt})</p>`:''}
 ${promoText?`<p style="margin: 2px 0; background: #fff; border: 1px solid #000; padding: 2px;"><strong style="font-weight:900;">🎁 PROMO:</strong> ${promoText}</p>`:''}
 ${job.idNumber?`<p style="margin: 2px 0;"><strong style="font-weight:900;">ID:</strong> ${esc(job.idType)} - ${esc(job.idNumber)}</p>`:''}
 ${job.remarks?`<p style="margin: 2px 0;"><strong style="font-weight:900;">NOTE:</strong> ${esc(job.remarks)}</p>`:''}
