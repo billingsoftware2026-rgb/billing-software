@@ -21,6 +21,7 @@
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen font-sans antialiased selection:bg-indigo-600 selection:text-white flex flex-col">
 
+  <!-- LOGIN GATE -->
   <div id="authGate" class="fixed inset-0 bg-slate-950 z-[100] flex items-center justify-center p-4">
     <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-indigo-600/20 rounded-full blur-[120px] pointer-events-none animate-pulse"></div>
     <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-violet-600/20 rounded-full blur-[120px] pointer-events-none animate-pulse" style="animation-delay: 2s;"></div>
@@ -36,6 +37,7 @@
     </div>
   </div>
 
+  <!-- MAIN APP -->
   <div id="mainApp" class="hidden flex-1 flex flex-col h-screen overflow-hidden">
     <header class="glass-panel border-b border-slate-800 sticky top-0 z-40 flex-none">
       <div class="px-4 md:px-6 py-3 flex items-center justify-between">
@@ -59,6 +61,7 @@
       </aside>
 
       <main class="flex-1 overflow-y-auto p-4 md:p-6 bg-slate-950">
+        <!-- VIEW: DASHBOARD -->
         <div id="view-dashboard" class="view-section space-y-6 animate-fade">
           <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div class="glass-panel p-5 rounded-2xl border border-slate-800"><span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Stores</span><h3 id="statTotal" class="text-3xl font-black text-white mt-1">0</h3></div>
@@ -75,6 +78,7 @@
           </div>
         </div>
 
+        <!-- VIEW: STORES -->
         <div id="view-stores" class="view-section hidden space-y-4 animate-fade">
           <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
             <div><h2 class="text-xl font-bold text-white">Store Management</h2><p class="text-xs text-slate-400">Search, edit, suspend, or troubleshoot any store</p></div>
@@ -86,6 +90,7 @@
           <div id="storeGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
         </div>
 
+        <!-- VIEW: STORE DETAIL -->
         <div id="view-store-detail" class="view-section hidden space-y-4 animate-fade">
           <button onclick="switchView('stores')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-lg inline-flex items-center gap-1.5"><i class="fa-solid fa-arrow-left"></i> Back to Stores</button>
           <div class="glass-panel p-5 rounded-2xl border border-slate-800">
@@ -114,6 +119,7 @@
             <button onclick="showDetailTab('danger')" id="dtab-danger" class="dtab-btn px-4 py-2 rounded-lg text-xs font-semibold whitespace-nowrap text-rose-400 hover:text-white"><i class="fa-solid fa-triangle-exclamation mr-1.5"></i>Danger</button>
           </div>
 
+          <!-- TAB: Profile -->
           <div id="dcnt-profile" class="dtab-content">
             <div class="glass-panel p-5 rounded-2xl border border-slate-800 space-y-4">
               <h3 class="text-sm font-bold text-white"><i class="fa-solid fa-store text-indigo-400 mr-2"></i>Store Profile Settings</h3>
@@ -159,27 +165,32 @@
                 </div>
               </div>
               <div class="pt-2">
-                <button type="button" onclick="saveDevSubscription()" class="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-lg text-xs font-bold transition flex items-center gap-2"><i class="fa-solid fa-floppy-disk"></i> Save Subscription</button>
+                <button type="button" onclick="saveDevSubscription()" class="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-lg text-xs font-bold transition flex items-center gap-2"><i class="fa-solid fa-floppy-disk"></i> Save Manual Date</button>
               </div>
             </div>
           </div>
 
+          <!-- TAB: Jobs -->
           <div id="dcnt-jobs" class="dtab-content hidden">
             <div class="glass-panel rounded-2xl border border-slate-800 overflow-hidden"><div class="overflow-x-auto"><table class="w-full text-left text-xs whitespace-nowrap"><thead class="bg-slate-900 text-slate-400 border-b border-slate-800 uppercase"><tr><th class="p-3">Bill</th><th class="p-3">Date</th><th class="p-3">Customer</th><th class="p-3">Model</th><th class="p-3">Status</th><th class="p-3 text-right">Amt</th><th class="p-3 text-center">Del</th></tr></thead><tbody id="tblJobs" class="divide-y divide-slate-800/60 text-slate-300"></tbody></table></div></div>
           </div>
 
+          <!-- TAB: EMI -->
           <div id="dcnt-emis" class="dtab-content hidden">
             <div class="glass-panel rounded-2xl border border-slate-800 overflow-hidden"><div class="overflow-x-auto"><table class="w-full text-left text-xs whitespace-nowrap"><thead class="bg-slate-900 text-slate-400 border-b border-slate-800 uppercase"><tr><th class="p-3">Customer</th><th class="p-3">Device</th><th class="p-3">IMEI</th><th class="p-3 text-right">Total</th><th class="p-3 text-center">Del</th></tr></thead><tbody id="tblEmis" class="divide-y divide-slate-800/60 text-slate-300"></tbody></table></div></div>
           </div>
 
+          <!-- TAB: LCD -->
           <div id="dcnt-lcd" class="dtab-content hidden">
             <div class="glass-panel rounded-2xl border border-slate-800 overflow-hidden"><div class="overflow-x-auto"><table class="w-full text-left text-xs whitespace-nowrap"><thead class="bg-slate-900 text-slate-400 border-b border-slate-800 uppercase"><tr><th class="p-3">Name</th><th class="p-3">Stock</th><th class="p-3 text-right">Price</th><th class="p-3">Rack</th><th class="p-3 text-center">Del</th></tr></thead><tbody id="tblLcd" class="divide-y divide-slate-800/60 text-slate-300"></tbody></table></div></div>
           </div>
 
+          <!-- TAB: Mobiles -->
           <div id="dcnt-mobiles" class="dtab-content hidden">
             <div class="glass-panel rounded-2xl border border-slate-800 overflow-hidden"><div class="overflow-x-auto"><table class="w-full text-left text-xs whitespace-nowrap"><thead class="bg-slate-900 text-slate-400 border-b border-slate-800 uppercase"><tr><th class="p-3">Device</th><th class="p-3">IMEI</th><th class="p-3">Status</th><th class="p-3 text-right">Price</th><th class="p-3 text-center">Del</th></tr></thead><tbody id="tblMobiles" class="divide-y divide-slate-800/60 text-slate-300"></tbody></table></div></div>
           </div>
 
+          <!-- TAB: Backup -->
           <div id="dcnt-backup" class="dtab-content hidden">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div class="glass-panel p-5 rounded-2xl border border-slate-800"><h3 class="text-sm font-bold text-white"><i class="fa-solid fa-download text-emerald-400 mr-2"></i>Full Backup</h3><p class="text-xs text-slate-400 mt-2 mb-4">Download all data into a single JSON file.</p><button onclick="downloadStoreBackup()" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-file-export"></i> Download JSON</button></div>
@@ -188,6 +199,7 @@
             <p id="backupStatus" class="text-xs text-slate-400 mt-3"></p>
           </div>
 
+          <!-- TAB: Danger -->
           <div id="dcnt-danger" class="dtab-content hidden">
             <div class="bg-rose-950/20 border border-rose-500/30 rounded-2xl p-5 space-y-4">
               <h3 class="text-sm font-bold text-rose-400 uppercase tracking-wider"><i class="fa-solid fa-triangle-exclamation mr-2"></i>Danger Zone</h3>
@@ -196,6 +208,7 @@
           </div>
         </div>
 
+        <!-- VIEW: DEVELOPERS -->
         <div id="view-developers" class="view-section hidden space-y-4 animate-fade">
           <div class="flex justify-between items-center">
             <div><h2 class="text-xl font-bold text-white">Developer Team</h2><p class="text-xs text-slate-400">Add or remove team members with admin access.</p></div>
@@ -204,6 +217,7 @@
           <div id="devListContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
         </div>
 
+        <!-- VIEW: MANUAL -->
         <div id="view-manual" class="view-section hidden space-y-6 animate-fade">
           <div><h2 class="text-xl font-bold text-white">Developer Troubleshooting Manual</h2><p class="text-xs text-slate-400">Step-by-step guide to fix common issues.</p></div>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -215,6 +229,7 @@
     </div>
   </div>
 
+  <!-- Modals -->
   <div id="createStoreModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
     <div class="glass-panel w-full max-w-md p-6 rounded-3xl shadow-2xl space-y-4 animate-fade">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3"><h3 class="text-base font-bold text-white"><i class="fa-solid fa-store text-indigo-400 mr-2"></i>Create New Store</h3><button onclick="closeModal('createStoreModal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button></div>
@@ -272,6 +287,7 @@
     let unsubLcd = null;
     let unsubMobiles = null;
 
+    // Helper to get local date string (fixes timezone issues)
     function localDateString(d = new Date()) {
       const y = d.getFullYear(); const m = String(d.getMonth()+1).padStart(2,'0'); const day = String(d.getDate()).padStart(2,'0');
       return `${y}-${m}-${day}`;
@@ -352,6 +368,15 @@
       document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
       document.getElementById('view-' + viewId).classList.remove('hidden');
       
+      // FIX: Cleanup listeners when leaving Store Detail view to prevent memory leaks
+      if (viewId !== 'store-detail') {
+          if(unsubJobs) { unsubJobs(); unsubJobs = null; }
+          if(unsubEmis) { unsubEmis(); unsubEmis = null; }
+          if(unsubLcd) { unsubLcd(); unsubLcd = null; }
+          if(unsubMobiles) { unsubMobiles(); unsubMobiles = null; }
+          activeStoreUid = null;
+      }
+
       document.querySelectorAll('.nav-btn').forEach(btn => {
         btn.className = "nav-btn flex items-center gap-3 px-4 py-3 text-sm font-semibold text-slate-400 hover:text-white hover:bg-slate-800/30 transition";
       });
@@ -472,6 +497,8 @@
 
       unsubJobs = storeRef.collection('jobs').onSnapshot(snap => {
         let jobs = snap.docs.map(d => ({ _id: d.id, ...d.data() }));
+        // FIX: Sort Jobs by Date (Latest First)
+        jobs.sort((a, b) => String(b.intakeDate || '').localeCompare(String(a.intakeDate || '')));
         storeCollections.jobs = jobs;
         document.getElementById('cntJobs').innerText = jobs.length;
         renderJobsTable();
@@ -479,19 +506,25 @@
 
       unsubEmis = storeRef.collection('emis').onSnapshot(snap => {
         let emis = snap.docs.map(d => ({ _id: d.id, ...d.data() }));
+        // FIX: Sort EMI by Date
+        emis.sort((a, b) => String(b.startDate || '').localeCompare(String(a.startDate || '')));
         storeCollections.emis = emis;
         document.getElementById('cntEmis').innerText = emis.length;
         renderEmisTable();
       });
 
       unsubLcd = storeRef.collection('lcd_inventory').onSnapshot(snap => {
-        storeCollections.lcd = snap.docs.map(d => ({ _id: d.id, ...d.data() }));
+        let lcd = snap.docs.map(d => ({ _id: d.id, ...d.data() }));
+        lcd.sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')));
+        storeCollections.lcd = lcd;
         document.getElementById('cntLcd').innerText = storeCollections.lcd.length;
         renderLcdTable();
       });
 
       unsubMobiles = storeRef.collection('used_mobiles').onSnapshot(snap => {
         let mobiles = snap.docs.map(d => ({ _id: d.id, ...d.data() }));
+        // FIX: Sort Used Mobiles by Date
+        mobiles.sort((a, b) => String(b.intakeDate || '').localeCompare(String(a.intakeDate || '')));
         storeCollections.mobiles = mobiles;
         document.getElementById('cntMobiles').innerText = mobiles.length;
         renderMobilesTable();
@@ -524,10 +557,15 @@
     async function adjustSubTime(months, newPlanType) {
         const store = allStores.find(s => s.uid === activeStoreUid);
         let currentEnd = store.subscriptionEnd ? new Date(store.subscriptionEnd) : new Date();
+        
+        // FIX: Handle Invalid Date if subscriptionEnd is corrupted
+        if (isNaN(currentEnd.getTime())) currentEnd = new Date(); 
         if (currentEnd < new Date()) currentEnd = new Date(); // if expired, start from today
         
         currentEnd.setMonth(currentEnd.getMonth() + months);
-        const newDateStr = currentEnd.toISOString().split('T')[0];
+        
+        // FIX: Use localDateString to prevent timezone shift (1 day off bug)
+        const newDateStr = localDateString(currentEnd);
         
         document.getElementById('devSubEnd').value = newDateStr;
         document.getElementById('devPlanType').value = newPlanType;
@@ -730,7 +768,7 @@
         await secondaryAuth.signOut();
 
         const trialEnd = new Date(); trialEnd.setDate(trialEnd.getDate() + 30);
-        const subEndStr = trialEnd.toISOString().split('T')[0];
+        const subEndStr = localDateString(trialEnd);
 
         await db.collection('stores').doc(newUid).set({
           shopName: document.getElementById('newShopName').value.trim(),
