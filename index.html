@@ -264,8 +264,29 @@ input,select,textarea,button{-webkit-tap-highlight-color:transparent}input[type=
 <div class="bg-slate-950 border border-slate-800 rounded-2xl p-5"><i class="fa-solid fa-file-export text-emerald-400 text-2xl"></i><h3 class="text-white font-bold mt-3">Create Backup</h3><p class="text-xs text-slate-400 mt-1 mb-4">Export all jobs to JSON.</p><button onclick="downloadStoreBackup()" class="w-full rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white py-3 text-sm font-bold"><i class="fa-solid fa-download mr-2"></i>Download</button></div>
 <div class="bg-slate-950 border border-slate-800 rounded-2xl p-5"><i class="fa-solid fa-file-import text-indigo-400 text-2xl"></i><h3 class="text-white font-bold mt-3">Restore Backup</h3><p class="text-xs text-slate-400 mt-1 mb-3">Select JSON file.</p><input id="backupRestoreFile" type="file" accept=".json,application/json" class="block w-full text-xs text-slate-300 mb-3"><label class="flex items-start gap-2 text-xs text-rose-300 mb-4"><input id="backupReplaceMode" type="checkbox" class="mt-0.5"> Overwrite existing</label><button onclick="restoreStoreBackup()" class="w-full rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white py-3 text-sm font-bold"><i class="fa-solid fa-cloud-arrow-up mr-2"></i>Restore</button></div>
 </div>
+
+<div class="bg-slate-950 border border-indigo-500/30 rounded-2xl p-5 mt-4 space-y-4">
+<h3 class="text-white font-bold text-sm">Premium Feature Access (ON/OFF)</h3>
+<label class="flex items-center justify-between cursor-pointer border-b border-slate-800 pb-3">
+    <div>
+        <span class="text-sm font-bold text-slate-200">Loyalty Discount Engine</span>
+        <p class="text-[10px] text-slate-400">Auto-apply tier discounts on intake and bills.</p>
+    </div>
+    <input type="checkbox" id="toggleLoyalty" class="sr-only peer" onchange="saveFeatureToggle('enableLoyalty', this.checked)">
+    <div class="w-11 h-6 bg-slate-800 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600 relative"></div>
+</label>
+<label class="flex items-center justify-between cursor-pointer pt-1">
+    <div>
+        <span class="text-sm font-bold text-slate-200">Store Promo Offer</span>
+        <p class="text-[10px] text-slate-400">Show promo text on printed receipts and back tags.</p>
+    </div>
+    <input type="checkbox" id="togglePromo" class="sr-only peer" onchange="saveFeatureToggle('enablePromo', this.checked)">
+    <div class="w-11 h-6 bg-slate-800 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600 relative"></div>
+</label>
+</div>
+
 <div class="bg-slate-950 border border-rose-500/30 rounded-2xl p-5 mt-4">
-<div class="flex items-center gap-2 mb-2"><i class="fa-solid fa-gift text-rose-400 text-xl"></i><h3 class="text-white font-bold">Store Promo Offer</h3></div>
+<div class="flex items-center gap-2 mb-2"><i class="fa-solid fa-gift text-rose-400 text-xl"></i><h3 class="text-white font-bold">Store Promo Offer Text</h3></div>
 <p class="text-xs text-slate-400 mb-3">This text appears on printed receipts, back tags, intake banner, customer history modal, and WhatsApp messages.</p>
 <div class="flex gap-2"><input type="text" id="promoOfferInput" placeholder="e.g. FREE TEMPERED GLASS with Warranty Display Replacement" class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-rose-500"><button onclick="savePromoOffer()" class="bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap">Save</button></div>
 <p class="text-[11px] text-rose-300 mt-2">Current: <span id="currentPromoDisplay">Loading...</span></p>
@@ -487,6 +508,15 @@ const debouncedRenderCustomers=debounce(()=>renderCustomers(),200);
 
 function getPromoOffer(){return (currentStore&&currentStore.promoOffer)||"FREE TEMPERED GLASS with Warranty Display Replacement";}
 
+function getEffectiveDiscount(job) {
+    const isLoyaltyEnabled = currentStore ? currentStore.enableLoyalty !== false : true;
+    return isLoyaltyEnabled ? (parseFloat(job.discountPercent) || 0) : 0;
+}
+function getEffectivePromo() {
+    const isPromoEnabled = currentStore ? currentStore.enablePromo !== false : true;
+    return isPromoEnabled ? getPromoOffer() : '';
+}
+
 window.addEventListener('beforeinstallprompt',(e)=>{e.preventDefault();deferredPrompt=e;});
 function triggerPwaInstall(type){if(deferredPrompt){deferredPrompt.prompt();deferredPrompt.userChoice.then(()=>{deferredPrompt=null;});}else{if(type==='mobile')alert("To install on Mobile:\n\n1. Tap browser menu (⋮)\n2. Tap 'Add to Home screen'");else alert("To install on PC:\n\n1. Open in Chrome/Edge\n2. Click install icon in address bar");}}
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
@@ -516,7 +546,7 @@ async function checkAndFileWarranty(originalBillNo){const job=repairJobs.find(j=
 function togglePasswordVisibility(fieldId,btn){const input=document.getElementById(fieldId);const icon=btn.querySelector('i');if(input.type==='password'){input.type='text';icon.className='fa-solid fa-eye-slash text-xs text-indigo-400';}else{input.type='password';icon.className='fa-solid fa-eye text-xs text-slate-500';}}
 function toggleAuthMode(mode){currentAuthMode=mode;document.getElementById('authErrorMsg').classList.add('hidden');if(mode==='register'){document.getElementById('btnLoginTab').className="flex-1 py-2.5 rounded-lg text-slate-400 hover:text-white transition flex items-center justify-center gap-1.5";document.getElementById('btnRegisterTab').className="flex-1 py-2.5 rounded-lg bg-indigo-600 text-white shadow transition flex items-center justify-center gap-1.5";document.getElementById('shopMetaFields').classList.remove('hidden');document.getElementById('authTitle').innerText="Register Your Workshop";document.getElementById('authSubtitle').innerText="Set up your store details";document.getElementById('authSubmitBtn').innerHTML='<span>Create Store</span><i class="fa-solid fa-arrow-right text-xs"></i>';}else{document.getElementById('btnLoginTab').className="flex-1 py-2.5 rounded-lg bg-indigo-600 text-white shadow transition flex items-center justify-center gap-1.5";document.getElementById('btnRegisterTab').className="flex-1 py-2.5 rounded-lg text-slate-400 hover:text-white transition flex items-center justify-center gap-1.5";document.getElementById('shopMetaFields').classList.add('hidden');document.getElementById('authTitle').innerText="Owner Authorization";document.getElementById('authSubtitle').innerText="Sign in with your credentials";document.getElementById('authSubmitBtn').innerHTML='<span>Sign In</span><i class="fa-solid fa-arrow-right text-xs"></i>';}}
 
-async function handleAuth(e){e.preventDefault();const email=document.getElementById('authEmail').value.trim();const pass=document.getElementById('authPassword').value;const errorBox=document.getElementById('authErrorMsg');const errorText=document.getElementById('authErrorText');errorBox.classList.add('hidden');try{if(currentAuthMode==='register'){const sName=document.getElementById('regShopName').value.trim();const sAddr=document.getElementById('regShopAddress').value.trim();const sPhone=document.getElementById('regShopPhone').value.trim();if(!sName||!sAddr||!sPhone){errorText.innerText="Please complete all shop details.";errorBox.classList.remove('hidden');return;}const cred=await auth.createUserWithEmailAndPassword(email,pass);const storeData={shopName:sName,shopAddress:sAddr,shopPhone:sPhone,ownerEmail:email,promoOffer:"FREE TEMPERED GLASS with Warranty Display Replacement",tierDiscounts:{Platinum:10,Gold:5,Silver:2,Bronze:0},createdAt:firebase.firestore.FieldValue.serverTimestamp()};try{await db.collection('stores').doc(cred.user.uid).set(storeData);localStorage.setItem(storeMirrorKey(),JSON.stringify(storeData));}catch(storeErr){try{await cred.user.delete();}catch(_){}throw storeErr;}}else{await auth.signInWithEmailAndPassword(email,pass);}}catch(err){errorText.innerText=err.message;errorBox.classList.remove('hidden');}}
+async function handleAuth(e){e.preventDefault();const email=document.getElementById('authEmail').value.trim();const pass=document.getElementById('authPassword').value;const errorBox=document.getElementById('authErrorMsg');const errorText=document.getElementById('authErrorText');errorBox.classList.add('hidden');try{if(currentAuthMode==='register'){const sName=document.getElementById('regShopName').value.trim();const sAddr=document.getElementById('regShopAddress').value.trim();const sPhone=document.getElementById('regShopPhone').value.trim();if(!sName||!sAddr||!sPhone){errorText.innerText="Please complete all shop details.";errorBox.classList.remove('hidden');return;}const cred=await auth.createUserWithEmailAndPassword(email,pass);const storeData={shopName:sName,shopAddress:sAddr,shopPhone:sPhone,ownerEmail:email,promoOffer:"FREE TEMPERED GLASS with Warranty Display Replacement",tierDiscounts:{Platinum:10,Gold:5,Silver:2,Bronze:0},enableLoyalty:true,enablePromo:true,createdAt:firebase.firestore.FieldValue.serverTimestamp()};try{await db.collection('stores').doc(cred.user.uid).set(storeData);localStorage.setItem(storeMirrorKey(),JSON.stringify(storeData));}catch(storeErr){try{await cred.user.delete();}catch(_){}throw storeErr;}}else{await auth.signInWithEmailAndPassword(email,pass);}}catch(err){errorText.innerText=err.message;errorBox.classList.remove('hidden');}}
 
 function signOutShop(){
 if(unsubJobsSnapshot){try{unsubJobsSnapshot();}catch(_){}unsubJobsSnapshot=null;}
@@ -526,6 +556,20 @@ auth.signOut().finally(()=>location.reload());
 }
 
 async function savePromoOffer(){if(!auth.currentUser)return;const newText=document.getElementById('promoOfferInput').value.trim();if(!newText){alert('Please enter a promo text.');return;}try{await db.collection('stores').doc(auth.currentUser.uid).update({promoOffer:newText});if(currentStore)currentStore.promoOffer=newText;localStorage.setItem(storeMirrorKey(),JSON.stringify(currentStore));document.getElementById('currentPromoDisplay').innerText=newText;alert('✅ Promo offer updated successfully!');}catch(e){alert('Failed: '+e.message);}}
+
+async function saveFeatureToggle(field, value) {
+    if (!auth.currentUser) return;
+    try {
+        await db.collection('stores').doc(auth.currentUser.uid).update({ [field]: value });
+        if (currentStore) currentStore[field] = value;
+        localStorage.setItem(storeMirrorKey(), JSON.stringify(currentStore));
+        alert('✅ Feature setting updated successfully!');
+        if (field === 'enableLoyalty') {
+            if(!document.getElementById('view-customers').classList.contains('hidden')) renderCustomers();
+            renderJobCards();
+        }
+    } catch (e) { alert('Error updating setting: ' + e.message); }
+}
 
 auth.onAuthStateChanged(async(user)=>{
 if(unsubJobsSnapshot){try{unsubJobsSnapshot();}catch(_){}unsubJobsSnapshot=null;}
@@ -544,8 +588,14 @@ if(currentStore.tierDiscounts) {
 }
 const promoInput=document.getElementById('promoOfferInput');if(promoInput)promoInput.value=getPromoOffer();
 const promoDisp=document.getElementById('currentPromoDisplay');if(promoDisp)promoDisp.innerText=getPromoOffer();
-}else{const localStore=localStorage.getItem(storeMirrorKey());currentStore=localStore?JSON.parse(localStore):{shopName:"TULSI MOBILE STORE",shopAddress:"Main Road",shopPhone:"9876543210",promoOffer:"FREE TEMPERED GLASS with Warranty Display Replacement",tierDiscounts:{Platinum:10,Gold:5,Silver:2,Bronze:0}};document.getElementById('navShopName').innerText=currentStore.shopName||'SMARTFIX PRO';}
-}catch(e){const localStore=localStorage.getItem(storeMirrorKey());currentStore=localStore?JSON.parse(localStore):{shopName:"TULSI MOBILE STORE",shopAddress:"Main Road",shopPhone:"9876543210",promoOffer:"FREE TEMPERED GLASS with Warranty Display Replacement",tierDiscounts:{Platinum:10,Gold:5,Silver:2,Bronze:0}};document.getElementById('navShopName').innerText=currentStore.shopName||'SMARTFIX PRO';}
+// Set Feature Toggles
+const toggleLoyalty = document.getElementById('toggleLoyalty');
+if(toggleLoyalty) toggleLoyalty.checked = currentStore.enableLoyalty !== false;
+const togglePromo = document.getElementById('togglePromo');
+if(togglePromo) togglePromo.checked = currentStore.enablePromo !== false;
+
+}else{const localStore=localStorage.getItem(storeMirrorKey());currentStore=localStore?JSON.parse(localStore):{shopName:"TULSI MOBILE STORE",shopAddress:"Main Road",shopPhone:"9876543210",promoOffer:"FREE TEMPERED GLASS with Warranty Display Replacement",tierDiscounts:{Platinum:10,Gold:5,Silver:2,Bronze:0},enableLoyalty:true,enablePromo:true};document.getElementById('navShopName').innerText=currentStore.shopName||'SMARTFIX PRO';}
+}catch(e){const localStore=localStorage.getItem(storeMirrorKey());currentStore=localStore?JSON.parse(localStore):{shopName:"TULSI MOBILE STORE",shopAddress:"Main Road",shopPhone:"9876543210",promoOffer:"FREE TEMPERED GLASS with Warranty Display Replacement",tierDiscounts:{Platinum:10,Gold:5,Silver:2,Bronze:0},enableLoyalty:true,enablePromo:true};document.getElementById('navShopName').innerText=currentStore.shopName||'SMARTFIX PRO';}
 
 document.getElementById('authScreen').classList.add('hidden');
 
@@ -654,6 +704,11 @@ if(newPartId){try{await db.collection('stores').doc(userUid).collection('lcd_inv
 
 // REST OF CRM FUNCTIONS
 function calculateLoyaltyDiscount(stats) {
+    const isLoyaltyEnabled = currentStore ? currentStore.enableLoyalty !== false : true;
+    if (!isLoyaltyEnabled) {
+        return { percent: 0, tier: 'New', reason: 'Loyalty disabled' };
+    }
+
     const tier = computeTier(stats.totalSpent, stats.totalVisits, stats.totalDue);
     
     if (tier === 'Returning') {
@@ -688,6 +743,16 @@ const recognitionContent=document.getElementById('customerRecognitionContent');
 const newCustomerBanner=document.getElementById('newCustomerBanner');
 const key=normalizePhoneLocal(phone);
 recognitionBanner.classList.add('hidden');newCustomerBanner.classList.add('hidden');
+
+const isLoyaltyEnabled = currentStore ? currentStore.enableLoyalty !== false : true;
+if(!isLoyaltyEnabled){
+    currentIntakeDiscount={percent:0,tier:'New',reason:'',amount:0};
+    document.getElementById('appliedDiscountPercent').value='0';
+    document.getElementById('appliedDiscountTier').value='New';
+    document.getElementById('appliedDiscountReason').value='';
+    return;
+}
+
 if(!key||key.length<10){currentIntakeDiscount={percent:0,tier:'New',reason:'',amount:0};document.getElementById('appliedDiscountPercent').value='0';document.getElementById('appliedDiscountTier').value='New';document.getElementById('appliedDiscountReason').value='';return;}
 const stats=getCustomerStats(key);
 const discount=calculateLoyaltyDiscount(stats);
@@ -701,7 +766,7 @@ else{recognitionContent.innerHTML=`
 <p class="text-emerald-300 font-bold">👋 Welcome back, ${escapeHtml(stats.name)}!</p>
 <p class="text-slate-200 text-[11px] mt-0.5">${stats.totalVisits} visit(s) · ₹${stats.totalSpent} lifetime · ${discount.tier} Tier</p>
 <div class="mt-2 p-2 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-between"><div class="flex items-center gap-1.5"><i class="fa-solid fa-percent text-amber-400 text-sm"></i><span class="text-amber-300 font-bold text-sm">${discount.percent}% DISCOUNT</span></div><span class="text-[10px] text-slate-400">${escapeHtml(discount.reason)}</span></div>
-<div class="mt-1.5 p-2 rounded-lg bg-rose-500/10 border border-rose-500/30 flex items-center justify-between"><div class="flex items-center gap-1.5"><i class="fa-solid fa-gift text-rose-400 text-sm"></i><span class="text-rose-300 font-bold text-sm">🎁 FREE GIFT</span></div><span class="text-[10px] text-slate-400">${promoText}</span></div>
+${currentStore && currentStore.enablePromo !== false ? `<div class="mt-1.5 p-2 rounded-lg bg-rose-500/10 border border-rose-500/30 flex items-center justify-between"><div class="flex items-center gap-1.5"><i class="fa-solid fa-gift text-rose-400 text-sm"></i><span class="text-rose-300 font-bold text-sm">🎁 FREE GIFT</span></div><span class="text-[10px] text-slate-400">${promoText}</span></div>` : ''}
 <button type="button" onclick="openCustomerHistoryModal('${escapeHtml(key)}')" class="mt-2 text-[10px] text-emerald-400 underline">View Full Profile</button>
 `;
 recognitionBanner.classList.remove('hidden');
@@ -718,6 +783,7 @@ function renderCustomers(){
 const grid=document.getElementById('customerCardGrid');if(!grid)return;
 const q=(document.getElementById('customerSearchInput')?.value||'').trim().toLowerCase();
 const all=getAllCustomers();
+const isLoyaltyEnabled = currentStore ? currentStore.enableLoyalty !== false : true;
 
 document.getElementById('tierCountAll').innerText=all.length;
 document.getElementById('tierCountPlatinum').innerText=all.filter(c=>c.tier==='Platinum').length;
@@ -746,9 +812,12 @@ filtered.forEach(c=>{
   card.className="bg-slate-900 border border-slate-800 hover:border-emerald-500/50 p-3.5 rounded-2xl flex flex-col justify-between shadow-sm transition cursor-pointer";
   card.onclick=()=>openCustomerHistoryModal(c.phone);
   
-  const discountBadge=c.discount.percent>0
-    ? `<span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">${c.discount.percent}% OFF</span>`
-    : `<span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-slate-700 text-slate-400 border border-slate-600">0%</span>`;
+  let discountBadge = '';
+  if (isLoyaltyEnabled) {
+      discountBadge = c.discount.percent>0
+        ? `<span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">${c.discount.percent}% OFF</span>`
+        : `<span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-slate-700 text-slate-400 border border-slate-600">0%</span>`;
+  }
     
   card.innerHTML=`
 <div class="space-y-1.5">
@@ -769,7 +838,7 @@ function filterCustomerTier(tier,evt){currentCustomerTierFilter=tier;document.qu
 
 function renderCustomerModalTags(tags){const tagsDiv=document.getElementById('custHistTags');tagsDiv.innerHTML='';if(!tags||tags.length===0){tagsDiv.innerHTML='<span class="text-[10px] text-slate-500 italic">No tags</span>';return;}tags.forEach(tag=>{const span=document.createElement('span');span.className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 flex items-center gap-1";span.innerHTML=`${escapeHtml(tag)} <button data-tag="${escapeHtml(tag)}" onclick="removeCustomerTag(this.dataset.tag)" class="text-indigo-400 hover:text-rose-400"><i class="fa-solid fa-xmark text-[8px]"></i></button>`;tagsDiv.appendChild(span);});}
 
-function renderCustomerModalJobs(jobs){const jobsDiv=document.getElementById('custHistJobs');jobsDiv.innerHTML='';if(!jobs||jobs.length===0){jobsDiv.innerHTML='<p class="text-xs text-slate-500 text-center py-3">No records yet.</p>';return;}jobs.forEach(job=>{const div=document.createElement('div');div.className="p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs flex justify-between items-start gap-2";const amount=job.status==='Unrepairable'?0:(job.finalAmount||job.diagnosedEstimate||job.estCost||0);const disc=parseFloat(job.discountPercent)||0;div.innerHTML=`
+function renderCustomerModalJobs(jobs){const jobsDiv=document.getElementById('custHistJobs');jobsDiv.innerHTML='';if(!jobs||jobs.length===0){jobsDiv.innerHTML='<p class="text-xs text-slate-500 text-center py-3">No records yet.</p>';return;}jobs.forEach(job=>{const div=document.createElement('div');div.className="p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs flex justify-between items-start gap-2";const amount=job.status==='Unrepairable'?0:(job.finalAmount||job.diagnosedEstimate||job.estCost||0);const disc=getEffectiveDiscount(job);div.innerHTML=`
 <div class="flex-1 min-w-0">
 <div class="flex items-center gap-2 mb-0.5"><span class="font-mono font-bold text-indigo-400 text-[11px]">${escapeHtml(job.billNo)}</span><span class="text-[9px] px-1.5 py-0.5 rounded font-bold uppercase ${job.status==='Delivered'?'bg-emerald-500/20 text-emerald-400':job.status==='Unrepairable'?'bg-rose-500/20 text-rose-400':'bg-amber-500/20 text-amber-400'}">${escapeHtml(job.status)}</span>${disc>0?`<span class="text-[9px] bg-amber-500/20 text-amber-300 px-1 py-0.5 rounded">${disc}% OFF</span>`:''}</div>
 <p class="text-white font-semibold truncate">${escapeHtml(job.model)}</p>
@@ -800,10 +869,20 @@ document.getElementById('custHistNotesInput').value='';
 
 const discount=calculateLoyaltyDiscount(stats);
 const banner=document.getElementById('custHistDiscountBanner');
-const promoText=esc(getPromoOffer());
+const promoText=getEffectivePromo();
+const isLoyaltyEnabled = currentStore ? currentStore.enableLoyalty !== false : true;
 
-if(discount.tier==='New'){banner.className="rounded-xl p-3 border border-amber-500/30 bg-amber-500/10 text-xs";banner.innerHTML=`<div class="flex items-center gap-2 text-amber-300 font-bold"><i class="fa-solid fa-gift"></i> New Customer</div><p class="text-slate-300 text-[11px] mt-1">${discount.nextNote||'Next visit: 2% loyalty discount!'}</p><div class="flex items-center gap-2 text-rose-300 font-bold mt-2 pt-2 border-t border-amber-500/20"><i class="fa-solid fa-percent"></i> 🎁 ${promoText}</div>`;banner.classList.remove('hidden');}
-else{banner.className="rounded-xl p-3 border border-emerald-500/30 bg-emerald-500/10 text-xs";banner.innerHTML=`<div class="flex items-center justify-between"><div class="flex items-center gap-2 text-emerald-300 font-bold"><i class="fa-solid fa-percent"></i> ${discount.percent}% Discount</div><span class="text-[10px] text-slate-400">${escapeHtml(discount.reason)}</span></div><div class="flex items-center gap-2 text-rose-300 font-bold mt-2 pt-2 border-t border-emerald-500/20"><i class="fa-solid fa-gift"></i> 🎁 ${promoText}</div>`;banner.classList.remove('hidden');}
+if(!isLoyaltyEnabled){
+    banner.classList.add('hidden');
+} else if(discount.tier==='New'){
+    banner.className="rounded-xl p-3 border border-amber-500/30 bg-amber-500/10 text-xs";
+    banner.innerHTML=`<div class="flex items-center gap-2 text-amber-300 font-bold"><i class="fa-solid fa-gift"></i> New Customer</div><p class="text-slate-300 text-[11px] mt-1">${discount.nextNote||'Next visit: 2% loyalty discount!'}</p>${promoText ? `<div class="flex items-center gap-2 text-rose-300 font-bold mt-2 pt-2 border-t border-amber-500/20"><i class="fa-solid fa-percent"></i> 🎁 ${esc(promoText)}</div>` : ''}`;
+    banner.classList.remove('hidden');
+} else {
+    banner.className="rounded-xl p-3 border border-emerald-500/30 bg-emerald-500/10 text-xs";
+    banner.innerHTML=`<div class="flex items-center justify-between"><div class="flex items-center gap-2 text-emerald-300 font-bold"><i class="fa-solid fa-percent"></i> ${discount.percent}% Discount</div><span class="text-[10px] text-slate-400">${escapeHtml(discount.reason)}</span></div>${promoText ? `<div class="flex items-center gap-2 text-rose-300 font-bold mt-2 pt-2 border-t border-emerald-500/20"><i class="fa-solid fa-gift"></i> 🎁 ${esc(promoText)}</div>` : ''}`;
+    banner.classList.remove('hidden');
+}
 
 renderCustomerModalTags(tags);renderCustomerModalJobs(stats.jobs);
 document.getElementById('customerHistoryModal').classList.remove('hidden');document.getElementById('customerHistoryModal').classList.add('flex');}
@@ -816,7 +895,7 @@ async function promptAddTag(){if(!currentViewingCustomerPhone||!auth.currentUser
 
 async function removeCustomerTag(tag){if(!currentViewingCustomerPhone||!auth.currentUser)return;const key=currentViewingCustomerPhone;const newTags=(customersCache[key]?.tags||[]).filter(t=>t!==tag);try{await db.collection('stores').doc(auth.currentUser.uid).collection('customers').doc(key).set({phone:key,tags:newTags,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});customersCache[key]={...(customersCache[key]||{}),tags:newTags};renderCustomerModalTags(newTags);}catch(e){alert('Failed: '+e.message);}}
 
-function sendCustomerBroadcast(){if(!currentViewingCustomerPhone)return;const waPhone=normalizePhoneForWhatsApp(currentViewingCustomerPhone);if(!waPhone||waPhone.length<10){alert('Invalid phone');return;}const stats=getCustomerStats(currentViewingCustomerPhone);const discount=calculateLoyaltyDiscount(stats);const sName=currentStore?currentStore.shopName:'SmartFix';let message=`Dear ${stats.name||'Customer'},\n\nGreetings from *${sName}*! 👋\n\n`;if(discount.percent>0)message+=`🎁 You have *${discount.percent}% loyalty discount* on your next visit!\n\n`;else if(discount.tier==='New')message+=`🎁 Thank you for your visit! Next time: *2% loyalty discount*!\n\n`;message+=`🎁 *${getPromoOffer()}*\n\n`;message+=`📞 Helpline: +91 ${currentStore?.shopPhone||''}`;window.open(`https://wa.me/${waPhone}?text=${encodeURIComponent(message)}`,'_blank');}
+function sendCustomerBroadcast(){if(!currentViewingCustomerPhone)return;const waPhone=normalizePhoneForWhatsApp(currentViewingCustomerPhone);if(!waPhone||waPhone.length<10){alert('Invalid phone');return;}const stats=getCustomerStats(currentViewingCustomerPhone);const discount=calculateLoyaltyDiscount(stats);const sName=currentStore?currentStore.shopName:'SmartFix';let message=`Dear ${stats.name||'Customer'},\n\nGreetings from *${sName}*! 👋\n\n`;if(discount.percent>0)message+=`🎁 You have *${discount.percent}% loyalty discount* on your next visit!\n\n`;else if(discount.tier==='New')message+=`🎁 Thank you for your visit! Next time: *2% loyalty discount*!\n\n`;const promo = getEffectivePromo(); if(promo) message+=`🎁 *${promo}*\n\n`;message+=`📞 Helpline: +91 ${currentStore?.shopPhone||''}`;window.open(`https://wa.me/${waPhone}?text=${encodeURIComponent(message)}`,'_blank');}
 
 // NEW Tier Settings Functions
 function openTierSettingsModal() {
@@ -908,9 +987,12 @@ const remarks=document.getElementById('intakeRemarks').value.trim();
 const isPartsOnly=document.getElementById('intakeOnlyPartsOrder').checked;
 const custIdType=document.getElementById('custIdType').value;
 const custIdNumber=document.getElementById('custIdNumber').value.trim();
-const appliedDiscountPercent=parseFloat(document.getElementById('appliedDiscountPercent').value)||0;
-const appliedDiscountTier=document.getElementById('appliedDiscountTier').value||'New';
-const appliedDiscountReason=document.getElementById('appliedDiscountReason').value||'';
+
+const isLoyaltyEnabled = currentStore ? currentStore.enableLoyalty !== false : true;
+const appliedDiscountPercent=isLoyaltyEnabled ? (parseFloat(document.getElementById('appliedDiscountPercent').value)||0) : 0;
+const appliedDiscountTier=isLoyaltyEnabled ? (document.getElementById('appliedDiscountTier').value||'New') : 'New';
+const appliedDiscountReason=isLoyaltyEnabled ? (document.getElementById('appliedDiscountReason').value||'') : '';
+
 const discountAmount=appliedDiscountPercent>0?Math.round(est*appliedDiscountPercent/100):0;
 const partName=document.getElementById('intakePartName').value.trim();
 const partId=document.getElementById('intakePartId').value;
@@ -987,12 +1069,13 @@ else statusMsg=`Your device *${job.model}* is under repair.`;
 const diagAmt=parseFloat(job.diagnosedEstimate)||0;
 const diagNote=job.diagnosedNote?`\n🔍 *Diagnosis:* ${job.diagnosedNote}`:'';
 const estimateLine=diagAmt>0?`\n💰 *Estimated Cost:* ₹${diagAmt}`:'';
-const discPct=parseFloat(job.discountPercent)||0;
-const discLine=discPct>0?`\n🎁 *You have ${discPct}% loyalty discount applied!*`:`\n🎁 *Thank you! Next visit: 2% loyalty discount!*`;
+const discPct=getEffectiveDiscount(job);
+const discLine=discPct>0?`\n🎁 *You have ${discPct}% loyalty discount applied!*`:(currentStore&&currentStore.enableLoyalty!==false?`\n🎁 *Thank you! Next visit: 2% loyalty discount!*`:'');
+const promoText = getEffectivePromo();
 let message=`Dear *${job.customerName}*,\n\nGreetings from *${sName}*! 👋\n\n📄 *Bill:* ${job.billNo}\n📱 *Device:* ${job.model}\n`;
 if(job.imei&&job.imei!=='N/A')message+=`🔢 *IMEI:* ${job.imei}\n`;
 message+=`\n${statusMsg}${diagNote}${estimateLine}\n${discLine}\n`;
-message+=`\n🎁 *${getPromoOffer()}*\n\n`;
+if(promoText) message+=`\n🎁 *${promoText}*\n\n`;
 const due=parseFloat(job.dueBalance)||0;
 if(due>0&&job.status!=='Unrepairable')message+=`💰 *Due:* ₹${due}\n\n`;
 if(sPhone)message+=`Helpline: +91 ${sPhone}\n`;
@@ -1023,7 +1106,7 @@ if(!isComplaintsTab){document.getElementById('cntAll').innerText=filteredByDateA
 const filtered=currentStatusFilter==='ALL'?filteredByDateAndQuery:filteredByDateAndQuery.filter(j=>j.status===currentStatusFilter);
 if(filtered.length===0){container.innerHTML=`<div class="col-span-full py-10 text-center text-slate-500 bg-slate-900 border border-slate-800 rounded-3xl"><i class="fa-solid fa-magnifying-glass text-3xl mb-2 text-slate-600"></i><p class="text-sm font-medium">No records found</p></div>`;return;}
 filtered.forEach(job=>{
-const isDelivered=job.status==="Delivered";const isUnrepairable=job.status==="Unrepairable";const isReady=job.status==="Ready";const isPartsOnly=job.status==="Parts-Ordered";const hasDue=(job.dueBalance||0)>0;const discPct=parseFloat(job.discountPercent)||0;
+const isDelivered=job.status==="Delivered";const isUnrepairable=job.status==="Unrepairable";const isReady=job.status==="Ready";const isPartsOnly=job.status==="Parts-Ordered";const hasDue=(job.dueBalance||0)>0;const discPct=getEffectiveDiscount(job);
 let statusBadge="";
 if(isDelivered)statusBadge='<span class="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Delivered</span>';
 else if(isUnrepairable)statusBadge='<span class="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/20">Unrepairable</span>';
@@ -1073,7 +1156,7 @@ function reprintJob(billNo){const job=repairJobs.find(j=>j.billNo===billNo);if(j
 function openJobDetailModal(billNo){const job=repairJobs.find(j=>j.billNo===billNo);if(!job)return;currentViewingJobBill=billNo;document.getElementById('modalJobBill').innerText=job.billNo;document.getElementById('modalJobStatus').innerHTML=`<span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-slate-800 text-indigo-300 border border-slate-700">${escapeHtml(job.status)}</span>`;
 const displayEst=parseFloat(job.diagnosedEstimate)||0;const origEst=parseFloat(job.estCost)||0;const finalAmt=parseFloat(job.finalAmount)||0;
 const totalBilled=job.status==='Unrepairable'?0:(job.status==='Delivered'?finalAmt:(displayEst>0?displayEst:origEst));
-const discPct=parseFloat(job.discountPercent)||0;const discAmt=parseFloat(job.discountAmount)||0;
+const discPct=getEffectiveDiscount(job);const discAmt=discPct > 0 ? (parseFloat(job.discountAmount) || 0) : 0;
 document.getElementById('modalJobInfoBody').innerHTML=`
 <div class="grid grid-cols-2 gap-3 text-xs bg-slate-950 p-4 rounded-2xl border border-slate-800">
 <div><span class="text-slate-400">Customer:</span> <strong class="text-white block mt-0.5">${escapeHtml(job.customerName)}</strong></div>
@@ -1116,7 +1199,8 @@ async function saveDiagnosis(){const billNo=document.getElementById('diagBillNo'
 const newPartId=document.getElementById('diagPartId').value;const oldPartId=repairJobs[idx].partId||'';
 repairJobs[idx].partId=newPartId;
 repairJobs[idx].diagnosedNote=newNote;repairJobs[idx].diagnosedEstimate=newEst;repairJobs[idx].estCost=newEst;repairJobs[idx].partCost=newParts;repairJobs[idx].partName=partsName;
-if(repairJobs[idx].discountPercent>0){repairJobs[idx].discountAmount=Math.round(newEst*repairJobs[idx].discountPercent/100);}if(!repairJobs[idx].followUps)repairJobs[idx].followUps=[];repairJobs[idx].followUps.unshift({type:"Diagnosis",time:new Date().toLocaleString(),note:`Estimate revised to ₹${newEst}. ${newNote}`});
+const isLoyaltyEnabled = currentStore ? currentStore.enableLoyalty !== false : true;
+if(isLoyaltyEnabled && repairJobs[idx].discountPercent>0){repairJobs[idx].discountAmount=Math.round(newEst*repairJobs[idx].discountPercent/100);}if(!repairJobs[idx].followUps)repairJobs[idx].followUps=[];repairJobs[idx].followUps.unshift({type:"Diagnosis",time:new Date().toLocaleString(),note:`Estimate revised to ₹${newEst}. ${newNote}`});
 renderJobCards();renderDailyCashReport();if(isOwnerAuthenticated)renderLedgerTable();closeDiagnosisModal();
 syncJobToFirestore(repairJobs[idx]);
 await adjustStockForJob(oldPartId,newPartId);
@@ -1135,12 +1219,12 @@ document.getElementById('modalPartId').value=job.partId||'';
 document.getElementById('modalPartCost').value=job.partCost||0;
 document.getElementById('unrepairableAdvAmount').innerText="₹"+advPaid;
 document.getElementById('modalRefundAmount').value=advPaid;
-const discPct=parseFloat(job.discountPercent)||0;
+const discPct=getEffectiveDiscount(job);
 const discountInfo=document.getElementById('deliveryDiscountInfo');
 const discountBanner=document.getElementById('deliveryDiscountBanner');
-const promoText=esc(getPromoOffer());
-if(discPct>0){discountInfo.classList.remove('hidden');document.getElementById('modalDiscountDisp').innerText=discPct+'%';document.getElementById('modalDiscountReason').innerText=job.discountReason||'';const discAmt=Math.round(suggestedAmount*discPct/100);document.getElementById('modalDiscountAmountDisp').innerText='-₹'+discAmt;discountBanner.className="rounded-xl p-2.5 border border-amber-500/30 bg-amber-500/10 text-xs";discountBanner.innerHTML=`<div class="flex items-center gap-2 text-amber-300"><i class="fa-solid fa-percent"></i><strong>${discPct}% Loyalty Discount Applied</strong><span class="ml-auto text-slate-400 text-[10px]">${escapeHtml(job.discountTier||'')}</span></div><div class="flex items-center gap-2 text-rose-300 mt-1.5 pt-1.5 border-t border-amber-500/20"><i class="fa-solid fa-gift"></i><span>🎁 ${promoText}</span></div>`;discountBanner.classList.remove('hidden');}
-else{discountInfo.classList.add('hidden');discountBanner.className="rounded-xl p-2.5 border border-slate-500/30 bg-slate-500/10 text-xs";discountBanner.innerHTML=`<div class="flex items-center gap-2 text-slate-400 text-[11px]"><i class="fa-solid fa-gift"></i>New Customer — no discount this time. <strong class="text-amber-300">Next visit: 2%!</strong></div><div class="flex items-center gap-2 text-rose-300 mt-1.5 pt-1.5 border-t border-slate-500/20"><i class="fa-solid fa-gift"></i><span>🎁 ${promoText}</span></div>`;discountBanner.classList.remove('hidden');}
+const promoText=getEffectivePromo();
+if(discPct>0){discountInfo.classList.remove('hidden');document.getElementById('modalDiscountDisp').innerText=discPct+'%';document.getElementById('modalDiscountReason').innerText=job.discountReason||'';const discAmt=Math.round(suggestedAmount*discPct/100);document.getElementById('modalDiscountAmountDisp').innerText='-₹'+discAmt;discountBanner.className="rounded-xl p-2.5 border border-amber-500/30 bg-amber-500/10 text-xs";discountBanner.innerHTML=`<div class="flex items-center gap-2 text-amber-300"><i class="fa-solid fa-percent"></i><strong>${discPct}% Loyalty Discount Applied</strong><span class="ml-auto text-slate-400 text-[10px]">${escapeHtml(job.discountTier||'')}</span></div>${promoText?`<div class="flex items-center gap-2 text-rose-300 mt-1.5 pt-1.5 border-t border-amber-500/20"><i class="fa-solid fa-gift"></i><span>🎁 ${esc(promoText)}</span></div>`:''}`;discountBanner.classList.remove('hidden');}
+else{discountInfo.classList.add('hidden');discountBanner.className="rounded-xl p-2.5 border border-slate-500/30 bg-slate-500/10 text-xs";discountBanner.innerHTML=`<div class="flex items-center gap-2 text-slate-400 text-[11px]"><i class="fa-solid fa-gift"></i>New Customer — no discount this time. <strong class="text-amber-300">Next visit: 2%!</strong></div>${promoText?`<div class="flex items-center gap-2 text-rose-300 mt-1.5 pt-1.5 border-t border-slate-500/20"><i class="fa-solid fa-gift"></i><span>🎁 ${esc(promoText)}</span></div>`:''}`;discountBanner.classList.remove('hidden');}
 toggleDeliveryOutcomeUI();handleFinalAmountChange();
 document.getElementById('deliveryModal').classList.remove('hidden');document.getElementById('deliveryModal').classList.add('flex');
 }
@@ -1150,7 +1234,7 @@ const adv=parseFloat(document.getElementById('modalAdvPaidHidden').value)||0;
 const finalAmt=parseFloat(document.getElementById('modalFinalAmount').value)||0;
 const billNo=document.getElementById('modalBillNo').value;
 const job=repairJobs.find(j=>j.billNo===billNo);
-const discPct=job?(parseFloat(job.discountPercent)||0):0;
+const discPct=job ? getEffectiveDiscount(job) : 0;
 const discAmt=Math.round(finalAmt*discPct/100);
 if(discPct>0){document.getElementById('modalDiscountAmountDisp').innerText='-₹'+discAmt;}
 const netPayable=Math.max(0,finalAmt-discAmt);
@@ -1169,7 +1253,7 @@ const adv=parseFloat(document.getElementById('modalAdvPaidHidden').value)||0;
 const finalAmt=parseFloat(document.getElementById('modalFinalAmount').value)||0;
 const billNo=document.getElementById('modalBillNo').value;
 const job=repairJobs.find(j=>j.billNo===billNo);
-const discPct=job?(parseFloat(job.discountPercent)||0):0;
+const discPct=job ? getEffectiveDiscount(job) : 0;
 const discAmt=Math.round(finalAmt*discPct/100);
 const netPayable=Math.max(0,finalAmt-discAmt);
 const remainingPayable=Math.max(0,netPayable-adv);
@@ -1188,7 +1272,7 @@ try{
 repairJobs[idx].deliveryDate=today;
 if(status==="Unrepairable"){repairJobs[idx].status="Unrepairable";repairJobs[idx].warranty="No Warranty";repairJobs[idx].partName="Unrepairable / Returned";repairJobs[idx].partCost=0;repairJobs[idx].finalAmount=0;repairJobs[idx].estCost=0;repairJobs[idx].refundPaid=advPaid;repairJobs[idx].deliveryCollected=0;repairJobs[idx].dueBalance=0;repairJobs[idx].netProfit=0;}
 else{const pName=document.getElementById('modalPartName').value.trim();const pCost=parseFloat(document.getElementById('modalPartCost').value)||0;const fAmount=parseFloat(document.getElementById('modalFinalAmount').value)||0;const warranty=document.getElementById('modalWarranty').value;const collected=parseFloat(document.getElementById('modalDeliveryCashCollected').value)||0;const delMethod=document.getElementById('modalDeliveryPaymentMethod').value||"Cash";
-const discPct=parseFloat(repairJobs[idx].discountPercent)||0;
+const discPct=getEffectiveDiscount(repairJobs[idx]);
 const discAmt=Math.round(fAmount*discPct/100);
 const netPayable=Math.max(0,fAmount-discAmt);
 const remainingPayable=Math.max(0,netPayable-advPaid);
@@ -1219,7 +1303,9 @@ repairJobs[idx].partName=document.getElementById('editPartName').value.trim();
 repairJobs[idx].customerName=document.getElementById('editCustName').value.trim();repairJobs[idx].phone=document.getElementById('editCustPhone').value.trim();repairJobs[idx].model=document.getElementById('editModel').value.trim();repairJobs[idx].imei=document.getElementById('editImei').value.trim();repairJobs[idx].fault=document.getElementById('editFault').value.trim();repairJobs[idx].idType=document.getElementById('editIdType').value;repairJobs[idx].idNumber=document.getElementById('editIdNumber').value.trim();repairJobs[idx].remarks=document.getElementById('editRemarks').value.trim();repairJobs[idx].status=newStatus;
 const inputCost=parseFloat(document.getElementById('editEstCost').value)||0;
 if(newStatus==='Unrepairable'){repairJobs[idx].finalAmount=0;repairJobs[idx].estCost=0;repairJobs[idx].partCost=0;repairJobs[idx].netProfit=0;repairJobs[idx].dueBalance=0;repairJobs[idx].refundPaid=parseFloat(repairJobs[idx].advPaid)||0;}
-else{repairJobs[idx].finalAmount=inputCost;repairJobs[idx].estCost=inputCost;repairJobs[idx].diagnosedEstimate=inputCost;repairJobs[idx].advPaid=parseFloat(document.getElementById('editAdvPaid').value)||0;repairJobs[idx].dueBalance=parseFloat(document.getElementById('editDueBalance').value)||0;const pCost=parseFloat(repairJobs[idx].partCost)||0;repairJobs[idx].netProfit=Math.max(0,inputCost-pCost);if(repairJobs[idx].discountPercent>0){repairJobs[idx].discountAmount=Math.round(inputCost*repairJobs[idx].discountPercent/100);}}
+else{repairJobs[idx].finalAmount=inputCost;repairJobs[idx].estCost=inputCost;repairJobs[idx].diagnosedEstimate=inputCost;repairJobs[idx].advPaid=parseFloat(document.getElementById('editAdvPaid').value)||0;repairJobs[idx].dueBalance=parseFloat(document.getElementById('editDueBalance').value)||0;const pCost=parseFloat(repairJobs[idx].partCost)||0;repairJobs[idx].netProfit=Math.max(0,inputCost-pCost);
+const isLoyaltyEnabled = currentStore ? currentStore.enableLoyalty !== false : true;
+if(isLoyaltyEnabled && repairJobs[idx].discountPercent>0){repairJobs[idx].discountAmount=Math.round(inputCost*repairJobs[idx].discountPercent/100);}}
 closeEditModal();renderJobCards();renderDailyCashReport();if(isOwnerAuthenticated)renderLedgerTable();
 syncJobToFirestore(repairJobs[idx]);
 await adjustStockForJob(oldPartId,newPartId);
@@ -1237,7 +1323,9 @@ const fromDate=document.getElementById('ledgerFromDate')?.value||'';const toDate
 const filteredJobs=repairJobs.filter(job=>{const dateA=job.intakeDate||'';const dateB=(job.deliveryDate&&job.deliveryDate!=='--')?job.deliveryDate:dateA;if(fromDate&&dateA<fromDate&&dateB<fromDate)return false;if(toDate&&dateA>toDate&&dateB>toDate)return false;return true;});
 let totalParts=0,totalBilled=0,totalRefund=0,totalProfit=0,totalMarketDue=0,countDueCustomers=0,totalDiscount=0;
 filteredJobs.forEach(job=>{
-const isDelivered=job.status==="Delivered";const isUnrepairable=job.status==="Unrepairable";const partsCost=isUnrepairable?0:(parseFloat(job.partCost)||0);const billed=isUnrepairable?0:(isDelivered?(parseFloat(job.finalAmount)||0):(parseFloat(job.diagnosedEstimate)||parseFloat(job.estCost)||0));const refund=isUnrepairable?(parseFloat(job.refundPaid)||parseFloat(job.advPaid)||0):0;const profit=isUnrepairable?0:(parseFloat(job.netProfit)||0);const due=isUnrepairable?0:(parseFloat(job.dueBalance)||0);const discAmt=isUnrepairable?0:(parseFloat(job.discountAmount)||0);const discPct=parseFloat(job.discountPercent)||0;
+const isDelivered=job.status==="Delivered";const isUnrepairable=job.status==="Unrepairable";const partsCost=isUnrepairable?0:(parseFloat(job.partCost)||0);const billed=isUnrepairable?0:(isDelivered?(parseFloat(job.finalAmount)||0):(parseFloat(job.diagnosedEstimate)||parseFloat(job.estCost)||0));const refund=isUnrepairable?(parseFloat(job.refundPaid)||parseFloat(job.advPaid)||0):0;const profit=isUnrepairable?0:(parseFloat(job.netProfit)||0);const due=isUnrepairable?0:(parseFloat(job.dueBalance)||0);
+const discPct=getEffectiveDiscount(job);
+const discAmt=discPct > 0 ? (parseFloat(job.discountAmount) || 0) : 0;
 totalParts+=partsCost;totalBilled+=billed;totalRefund+=refund;totalProfit+=profit;totalMarketDue+=due;totalDiscount+=discAmt;
 if(due>0&&!isUnrepairable){countDueCustomers++;const paidSoFar=(parseFloat(job.advPaid)||0)+(parseFloat(job.deliveryCollected)||0);const dueTr=document.createElement('tr');dueTr.className="hover:bg-slate-950/40 transition";dueTr.innerHTML=`
 <td class="p-3 font-mono font-bold text-indigo-400">${escapeHtml(job.billNo)}</td>
@@ -1291,8 +1379,11 @@ const billBarcodeSvg=createBarcodeSvg(job.billNo);
 const displayEst=parseFloat(job.diagnosedEstimate)||0;const origEst=parseFloat(job.estCost)||0;const finalAmt=parseFloat(job.finalAmount)||0;
 const shownEstimate=isDelivered?finalAmt:(displayEst>0?displayEst:origEst);const totalOrEst=isUnrepairable?0:shownEstimate;
 const advPaid=parseFloat(job.advPaid)||0;const delCollected=parseFloat(job.deliveryCollected)||0;const due=parseFloat(job.dueBalance)||0;
-const discPct=parseFloat(job.discountPercent)||0;const discAmt=parseFloat(job.discountAmount)||0;
-const promoText=esc(getPromoOffer());
+const discPct=getEffectiveDiscount(job);
+const discAmt=discPct > 0 ? (parseFloat(job.discountAmount) || 0) : 0;
+const promoText=getEffectivePromo();
+const isLoyaltyEnabled = currentStore ? currentStore.enableLoyalty !== false : true;
+
 let paymentStatusText="PENDING";
 if(isUnrepairable)paymentStatusText="RETURNED (CLOSED)";else if(isDelivered)paymentStatusText=due>0?"PARTIAL (PENDING: Rs. "+due+")":"PAID IN FULL ("+esc(job.deliveryPayMethod||"Cash")+")";else paymentStatusText=advPaid>0?"ADVANCE PAID ("+esc(job.advPayMethod||"Cash")+")":"PAYMENT DUE";
 
@@ -1334,8 +1425,8 @@ ${due>0&&!isUnrepairable?`<tr><td style="font-weight: 900; color: #000;">Pending
 <tr><td>NET PAYABLE:</td><td style="text-align: right;">Rs. ${Math.max(0,totalOrEst-discAmt).toFixed(2)}</td></tr>
 <tr><td style="font-size: 9.5px;">Payment Mode:</td><td style="text-align: right; font-size: 9.5px;">${paymentStatusText}</td></tr>
 </table>
-${discPct>0?`<div style="margin: 5px 0; border: 1.5px dashed #000; padding: 4px; text-align: center; font-size: 10px; font-weight: 900; color: #000;">🎁 YOU SAVED Rs. ${discAmt.toFixed(2)} (${esc(job.discountTier||'')} LOYALTY) 🎁</div>`:`<div style="margin: 5px 0; border: 1.5px dashed #000; padding: 4px; text-align: center; font-size: 10px; font-weight: 900; color: #000;">🎁 THANK YOU! NEXT VISIT: 2% LOYALTY DISCOUNT 🎁</div>`}
-<div style="margin: 6px 0 4px 0; border: 1.5px dashed #000; padding: 5px 4px; text-align: center; font-size: 10px; font-weight: 900; color: #000; background: #fff;">🎁 ${promoText.toUpperCase()} 🎁<br><span style="font-size: 9px; font-weight: 700;">(Bring this bill to claim)</span></div>
+${isLoyaltyEnabled ? (discPct>0 ? `<div style="margin: 5px 0; border: 1.5px dashed #000; padding: 4px; text-align: center; font-size: 10px; font-weight: 900; color: #000;">🎁 YOU SAVED Rs. ${discAmt.toFixed(2)} (${esc(job.discountTier||'')} LOYALTY) 🎁</div>` : `<div style="margin: 5px 0; border: 1.5px dashed #000; padding: 4px; text-align: center; font-size: 10px; font-weight: 900; color: #000;">🎁 THANK YOU! NEXT VISIT: 2% LOYALTY DISCOUNT 🎁</div>`) : ''}
+${promoText ? `<div style="margin: 6px 0 4px 0; border: 1.5px dashed #000; padding: 5px 4px; text-align: center; font-size: 10px; font-weight: 900; color: #000; background: #fff;">🎁 ${promoText.toUpperCase()} 🎁<br><span style="font-size: 9px; font-weight: 700;">(Bring this bill to claim)</span></div>` : ''}
 <div style="margin: 6px 0 4px 0; border: 1.5px solid #000; padding: 4px; text-align: center; font-size: 9.5px; font-weight: 900; letter-spacing: 0.3px; color: #000;">WARRANTY: ${esc((job.warranty||'NO WARRANTY').toUpperCase())}</div>
 <div style="border-top: 1px solid #000; margin: 5px 0;"></div>
 <div style="font-size: 9.5px; font-weight: 600; line-height: 1.5; text-align: justify; color: #000;">
@@ -1344,7 +1435,7 @@ ${discPct>0?`<div style="margin: 5px 0; border: 1.5px dashed #000; padding: 4px;
 <strong style="font-weight: 900;">2.</strong> Devices must be claimed within 30 days.<br>
 <strong style="font-weight: 900;">3.</strong> Original memo slip mandatory for pickup.<br>
 <strong style="font-weight: 900;">4.</strong> Valid photo ID may be requested.<br>
-<strong style="font-weight: 900;">5.</strong> ${promoText}. Valid only with warranty display replacement. Bring this bill to claim.
+${promoText ? `<strong style="font-weight: 900;">5.</strong> ${promoText}. Valid only with warranty display replacement. Bring this bill to claim.` : ''}
 </div>
 <div style="border-top: 1px solid #000; margin: 12px 0 4px 0;"></div>
 <table style="width: 100%; font-size: 9.5px; margin-top: 8px; font-weight: 600; color: #000;">
@@ -1377,8 +1468,8 @@ if(isDualIntake){const tagBarcode=createBarcodeSvg(job.billNo);printHTML+=`
 <p style="margin: 2px 0;"><strong style="font-weight:900;">CUST:</strong> ${esc(job.customerName)} (${esc(job.phone)})</p>
 <p style="margin: 2px 0;"><strong style="font-weight:900;">ADV:</strong> Rs. ${advPaid.toFixed(2)} (${esc(job.advPayMethod||'Cash')})</p>
 ${displayEst>0?`<p style="margin: 2px 0;"><strong style="font-weight:900;">EST:</strong> Rs. ${displayEst.toFixed(2)}</p>`:''}
-${discPct>0?`<p style="margin: 2px 0; background: #fff; border: 1px solid #000; padding: 2px;"><strong style="font-weight:900;">🎁 DISCOUNT:</strong> ${discPct}% (Rs. ${discAmt})</p>`:''}
-<p style="margin: 2px 0; background: #fff; border: 1px solid #000; padding: 2px;"><strong style="font-weight:900;">🎁 PROMO:</strong> ${promoText}</p>
+${isLoyaltyEnabled && discPct>0?`<p style="margin: 2px 0; background: #fff; border: 1px solid #000; padding: 2px;"><strong style="font-weight:900;">🎁 DISCOUNT:</strong> ${discPct}% (Rs. ${discAmt})</p>`:''}
+${promoText?`<p style="margin: 2px 0; background: #fff; border: 1px solid #000; padding: 2px;"><strong style="font-weight:900;">🎁 PROMO:</strong> ${promoText}</p>`:''}
 ${job.idNumber?`<p style="margin: 2px 0;"><strong style="font-weight:900;">ID:</strong> ${esc(job.idType)} - ${esc(job.idNumber)}</p>`:''}
 ${job.remarks?`<p style="margin: 2px 0;"><strong style="font-weight:900;">NOTE:</strong> ${esc(job.remarks)}</p>`:''}
 </div>
@@ -1420,7 +1511,7 @@ function exportA4PDF(){try{const{jsPDF}=window.jspdf;const doc=new jsPDF('landsc
 let totalParts=0,totalBilled=0,totalProfit=0,totalDue=0,totalDiscount=0;
 const fromDate=document.getElementById('ledgerFromDate')?.value||'';const toDate=document.getElementById('ledgerToDate')?.value||'';
 const filtered=repairJobs.filter(job=>{const reportDate=String(job.intakeDate||'');if(fromDate&&reportDate<fromDate)return false;if(toDate&&reportDate>toDate)return false;return true;});
-const rows=filtered.map(j=>{const isUnrepairable=j.status==='Unrepairable';const billed=isUnrepairable?0:(j.finalAmount||j.diagnosedEstimate||j.estCost||0);const pCost=isUnrepairable?0:(j.partCost||0);const profit=isUnrepairable?0:(j.netProfit||0);const due=isUnrepairable?0:(j.dueBalance||0);const discAmt=isUnrepairable?0:(j.discountAmount||0);const discPct=j.discountPercent||0;totalParts+=pCost;totalBilled+=billed;totalProfit+=profit;totalDue+=due;totalDiscount+=discAmt;return[j.billNo,j.intakeDate,j.deliveryDate||"--",`${j.customerName} (${j.phone})`,j.model,j.warranty||"None",`Rs. ${pCost}`,discPct>0?`${discPct}% (Rs. ${discAmt})`:"—",`Rs. ${billed}`,`Rs. ${due}`,`Rs. ${profit}`,j.status];});
+const rows=filtered.map(j=>{const isUnrepairable=j.status==='Unrepairable';const billed=isUnrepairable?0:(j.finalAmount||j.diagnosedEstimate||j.estCost||0);const pCost=isUnrepairable?0:(j.partCost||0);const profit=isUnrepairable?0:(j.netProfit||0);const due=isUnrepairable?0:(j.dueBalance||0);const discAmt=isUnrepairable?0:(j.discountAmount||0);const discPct=getEffectiveDiscount(j);totalParts+=pCost;totalBilled+=billed;totalProfit+=profit;totalDue+=due;totalDiscount+=discAmt;return[j.billNo,j.intakeDate,j.deliveryDate||"--",`${j.customerName} (${j.phone})`,j.model,j.warranty||"None",`Rs. ${pCost}`,discPct>0?`${discPct}% (Rs. ${discAmt})`:"—",`Rs. ${billed}`,`Rs. ${due}`,`Rs. ${profit}`,j.status];});
 if(rows.length===0){alert('No records for selected range.');return;}
 doc.autoTable({head:[["Bill","Intake","Delivered","Customer","Model","Warranty","Parts Cost","Discount","Billed","Due","Profit","Status"]],body:rows,foot:[["TOTALS","","","","","",`Rs. ${totalParts}`,`Rs. ${totalDiscount}`,`Rs. ${totalBilled}`,`Rs. ${totalDue}`,`Rs. ${totalProfit}`,""]],startY:70,theme:'grid',headStyles:{fillColor:[49,46,129],textColor:[255,255,255],fontStyle:'bold'},footStyles:{fillColor:[15,23,42],textColor:[255,255,255],fontStyle:'bold'},styles:{fontSize:7,cellPadding:3}});
 const pageHeight=doc.internal.pageSize.height;doc.setFontSize(8);doc.setTextColor(100);doc.text("SmartFix Pro © 2026 | Developed by Debapriya Sarkar",40,pageHeight-20);doc.save(`${sName.replace(/\s+/g,'_')}_Statement.pdf`);
