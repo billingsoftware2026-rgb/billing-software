@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "io.github.billingsoftware2026_rgb.twa",
+        "sha256_cert_fingerprints": ["E0:3E:1F:38:08:3B:B3:27:C3:35:7F:72:54:6B:C8:1C:2C:49:BB:BF:68:46:E2:3F:55:F7:54:4F:1A:38:40:C2"]
+      }
+    }]
