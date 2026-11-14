@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>SmartFix Pro - Super Admin & Developer Portal</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -13,78 +13,94 @@
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: #020617; }
     ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-    .glass-panel { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
-    .tab-btn.active { background: linear-gradient(90deg, #4f46e5, #7c3aed); color: white; border-color: transparent; }
+    ::-webkit-scrollbar-thumb:hover { background: #475569; }
+    .glass-panel { background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.08); }
+    .tab-btn.active { background: linear-gradient(90deg, #4f46e5, #7c3aed); color: white; border-color: transparent; box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4); }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     .animate-fade { animation: fadeIn 0.3s ease-out forwards; }
+    @keyframes slideIn { from { opacity: 0; transform: translateX(100%); } to { opacity: 1; transform: translateX(0); } }
+    .toast-msg { animation: slideIn 0.3s ease-out forwards; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen font-sans antialiased selection:bg-indigo-600 selection:text-white flex flex-col">
 
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toastContainer" class="fixed top-5 right-5 z-[100] flex flex-col gap-2 pointer-events-none"></div>
+
   <!-- LOGIN GATE -->
-  <div id="authGate" class="fixed inset-0 bg-slate-950 z-[100] flex items-center justify-center p-4">
+  <div id="authGate" class="fixed inset-0 bg-slate-950 z-[90] flex items-center justify-center p-4">
     <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-indigo-600/20 rounded-full blur-[120px] pointer-events-none animate-pulse"></div>
     <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-violet-600/20 rounded-full blur-[120px] pointer-events-none animate-pulse" style="animation-delay: 2s;"></div>
-    <div class="relative glass-panel p-8 rounded-3xl max-w-md w-full shadow-2xl space-y-6 text-center animate-fade">
+    <div class="relative glass-panel p-8 rounded-3xl max-w-md w-full shadow-2xl space-y-6 text-center animate-fade border border-slate-700/50">
       <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-500 mx-auto flex items-center justify-center text-2xl shadow-lg shadow-indigo-600/30"><i class="fa-solid fa-shield-halved text-white"></i></div>
-      <div><h2 class="text-2xl font-black text-white tracking-tight">Master Developer Gate</h2><p class="text-xs text-indigo-400 font-semibold mt-1 uppercase tracking-widest">SmartFix Pro Root Access</p></div>
+      <div><h2 class="text-2xl font-black text-white tracking-tight">Master Developer Gate</h2><p class="text-[11px] text-indigo-400 font-bold mt-1 uppercase tracking-widest">SmartFix Pro Root Access</p></div>
       <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4 text-left">
-        <div><label class="block text-[10px] font-bold uppercase text-slate-400 mb-1.5">Developer Email</label><input type="email" id="devEmail" required placeholder="dev@smartfix.com" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 transition"></div>
-        <div><label class="block text-[10px] font-bold uppercase text-slate-400 mb-1.5">Password</label><input type="password" id="devPassword" required placeholder="••••••••" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 transition"></div>
+        <div><label class="block text-[10px] font-bold uppercase text-slate-400 mb-1.5">Developer Email</label><input type="email" id="devEmail" required placeholder="dev@smartfix.com" class="w-full bg-slate-900/60 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 transition"></div>
+        <div><label class="block text-[10px] font-bold uppercase text-slate-400 mb-1.5">Password</label><input type="password" id="devPassword" required placeholder="••••••••" class="w-full bg-slate-900/60 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 transition"></div>
         <p id="loginError" class="text-xs text-rose-400 font-semibold hidden bg-rose-500/10 p-2.5 rounded-lg border border-rose-500/20"></p>
-        <button type="submit" class="w-full py-3.5 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white rounded-xl text-sm font-bold shadow-lg shadow-indigo-600/30 transition flex items-center justify-center gap-2"><span>Authenticate</span> <i class="fa-solid fa-arrow-right"></i></button>
+        <button type="submit" class="w-full py-3.5 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white rounded-xl text-sm font-bold shadow-lg shadow-indigo-600/30 transition flex items-center justify-center gap-2 active:scale-95"><span>Authenticate</span> <i class="fa-solid fa-arrow-right"></i></button>
       </form>
     </div>
   </div>
 
   <!-- MAIN APP -->
   <div id="mainApp" class="hidden flex-1 flex flex-col h-screen overflow-hidden">
+    <!-- HEADER -->
     <header class="glass-panel border-b border-slate-800 sticky top-0 z-40 flex-none">
       <div class="px-4 md:px-6 py-3 flex items-center justify-between">
         <div class="flex items-center gap-3">
-          <div class="bg-gradient-to-tr from-indigo-600 to-violet-500 p-2 rounded-xl shadow-lg shadow-indigo-600/30"><i class="fa-solid fa-terminal text-white text-lg"></i></div>
+          <div class="bg-gradient-to-tr from-indigo-600 to-violet-500 p-2.5 rounded-xl shadow-lg shadow-indigo-600/30"><i class="fa-solid fa-terminal text-white text-lg"></i></div>
           <div><h1 class="text-lg font-bold text-white tracking-tight">SmartFix Pro <span class="text-indigo-400">DevOps</span></h1><p class="text-[10px] text-emerald-400 flex items-center gap-1.5 font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> <span id="roleBadge">Super Admin</span> · billing-ab24c</p></div>
         </div>
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-3">
           <div class="hidden md:block text-right mr-2"><p id="headerEmail" class="text-xs font-semibold text-white"></p><p id="headerUid" class="text-[9px] text-slate-500 font-mono"></p></div>
-          <button onclick="signOut()" class="px-3 py-2 bg-slate-800/80 hover:bg-rose-600 text-slate-300 hover:text-white rounded-xl text-xs font-bold border border-slate-700 transition flex items-center gap-2"><i class="fa-solid fa-power-off"></i> <span class="hidden sm:inline">Sign Out</span></button>
+          <button onclick="signOut()" class="px-3.5 py-2 bg-slate-800/80 hover:bg-rose-600 text-slate-300 hover:text-white rounded-xl text-xs font-bold border border-slate-700 transition flex items-center gap-2"><i class="fa-solid fa-power-off"></i> <span class="hidden sm:inline">Sign Out</span></button>
         </div>
       </div>
     </header>
 
     <div class="flex-1 flex overflow-hidden">
-      <aside class="w-16 md:w-64 glass-panel border-r border-slate-800 flex flex-col py-4 gap-2 flex-none overflow-y-auto">
-        <button onclick="switchView('dashboard')" id="nav-dashboard" class="nav-btn flex items-center gap-3 px-4 py-3 text-sm font-semibold text-white bg-slate-800/50 border-r-2 border-indigo-500 transition"><i class="fa-solid fa-chart-pie w-5 text-center"></i> <span class="hidden md:inline">Dashboard</span></button>
-        <button onclick="switchView('stores')" id="nav-stores" class="nav-btn flex items-center gap-3 px-4 py-3 text-sm font-semibold text-slate-400 hover:text-white hover:bg-slate-800/30 transition"><i class="fa-solid fa-store w-5 text-center"></i> <span class="hidden md:inline">Manage Stores</span></button>
-        <button onclick="switchView('developers')" id="nav-developers" class="nav-btn flex items-center gap-3 px-4 py-3 text-sm font-semibold text-slate-400 hover:text-white hover:bg-slate-800/30 transition"><i class="fa-solid fa-users-gear w-5 text-center"></i> <span class="hidden md:inline">Developers</span></button>
-        <button onclick="switchView('manual')" id="nav-manual" class="nav-btn flex items-center gap-3 px-4 py-3 text-sm font-semibold text-slate-400 hover:text-white hover:bg-slate-800/30 transition"><i class="fa-solid fa-book w-5 text-center"></i> <span class="hidden md:inline">Troubleshooting Manual</span></button>
+      <!-- SIDEBAR (Desktop) / BOTTOM NAV (Mobile) -->
+      <aside class="hidden md:flex w-64 glass-panel border-r border-slate-800 flex-col py-4 gap-2 flex-none overflow-y-auto">
+        <button onclick="switchView('dashboard')" id="nav-dashboard" class="nav-btn flex items-center gap-3 px-4 py-3 text-sm font-semibold text-white bg-slate-800/50 border-r-2 border-indigo-500 transition"><i class="fa-solid fa-chart-pie w-5 text-center"></i> <span>Dashboard</span></button>
+        <button onclick="switchView('stores')" id="nav-stores" class="nav-btn flex items-center gap-3 px-4 py-3 text-sm font-semibold text-slate-400 hover:text-white hover:bg-slate-800/30 transition"><i class="fa-solid fa-store w-5 text-center"></i> <span>Manage Stores</span></button>
+        <button onclick="switchView('developers')" id="nav-developers" class="nav-btn flex items-center gap-3 px-4 py-3 text-sm font-semibold text-slate-400 hover:text-white hover:bg-slate-800/30 transition"><i class="fa-solid fa-users-gear w-5 text-center"></i> <span>Developers</span></button>
+        <button onclick="switchView('manual')" id="nav-manual" class="nav-btn flex items-center gap-3 px-4 py-3 text-sm font-semibold text-slate-400 hover:text-white hover:bg-slate-800/30 transition"><i class="fa-solid fa-book w-5 text-center"></i> <span>Troubleshooting</span></button>
       </aside>
 
-      <main class="flex-1 overflow-y-auto p-4 md:p-6 bg-slate-950">
+      <!-- MAIN CONTENT -->
+      <main class="flex-1 overflow-y-auto p-4 md:p-6 bg-slate-950 pb-24 md:pb-6">
+        
         <!-- VIEW: DASHBOARD -->
         <div id="view-dashboard" class="view-section space-y-6 animate-fade">
           <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div class="glass-panel p-5 rounded-2xl border border-slate-800"><span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Stores</span><h3 id="statTotal" class="text-3xl font-black text-white mt-1">0</h3></div>
-            <div class="glass-panel p-5 rounded-2xl border border-emerald-500/20 bg-emerald-500/5"><span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400">Active Stores</span><h3 id="statActive" class="text-3xl font-black text-emerald-400 mt-1">0</h3></div>
-            <div class="glass-panel p-5 rounded-2xl border border-rose-500/20 bg-rose-500/5"><span class="text-[10px] font-bold uppercase tracking-wider text-rose-400">Suspended</span><h3 id="statSuspended" class="text-3xl font-black text-rose-400 mt-1">0</h3></div>
-            <div class="glass-panel p-5 rounded-2xl border border-indigo-500/20 bg-indigo-500/5"><span class="text-[10px] font-bold uppercase tracking-wider text-indigo-400">System Health</span><h3 class="text-3xl font-black text-indigo-400 mt-1"><i class="fa-solid fa-heart-pulse"></i></h3></div>
+            <div class="glass-panel p-5 rounded-2xl border border-slate-800 relative overflow-hidden"><div class="absolute top-0 right-0 w-16 h-16 bg-indigo-500/10 rounded-bl-full pointer-events-none"></div><span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Stores</span><h3 id="statTotal" class="text-3xl font-black text-white mt-1">0</h3></div>
+            <div class="glass-panel p-5 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 relative overflow-hidden"><div class="absolute top-0 right-0 w-16 h-16 bg-emerald-500/10 rounded-bl-full pointer-events-none"></div><span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400">Active Stores</span><h3 id="statActive" class="text-3xl font-black text-emerald-400 mt-1">0</h3></div>
+            <div class="glass-panel p-5 rounded-2xl border border-rose-500/20 bg-rose-500/5 relative overflow-hidden"><div class="absolute top-0 right-0 w-16 h-16 bg-rose-500/10 rounded-bl-full pointer-events-none"></div><span class="text-[10px] font-bold uppercase tracking-wider text-rose-400">Suspended</span><h3 id="statSuspended" class="text-3xl font-black text-rose-400 mt-1">0</h3></div>
+            <div class="glass-panel p-5 rounded-2xl border border-indigo-500/20 bg-indigo-500/5 relative overflow-hidden"><div class="absolute top-0 right-0 w-16 h-16 bg-indigo-500/10 rounded-bl-full pointer-events-none"></div><span class="text-[10px] font-bold uppercase tracking-wider text-indigo-400">System Health</span><h3 class="text-3xl font-black text-indigo-400 mt-1"><i class="fa-solid fa-heart-pulse"></i></h3></div>
           </div>
-          <div class="glass-panel rounded-2xl border border-slate-800 p-6">
-            <h3 class="text-base font-bold text-white mb-4"><i class="fa-solid fa-bolt text-amber-400 mr-2"></i>Quick Actions</h3>
-            <div class="flex flex-wrap gap-3">
-              <button onclick="openCreateStoreModal()" class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-indigo-600/30 transition flex items-center gap-2"><i class="fa-solid fa-plus"></i> Create New Store</button>
-              <button onclick="switchView('manual')" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold border border-slate-700 transition flex items-center gap-2"><i class="fa-solid fa-book-medical"></i> Read Troubleshooting Guide</button>
+          
+          <div class="glass-panel rounded-2xl border border-slate-800 p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+              <h3 class="text-base font-bold text-white"><i class="fa-solid fa-bolt text-amber-400 mr-2"></i>Quick Actions</h3>
+              <p class="text-xs text-slate-400 mt-1">Common developer tasks at your fingertips.</p>
+            </div>
+            <div class="flex flex-wrap gap-3 w-full md:w-auto">
+              <button onclick="openCreateStoreModal()" class="flex-1 md:flex-none px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-indigo-600/30 transition flex items-center justify-center gap-2 active:scale-95"><i class="fa-solid fa-plus"></i> Create Store</button>
+              <button onclick="switchView('manual')" class="flex-1 md:flex-none px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold border border-slate-700 transition flex items-center justify-center gap-2 active:scale-95"><i class="fa-solid fa-book-medical"></i> Read Guide</button>
             </div>
           </div>
         </div>
 
         <!-- VIEW: STORES -->
         <div id="view-stores" class="view-section hidden space-y-4 animate-fade">
-          <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
-            <div><h2 class="text-xl font-bold text-white">Store Management</h2><p class="text-xs text-slate-400">Search, edit, suspend, or troubleshoot any store</p></div>
+          <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 bg-slate-900 border border-slate-800 p-4 rounded-2xl">
+            <div><h2 class="text-lg font-bold text-white">Store Management</h2><p class="text-[11px] text-slate-400">Search, edit, suspend, or troubleshoot any store</p></div>
             <div class="flex gap-2 w-full md:w-auto">
-              <div class="relative flex-1 md:w-64"><i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-500 text-xs"></i><input type="text" id="storeSearch" oninput="renderStoreList()" placeholder="Search shop, phone, email..." class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"></div>
-              <button onclick="openCreateStoreModal()" class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-lg transition"><i class="fa-solid fa-plus"></i> New Store</button>
+              <div class="relative flex-1 md:w-72"><i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-500 text-xs"></i><input type="text" id="storeSearch" oninput="renderStoreList()" placeholder="Search shop, phone, email..." class="w-full bg-slate-950 border border-slate-700 rounded-xl pl-10 pr-3 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500 transition"></div>
+              <button onclick="openCreateStoreModal()" class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-lg transition active:scale-95 whitespace-nowrap"><i class="fa-solid fa-plus"></i> New Store</button>
             </div>
           </div>
           <div id="storeGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
@@ -92,72 +108,73 @@
 
         <!-- VIEW: STORE DETAIL -->
         <div id="view-store-detail" class="view-section hidden space-y-4 animate-fade">
-          <button onclick="switchView('stores')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-lg inline-flex items-center gap-1.5"><i class="fa-solid fa-arrow-left"></i> Back to Stores</button>
+          <!-- STORE HEADER -->
+          <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+            <button onclick="switchView('stores')" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold rounded-xl inline-flex items-center gap-2 transition border border-slate-700"><i class="fa-solid fa-arrow-left"></i> Back to Stores</button>
+            <div class="flex flex-wrap gap-2 w-full md:w-auto">
+              <button onclick="sendStoreCredentialsWhatsApp()" class="flex-1 md:flex-none px-4 py-2 bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white rounded-xl text-xs font-bold shadow transition flex items-center justify-center gap-2 border border-emerald-500/30"><i class="fa-brands fa-whatsapp text-sm"></i> Send Credentials</button>
+              <button onclick="toggleStoreStatus()" id="detStatusBtn" class="flex-1 md:flex-none px-4 py-2 rounded-xl text-xs font-bold border transition"></button>
+              <button onclick="deleteStore()" class="flex-1 md:flex-none px-4 py-2 bg-rose-600/20 hover:bg-rose-600 text-rose-400 hover:text-white border border-rose-500/30 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2"><i class="fa-solid fa-trash"></i> Delete</button>
+            </div>
+          </div>
+
           <div class="glass-panel p-5 rounded-2xl border border-slate-800">
             <div class="flex flex-wrap justify-between items-start gap-4">
-              <div><h2 id="detShopName" class="text-2xl font-bold text-white"></h2><p id="detShopMeta" class="text-xs text-slate-400 mt-1"></p><p id="detShopUid" class="text-[10px] font-mono text-slate-500 mt-1"></p></div>
-              <div class="flex flex-wrap gap-2">
-                <button onclick="sendStoreCredentialsWhatsApp()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold shadow transition flex items-center gap-1.5"><i class="fa-brands fa-whatsapp text-sm"></i> Send Details on WhatsApp</button>
-                <button onclick="toggleStoreStatus()" id="detStatusBtn" class="px-3 py-1.5 rounded-xl text-xs font-bold border transition"></button>
-                <button onclick="deleteStore()" class="px-3 py-1.5 bg-rose-600/20 hover:bg-rose-600 text-rose-400 hover:text-white border border-rose-500/30 rounded-xl text-xs font-bold transition"><i class="fa-solid fa-trash"></i> Delete</button>
-              </div>
+              <div><h2 id="detShopName" class="text-2xl font-bold text-white"></h2><p id="detShopMeta" class="text-xs text-slate-400 mt-1"></p><p id="detShopUid" class="text-[10px] font-mono text-slate-500 mt-1 bg-slate-950 inline-block px-2 py-0.5 rounded border border-slate-800"></p></div>
             </div>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-5">
-              <div class="bg-slate-900/50 p-3 rounded-xl border border-slate-800"><span class="text-[10px] uppercase font-bold text-slate-400">Repair Jobs</span><h4 id="cntJobs" class="text-lg font-bold text-white mt-0.5">0</h4></div>
-              <div class="bg-slate-900/50 p-3 rounded-xl border border-slate-800"><span class="text-[10px] uppercase font-bold text-indigo-400">EMI Records</span><h4 id="cntEmis" class="text-lg font-bold text-indigo-400 mt-0.5">0</h4></div>
-              <div class="bg-slate-900/50 p-3 rounded-xl border border-slate-800"><span class="text-[10px] uppercase font-bold text-emerald-400">LCD Stock</span><h4 id="cntLcd" class="text-lg font-bold text-emerald-400 mt-0.5">0</h4></div>
-              <div class="bg-slate-900/50 p-3 rounded-xl border border-slate-800"><span class="text-[10px] uppercase font-bold text-cyan-400">Used Mobiles</span><h4 id="cntMobiles" class="text-lg font-bold text-cyan-400 mt-0.5">0</h4></div>
+              <div class="bg-slate-900/50 p-3 rounded-xl border border-slate-800 flex flex-col justify-center"><span class="text-[10px] uppercase font-bold text-slate-400">Repair Jobs</span><h4 id="cntJobs" class="text-lg font-bold text-white mt-0.5">0</h4></div>
+              <div class="bg-slate-900/50 p-3 rounded-xl border border-slate-800 flex flex-col justify-center"><span class="text-[10px] uppercase font-bold text-indigo-400">EMI Records</span><h4 id="cntEmis" class="text-lg font-bold text-indigo-400 mt-0.5">0</h4></div>
+              <div class="bg-slate-900/50 p-3 rounded-xl border border-slate-800 flex flex-col justify-center"><span class="text-[10px] uppercase font-bold text-emerald-400">LCD Stock</span><h4 id="cntLcd" class="text-lg font-bold text-emerald-400 mt-0.5">0</h4></div>
+              <div class="bg-slate-900/50 p-3 rounded-xl border border-slate-800 flex flex-col justify-center"><span class="text-[10px] uppercase font-bold text-cyan-400">Used Mobiles</span><h4 id="cntMobiles" class="text-lg font-bold text-cyan-400 mt-0.5">0</h4></div>
             </div>
           </div>
 
-          <div class="flex overflow-x-auto glass-panel p-1.5 rounded-xl border border-slate-800 gap-1" style="scrollbar-width:none;">
-            <button onclick="showDetailTab('profile')" id="dtab-profile" class="dtab-btn px-4 py-2 rounded-lg text-xs font-semibold whitespace-nowrap bg-indigo-600 text-white"><i class="fa-solid fa-user-pen mr-1.5"></i>Profile</button>
-            <button onclick="showDetailTab('jobs')" id="dtab-jobs" class="dtab-btn px-4 py-2 rounded-lg text-xs font-semibold whitespace-nowrap text-slate-400 hover:text-white"><i class="fa-solid fa-screwdriver-wrench mr-1.5"></i>Jobs</button>
-            <button onclick="showDetailTab('emis')" id="dtab-emis" class="dtab-btn px-4 py-2 rounded-lg text-xs font-semibold whitespace-nowrap text-slate-400 hover:text-white"><i class="fa-solid fa-file-invoice-dollar mr-1.5"></i>EMI</button>
-            <button onclick="showDetailTab('lcd')" id="dtab-lcd" class="dtab-btn px-4 py-2 rounded-lg text-xs font-semibold whitespace-nowrap text-slate-400 hover:text-white"><i class="fa-solid fa-layer-group mr-1.5"></i>LCD</button>
-            <button onclick="showDetailTab('mobiles')" id="dtab-mobiles" class="dtab-btn px-4 py-2 rounded-lg text-xs font-semibold whitespace-nowrap text-slate-400 hover:text-white"><i class="fa-solid fa-mobile-screen-button mr-1.5"></i>Mobiles</button>
-            <button onclick="showDetailTab('backup')" id="dtab-backup" class="dtab-btn px-4 py-2 rounded-lg text-xs font-semibold whitespace-nowrap text-slate-400 hover:text-white"><i class="fa-solid fa-database mr-1.5"></i>Backup</button>
-            <button onclick="showDetailTab('danger')" id="dtab-danger" class="dtab-btn px-4 py-2 rounded-lg text-xs font-semibold whitespace-nowrap text-rose-400 hover:text-white"><i class="fa-solid fa-triangle-exclamation mr-1.5"></i>Danger</button>
+          <!-- TABS -->
+          <div class="flex overflow-x-auto glass-panel p-1.5 rounded-xl border border-slate-800 gap-1 no-scrollbar">
+            <button onclick="showDetailTab('profile')" id="dtab-profile" class="dtab-btn px-4 py-2 rounded-lg text-xs font-bold whitespace-nowrap bg-indigo-600 text-white shadow"><i class="fa-solid fa-user-pen mr-1.5"></i>Profile</button>
+            <button onclick="showDetailTab('jobs')" id="dtab-jobs" class="dtab-btn px-4 py-2 rounded-lg text-xs font-bold whitespace-nowrap text-slate-400 hover:text-white hover:bg-slate-800/50 transition"><i class="fa-solid fa-screwdriver-wrench mr-1.5"></i>Jobs</button>
+            <button onclick="showDetailTab('emis')" id="dtab-emis" class="dtab-btn px-4 py-2 rounded-lg text-xs font-bold whitespace-nowrap text-slate-400 hover:text-white hover:bg-slate-800/50 transition"><i class="fa-solid fa-file-invoice-dollar mr-1.5"></i>EMI</button>
+            <button onclick="showDetailTab('lcd')" id="dtab-lcd" class="dtab-btn px-4 py-2 rounded-lg text-xs font-bold whitespace-nowrap text-slate-400 hover:text-white hover:bg-slate-800/50 transition"><i class="fa-solid fa-layer-group mr-1.5"></i>LCD</button>
+            <button onclick="showDetailTab('mobiles')" id="dtab-mobiles" class="dtab-btn px-4 py-2 rounded-lg text-xs font-bold whitespace-nowrap text-slate-400 hover:text-white hover:bg-slate-800/50 transition"><i class="fa-solid fa-mobile-screen-button mr-1.5"></i>Mobiles</button>
+            <button onclick="showDetailTab('backup')" id="dtab-backup" class="dtab-btn px-4 py-2 rounded-lg text-xs font-bold whitespace-nowrap text-slate-400 hover:text-white hover:bg-slate-800/50 transition"><i class="fa-solid fa-database mr-1.5"></i>Backup</button>
+            <button onclick="showDetailTab('danger')" id="dtab-danger" class="dtab-btn px-4 py-2 rounded-lg text-xs font-bold whitespace-nowrap text-rose-400 hover:text-white hover:bg-rose-600/20 transition"><i class="fa-solid fa-triangle-exclamation mr-1.5"></i>Danger</button>
           </div>
 
-          <!-- TAB: Profile -->
-          <div id="dcnt-profile" class="dtab-content">
+          <!-- TAB: Profile & Subscription -->
+          <div id="dcnt-profile" class="dtab-content space-y-4">
             <div class="glass-panel p-5 rounded-2xl border border-slate-800 space-y-4">
-              <h3 class="text-sm font-bold text-white"><i class="fa-solid fa-store text-indigo-400 mr-2"></i>Store Profile & Credentials</h3>
+              <h3 class="text-sm font-bold text-white border-b border-slate-800 pb-2"><i class="fa-solid fa-store text-indigo-400 mr-2"></i>Store Profile & Credentials</h3>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                <div><label class="block font-semibold text-slate-400 uppercase mb-1">Shop Name</label><input type="text" id="editShopName" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:border-indigo-500 focus:outline-none"></div>
-                <div><label class="block font-semibold text-slate-400 uppercase mb-1">Phone (WhatsApp)</label><input type="tel" id="editShopPhone" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:border-indigo-500 focus:outline-none"></div>
-                <div class="md:col-span-2"><label class="block font-semibold text-slate-400 uppercase mb-1">Address</label><input type="text" id="editShopAddress" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:border-indigo-500 focus:outline-none"></div>
-                <div><label class="block font-semibold text-slate-400 uppercase mb-1">Owner Email (Login ID)</label><input type="email" id="editOwnerEmail" disabled class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-400 font-mono cursor-not-allowed"></div>
+                <div><label class="block font-bold text-slate-400 uppercase mb-1.5">Shop Name</label><input type="text" id="editShopName" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-white focus:border-indigo-500 focus:outline-none transition"></div>
+                <div><label class="block font-bold text-slate-400 uppercase mb-1.5">Phone (WhatsApp)</label><input type="tel" id="editShopPhone" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-white focus:border-indigo-500 focus:outline-none transition"></div>
+                <div class="md:col-span-2"><label class="block font-bold text-slate-400 uppercase mb-1.5">Address</label><input type="text" id="editShopAddress" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-white focus:border-indigo-500 focus:outline-none transition"></div>
+                <div><label class="block font-bold text-slate-400 uppercase mb-1.5">Owner Email (Login ID)</label><input type="email" id="editOwnerEmail" disabled class="w-full bg-slate-950/50 border border-slate-800 rounded-xl px-3 py-2.5 text-slate-400 font-mono cursor-not-allowed"></div>
                 <div>
-                  <label class="block font-semibold text-emerald-400 uppercase mb-1">Saved Password Record (For WhatsApp Share)</label>
+                  <label class="block font-bold text-emerald-400 uppercase mb-1.5">Saved Password Record</label>
                   <div class="relative">
-                    <input type="text" id="editSavedPassword" placeholder="Not recorded yet" class="w-full bg-slate-900 border border-emerald-500/40 rounded-xl px-3 py-2 pr-10 text-emerald-300 font-mono focus:border-emerald-500 focus:outline-none">
-                    <button type="button" onclick="copyTextField('editSavedPassword')" title="Copy Password" class="absolute right-2.5 top-2 text-slate-400 hover:text-white"><i class="fa-solid fa-copy"></i></button>
+                    <input type="text" id="editSavedPassword" placeholder="Not recorded yet" class="w-full bg-slate-900 border border-emerald-500/40 rounded-xl px-3 py-2.5 pr-10 text-emerald-300 font-mono focus:border-emerald-500 focus:outline-none transition">
+                    <button type="button" onclick="copyTextField('editSavedPassword')" title="Copy Password" class="absolute right-3 top-2.5 text-slate-400 hover:text-white bg-slate-800 p-1 rounded"><i class="fa-solid fa-copy"></i></button>
                   </div>
                 </div>
               </div>
-              <div class="bg-slate-900/70 border border-slate-800 rounded-xl p-3 text-[11px] text-slate-400">
-                <i class="fa-solid fa-circle-info text-indigo-400 mr-1"></i> <strong>Note on Password Reset:</strong> If a store owner forgets their password, click <b>Send Reset Email</b> (ask them to check Spam/Promotions folder too) OR share their saved credentials directly via <b>Send Details on WhatsApp</b>.
-              </div>
               <div class="pt-3 border-t border-slate-800 flex flex-wrap gap-2">
-                <button onclick="saveStoreProfile()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-bold transition"><i class="fa-solid fa-floppy-disk mr-1"></i> Save Changes</button>
-                <button onclick="sendPasswordReset()" class="px-4 py-2 bg-amber-600/20 hover:bg-amber-600 text-amber-300 hover:text-white border border-amber-500/30 rounded-lg text-xs font-bold transition"><i class="fa-solid fa-key mr-1"></i> Send Reset Email</button>
-                <button onclick="sendStoreCredentialsWhatsApp()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold transition flex items-center gap-1.5"><i class="fa-brands fa-whatsapp"></i> Share ID & Password on WhatsApp</button>
+                <button onclick="saveStoreProfile()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold transition shadow-lg shadow-indigo-600/20 flex items-center gap-2"><i class="fa-solid fa-floppy-disk"></i> Save Changes</button>
+                <button onclick="sendPasswordReset()" class="px-4 py-2.5 bg-amber-600/20 hover:bg-amber-600 text-amber-300 hover:text-white border border-amber-500/30 rounded-xl text-xs font-bold transition flex items-center gap-2"><i class="fa-solid fa-key"></i> Send Reset Email</button>
               </div>
             </div>
 
-            <!-- PREMIUM SUBSCRIPTION CONTROLS -->
-            <div class="glass-panel p-5 rounded-2xl border border-amber-500/30 space-y-4 mt-4">
+            <!-- SUBSCRIPTION CONTROLS -->
+            <div class="glass-panel p-5 rounded-2xl border border-amber-500/30 bg-gradient-to-br from-amber-500/5 to-transparent space-y-4">
               <h3 class="text-sm font-bold text-white flex items-center gap-2"><i class="fa-solid fa-crown text-amber-400"></i> License & Subscription Controls</h3>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                 <div>
-                  <label class="block font-semibold text-slate-400 uppercase mb-1">Subscription End Date</label>
-                  <input type="date" id="devSubEnd" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:border-amber-500 focus:outline-none">
+                  <label class="block font-bold text-slate-400 uppercase mb-1.5">Subscription End Date</label>
+                  <input type="date" id="devSubEnd" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-white focus:border-amber-500 focus:outline-none transition">
                 </div>
                 <div>
-                  <label class="block font-semibold text-slate-400 uppercase mb-1">Plan Type</label>
-                  <select id="devPlanType" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:border-amber-500 focus:outline-none">
+                  <label class="block font-bold text-slate-400 uppercase mb-1.5">Plan Type</label>
+                  <select id="devPlanType" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-white focus:border-amber-500 focus:outline-none transition">
                     <option value="Trial">Trial (30 Days - No CRM)</option>
                     <option value="6 Months">6 Months (CRM + Backup + Used Mobile)</option>
                     <option value="1 Year">1 Year (Full Access + Loyalty & Promo)</option>
@@ -166,108 +183,170 @@
                   </select>
                 </div>
                 <div class="md:col-span-2">
-                  <label class="block font-semibold text-slate-400 uppercase mb-1">Quick Adjust</label>
+                  <label class="block font-bold text-slate-400 uppercase mb-2">Quick Time Adjustments</label>
                   <div class="flex flex-wrap gap-2">
-                    <button type="button" onclick="adjustSubTime(6, '6 Months')" class="px-2.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition">+6 Months</button>
-                    <button type="button" onclick="adjustSubTime(12, '1 Year')" class="px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold transition">+1 Year</button>
-                    <button type="button" onclick="adjustSubTime(24, '2 Years')" class="px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold transition">+2 Years</button>
-                    <button type="button" onclick="adjustSubTime(-1, 'Custom')" class="px-2.5 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-bold transition">-1 Month</button>
-                    <button type="button" onclick="adjustSubTime(-12, 'Custom')" class="px-2.5 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-bold transition">-1 Year</button>
+                    <button type="button" onclick="adjustSubTime(6, '6 Months')" class="px-3 py-2 rounded-xl bg-indigo-600/20 hover:bg-indigo-600 text-indigo-300 hover:text-white border border-indigo-500/30 font-bold transition flex items-center gap-1"><i class="fa-solid fa-plus text-[10px]"></i> 6 Months</button>
+                    <button type="button" onclick="adjustSubTime(12, '1 Year')" class="px-3 py-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600 text-emerald-300 hover:text-white border border-emerald-500/30 font-bold transition flex items-center gap-1"><i class="fa-solid fa-plus text-[10px]"></i> 1 Year</button>
+                    <button type="button" onclick="adjustSubTime(24, '2 Years')" class="px-3 py-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600 text-emerald-300 hover:text-white border border-emerald-500/30 font-bold transition flex items-center gap-1"><i class="fa-solid fa-plus text-[10px]"></i> 2 Years</button>
+                    <button type="button" onclick="adjustSubTime(-1, 'Custom')" class="px-3 py-2 rounded-xl bg-rose-600/20 hover:bg-rose-600 text-rose-300 hover:text-white border border-rose-500/30 font-bold transition flex items-center gap-1"><i class="fa-solid fa-minus text-[10px]"></i> 1 Month</button>
+                    <button type="button" onclick="adjustSubTime(-12, 'Custom')" class="px-3 py-2 rounded-xl bg-rose-600/20 hover:bg-rose-600 text-rose-300 hover:text-white border border-rose-500/30 font-bold transition flex items-center gap-1"><i class="fa-solid fa-minus text-[10px]"></i> 1 Year</button>
                   </div>
                 </div>
               </div>
-              <div class="pt-2">
-                <button type="button" onclick="saveDevSubscription()" class="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-lg text-xs font-bold transition flex items-center gap-2"><i class="fa-solid fa-floppy-disk"></i> Save Manual Date</button>
+              <div class="pt-3 border-t border-slate-800/50">
+                <button type="button" onclick="saveDevSubscription()" class="w-full md:w-auto px-6 py-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 shadow-lg shadow-amber-600/20"><i class="fa-solid fa-floppy-disk"></i> Save Manual Date</button>
               </div>
             </div>
           </div>
 
           <!-- TAB: Jobs -->
           <div id="dcnt-jobs" class="dtab-content hidden">
-            <div class="glass-panel rounded-2xl border border-slate-800 overflow-hidden"><div class="overflow-x-auto"><table class="w-full text-left text-xs whitespace-nowrap"><thead class="bg-slate-900 text-slate-400 border-b border-slate-800 uppercase"><tr><th class="p-3">Bill</th><th class="p-3">Date</th><th class="p-3">Customer</th><th class="p-3">Model</th><th class="p-3">Status</th><th class="p-3 text-right">Amt</th><th class="p-3 text-center">Del</th></tr></thead><tbody id="tblJobs" class="divide-y divide-slate-800/60 text-slate-300"></tbody></table></div></div>
+            <div class="glass-panel rounded-2xl border border-slate-800 overflow-hidden">
+              <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs whitespace-nowrap">
+                  <thead class="bg-slate-950/80 text-slate-400 border-b border-slate-800 uppercase font-bold">
+                    <tr><th class="p-4">Bill</th><th class="p-4">Date</th><th class="p-4">Customer</th><th class="p-4">Model</th><th class="p-4">Status</th><th class="p-4 text-right">Amt</th><th class="p-4 text-center">Del</th></tr>
+                  </thead>
+                  <tbody id="tblJobs" class="divide-y divide-slate-800/60 text-slate-300"></tbody>
+                </table>
+              </div>
+            </div>
           </div>
 
           <!-- TAB: EMI -->
           <div id="dcnt-emis" class="dtab-content hidden">
-            <div class="glass-panel rounded-2xl border border-slate-800 overflow-hidden"><div class="overflow-x-auto"><table class="w-full text-left text-xs whitespace-nowrap"><thead class="bg-slate-900 text-slate-400 border-b border-slate-800 uppercase"><tr><th class="p-3">Customer</th><th class="p-3">Device</th><th class="p-3">IMEI</th><th class="p-3 text-right">Total</th><th class="p-3 text-center">Del</th></tr></thead><tbody id="tblEmis" class="divide-y divide-slate-800/60 text-slate-300"></tbody></table></div></div>
+            <div class="glass-panel rounded-2xl border border-slate-800 overflow-hidden">
+              <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs whitespace-nowrap">
+                  <thead class="bg-slate-950/80 text-slate-400 border-b border-slate-800 uppercase font-bold">
+                    <tr><th class="p-4">Customer</th><th class="p-4">Device</th><th class="p-4">IMEI</th><th class="p-4 text-right">Total</th><th class="p-4 text-center">Del</th></tr>
+                  </thead>
+                  <tbody id="tblEmis" class="divide-y divide-slate-800/60 text-slate-300"></tbody>
+                </table>
+              </div>
+            </div>
           </div>
 
           <!-- TAB: LCD -->
           <div id="dcnt-lcd" class="dtab-content hidden">
-            <div class="glass-panel rounded-2xl border border-slate-800 overflow-hidden"><div class="overflow-x-auto"><table class="w-full text-left text-xs whitespace-nowrap"><thead class="bg-slate-900 text-slate-400 border-b border-slate-800 uppercase"><tr><th class="p-3">Name</th><th class="p-3">Stock</th><th class="p-3 text-right">Price</th><th class="p-3">Rack</th><th class="p-3 text-center">Del</th></tr></thead><tbody id="tblLcd" class="divide-y divide-slate-800/60 text-slate-300"></tbody></table></div></div>
+            <div class="glass-panel rounded-2xl border border-slate-800 overflow-hidden">
+              <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs whitespace-nowrap">
+                  <thead class="bg-slate-950/80 text-slate-400 border-b border-slate-800 uppercase font-bold">
+                    <tr><th class="p-4">Name</th><th class="p-4">Stock</th><th class="p-4 text-right">Price</th><th class="p-4">Rack</th><th class="p-4 text-center">Del</th></tr>
+                  </thead>
+                  <tbody id="tblLcd" class="divide-y divide-slate-800/60 text-slate-300"></tbody>
+                </table>
+              </div>
+            </div>
           </div>
 
           <!-- TAB: Mobiles -->
           <div id="dcnt-mobiles" class="dtab-content hidden">
-            <div class="glass-panel rounded-2xl border border-slate-800 overflow-hidden"><div class="overflow-x-auto"><table class="w-full text-left text-xs whitespace-nowrap"><thead class="bg-slate-900 text-slate-400 border-b border-slate-800 uppercase"><tr><th class="p-3">Device</th><th class="p-3">IMEI</th><th class="p-3">Status</th><th class="p-3 text-right">Price</th><th class="p-3 text-center">Del</th></tr></thead><tbody id="tblMobiles" class="divide-y divide-slate-800/60 text-slate-300"></tbody></table></div></div>
+            <div class="glass-panel rounded-2xl border border-slate-800 overflow-hidden">
+              <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs whitespace-nowrap">
+                  <thead class="bg-slate-950/80 text-slate-400 border-b border-slate-800 uppercase font-bold">
+                    <tr><th class="p-4">Device</th><th class="p-4">IMEI</th><th class="p-4">Status</th><th class="p-4 text-right">Price</th><th class="p-4 text-center">Del</th></tr>
+                  </thead>
+                  <tbody id="tblMobiles" class="divide-y divide-slate-800/60 text-slate-300"></tbody>
+                </table>
+              </div>
+            </div>
           </div>
 
           <!-- TAB: Backup -->
           <div id="dcnt-backup" class="dtab-content hidden">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div class="glass-panel p-5 rounded-2xl border border-slate-800"><h3 class="text-sm font-bold text-white"><i class="fa-solid fa-download text-emerald-400 mr-2"></i>Full Backup</h3><p class="text-xs text-slate-400 mt-2 mb-4">Download all data into a single JSON file (compatible with Store App).</p><button onclick="downloadStoreBackup()" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-file-export"></i> Download JSON</button></div>
-              <div class="glass-panel p-5 rounded-2xl border border-slate-800"><h3 class="text-sm font-bold text-white"><i class="fa-solid fa-upload text-indigo-400 mr-2"></i>Restore Data</h3><input type="file" id="restoreFile" accept=".json" class="block w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-white hover:file:bg-slate-700 mt-2 mb-3"><button onclick="restoreStoreBackup()" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-cloud-arrow-up"></i> Restore JSON</button></div>
+              <div class="glass-panel p-5 rounded-2xl border border-slate-800">
+                <h3 class="text-sm font-bold text-white"><i class="fa-solid fa-download text-emerald-400 mr-2"></i>Full Store Backup</h3>
+                <p class="text-xs text-slate-400 mt-2 mb-4">Download all data (Jobs, CRM, Stock, EMI) into a single JSON file.</p>
+                <button onclick="downloadStoreBackup()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition shadow-lg shadow-emerald-600/20"><i class="fa-solid fa-file-export"></i> Download JSON</button>
+              </div>
+              <div class="glass-panel p-5 rounded-2xl border border-slate-800">
+                <h3 class="text-sm font-bold text-white"><i class="fa-solid fa-upload text-indigo-400 mr-2"></i>Restore Store Data</h3>
+                <input type="file" id="restoreFile" accept=".json" class="block w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-slate-800 file:text-white hover:file:bg-slate-700 mt-2 mb-3 cursor-pointer">
+                <button onclick="restoreStoreBackup()" class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition shadow-lg shadow-indigo-600/20"><i class="fa-solid fa-cloud-arrow-up"></i> Restore JSON</button>
+              </div>
             </div>
-            <p id="backupStatus" class="text-xs text-slate-400 mt-3"></p>
+            <p id="backupStatus" class="text-xs text-slate-400 mt-3 text-center"></p>
           </div>
 
           <!-- TAB: Danger -->
           <div id="dcnt-danger" class="dtab-content hidden">
             <div class="bg-rose-950/20 border border-rose-500/30 rounded-2xl p-5 space-y-4">
               <h3 class="text-sm font-bold text-rose-400 uppercase tracking-wider"><i class="fa-solid fa-triangle-exclamation mr-2"></i>Danger Zone</h3>
-              <div class="bg-slate-900 border border-slate-800 rounded-xl p-4"><h4 class="text-xs font-bold text-white">Reset All Store Data</h4><p class="text-[11px] text-slate-400 mt-1 mb-3">Deletes all Jobs, Customers, EMI, LCD, and Used Mobiles. The store login remains active.</p><button onclick="resetStoreData()" class="px-4 py-2 bg-rose-600/20 hover:bg-rose-600 text-rose-400 hover:text-white border border-rose-500/30 rounded-lg text-xs font-bold transition"><i class="fa-solid fa-rotate-left mr-1"></i> Wipe Store Data</button></div>
+              <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div><h4 class="text-sm font-bold text-white">Reset All Store Data</h4><p class="text-[11px] text-slate-400 mt-1">Deletes all Jobs, Customers, EMI, LCD, and Used Mobiles. The store login remains active.</p></div>
+                <button onclick="resetStoreData()" class="px-5 py-2.5 bg-rose-600/20 hover:bg-rose-600 text-rose-400 hover:text-white border border-rose-500/30 rounded-xl text-xs font-bold transition whitespace-nowrap"><i class="fa-solid fa-rotate-left mr-1"></i> Wipe Store Data</button>
+              </div>
             </div>
           </div>
         </div>
 
         <!-- VIEW: DEVELOPERS -->
         <div id="view-developers" class="view-section hidden space-y-4 animate-fade">
-          <div class="flex justify-between items-center">
-            <div><h2 class="text-xl font-bold text-white">Developer Team</h2><p class="text-xs text-slate-400">Add or remove team members with admin access.</p></div>
-            <button onclick="openAddDevModal()" id="addDevBtn" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold shadow-lg transition flex items-center gap-1.5"><i class="fa-solid fa-plus"></i> Add Developer</button>
+          <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 bg-slate-900 border border-slate-800 p-4 rounded-2xl">
+            <div><h2 class="text-lg font-bold text-white">Developer Team</h2><p class="text-[11px] text-slate-400">Add or remove team members with admin access.</p></div>
+            <button onclick="openAddDevModal()" id="addDevBtn" class="w-full md:w-auto px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold shadow-lg transition flex items-center justify-center gap-2 active:scale-95"><i class="fa-solid fa-plus"></i> Add Developer</button>
           </div>
           <div id="devListContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
         </div>
 
         <!-- VIEW: MANUAL -->
         <div id="view-manual" class="view-section hidden space-y-6 animate-fade">
-          <div><h2 class="text-xl font-bold text-white">Developer Troubleshooting Manual</h2><p class="text-xs text-slate-400">Step-by-step guide to fix common issues.</p></div>
+          <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl">
+            <h2 class="text-xl font-bold text-white">Developer Troubleshooting Manual</h2>
+            <p class="text-xs text-slate-400 mt-1">Step-by-step guide to fix common issues quickly.</p>
+          </div>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="glass-panel p-5 rounded-2xl border border-slate-800"><h3 class="text-sm font-bold text-indigo-400 mb-2"><i class="fa-solid fa-key"></i> Password Reset & WhatsApp Share</h3><p class="text-xs text-slate-300 leading-relaxed">If a store owner forgets their password: <br>1. Go to <b>Manage Stores</b> and open the store profile.<br>2. Check the <b>Saved Password Record</b> field and click <b>Share ID & Password on WhatsApp</b>.<br>3. If they changed their password earlier, click <b>Send Reset Email</b> and ask them to check their Spam/Promotions folder as well.</p></div>
-            <div class="glass-panel p-5 rounded-2xl border border-slate-800"><h3 class="text-sm font-bold text-emerald-400 mb-2"><i class="fa-solid fa-database"></i> Data Loss / Missing Bills</h3><p class="text-xs text-slate-300 leading-relaxed">If a store reports missing jobs:<br>1. Open the store profile.<br>2. Go to the <b>Backup</b> tab.<br>3. Upload their JSON backup in <b>Restore Data</b> to merge all bills, customers, EMI, and stock automatically.</p></div>
+            <div class="glass-panel p-5 rounded-2xl border border-slate-800"><h3 class="text-sm font-bold text-indigo-400 mb-2"><i class="fa-solid fa-key mr-2"></i>Password Reset & WhatsApp Share</h3><p class="text-xs text-slate-300 leading-relaxed">If a store owner forgets their password: <br><br>1. Go to <b>Manage Stores</b> and open the store profile.<br>2. Check the <b>Saved Password Record</b> field and click <b>Send Credentials</b>.<br>3. If they changed it, click <b>Send Reset Email</b> and ask them to check their Spam folder.</p></div>
+            <div class="glass-panel p-5 rounded-2xl border border-slate-800"><h3 class="text-sm font-bold text-emerald-400 mb-2"><i class="fa-solid fa-database mr-2"></i>Data Loss / Missing Bills</h3><p class="text-xs text-slate-300 leading-relaxed">If a store reports missing jobs:<br><br>1. Open the store profile.<br>2. Go to the <b>Backup</b> tab.<br>3. Upload their JSON backup in <b>Restore Data</b> to merge all bills and stock automatically.</p></div>
+            <div class="glass-panel p-5 rounded-2xl border border-slate-800"><h3 class="text-sm font-bold text-amber-400 mb-2"><i class="fa-solid fa-clock mr-2"></i>Timezone Expiry Fix</h3><p class="text-xs text-slate-300 leading-relaxed">If a customer complains that their 1-Year plan expired too early:<br><br>The system now uses local time parsing. Simply adjust the date using <b>+1 Year</b> or save the manual date properly in the Subscription panel.</p></div>
           </div>
         </div>
+
       </main>
+    </div>
+
+    <!-- MOBILE BOTTOM NAV -->
+    <div class="md:hidden fixed bottom-0 left-0 w-full glass-panel border-t border-slate-800 flex justify-around py-2 z-40">
+      <button onclick="switchView('dashboard')" id="mnav-dashboard" class="flex flex-col items-center gap-1 text-[10px] font-bold text-indigo-400"><i class="fa-solid fa-chart-pie text-lg"></i> Dash</button>
+      <button onclick="switchView('stores')" id="mnav-stores" class="flex flex-col items-center gap-1 text-[10px] font-bold text-slate-400 hover:text-white"><i class="fa-solid fa-store text-lg"></i> Stores</button>
+      <button onclick="switchView('developers')" id="mnav-developers" class="flex flex-col items-center gap-1 text-[10px] font-bold text-slate-400 hover:text-white"><i class="fa-solid fa-users-gear text-lg"></i> Devs</button>
+      <button onclick="switchView('manual')" id="mnav-manual" class="flex flex-col items-center gap-1 text-[10px] font-bold text-slate-400 hover:text-white"><i class="fa-solid fa-book text-lg"></i> Help</button>
     </div>
   </div>
 
-  <!-- Modals -->
-  <div id="createStoreModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-    <div class="glass-panel w-full max-w-md p-6 rounded-3xl shadow-2xl space-y-4 animate-fade">
-      <div class="flex justify-between items-center border-b border-slate-800 pb-3"><h3 class="text-base font-bold text-white"><i class="fa-solid fa-store text-indigo-400 mr-2"></i>Create New Store</h3><button onclick="closeModal('createStoreModal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button></div>
+  <!-- MODALS -->
+  <!-- Create Store Modal -->
+  <div id="createStoreModal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md hidden items-center justify-center p-4 z-[80]">
+    <div class="glass-panel w-full max-w-md p-6 rounded-3xl shadow-2xl space-y-4 animate-fade border border-slate-700">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-3"><h3 class="text-base font-bold text-white"><i class="fa-solid fa-store text-indigo-400 mr-2"></i>Create New Store</h3><button onclick="closeModal('createStoreModal')" class="text-slate-400 hover:text-white p-1 bg-slate-800 rounded-lg"><i class="fa-solid fa-xmark"></i></button></div>
       <form id="createStoreForm" onsubmit="submitCreateStore(event)" class="space-y-3 text-xs">
-        <div><label class="block text-slate-400 mb-1">Shop Name *</label><input type="text" id="newShopName" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white"></div>
-        <div><label class="block text-slate-400 mb-1">Owner Email *</label><input type="email" id="newShopEmail" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white"></div>
-        <div><label class="block text-slate-400 mb-1">Temp Password * (min 6 chars)</label><input type="text" id="newShopPass" required minlength="6" value="Smart@123" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-emerald-400 font-mono"></div>
-        <div><label class="block text-slate-400 mb-1">Phone (WhatsApp) *</label><input type="tel" id="newShopPhone" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white"></div>
-        <div><label class="block text-slate-400 mb-1">Address</label><input type="text" id="newShopAddress" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white"></div>
-        <div class="flex items-center gap-2 pt-1">
-          <input type="checkbox" id="sendWhatsAppOnCreate" checked class="w-4 h-4 accent-emerald-500">
-          <label for="sendWhatsAppOnCreate" class="text-emerald-300 font-semibold">Send Store ID & Password on WhatsApp immediately</label>
+        <div><label class="block text-slate-400 font-bold mb-1">Shop Name *</label><input type="text" id="newShopName" required class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-white focus:border-indigo-500 focus:outline-none transition"></div>
+        <div><label class="block text-slate-400 font-bold mb-1">Owner Email *</label><input type="email" id="newShopEmail" required class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-white focus:border-indigo-500 focus:outline-none transition"></div>
+        <div><label class="block text-slate-400 font-bold mb-1">Temp Password * (min 6 chars)</label><input type="text" id="newShopPass" required minlength="6" value="Smart@123" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-emerald-400 font-mono focus:border-indigo-500 focus:outline-none transition"></div>
+        <div><label class="block text-slate-400 font-bold mb-1">Phone (WhatsApp) *</label><input type="tel" id="newShopPhone" required class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-white focus:border-indigo-500 focus:outline-none transition"></div>
+        <div><label class="block text-slate-400 font-bold mb-1">Address</label><input type="text" id="newShopAddress" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-white focus:border-indigo-500 focus:outline-none transition"></div>
+        <div class="flex items-center gap-2 pt-2 bg-emerald-500/10 p-2.5 rounded-xl border border-emerald-500/20">
+          <input type="checkbox" id="sendWhatsAppOnCreate" checked class="w-4 h-4 accent-emerald-500 rounded">
+          <label for="sendWhatsAppOnCreate" class="text-emerald-300 font-bold text-[11px]">Send Credentials on WhatsApp immediately</label>
         </div>
-        <p id="createStoreErr" class="text-rose-400 hidden"></p>
-        <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl transition shadow-lg mt-2">Create Store (30 Day Trial)</button>
+        <p id="createStoreErr" class="text-rose-400 font-bold hidden bg-rose-500/10 p-2 rounded-lg"></p>
+        <button type="submit" class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl transition shadow-lg shadow-indigo-600/30 mt-2 flex items-center justify-center gap-2 active:scale-95"><i class="fa-solid fa-plus-circle"></i> Create Store (30-Day Trial)</button>
       </form>
     </div>
   </div>
 
-  <div id="addDevModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-    <div class="glass-panel w-full max-w-sm p-6 rounded-3xl shadow-2xl space-y-4 animate-fade text-center">
-      <div class="w-12 h-12 bg-indigo-600/20 text-indigo-400 rounded-2xl mx-auto flex items-center justify-center text-xl"><i class="fa-solid fa-user-plus"></i></div>
+  <!-- Add Developer Modal -->
+  <div id="addDevModal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md hidden items-center justify-center p-4 z-[80]">
+    <div class="glass-panel w-full max-w-sm p-6 rounded-3xl shadow-2xl space-y-4 animate-fade text-center border border-slate-700">
+      <div class="w-14 h-14 bg-indigo-600/20 text-indigo-400 rounded-2xl mx-auto flex items-center justify-center text-2xl border border-indigo-500/30"><i class="fa-solid fa-user-plus"></i></div>
       <h3 class="text-base font-bold text-white">Grant Developer Access</h3>
-      <p class="text-xs text-slate-400">Enter the Firebase Auth UID of the user you want to promote as a Developer.</p>
-      <input type="text" id="newDevUid" placeholder="e.g. poJ5YLjwGHWUWEm8LPi8clty4qJ3" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-center text-sm font-mono text-white focus:border-indigo-500 focus:outline-none">
-      <div class="flex gap-2"><button onclick="closeModal('addDevModal')" class="flex-1 py-2.5 rounded-xl border border-slate-700 text-slate-400 hover:text-white text-xs font-bold">Cancel</button><button onclick="addDeveloper()" class="flex-1 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold">Add Dev</button></div>
+      <p class="text-[11px] text-slate-400">Enter the Firebase Auth UID of the user you want to promote as a Developer.</p>
+      <input type="text" id="newDevUid" placeholder="e.g. poJ5YLjwGHWUWEm8LPi8clty4qJ3" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-center text-sm font-mono text-white focus:border-indigo-500 focus:outline-none transition">
+      <div class="flex gap-2 pt-2"><button onclick="closeModal('addDevModal')" class="flex-1 py-2.5 rounded-xl border border-slate-700 text-slate-400 hover:text-white text-xs font-bold transition">Cancel</button><button onclick="addDeveloper()" class="flex-1 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-lg shadow-indigo-600/20 transition">Add Dev</button></div>
     </div>
   </div>
 
@@ -303,6 +382,41 @@
     let unsubLcd = null;
     let unsubMobiles = null;
 
+    // ==========================================
+    // TOAST NOTIFICATION SYSTEM
+    // ==========================================
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      const bgColors = {
+        success: 'bg-emerald-600 border-emerald-500',
+        error: 'bg-rose-600 border-rose-500',
+        info: 'bg-indigo-600 border-indigo-500',
+        warning: 'bg-amber-600 border-amber-500'
+      };
+      const icons = {
+        success: 'fa-check-circle',
+        error: 'fa-circle-exclamation',
+        info: 'fa-circle-info',
+        warning: 'fa-triangle-exclamation'
+      };
+      
+      toast.className = `toast-msg flex items-center gap-3 px-4 py-3 rounded-xl text-white text-xs font-bold shadow-2xl border ${bgColors[type]} pointer-events-auto`;
+      toast.innerHTML = `<i class="fa-solid ${icons[type]} text-lg"></i> <span>${message}</span>`;
+      
+      container.appendChild(toast);
+      
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(100%)';
+        toast.style.transition = 'all 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+
+    // ==========================================
+    // UTILS & HELPERS
+    // ==========================================
     function localDateString(d = new Date()) {
       const y = d.getFullYear(); const m = String(d.getMonth()+1).padStart(2,'0'); const day = String(d.getDate()).padStart(2,'0');
       return `${y}-${m}-${day}`;
@@ -319,9 +433,17 @@
     function copyTextField(id) {
       const el = document.getElementById(id);
       if (!el || !el.value) return;
-      navigator.clipboard.writeText(el.value).then(() => alert("Copied to clipboard!")).catch(() => {});
+      navigator.clipboard.writeText(el.value).then(() => showToast("Copied to clipboard!", "info")).catch(() => {});
     }
 
+    function closeModal(id) {
+      document.getElementById(id).classList.add('hidden');
+      document.getElementById(id).classList.remove('flex');
+    }
+
+    // ==========================================
+    // AUTHENTICATION & ROLE CHECK
+    // ==========================================
     async function handleLogin(e) {
       e.preventDefault();
       const email = document.getElementById('devEmail').value.trim();
@@ -382,17 +504,23 @@
       if (isSuperAdmin) {
         document.getElementById('roleBadge').innerText = "Super Admin";
         document.getElementById('nav-developers').classList.remove('hidden');
+        document.getElementById('mnav-developers').classList.remove('hidden');
         document.getElementById('addDevBtn').classList.remove('hidden');
       } else {
         document.getElementById('roleBadge').innerText = "Developer";
         document.getElementById('nav-developers').classList.add('hidden');
+        document.getElementById('mnav-developers').classList.add('hidden');
         document.getElementById('addDevBtn').classList.add('hidden');
       }
 
       loadStores();
       if (isSuperAdmin) loadDevelopers();
+      switchView('dashboard');
     }
 
+    // ==========================================
+    // VIEW NAVIGATION
+    // ==========================================
     function switchView(viewId) {
       document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
       document.getElementById('view-' + viewId).classList.remove('hidden');
@@ -405,16 +533,28 @@
           activeStoreUid = null;
       }
 
+      // Desktop Nav Update
       document.querySelectorAll('.nav-btn').forEach(btn => {
         btn.className = "nav-btn flex items-center gap-3 px-4 py-3 text-sm font-semibold text-slate-400 hover:text-white hover:bg-slate-800/30 transition";
       });
       const activeBtn = document.getElementById('nav-' + viewId);
       if (activeBtn) activeBtn.className = "nav-btn flex items-center gap-3 px-4 py-3 text-sm font-semibold text-white bg-slate-800/50 border-r-2 border-indigo-500 transition";
+
+      // Mobile Nav Update
+      const mobTabs = ['dashboard', 'stores', 'developers', 'manual'];
+      mobTabs.forEach(t => {
+          const mb = document.getElementById('mnav-' + t);
+          if(mb) mb.className = "flex flex-col items-center gap-1 text-[10px] font-bold text-slate-400 hover:text-white transition";
+      });
+      const activeMob = document.getElementById('mnav-' + viewId);
+      if(activeMob) activeMob.className = "flex flex-col items-center gap-1 text-[10px] font-bold text-indigo-400 transition";
     }
 
+    // ==========================================
+    // STORES DATA LOGIC
+    // ==========================================
     function loadStores() {
       if(unsubStores) unsubStores();
-
       unsubStores = db.collection('stores').onSnapshot(snap => {
         allStores = [];
         snap.forEach(doc => allStores.push({ uid: doc.id, ...doc.data() }));
@@ -425,7 +565,7 @@
         document.getElementById('statSuspended').innerText = allStores.filter(s => s.status === 'suspended').length;
         
         renderStoreList();
-      }, error => console.error("Error loading stores:", error));
+      }, error => showToast("Error loading stores: " + error.message, "error"));
     }
 
     function renderStoreList() {
@@ -440,7 +580,7 @@
       );
 
       if (filtered.length === 0) {
-        grid.innerHTML = '<div class="col-span-full p-8 text-center text-slate-500 bg-slate-900 border border-slate-800 rounded-2xl">No stores found.</div>';
+        grid.innerHTML = '<div class="col-span-full p-8 text-center text-slate-500 bg-slate-900 border border-slate-800 rounded-2xl"><i class="fa-solid fa-store-slash text-3xl mb-2 text-slate-600"></i><p class="text-sm font-bold">No stores found.</p></div>';
         return;
       }
 
@@ -448,32 +588,34 @@
       filtered.forEach(s => {
         const isSuspended = s.status === 'suspended';
         const card = document.createElement('div');
-        card.className = "glass-panel p-4 rounded-2xl border border-slate-800 hover:border-indigo-500/50 cursor-pointer transition group";
+        card.className = "glass-panel p-4 rounded-2xl border border-slate-800 hover:border-indigo-500/50 cursor-pointer transition group flex flex-col justify-between";
         card.onclick = () => openStoreDetail(s.uid);
         
         let planBadge = '';
-        if (s.planType === 'Trial') planBadge = '<span class="text-[9px] bg-amber-500/20 text-amber-400 px-1.5 py-0.5 rounded">Trial</span>';
-        else if (s.planType === '6 Months') planBadge = '<span class="text-[9px] bg-indigo-500/20 text-indigo-400 px-1.5 py-0.5 rounded">6 Months</span>';
-        else if (s.planType === '1 Year' || s.planType === '2 Years' || s.planType === 'Custom') planBadge = '<span class="text-[9px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded">Premium</span>';
+        if (s.planType === 'Trial') planBadge = '<span class="text-[9px] font-bold bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded border border-amber-500/30">Trial</span>';
+        else if (s.planType === '6 Months') planBadge = '<span class="text-[9px] font-bold bg-indigo-500/20 text-indigo-400 px-2 py-0.5 rounded border border-indigo-500/30">6 Months</span>';
+        else if (s.planType === '1 Year' || s.planType === '2 Years' || s.planType === 'Custom') planBadge = '<span class="text-[9px] font-bold bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/30">Premium</span>';
         
         card.innerHTML = `
-          <div class="flex justify-between items-start gap-2">
-            <div>
-              <h3 class="text-sm font-bold text-white group-hover:text-indigo-400 transition">${s.shopName || 'Unnamed Store'}</h3>
-              <p class="text-[11px] text-slate-400 mt-0.5 truncate">${s.shopAddress || '-'}</p>
+          <div>
+            <div class="flex justify-between items-start gap-2 mb-2">
+              <div>
+                <h3 class="text-sm font-bold text-white group-hover:text-indigo-400 transition truncate">${s.shopName || 'Unnamed Store'}</h3>
+                <p class="text-[11px] text-slate-400 mt-0.5 truncate">${s.shopAddress || '-'}</p>
+              </div>
+              <div class="flex flex-col items-end gap-1.5">
+                  <span class="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase ${isSuspended ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20' : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'}">${isSuspended ? 'Suspended' : 'Active'}</span>
+                  ${planBadge}
+              </div>
             </div>
-            <div class="flex flex-col items-end gap-1">
-                <span class="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase ${isSuspended ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20' : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'}">${isSuspended ? 'Suspended' : 'Active'}</span>
-                ${planBadge}
+            <div class="space-y-1.5 text-[11px] pt-2 border-t border-slate-800/60">
+              <div class="flex items-center gap-2 text-slate-300"><i class="fa-solid fa-phone text-emerald-400 w-4 text-center"></i><span class="truncate">${s.shopPhone || '-'}</span></div>
+              <div class="flex items-center gap-2 text-slate-300"><i class="fa-solid fa-envelope text-indigo-400 w-4 text-center"></i><span class="truncate">${s.ownerEmail || '-'}</span></div>
             </div>
-          </div>
-          <div class="mt-3 space-y-1 text-[11px]">
-            <div class="flex items-center gap-1.5 text-slate-300"><i class="fa-solid fa-phone text-emerald-400"></i>${s.shopPhone || '-'}</div>
-            <div class="flex items-center gap-1.5 text-slate-300"><i class="fa-solid fa-envelope text-indigo-400"></i>${s.ownerEmail || '-'}</div>
           </div>
           <div class="mt-3 pt-3 border-t border-slate-800 flex justify-between items-center">
             <span class="text-[9px] font-mono text-slate-500">Exp: ${s.subscriptionEnd || 'N/A'}</span>
-            <span class="text-[10px] text-indigo-400 font-bold opacity-0 group-hover:opacity-100 transition"><i class="fa-solid fa-arrow-right"></i></span>
+            <span class="text-[10px] text-indigo-400 font-bold opacity-0 group-hover:opacity-100 transition flex items-center gap-1">Manage <i class="fa-solid fa-arrow-right"></i></span>
           </div>
         `;
         grid.appendChild(card);
@@ -491,12 +633,12 @@
       
       const btn = document.getElementById('detStatusBtn');
       if (store.status === 'suspended') {
-        btn.className = "px-3 py-1.5 rounded-xl text-xs font-bold border bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white border-emerald-500/30 transition";
-        btn.innerHTML = '<i class="fa-solid fa-check mr-1"></i> Activate Store';
+        btn.className = "flex-1 md:flex-none px-4 py-2 rounded-xl text-xs font-bold border bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white border-emerald-500/30 transition flex items-center justify-center gap-2";
+        btn.innerHTML = '<i class="fa-solid fa-check"></i> Activate Store';
         btn.dataset.action = 'activate';
       } else {
-        btn.className = "px-3 py-1.5 rounded-xl text-xs font-bold border bg-rose-600/20 hover:bg-rose-600 text-rose-400 hover:text-white border-rose-500/30 transition";
-        btn.innerHTML = '<i class="fa-solid fa-ban mr-1"></i> Suspend Store';
+        btn.className = "flex-1 md:flex-none px-4 py-2 rounded-xl text-xs font-bold border bg-rose-600/20 hover:bg-rose-600 text-rose-400 hover:text-white border-rose-500/30 transition flex items-center justify-center gap-2";
+        btn.innerHTML = '<i class="fa-solid fa-ban"></i> Suspend Store';
         btn.dataset.action = 'suspend';
       }
 
@@ -561,9 +703,45 @@
       document.querySelectorAll('.dtab-content').forEach(el => el.classList.add('hidden'));
       document.getElementById('dcnt-' + tab).classList.remove('hidden');
       document.querySelectorAll('.dtab-btn').forEach(btn => {
-        btn.className = "dtab-btn px-4 py-2 rounded-lg text-xs font-semibold whitespace-nowrap text-slate-400 hover:text-white transition";
+        btn.className = "dtab-btn px-4 py-2 rounded-lg text-xs font-bold whitespace-nowrap text-slate-400 hover:text-white hover:bg-slate-800/50 transition";
       });
-      document.getElementById('dtab-' + tab).className = "dtab-btn px-4 py-2 rounded-lg text-xs font-semibold whitespace-nowrap bg-indigo-600 text-white transition";
+      document.getElementById('dtab-' + tab).className = "dtab-btn px-4 py-2 rounded-lg text-xs font-bold whitespace-nowrap bg-indigo-600 text-white shadow";
+    }
+
+    // ==========================================
+    // STORE ACTIONS (Profile, Status, Password)
+    // ==========================================
+    async function saveStoreProfile() {
+      const name = document.getElementById('editShopName').value.trim();
+      const phone = document.getElementById('editShopPhone').value.trim();
+      const address = document.getElementById('editShopAddress').value.trim();
+      const savedPass = document.getElementById('editSavedPassword').value.trim();
+      try {
+        await db.collection('stores').doc(activeStoreUid).update({ shopName: name, shopPhone: phone, shopAddress: address, savedPassword: savedPass });
+        showToast("Profile updated successfully!", "success");
+      } catch (err) { showToast("Error: " + err.message, "error"); }
+    }
+
+    async function toggleStoreStatus() {
+      const btn = document.getElementById('detStatusBtn');
+      const action = btn.dataset.action;
+      const newStatus = action === 'suspend' ? 'suspended' : 'approved';
+      if (!confirm(`Are you sure you want to ${action} this store?`)) return;
+      try {
+        await db.collection('stores').doc(activeStoreUid).update({ status: newStatus });
+        showToast(`Store ${action}d successfully!`, action === 'suspend' ? 'warning' : 'success');
+        setTimeout(() => openStoreDetail(activeStoreUid), 500); 
+      } catch (err) { showToast("Error updating status: " + err.message, "error"); }
+    }
+
+    async function sendPasswordReset() {
+      const email = document.getElementById('editOwnerEmail').value;
+      if (!email) return showToast("No email found", "error");
+      if (!confirm(`Send password reset email to ${email}?`)) return;
+      try { 
+        await auth.sendPasswordResetEmail(email); 
+        showToast("Reset email sent! Ask owner to check Spam too.", "info"); 
+      } catch (err) { showToast("Error: " + err.message, "error"); }
     }
 
     function sendStoreCredentialsWhatsApp() {
@@ -571,10 +749,8 @@
       if (!store) return;
       const phoneInput = document.getElementById('editShopPhone')?.value.trim() || store.shopPhone || '';
       const waPhone = normalizePhoneForWhatsApp(phoneInput);
-      if (!waPhone || waPhone.length < 10) {
-        alert("Valid store WhatsApp phone number not found!");
-        return;
-      }
+      if (!waPhone || waPhone.length < 10) return showToast("Valid store WhatsApp phone number not found!", "error");
+      
       const shopName = document.getElementById('editShopName')?.value.trim() || store.shopName || 'SmartFix Store';
       const email = store.ownerEmail || '';
       const savedPass = document.getElementById('editSavedPassword')?.value.trim() || store.savedPassword || '(Use your registered password or Reset Link)';
@@ -592,7 +768,9 @@
       window.open(`https://wa.me/${waPhone}?text=${encodeURIComponent(msg)}`, '_blank');
     }
 
-    // ================= SUBSCRIPTION LOGIC =================
+    // ==========================================
+    // SUBSCRIPTION LOGIC (TIMEZONE SAFE)
+    // ==========================================
     async function saveDevSubscription() {
         const newEnd = document.getElementById('devSubEnd').value;
         const newPlan = document.getElementById('devPlanType').value;
@@ -601,17 +779,23 @@
                 subscriptionEnd: newEnd,
                 planType: newPlan 
             });
-            alert("✅ Subscription updated successfully!");
+            showToast("Subscription updated successfully!", "success");
             openStoreDetail(activeStoreUid);
-        } catch(e) { alert("Error: " + e.message); }
+        } catch(e) { showToast("Error: " + e.message, "error"); }
     }
 
     async function adjustSubTime(months, newPlanType) {
         const store = allStores.find(s => s.uid === activeStoreUid);
-        let currentEnd = store.subscriptionEnd ? new Date(store.subscriptionEnd) : new Date();
+        
+        // ✅ FIX: Parse local time to avoid UTC timezone expiry bug
+        let currentEnd = store.subscriptionEnd ? new Date(store.subscriptionEnd + 'T00:00:00') : new Date();
         
         if (isNaN(currentEnd.getTime())) currentEnd = new Date(); 
-        if (currentEnd < new Date()) currentEnd = new Date();
+        
+        const today = new Date(); 
+        today.setHours(0,0,0,0);
+        
+        if (currentEnd < today) currentEnd = today;
         
         currentEnd.setMonth(currentEnd.getMonth() + months);
         const newDateStr = localDateString(currentEnd);
@@ -624,107 +808,86 @@
                 subscriptionEnd: newDateStr,
                 planType: newPlanType
             });
+            showToast(`Added ${months > 0 ? '+' : ''}${months} months!`, "success");
             openStoreDetail(activeStoreUid);
-        } catch(e) { alert("Error adjusting time: " + e.message); }
+        } catch(e) { showToast("Error adjusting time: " + e.message, "error"); }
     }
-    // =======================================================
 
+    // ==========================================
+    // TABLE RENDERING
+    // ==========================================
     function renderJobsTable() {
       const tJobs = document.getElementById('tblJobs');
       if(!storeCollections.jobs) return;
       tJobs.innerHTML = storeCollections.jobs.map(j => `
-        <tr class="hover:bg-slate-800/30">
-          <td class="p-3 font-mono text-indigo-400">${j.billNo}</td>
-          <td class="p-3 text-slate-400">${j.intakeDate}</td>
-          <td class="p-3 font-bold">${j.customerName}</td>
-          <td class="p-3">${j.model}</td>
-          <td class="p-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-[10px]">${j.status}</span></td>
-          <td class="p-3 text-right font-bold">₹${j.finalAmount || j.estCost || 0}</td>
-          <td class="p-3 text-center"><button onclick="delRec('jobs','${j._id}')" class="text-rose-400 hover:text-white"><i class="fa-solid fa-trash"></i></button></td>
+        <tr class="hover:bg-slate-800/40 transition">
+          <td class="p-4 font-mono text-indigo-400 font-bold">${j.billNo}</td>
+          <td class="p-4 text-slate-400">${j.intakeDate}</td>
+          <td class="p-4 font-bold text-white">${j.customerName}</td>
+          <td class="p-4">${j.model}</td>
+          <td class="p-4"><span class="px-2 py-0.5 rounded bg-slate-800 text-[10px] border border-slate-700">${j.status}</span></td>
+          <td class="p-4 text-right font-bold">₹${j.finalAmount || j.estCost || 0}</td>
+          <td class="p-4 text-center"><button onclick="delRec('jobs','${j._id}')" class="p-1.5 bg-rose-500/10 hover:bg-rose-600 text-rose-400 hover:text-white rounded transition"><i class="fa-solid fa-trash"></i></button></td>
         </tr>
-      `).join('') || '<tr><td colspan="7" class="p-4 text-center text-slate-500">No jobs</td></tr>';
+      `).join('') || '<tr><td colspan="7" class="p-6 text-center text-slate-500 font-bold">No jobs found</td></tr>';
     }
 
     function renderEmisTable() {
       const tEmis = document.getElementById('tblEmis');
       if(!storeCollections.emis) return;
       tEmis.innerHTML = storeCollections.emis.map(e => `
-        <tr class="hover:bg-slate-800/30">
-          <td class="p-3 font-bold">${e.customerName}</td>
-          <td class="p-3">${e.deviceModel}</td>
-          <td class="p-3 font-mono text-[10px]">${e.imei}</td>
-          <td class="p-3 text-right">₹${e.totalPayable || e.totalEmi || 0}</td>
-          <td class="p-3 text-center"><button onclick="delRec('emis','${e._id}')" class="text-rose-400 hover:text-white"><i class="fa-solid fa-trash"></i></button></td>
+        <tr class="hover:bg-slate-800/40 transition">
+          <td class="p-4 font-bold text-white">${e.customerName}</td>
+          <td class="p-4">${e.deviceModel}</td>
+          <td class="p-4 font-mono text-[10px] text-slate-400">${e.imei}</td>
+          <td class="p-4 text-right font-bold">₹${e.totalPayable || e.totalEmi || 0}</td>
+          <td class="p-4 text-center"><button onclick="delRec('emis','${e._id}')" class="p-1.5 bg-rose-500/10 hover:bg-rose-600 text-rose-400 hover:text-white rounded transition"><i class="fa-solid fa-trash"></i></button></td>
         </tr>
-      `).join('') || '<tr><td colspan="5" class="p-4 text-center text-slate-500">No EMI</td></tr>';
+      `).join('') || '<tr><td colspan="5" class="p-6 text-center text-slate-500 font-bold">No EMI records found</td></tr>';
     }
 
     function renderLcdTable() {
       const tLcd = document.getElementById('tblLcd');
       if(!storeCollections.lcd) return;
       tLcd.innerHTML = storeCollections.lcd.map(l => `
-        <tr class="hover:bg-slate-800/30">
-          <td class="p-3 font-bold">${l.name}</td>
-          <td class="p-3"><span class="text-emerald-400 font-bold">${l.stock}</span> pcs</td>
-          <td class="p-3 text-right font-mono">₹${l.price}</td>
-          <td class="p-3">${l.location || '-'}</td>
-          <td class="p-3 text-center"><button onclick="delRec('lcd_inventory','${l._id}')" class="text-rose-400 hover:text-white"><i class="fa-solid fa-trash"></i></button></td>
+        <tr class="hover:bg-slate-800/40 transition">
+          <td class="p-4 font-bold text-white">${l.name}</td>
+          <td class="p-4"><span class="text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">${l.stock}</span> pcs</td>
+          <td class="p-4 text-right font-mono">₹${l.price}</td>
+          <td class="p-4 text-slate-400">${l.location || '-'}</td>
+          <td class="p-4 text-center"><button onclick="delRec('lcd_inventory','${l._id}')" class="p-1.5 bg-rose-500/10 hover:bg-rose-600 text-rose-400 hover:text-white rounded transition"><i class="fa-solid fa-trash"></i></button></td>
         </tr>
-      `).join('') || '<tr><td colspan="5" class="p-4 text-center text-slate-500">No LCD Stock</td></tr>';
+      `).join('') || '<tr><td colspan="5" class="p-6 text-center text-slate-500 font-bold">No LCD Stock found</td></tr>';
     }
 
     function renderMobilesTable() {
       const tMob = document.getElementById('tblMobiles');
       if(!storeCollections.mobiles) return;
       tMob.innerHTML = storeCollections.mobiles.map(m => `
-        <tr class="hover:bg-slate-800/30">
-          <td class="p-3 font-bold">${m.brand} ${m.model}</td>
-          <td class="p-3 font-mono text-indigo-400">${m.imei}</td>
-          <td class="p-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-[10px]">${m.status}</span></td>
-          <td class="p-3 text-right font-mono">₹${m.salePrice || m.targetSellPrice || m.buyPrice}</td>
-          <td class="p-3 text-center"><button onclick="delRec('used_mobiles','${m._id}')" class="text-rose-400 hover:text-white"><i class="fa-solid fa-trash"></i></button></td>
+        <tr class="hover:bg-slate-800/40 transition">
+          <td class="p-4 font-bold text-white">${m.brand} ${m.model}</td>
+          <td class="p-4 font-mono text-indigo-400">${m.imei}</td>
+          <td class="p-4"><span class="px-2 py-0.5 rounded bg-slate-800 text-[10px] border border-slate-700">${m.status}</span></td>
+          <td class="p-4 text-right font-mono">₹${m.salePrice || m.targetSellPrice || m.buyPrice}</td>
+          <td class="p-4 text-center"><button onclick="delRec('used_mobiles','${m._id}')" class="p-1.5 bg-rose-500/10 hover:bg-rose-600 text-rose-400 hover:text-white rounded transition"><i class="fa-solid fa-trash"></i></button></td>
         </tr>
-      `).join('') || '<tr><td colspan="5" class="p-4 text-center text-slate-500">No Used Mobiles</td></tr>';
+      `).join('') || '<tr><td colspan="5" class="p-6 text-center text-slate-500 font-bold">No Used Mobiles found</td></tr>';
     }
 
     async function delRec(col, id) {
       if (!confirm("Delete this record permanently?")) return;
-      try { await db.collection('stores').doc(activeStoreUid).collection(col).doc(id).delete(); } catch (err) { alert(err.message); }
+      try { 
+        await db.collection('stores').doc(activeStoreUid).collection(col).doc(id).delete(); 
+        showToast("Record deleted.", "success");
+      } catch (err) { showToast(err.message, "error"); }
     }
 
-    async function toggleStoreStatus() {
-      const btn = document.getElementById('detStatusBtn');
-      const action = btn.dataset.action;
-      const newStatus = action === 'suspend' ? 'suspended' : 'approved';
-      if (!confirm(`Are you sure you want to ${action} this store?`)) return;
-      try {
-        await db.collection('stores').doc(activeStoreUid).update({ status: newStatus });
-        setTimeout(() => openStoreDetail(activeStoreUid), 500); 
-      } catch (err) { alert("Error updating status: " + err.message); }
-    }
-
-    async function saveStoreProfile() {
-      const name = document.getElementById('editShopName').value.trim();
-      const phone = document.getElementById('editShopPhone').value.trim();
-      const address = document.getElementById('editShopAddress').value.trim();
-      const savedPass = document.getElementById('editSavedPassword').value.trim();
-      try {
-        await db.collection('stores').doc(activeStoreUid).update({ shopName: name, shopPhone: phone, shopAddress: address, savedPassword: savedPass });
-        alert("Profile updated successfully!");
-        setTimeout(() => openStoreDetail(activeStoreUid), 500);
-      } catch (err) { alert("Error: " + err.message); }
-    }
-
-    async function sendPasswordReset() {
-      const email = document.getElementById('editOwnerEmail').value;
-      if (!email) return alert("No email found");
-      if (!confirm(`Send password reset email to ${email}?`)) return;
-      try { await auth.sendPasswordResetEmail(email); alert("Password reset email sent! Tell the owner to check Inbox & Spam folder."); } catch (err) { alert("Error: " + err.message); }
-    }
-
+    // ==========================================
+    // DANGER ZONE & BACKUP
+    // ==========================================
     async function deleteStore() {
       const pin = prompt("Type DELETE to permanently remove this store and all its data:");
-      if (pin !== "DELETE") return alert("Cancelled.");
+      if (pin !== "DELETE") return showToast("Cancelled.", "info");
       try {
         const cols = ['jobs', 'customers', 'emis', 'lcd_inventory', 'used_mobiles'];
         for (let c of cols) {
@@ -736,9 +899,26 @@
           }
         }
         await db.collection('stores').doc(activeStoreUid).delete();
-        alert("Store deleted permanently.");
+        showToast("Store deleted permanently.", "success");
         switchView('stores');
-      } catch (err) { alert("Error: " + err.message); }
+      } catch (err) { showToast("Error: " + err.message, "error"); }
+    }
+
+    async function resetStoreData() {
+      const pin = prompt(`Type WIPE to delete all Jobs, Customers, EMI, LCD & Mobiles for this store.`);
+      if (pin !== "WIPE") return showToast("Cancelled.", "info");
+      try {
+        const cols = ['jobs', 'customers', 'emis', 'lcd_inventory', 'used_mobiles'];
+        for (let c of cols) {
+          const snap = await db.collection('stores').doc(activeStoreUid).collection(c).get();
+          for (let i = 0; i < snap.docs.length; i += 400) {
+            const batch = db.batch();
+            snap.docs.slice(i, i + 400).forEach(d => batch.delete(d.ref));
+            await batch.commit();
+          }
+        }
+        showToast("Data wiped successfully.", "success");
+      } catch (err) { showToast("Error wiping data: " + err.message, "error"); }
     }
 
     async function downloadStoreBackup() {
@@ -768,13 +948,17 @@
         a.download = `SmartFix-Backup-${store.shopName.replace(/\s+/g, '_')}-${localDateString()}.json`;
         document.body.appendChild(a); a.click(); a.remove();
         URL.revokeObjectURL(url);
-        status.innerText = "✅ Full Backup downloaded (Compatible with both DevOps & Store App).";
-      } catch (err) { status.innerText = "❌ Backup failed: " + err.message; }
+        status.innerText = "✅ Full Backup downloaded successfully.";
+        showToast("Backup downloaded!", "success");
+      } catch (err) { 
+        status.innerText = "❌ Backup failed: " + err.message; 
+        showToast("Backup failed!", "error");
+      }
     }
 
     async function restoreStoreBackup() {
       const file = document.getElementById('restoreFile').files[0];
-      if (!file) return alert("Select a file first");
+      if (!file) return showToast("Select a file first", "error");
       if (!confirm("This will merge data into the current store. Continue?")) return;
       const status = document.getElementById('backupStatus');
       status.innerText = "Restoring...";
@@ -813,36 +997,21 @@
           throw new Error("Invalid backup format");
         }
         status.innerText = `✅ Restored ${count} records.`;
-      } catch (err) { status.innerText = "❌ Restore failed: " + err.message; }
+        showToast(`Restored ${count} records successfully!`, "success");
+      } catch (err) { 
+        status.innerText = "❌ Restore failed: " + err.message; 
+        showToast("Restore failed!", "error");
+      }
     }
 
-    async function resetStoreData() {
-      const pin = prompt(`Type WIPE to delete all Jobs, Customers, EMI, LCD & Mobiles for this store.`);
-      if (pin !== "WIPE") return alert("Cancelled.");
-      try {
-        const cols = ['jobs', 'customers', 'emis', 'lcd_inventory', 'used_mobiles'];
-        for (let c of cols) {
-          const snap = await db.collection('stores').doc(activeStoreUid).collection(c).get();
-          for (let i = 0; i < snap.docs.length; i += 400) {
-            const batch = db.batch();
-            snap.docs.slice(i, i + 400).forEach(d => batch.delete(d.ref));
-            await batch.commit();
-          }
-        }
-        alert("Data wiped successfully.");
-      } catch (err) { alert("Error wiping data: " + err.message); }
-    }
-
+    // ==========================================
+    // CREATE STORE MODAL
+    // ==========================================
     function openCreateStoreModal() {
       document.getElementById('createStoreForm').reset();
       document.getElementById('createStoreErr').classList.add('hidden');
       document.getElementById('createStoreModal').classList.remove('hidden');
       document.getElementById('createStoreModal').classList.add('flex');
-    }
-
-    function closeModal(id) {
-      document.getElementById(id).classList.add('hidden');
-      document.getElementById(id).classList.remove('flex');
     }
 
     async function submitCreateStore(e) {
@@ -854,7 +1023,12 @@
       const shopAddress = document.getElementById('newShopAddress').value.trim();
       const sendWa = document.getElementById('sendWhatsAppOnCreate').checked;
       const errBox = document.getElementById('createStoreErr');
+      const submitBtn = e.target.querySelector('button[type="submit"]');
+      const origText = submitBtn.innerHTML;
+
       errBox.classList.add('hidden');
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Creating...';
 
       try {
         const cred = await secondaryAuth.createUserWithEmailAndPassword(email, pass);
@@ -879,6 +1053,7 @@
         });
 
         closeModal('createStoreModal');
+        showToast("Store created successfully!", "success");
 
         if (sendWa) {
           const waPhone = normalizePhoneForWhatsApp(shopPhone);
@@ -892,33 +1067,40 @@
               `📞 *Developer Support:* +91 9046356631`;
             window.open(`https://wa.me/${waPhone}?text=${encodeURIComponent(msg)}`, '_blank');
           }
-        } else {
-          alert("Store created successfully with 30-day trial!");
         }
       } catch (err) {
         errBox.innerText = "Error: " + err.message;
         errBox.classList.remove('hidden');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = origText;
       }
     }
 
+    // ==========================================
+    // DEVELOPERS MANAGEMENT
+    // ==========================================
     async function loadDevelopers() {
       if (!isSuperAdmin) return;
       const container = document.getElementById('devListContainer');
-      container.innerHTML = '<div class="text-slate-500 text-sm">Loading...</div>';
+      container.innerHTML = '<div class="text-slate-500 text-sm font-bold p-4 text-center">Loading...</div>';
       
       try {
         const snap = await db.collection('developers').get();
         container.innerHTML = '';
         
         if (snap.empty) {
-          container.innerHTML = '<div class="col-span-full text-slate-500 text-sm p-4 bg-slate-900 rounded-xl border border-slate-800">No additional developers added yet.</div>';
+          container.innerHTML = '<div class="col-span-full text-slate-500 text-sm font-bold p-6 bg-slate-900 rounded-2xl border border-slate-800 text-center">No additional developers added yet.</div>';
         } else {
           snap.forEach(doc => {
             const d = doc.data();
             container.innerHTML += `
-              <div class="glass-panel p-4 rounded-2xl border border-slate-800 flex justify-between items-center">
-                <div><h4 class="text-sm font-bold text-white">${d.name || 'Developer'}</h4><p class="text-[10px] font-mono text-slate-500">${doc.id}</p></div>
-                <button onclick="removeDeveloper('${doc.id}')" class="p-2 bg-rose-600/20 hover:bg-rose-600 text-rose-400 hover:text-white rounded-lg transition"><i class="fa-solid fa-user-minus"></i></button>
+              <div class="glass-panel p-4 rounded-2xl border border-slate-800 flex justify-between items-center hover:border-indigo-500/30 transition">
+                <div>
+                  <h4 class="text-sm font-bold text-white">${d.name || 'Developer'}</h4>
+                  <p class="text-[10px] font-mono text-slate-500 mt-1 bg-slate-950 px-1.5 py-0.5 rounded inline-block border border-slate-800">${doc.id}</p>
+                </div>
+                <button onclick="removeDeveloper('${doc.id}')" class="p-2.5 bg-rose-600/20 hover:bg-rose-600 text-rose-400 hover:text-white rounded-xl transition border border-rose-500/30" title="Remove Access"><i class="fa-solid fa-user-minus"></i></button>
               </div>
             `;
           });
@@ -926,11 +1108,14 @@
         
         container.innerHTML += `
           <div class="glass-panel p-4 rounded-2xl border border-emerald-500/30 bg-emerald-500/5 flex justify-between items-center">
-            <div><h4 class="text-sm font-bold text-emerald-400">Super Admin (You)</h4><p class="text-[10px] font-mono text-slate-500">${SUPER_ADMIN_UID}</p></div>
-            <i class="fa-solid fa-crown text-amber-400 text-lg"></i>
+            <div>
+              <h4 class="text-sm font-bold text-emerald-400">Super Admin (You)</h4>
+              <p class="text-[10px] font-mono text-slate-500 mt-1 bg-slate-950 px-1.5 py-0.5 rounded inline-block border border-slate-800">${SUPER_ADMIN_UID}</p>
+            </div>
+            <i class="fa-solid fa-crown text-amber-400 text-xl"></i>
           </div>
         `;
-      } catch (err) { container.innerHTML = `<div class="text-rose-400 text-sm">Error: ${err.message}</div>`; }
+      } catch (err) { container.innerHTML = `<div class="text-rose-400 text-sm font-bold p-4 text-center">Error: ${err.message}</div>`; }
     }
 
     function openAddDevModal() {
@@ -941,22 +1126,29 @@
 
     async function addDeveloper() {
       const uid = document.getElementById('newDevUid').value.trim();
-      if (!uid) return alert("Enter a valid UID");
-      if (uid === SUPER_ADMIN_UID) return alert("This is already the Super Admin.");
+      if (!uid) return showToast("Enter a valid UID", "error");
+      if (uid === SUPER_ADMIN_UID) return showToast("This is already the Super Admin.", "warning");
       try {
         await db.collection('developers').doc(uid).set({ addedBy: currentUser.uid, addedAt: firebase.firestore.FieldValue.serverTimestamp(), name: 'Team Member' });
-        alert("Developer added successfully!");
+        showToast("Developer added successfully!", "success");
         closeModal('addDevModal');
         loadDevelopers();
-      } catch (err) { alert("Failed to add: " + err.message); }
+      } catch (err) { showToast("Failed to add: " + err.message, "error"); }
     }
 
     async function removeDeveloper(uid) {
       if (!confirm("Remove this developer's access?")) return;
-      try { await db.collection('developers').doc(uid).delete(); loadDevelopers(); } catch (err) { alert("Failed to remove: " + err.message); }
+      try { 
+        await db.collection('developers').doc(uid).delete(); 
+        showToast("Developer removed.", "success");
+        loadDevelopers(); 
+      } catch (err) { showToast("Failed to remove: " + err.message, "error"); }
     }
 
-    document.addEventListener('DOMContentLoaded', () => { switchView('dashboard'); });
+    // Init
+    document.addEventListener('DOMContentLoaded', () => { 
+      switchView('dashboard'); 
+    });
   </script>
 </body>
 </html>
