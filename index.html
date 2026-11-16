@@ -68,7 +68,7 @@ input,select,textarea,button{-webkit-tap-highlight-color:transparent}input[type=
 </div>
 </div>
 
-<!-- DISCLAIMER / WARNING POPUP (NEW) -->
+<!-- DISCLAIMER / WARNING POPUP -->
 <div id="disclaimerModal" class="fixed inset-0 bg-slate-950/95 backdrop-blur-md hidden items-center justify-center p-4 z-[9999]">
     <div class="bg-slate-900 border border-rose-500/50 rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl space-y-5 animate-fade">
         <div class="flex items-center gap-3 border-b border-slate-800 pb-4">
@@ -111,6 +111,42 @@ input,select,textarea,button{-webkit-tap-highlight-color:transparent}input[type=
     </div>
 </div>
 
+<!-- RECEIVE DUE MODAL (NEW FOR ACCURATE CASH & PROFIT TRACKING) -->
+<div id="receiveDueModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md hidden items-center justify-center p-4 z-[60]">
+    <div class="bg-slate-900 border border-emerald-500/40 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-fade">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <h3 class="text-base font-bold text-white flex items-center gap-2"><i class="fa-solid fa-hand-holding-dollar text-emerald-400"></i> Collect Due Balance</h3>
+            <button onclick="closeReceiveDueModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+        </div>
+        <input type="hidden" id="dueCollectBillNo">
+        <div class="bg-slate-950 p-3.5 rounded-2xl border border-slate-800 space-y-1.5 text-xs">
+            <div class="flex justify-between"><span class="text-slate-400">Bill No:</span><strong id="dueCollectBillDisp" class="font-mono text-indigo-400">--</strong></div>
+            <div class="flex justify-between"><span class="text-slate-400">Customer:</span><strong id="dueCollectCustDisp" class="text-white">--</strong></div>
+            <div class="flex justify-between"><span class="text-slate-400">Current Pending Due:</span><strong id="dueCollectMaxDisp" class="text-rose-400 text-sm">₹0</strong></div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+            <div>
+                <label class="block text-xs font-semibold text-slate-400 uppercase mb-1.5">Amount Received (₹) *</label>
+                <input type="number" id="dueCollectAmount" min="1" class="w-full bg-slate-950 border border-emerald-500/60 rounded-xl px-3 py-2.5 text-sm font-bold text-emerald-400 focus:outline-none">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-slate-400 uppercase mb-1.5">Payment Method *</label>
+                <select id="dueCollectMethod" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none">
+                    <option value="Cash">Cash</option>
+                    <option value="Online">Online / UPI</option>
+                </select>
+            </div>
+        </div>
+        <div class="text-[11px] text-slate-400 bg-indigo-500/10 border border-indigo-500/20 p-2.5 rounded-xl">
+            <i class="fa-solid fa-circle-info text-indigo-400 mr-1"></i> This amount will be recorded in <strong>Today's Daily Cashier</strong> and added to your <strong>Realized Net Profit</strong>.
+        </div>
+        <div class="pt-3 border-t border-slate-800 flex justify-end gap-2">
+            <button onclick="closeReceiveDueModal()" class="px-4 py-2.5 rounded-xl border border-slate-800 text-slate-400 hover:text-white text-xs font-semibold">Cancel</button>
+            <button onclick="submitDueCollection()" id="dueCollectSubmitBtn" class="bg-emerald-600 hover:bg-emerald-700 px-5 py-2.5 rounded-xl text-xs font-bold text-white flex items-center gap-2 shadow-lg"><i class="fa-solid fa-check"></i> Confirm Payment</button>
+        </div>
+    </div>
+</div>
+
 <!-- AUTH / LANDING HOME SCREEN -->
 <div id="authScreen" class="fixed inset-0 bg-slate-950 z-50 overflow-y-auto flex items-start lg:items-center justify-center p-3 sm:p-5 lg:p-8">
 <div id="logoFlightStage" aria-hidden="true">
@@ -135,7 +171,7 @@ input,select,textarea,button{-webkit-tap-highlight-color:transparent}input[type=
 <svg class="smartfix-logo-svg" viewBox="0 0 100 100"><defs><linearGradient id="sfLogoGrad"><stop offset="0%" stop-color="#ffffff"/><stop offset="55%" stop-color="#e0e7ff"/><stop offset="100%" stop-color="#c7d2fe"/></linearGradient></defs><g transform="rotate(-45 50 50)"><path d="M 36 8 L 44 8 L 44 26 L 56 26 L 56 8 L 64 8 L 64 34 L 36 34 Z" fill="url(#sfLogoGrad)"/><rect x="45" y="34" width="10" height="54" rx="4" fill="url(#sfLogoGrad)"/></g><g transform="rotate(45 50 50)"><rect x="42" y="58" width="16" height="30" rx="4" fill="url(#sfLogoGrad)"/><rect x="47.5" y="24" width="5" height="34" fill="url(#sfLogoGrad)"/><rect x="45" y="12" width="10" height="14" rx="1" fill="url(#sfLogoGrad)"/></g></svg>
 </div>
 <div id="authTitleArea">
-<h1 class="text-2xl sm:text-3xl font-black tracking-tight text-white flex items-center gap-2"><span id="smartfixTitleSpan">SMARTFIX<span class="bg-gradient-to-r from-indigo-400 to-cyan-300 bg-clip-text text-transparent">PRO</span></span><span class="text-[10px] px-2.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-400/30 font-extrabold uppercase tracking-widest">v3.5</span></h1>
+<h1 class="text-2xl sm:text-3xl font-black tracking-tight text-white flex items-center gap-2"><span id="smartfixTitleSpan">SMARTFIX<span class="bg-gradient-to-r from-indigo-400 to-cyan-300 bg-clip-text text-transparent">PRO</span></span><span class="text-[10px] px-2.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-400/30 font-extrabold uppercase tracking-widest">v3.6</span></h1>
 <p class="text-[11px] sm:text-xs text-slate-300 uppercase tracking-widest font-bold mt-0.5">Complete Mobile Workshop & Retail OS</p>
 </div>
 </div>
@@ -242,7 +278,7 @@ input,select,textarea,button{-webkit-tap-highlight-color:transparent}input[type=
 
 <!-- Footer Credit -->
 <div class="pt-4 border-t border-slate-800/80 mt-5 flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-400 relative z-10">
-<span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Cloud v3.5 Auto-Sync Vault</span>
+<span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Cloud v3.6 Auto-Sync Vault</span>
 <span>Lead Dev: <strong class="text-indigo-300">Debapriya Sarkar</strong></span>
 </div>
 </div>
@@ -346,7 +382,7 @@ input,select,textarea,button{-webkit-tap-highlight-color:transparent}input[type=
 <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 md:p-6 shadow-xl flex flex-wrap items-center justify-between gap-4"><div><h2 class="text-xl font-bold text-white flex items-center gap-2"><i class="fa-solid fa-cash-register text-emerald-400"></i> Daily Cashier</h2><p class="text-xs text-slate-400">Gross cash, UPI, net balance</p></div><div class="flex items-center gap-3"><div class="flex items-center gap-2 bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5"><label class="text-xs text-slate-400 font-semibold">Date:</label><input type="date" id="dailyReportDatePicker" onchange="renderDailyCashReport()" class="bg-transparent text-xs text-white focus:outline-none"></div><button onclick="setDailyDateToday()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-xl text-xs font-semibold border border-slate-700">Today</button><button onclick="printDirectDailyReport()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5"><i class="fa-solid fa-print"></i> Print</button></div></div>
 <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
 <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl"><span class="text-[10px] uppercase font-bold text-slate-400">Adv Cash</span><h4 id="dailyAdvReceived" class="text-xl font-bold text-blue-400">₹0</h4></div>
-<div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl"><span class="text-[10px] uppercase font-bold text-slate-400">Delivery Cash</span><h4 id="dailyDeliveryCash" class="text-xl font-bold text-emerald-400">₹0</h4></div>
+<div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl"><span class="text-[10px] uppercase font-bold text-slate-400">Delivery & Due Cash</span><h4 id="dailyDeliveryCash" class="text-xl font-bold text-emerald-400">₹0</h4></div>
 <div class="bg-slate-900 border border-cyan-500/30 p-4 rounded-2xl bg-cyan-500/5"><span class="text-[10px] uppercase font-bold text-cyan-400">Online / UPI</span><h4 id="dailyOnlineTotal" class="text-xl font-bold text-cyan-400">₹0</h4></div>
 <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl"><span class="text-[10px] uppercase font-bold text-slate-400">Refunded</span><h4 id="dailyAdvRefunded" class="text-xl font-bold text-rose-400">- ₹0</h4></div>
 <div class="bg-slate-900 border border-emerald-500/40 p-4 rounded-2xl bg-emerald-500/5 col-span-2 md:col-span-1"><span class="text-[10px] uppercase font-bold text-emerald-400">Net Cash</span><h4 id="dailyNetCash" class="text-xl font-bold text-white">₹0</h4></div>
@@ -414,7 +450,7 @@ input,select,textarea,button{-webkit-tap-highlight-color:transparent}input[type=
 </section>
 
 <section id="view-reports" class="tab-panel hidden space-y-6">
-<div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl flex flex-wrap items-center justify-between gap-4"><div><div class="flex items-center gap-2"><h2 class="text-xl font-bold text-white">Owner Financial Ledger</h2><span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Owner</span></div><p class="text-xs text-slate-400">Turnover, parts, profit</p></div><div class="flex flex-wrap items-center gap-2"><button onclick="lockSystem()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-2 rounded-xl border border-slate-700"><i class="fa-solid fa-lock mr-1"></i> Lock</button><button onclick="exportA4PDF()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5"><i class="fa-solid fa-file-arrow-down"></i> PDF</button><button onclick="printDirectA4Table()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5"><i class="fa-solid fa-print"></i> Print A4</button></div></div>
+<div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl flex flex-wrap items-center justify-between gap-4"><div><div class="flex items-center gap-2"><h2 class="text-xl font-bold text-white">Owner Financial Ledger</h2><span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Owner</span></div><p class="text-xs text-slate-400">Turnover, parts, realized profit</p></div><div class="flex flex-wrap items-center gap-2"><button onclick="lockSystem()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-2 rounded-xl border border-slate-700"><i class="fa-solid fa-lock mr-1"></i> Lock</button><button onclick="exportA4PDF()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5"><i class="fa-solid fa-file-arrow-down"></i> PDF</button><button onclick="printDirectA4Table()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5"><i class="fa-solid fa-print"></i> Print A4</button></div></div>
 <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex flex-wrap items-center justify-between gap-3 text-xs">
 <div class="flex flex-wrap items-center gap-2"><span class="text-slate-400 font-semibold">Quick:</span><button onclick="setLedgerPreset('month')" class="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 border border-slate-700">Month</button><button onclick="setLedgerPreset('lastMonth')" class="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 border border-slate-700">Last</button><button onclick="setLedgerPreset('3months')" class="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 border border-slate-700">3M</button><button onclick="setLedgerPreset('6months')" class="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 border border-slate-700">6M</button><button onclick="setLedgerPreset('all')" class="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 border border-slate-700">All</button></div>
 <div class="flex items-center gap-2"><span class="text-slate-400">Custom:</span><input type="date" id="ledgerFromDate" onchange="renderLedgerTable()" class="bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1 text-white"><span class="text-slate-400">to</span><input type="date" id="ledgerToDate" onchange="renderLedgerTable()" class="bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1 text-white"></div>
@@ -425,9 +461,9 @@ input,select,textarea,button{-webkit-tap-highlight-color:transparent}input[type=
 <div class="bg-slate-900 border border-amber-500/30 p-4 rounded-2xl bg-amber-500/5"><span class="text-xs text-amber-400 font-semibold uppercase">Discounts</span><h4 id="calcTotalDiscount" class="text-xl font-bold text-amber-400">₹0</h4></div>
 <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl"><span class="text-xs text-slate-400 font-semibold uppercase">Revenue</span><h4 id="calcTotalRevenue" class="text-xl font-bold text-blue-400">₹0</h4></div>
 <div class="bg-slate-900 border border-rose-500/30 p-4 rounded-2xl bg-rose-500/5"><span class="text-xs text-rose-400 font-semibold uppercase">Due</span><h4 id="calcTotalDue" class="text-xl font-bold text-rose-400">₹0</h4></div>
-<div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl"><span class="text-xs text-slate-400 font-semibold uppercase">Profit</span><h4 id="calcTotalProfit" class="text-xl font-bold text-emerald-400">₹0</h4></div>
+<div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl"><span class="text-xs text-slate-400 font-semibold uppercase">Cash Profit</span><h4 id="calcTotalProfit" class="text-xl font-bold text-emerald-400">₹0</h4></div>
 </div>
-<div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow"><div class="p-4 bg-slate-950 border-b border-slate-800 flex justify-between items-center"><h3 class="text-sm font-bold text-rose-400 uppercase flex items-center gap-2"><i class="fa-solid fa-hand-holding-dollar"></i> Customer Due Balances</h3><span class="text-xs text-slate-400" id="dueCountBadge">0 Due</span></div><div class="overflow-x-auto"><table class="w-full text-left text-sm" id="dueTable"><thead class="bg-slate-950/60 text-slate-400 text-xs uppercase font-semibold"><tr><th class="p-3">Bill</th><th class="p-3">Name</th><th class="p-3">Phone</th><th class="p-3">Model</th><th class="p-3 text-right">Bill</th><th class="p-3 text-right">Paid</th><th class="p-3 text-right text-rose-400">Due</th><th class="p-3 text-center">Action</th></tr></thead><tbody id="dueTableBody" class="divide-y divide-slate-800/60 text-slate-300"></tbody></table></div></div>
+<div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow"><div class="p-4 bg-slate-950 border-b border-slate-800 flex justify-between items-center"><h3 class="text-sm font-bold text-rose-400 uppercase flex items-center gap-2"><i class="fa-solid fa-hand-holding-dollar"></i> Customer Due Balances</h3><span class="text-xs text-slate-400" id="dueCountBadge">0 Due</span></div><div class="overflow-x-auto"><table class="w-full text-left text-sm" id="dueTable"><thead class="bg-slate-950/60 text-slate-400 text-xs uppercase font-semibold"><tr><th class="p-3">Bill</th><th class="p-3">Name</th><th class="p-3">Phone</th><th class="p-3">Model</th><th class="p-3 text-right">Bill</th><th class="p-3 text-right">Paid</th><th class="p-3 text-right text-rose-400">Due</th><th class="p-3 text-center">Actions</th></tr></thead><tbody id="dueTableBody" class="divide-y divide-slate-800/60 text-slate-300"></tbody></table></div></div>
 <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow"><div class="overflow-x-auto"><table class="w-full text-left text-sm" id="ledgerTable"><thead class="bg-slate-950/80 text-slate-400 text-xs uppercase font-semibold"><tr><th class="p-4">Bill</th><th class="p-4">Intake</th><th class="p-4">Delivery</th><th class="p-4">Customer</th><th class="p-4">Warranty</th><th class="p-4">Parts</th><th class="p-4">Cost</th><th class="p-4">Discount</th><th class="p-4">Billed</th><th class="p-4">Due</th><th class="p-4">Profit</th><th class="p-4">Status</th><th class="p-4 text-center">Actions</th></tr></thead><tbody id="ledgerTableBody" class="divide-y divide-slate-800/70 text-slate-300"></tbody><tfoot class="bg-slate-950 font-bold border-t-2 border-slate-700 text-white"><tr><td colspan="6" class="p-4 text-right uppercase text-xs">Summary:</td><td class="p-4 text-rose-400" id="footParts">₹0</td><td class="p-4 text-amber-400" id="footDiscount">₹0</td><td class="p-4 text-blue-400" id="footBilled">₹0</td><td class="p-4 text-rose-400" id="footDue">₹0</td><td class="p-4 text-emerald-400" id="footProfit">₹0</td><td colspan="2" class="p-4"></td></tr></tfoot></table></div></div>
 </section>
 
@@ -575,7 +611,7 @@ input,select,textarea,button{-webkit-tap-highlight-color:transparent}input[type=
 
 <div class="relative col-span-2">
 <label class="block text-xs font-semibold text-emerald-400 uppercase mb-1">Linked Stock Part (Optional)</label>
-<input type="text" id="editPartName" oninput="clearPartIdOnType('editPartId'); renderPartDropdown('editPartName', 'editPartDropdown', this.value, '')" onfocus="renderPartDropdown('editPartName', 'editPartDropdown', this.value, '')" placeholder="Search stock..." class="w-full bg-slate-950 border border-emerald-500/40 rounded-xl px-3 py-2 text-sm text-white" autocomplete="off">
+<input type="text" id="editPartName" oninput="clearPartIdOnType('editPartId'); renderPartDropdown('editPartName', 'editPartDropdown', this.value, 'editPartCost')" onfocus="renderPartDropdown('editPartName', 'editPartDropdown', this.value, 'editPartCost')" placeholder="Search stock..." class="w-full bg-slate-950 border border-emerald-500/40 rounded-xl px-3 py-2 text-sm text-white" autocomplete="off">
 <div id="editPartDropdown" class="hidden absolute w-full mt-1 bg-slate-900 border border-slate-700 rounded-xl max-h-48 overflow-y-auto z-50 shadow-2xl"></div>
 <input type="hidden" id="editPartId" value="">
 </div>
@@ -583,9 +619,10 @@ input,select,textarea,button{-webkit-tap-highlight-color:transparent}input[type=
 <div class="col-span-2 grid grid-cols-2 gap-3 p-3 bg-slate-950 rounded-xl border border-amber-500/30"><div class="col-span-2 text-xs font-bold text-amber-400"><i class="fa-solid fa-id-card mr-1"></i> ID Info</div><div><label class="block text-[10px] font-semibold text-slate-400 uppercase mb-1">Type</label><select id="editIdType" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-white"><option value="">None</option><option value="Aadhaar Card">Aadhaar</option><option value="Voter ID Card">Voter ID</option><option value="Driving License">DL</option></select></div><div><label class="block text-[10px] font-semibold text-slate-400 uppercase mb-1">Number</label><input type="text" id="editIdNumber" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-white font-mono"></div></div>
 <div class="col-span-2"><label class="block text-xs font-semibold text-amber-400 uppercase mb-1">Remarks 🔒</label><input type="text" id="editRemarks" class="w-full bg-slate-950 border border-amber-500/40 rounded-xl px-3 py-2 text-sm text-white"></div>
 <div><label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Status</label><select id="editStatusSelect" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white"><option value="Pending">Pending</option><option value="Parts-Ordered">Parts Ordered</option><option value="Ready">Ready</option><option value="Delivered">Delivered</option><option value="Unrepairable">Unrepairable</option></select></div>
-<div><label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Cost (₹)</label><input type="number" id="editEstCost" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white"></div>
-<div><label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Advance (₹)</label><input type="number" id="editAdvPaid" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white"></div>
-<div><label class="block text-xs font-semibold text-rose-400 uppercase mb-1">Due (₹)</label><input type="number" id="editDueBalance" class="w-full bg-slate-950 border border-rose-500/40 rounded-xl px-3 py-2 text-sm text-rose-400 font-bold"></div>
+<div><label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Parts Cost (₹)</label><input type="number" id="editPartCost" min="0" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white"></div>
+<div><label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Total Bill (₹)</label><input type="number" id="editEstCost" min="0" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white"></div>
+<div><label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Advance (₹)</label><input type="number" id="editAdvPaid" min="0" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white"></div>
+<div class="col-span-2"><label class="block text-xs font-semibold text-rose-400 uppercase mb-1">Pending Due (₹) <span class="text-[10px] text-slate-400 font-normal">(Reducing this auto-adjusts Cash Collected & Profit)</span></label><input type="number" id="editDueBalance" min="0" class="w-full bg-slate-950 border border-rose-500/40 rounded-xl px-3 py-2 text-sm text-rose-400 font-bold"></div>
 </div>
 <div class="pt-4 border-t border-slate-800 flex justify-between items-center"><button onclick="confirmDeleteJobFromModal()" type="button" class="px-4 py-2.5 rounded-xl bg-rose-600/20 hover:bg-rose-600 text-rose-400 hover:text-white border border-rose-500/30 text-xs font-bold flex items-center gap-1.5"><i class="fa-solid fa-trash-can"></i> Delete</button><div class="flex gap-2"><button onclick="closeEditModal()" class="px-4 py-2.5 rounded-xl border border-slate-800 text-slate-400 hover:text-white text-xs font-semibold">Cancel</button><button onclick="saveEditedJob()" class="bg-indigo-600 hover:bg-indigo-700 px-5 py-2.5 rounded-xl text-xs font-bold text-white flex items-center gap-2"><i class="fa-solid fa-floppy-disk"></i> Update</button></div></div>
 </div>
@@ -698,6 +735,20 @@ function storeMirrorKey(){return getStoreScopedKey(STORE_MIRROR_KEY);}
 const debouncedRenderJobCards=debounce(()=>renderJobCards(),200);
 const debouncedRenderCustomers=debounce(()=>renderCustomers(),200);
 
+// HELPER: Realized Cash Profit Calculation (Only collected cash/online minus parts cost)
+function calculateRealizedProfit(job) {
+    if (!job || job.status === 'Unrepairable') return 0;
+    const adv = parseFloat(job.advPaid) || 0;
+    const delCol = parseFloat(job.deliveryCollected) || 0;
+    const dueCol = Array.isArray(job.duePayments) 
+        ? job.duePayments.reduce((sum, p) => sum + (parseFloat(p.amount) || 0), 0) 
+        : 0;
+    const refund = parseFloat(job.refundPaid) || 0;
+    const pCost = parseFloat(job.partCost) || 0;
+    const totalCashReceived = Math.max(0, (adv + delCol + dueCol) - refund);
+    return Math.max(0, totalCashReceived - pCost);
+}
+
 // HELPER: Extract exact creation timestamp so latest entry always comes FIRST in Tracking
 function getJobSortTime(job) {
     if (typeof job.createdAtMs === 'number' && !isNaN(job.createdAtMs)) return job.createdAtMs;
@@ -743,7 +794,6 @@ function closeTrialWarning() {
     document.getElementById('trialWarningModal').classList.remove('flex');
 }
 
-// NEW DISCLAIMER LOGIC
 function acceptDisclaimer() {
     sessionStorage.setItem('sfx_disclaimer_agreed', 'true');
     document.getElementById('disclaimerModal').classList.add('hidden');
@@ -788,7 +838,7 @@ async function autoRestoreMirroredJobsIfCloudEmpty(userUid,cloudDocsCount){if(ha
 
 function isWarrantyValid(job){if(!job.warranty||job.warranty==="No Warranty"||job.warranty==="None"||job.warranty.includes('No Warranty'))return false;if(!job.deliveryDate||job.deliveryDate==="--")return false;const dd=new Date(job.deliveryDate),today=new Date();dd.setHours(0,0,0,0);today.setHours(0,0,0,0);if(today<dd)return false;const diff=Math.round((today-dd)/(1000*60*60*24));let max=0;if(job.warranty.includes('30 Days'))max=30;else if(job.warranty.includes('60 Days'))max=60;else if(job.warranty.includes('90 Days'))max=90;else if(job.warranty.includes('6 Months'))max=180;else return true;return diff<=max;}
 
-async function checkAndFileWarranty(originalBillNo){const job=repairJobs.find(j=>j.billNo===originalBillNo);if(!job)return;if(!isWarrantyValid(job)){alert(`Warranty Claim Denied!\n\nWarranty: ${job.warranty}\nDelivered: ${job.deliveryDate}`);return;}if(!window.confirm(`Register Warranty Claim for ${job.customerName}?\n\nDevice: ${job.model}`))return;let newBill;do{newBill='CMP-'+Math.floor(1000+Math.random()*9000);}while(repairJobs.some(j=>j.billNo===newBill));const nowMs=Date.now();const newJob={billNo:newBill,createdAtMs:nowMs,intakeDate:localDateString(),deliveryDate:"--",customerName:job.customerName,phone:job.phone,model:job.model,imei:job.imei,fault:"Warranty Claim for Bill "+originalBillNo,remarks:"Original: "+job.fault,estCost:0,advPaid:0,advPayMethod:"Cash",refundPaid:0,deliveryCollected:0,deliveryPayMethod:"Cash",dueBalance:0,status:"Pending",warranty:job.warranty,partName:"",partId:"",partCost:0,finalAmount:0,netProfit:0,isComplaint:true,originalBill:originalBillNo,idType:job.idType||"",idNumber:job.idNumber||"",diagnosedEstimate:0,diagnosedNote:"",discountPercent:0,discountAmount:0,discountTier:"Warranty",discountReason:"Warranty Claim",followUps:[{type:"System",time:new Date().toLocaleString(),note:`Warranty Claim from ${originalBillNo}`}]};await syncJobToFirestore(newJob);alert("✅ Warranty Claim Registered.");activateTab('complaints');}
+async function checkAndFileWarranty(originalBillNo){const job=repairJobs.find(j=>j.billNo===originalBillNo);if(!job)return;if(!isWarrantyValid(job)){alert(`Warranty Claim Denied!\n\nWarranty: ${job.warranty}\nDelivered: ${job.deliveryDate}`);return;}if(!window.confirm(`Register Warranty Claim for ${job.customerName}?\n\nDevice: ${job.model}`))return;let newBill;do{newBill='CMP-'+Math.floor(1000+Math.random()*9000);}while(repairJobs.some(j=>j.billNo===newBill));const nowMs=Date.now();const newJob={billNo:newBill,createdAtMs:nowMs,intakeDate:localDateString(),deliveryDate:"--",customerName:job.customerName,phone:job.phone,model:job.model,imei:job.imei,fault:"Warranty Claim for Bill "+originalBillNo,remarks:"Original: "+job.fault,estCost:0,advPaid:0,advPayMethod:"Cash",refundPaid:0,deliveryCollected:0,deliveryPayMethod:"Cash",duePayments:[],dueBalance:0,status:"Pending",warranty:job.warranty,partName:"",partId:"",partCost:0,finalAmount:0,netProfit:0,isComplaint:true,originalBill:originalBillNo,idType:job.idType||"",idNumber:job.idNumber||"",diagnosedEstimate:0,diagnosedNote:"",discountPercent:0,discountAmount:0,discountTier:"Warranty",discountReason:"Warranty Claim",followUps:[{type:"System",time:new Date().toLocaleString(),note:`Warranty Claim from ${originalBillNo}`}]};await syncJobToFirestore(newJob);alert("✅ Warranty Claim Registered.");activateTab('complaints');}
 
 function togglePasswordVisibility(fieldId,btn){const input=document.getElementById(fieldId);const icon=btn.querySelector('i');if(input.type==='password'){input.type='text';icon.className='fa-solid fa-eye-slash text-xs text-indigo-400';}else{input.type='password';icon.className='fa-solid fa-eye text-xs text-slate-500';}}
 function toggleAuthMode(mode){currentAuthMode=mode;document.getElementById('authErrorMsg').classList.add('hidden');if(mode==='register'){document.getElementById('btnLoginTab').className="flex-1 py-3 rounded-xl text-slate-400 hover:text-white transition flex items-center justify-center gap-2";document.getElementById('btnRegisterTab').className="flex-1 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg transition flex items-center justify-center gap-2";document.getElementById('shopMetaFields').classList.remove('hidden');document.getElementById('authTitle').innerText="Register Your Workshop";document.getElementById('authSubtitle').innerText="Start your 30-day free trial today";document.getElementById('authSubmitBtn').innerHTML='<span>Create Store</span><i class="fa-solid fa-arrow-right text-xs"></i>';}else{document.getElementById('btnLoginTab').className="flex-1 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg transition flex items-center justify-center gap-2";document.getElementById('btnRegisterTab').className="flex-1 py-3 rounded-xl text-slate-400 hover:text-white transition flex items-center justify-center gap-2";document.getElementById('shopMetaFields').classList.add('hidden');document.getElementById('authTitle').innerText="Owner Authorization";document.getElementById('authSubtitle').innerText="Sign in with your registered workshop credentials";document.getElementById('authSubmitBtn').innerHTML='<span>Sign In</span><i class="fa-solid fa-arrow-right text-xs"></i>';}}
@@ -811,7 +861,7 @@ function signOutShop(){
 if(unsubJobsSnapshot){try{unsubJobsSnapshot();}catch(_){}unsubJobsSnapshot=null;}
 if(unsubCustomersSnapshot){try{unsubCustomersSnapshot();}catch(_){}unsubCustomersSnapshot=null;}
 if(unsubLcdSnapshot){try{unsubLcdSnapshot();}catch(_){}unsubLcdSnapshot=null;}
-sessionStorage.removeItem('sfx_disclaimer_agreed'); // Reset disclaimer on logout
+sessionStorage.removeItem('sfx_disclaimer_agreed');
 auth.signOut().finally(()=>location.reload());
 }
 
@@ -860,14 +910,9 @@ if(currentStore.tierDiscounts) { defaultTierDiscounts = { ...defaultTierDiscount
 const promoInput=document.getElementById('promoOfferInput');if(promoInput)promoInput.value=getPromoOffer();
 const promoDisp=document.getElementById('currentPromoDisplay');if(promoDisp)promoDisp.innerText=getPromoOffer();
 
-// ==========================================
-// BUG FIX: PREMIUM ACCESS CHECKS (TIMEZONE SAFE)
-// ==========================================
 const subEndStr = currentStore.subscriptionEnd || '2000-01-01';
 const planType = currentStore.planType || 'Trial';
 const currentToday = getTodayStr();
-
-// ✅ FIX: Direct string comparison to avoid UTC timezone expiry bug
 const isExpired = currentToday > subEndStr; 
 
 let daysDiff = 0;
@@ -923,9 +968,6 @@ if (isExpired) {
 
 document.getElementById('authScreen').classList.add('hidden');
 
-// ==========================================
-// NEW: SHOW DISCLAIMER POPUP (ONCE PER SESSION)
-// ==========================================
 if (!sessionStorage.getItem('sfx_disclaimer_agreed')) {
     document.getElementById('disclaimerModal').classList.remove('hidden');
     document.getElementById('disclaimerModal').classList.add('flex');
@@ -1012,7 +1054,6 @@ function attrSafe(str) {
   if (!str) return '';
   return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
 }
-// ========================================================================
 
 async function adjustStockForJob(oldPartId,newPartId){
 if(oldPartId===newPartId)return;
@@ -1214,7 +1255,6 @@ async function removeCustomerTag(tag){if(!currentViewingCustomerPhone||!auth.cur
 
 function sendCustomerBroadcast(){if(!currentViewingCustomerPhone)return;const waPhone=normalizePhoneForWhatsApp(currentViewingCustomerPhone);if(!waPhone||waPhone.length<10){alert('Invalid phone');return;}const stats=getCustomerStats(currentViewingCustomerPhone);const discount=calculateLoyaltyDiscount(stats);const sName=currentStore?currentStore.shopName:'SmartFix';let message=`Dear ${stats.name||'Customer'},\n\nGreetings from *${sName}*! 👋\n\n`;if(discount.percent>0)message+=`🎁 You have *${discount.percent}% loyalty discount* on your next visit!\n\n`;else if(isLoyaltyEnabled()&&discount.tier==='New')message+=`🎁 Thank you for your visit! Next time: *2% loyalty discount*!\n\n`;const promo = getEffectivePromo(); if(promo) message+=`🎁 *${promo}*\n\n`;message+=`📞 Helpline: +91 ${currentStore?.shopPhone||''}`;window.open(`https://wa.me/${waPhone}?text=${encodeURIComponent(message)}`,'_blank');}
 
-// NEW Tier Settings Functions
 function checkLoyaltyAccess() {
     if (!isPremium) {
         showPremiumModal("Subscription Expired", "Your license has expired. Please contact customer care to renew.");
@@ -1318,9 +1358,46 @@ async function verifyAdminPassword(){const entered=document.getElementById('admi
 function lockSystem(){isOwnerAuthenticated=false;activateTab('newJob');}
 function activateTab(tabId){document.querySelectorAll('.tab-panel').forEach(panel=>panel.classList.add('hidden'));const target=document.getElementById('view-'+tabId);if(target)target.classList.remove('hidden');const tabs=['newJob','dailyCash','trackJobs','complaints','customers','reports','backup'];tabs.forEach(t=>{const btn=document.getElementById('tab-'+t);if(!btn)return;if(t===tabId)btn.className="px-3 py-2 rounded-lg text-xs md:text-sm font-semibold transition bg-indigo-600 text-white shadow-md flex items-center gap-1.5";else btn.className="px-3 py-2 rounded-lg text-xs md:text-sm font-semibold transition text-slate-400 hover:text-white flex items-center gap-1.5";});if(tabId==='dailyCash')renderDailyCashReport();if(tabId==='trackJobs'||tabId==='complaints')renderJobCards();if(tabId==='customers')renderCustomers();if(tabId==='reports')renderLedgerTable();}
 
+// ==========================================
+// INTAKE SUBMIT WITH SAME-DATE DUPLICATE BLOCKER
+// ==========================================
 async function handleFormSubmit(e){
 e.preventDefault();
 if(isSubmittingIntake)return;
+
+const today=getTodayStr();
+const rawPhone=document.getElementById('custPhone').value.trim();
+const normPhone=normalizePhoneLocal(rawPhone);
+const modelInput=document.getElementById('deviceModel').value.trim();
+const imeiInput=document.getElementById('deviceImei').value.trim();
+const faultInput=document.getElementById('faultDesc').value.trim();
+
+// DUPLICATE CHECK FOR SAME DATE (Allows previous or next dates, blocks duplicate on the same date)
+const allKnownJobs=[...repairJobs, ...getMirroredJobsFromLocal()];
+const duplicateJob=allKnownJobs.find(j=>{
+    if(!j || String(j.intakeDate||'') !== today) return false;
+    const jPhone=normalizePhoneLocal(j.phone);
+    const jModel=String(j.model||'').trim().toLowerCase();
+    const jImei=String(j.imei||'').trim().toLowerCase();
+    const jFault=String(j.fault||'').trim().toLowerCase();
+    const inModel=modelInput.toLowerCase();
+    const inImei=imeiInput.toLowerCase();
+    const inFault=faultInput.toLowerCase();
+
+    // If valid IMEI is provided, check same IMEI on the same date
+    if(inImei && inImei !== 'n/a' && inImei.length >= 6 && jImei === inImei) return true;
+    // Check same Phone + same Device Model on the same date
+    if(normPhone && jPhone === normPhone && jModel === inModel) return true;
+    // Also block exact same customer name + model + fault on same date
+    if(String(j.customerName||'').trim().toLowerCase() === document.getElementById('custName').value.trim().toLowerCase() && jModel === inModel && jFault === inFault) return true;
+    return false;
+});
+
+if(duplicateJob){
+    alert(`⚠️ ডুপ্লিকেট বিল এন্ট্রি ব্লক করা হয়েছে!\n\nআজকের তারিখে (${today}) এই কাস্টমার ও ডিভাইসের বিল ইতিমধ্যে এন্ট্রি করা হয়ে গেছে।\n\n• Bill No: ${duplicateJob.billNo}\n• Customer: ${duplicateJob.customerName} (${duplicateJob.phone})\n• Device: ${duplicateJob.model}\n\nএকই তারিখে সেম বিল দ্বিতীয়বার এন্ট্রি নেওয়া হবে না।`);
+    return;
+}
+
 isSubmittingIntake=true;
 const submitBtn=document.getElementById('intakeSubmitBtn');
 const origBtnHTML=submitBtn?submitBtn.innerHTML:'';
@@ -1328,7 +1405,6 @@ if(submitBtn){submitBtn.disabled=true;submitBtn.classList.add('btn-loading');sub
 try{
 let generatedBill;let attempts=0;
 do{generatedBill='SFX-'+Math.floor(1000+Math.random()*9000);attempts++;}while(repairJobs.some(j=>j.billNo===generatedBill)&&attempts<10);
-const today=getTodayStr();
 const nowMs=Date.now();
 const est=parseFloat(document.getElementById('estCost').value)||0;
 const adv=parseFloat(document.getElementById('advPaid').value)||0;
@@ -1345,7 +1421,7 @@ const appliedDiscountReason=isLoyaltyEnabled() ? (document.getElementById('appli
 const discountAmount=appliedDiscountPercent>0?Math.round(est*appliedDiscountPercent/100):0;
 const partName=document.getElementById('intakePartName').value.trim();
 const partId=partName ? document.getElementById('intakePartId').value : '';
-const newJob={billNo:generatedBill,createdAtMs:nowMs,intakeDate:today,deliveryDate:"--",customerName:document.getElementById('custName').value.trim(),phone:document.getElementById('custPhone').value.trim(),model:document.getElementById('deviceModel').value.trim(),imei:document.getElementById('deviceImei').value.trim()||"N/A",fault:document.getElementById('faultDesc').value.trim(),remarks:remarks,estCost:est,advPaid:adv,advPayMethod:payMethod,diagnosedEstimate:0,diagnosedNote:'',refundPaid:0,deliveryCollected:0,deliveryPayMethod:"Cash",dueBalance:0,status:isPartsOnly?"Parts-Ordered":"Pending",warranty:"No Warranty",partName:partName,partId:partId,partCost:0,finalAmount:0,netProfit:0,isComplaint:false,idType:custIdType,idNumber:custIdNumber,discountPercent:appliedDiscountPercent,discountTier:appliedDiscountTier,discountReason:appliedDiscountReason,discountAmount:discountAmount,followUps:[{type:"System",time:new Date().toLocaleString(),note:`Intake created${appliedDiscountPercent>0?` with ${appliedDiscountPercent}% ${appliedDiscountTier} discount`:''}`}]};
+const newJob={billNo:generatedBill,createdAtMs:nowMs,intakeDate:today,deliveryDate:"--",customerName:document.getElementById('custName').value.trim(),phone:rawPhone,model:modelInput,imei:imeiInput||"N/A",fault:faultInput,remarks:remarks,estCost:est,advPaid:adv,advPayMethod:payMethod,diagnosedEstimate:0,diagnosedNote:'',refundPaid:0,deliveryCollected:0,deliveryPayMethod:"Cash",duePayments:[],dueBalance:0,status:isPartsOnly?"Parts-Ordered":"Pending",warranty:"No Warranty",partName:partName,partId:partId,partCost:0,finalAmount:0,netProfit:0,isComplaint:false,idType:custIdType,idNumber:custIdNumber,discountPercent:appliedDiscountPercent,discountTier:appliedDiscountTier,discountReason:appliedDiscountReason,discountAmount:discountAmount,followUps:[{type:"System",time:new Date().toLocaleString(),note:`Intake created${appliedDiscountPercent>0?` with ${appliedDiscountPercent}% ${appliedDiscountTier} discount`:''}`}]};
 syncJobToFirestore(newJob);
 if(partId)adjustStockForJob('',partId);
 printDirectThermalVoucher(newJob,true);
@@ -1355,11 +1431,14 @@ activateTab('trackJobs');
 renderDailyCashReport();
 renderJobCards();
 }catch(err){alert('Failed to save: '+err.message);}
-finally{isSubmittingIntake=false;if(submitBtn){submitBtn.disabled=false;submitBtn.classList.remove('btn-loading');submitBtn.innerHTML=origBtnHTML;}}
+finally{setTimeout(()=>{isSubmittingIntake=false;if(submitBtn){submitBtn.disabled=false;submitBtn.classList.remove('btn-loading');submitBtn.innerHTML=origBtnHTML;}},600);}
 }
 
 function setDailyDateToday(){document.getElementById('dailyReportDatePicker').value=getTodayStr();renderDailyCashReport();}
 
+// ==========================================
+// DAILY CASH REPORT (INCLUDES DUE COLLECTIONS)
+// ==========================================
 function renderDailyCashReport(){
 const selectedDate=document.getElementById('dailyReportDatePicker').value||getTodayStr();
 document.getElementById('dailyAuditDateLabel').innerText=`Date: ${selectedDate}`;
@@ -1369,8 +1448,34 @@ const auditBody=document.getElementById('dailyAuditTableBody');auditBody.innerHT
 repairJobs.forEach(job=>{
 if(job.intakeDate===selectedDate){countReceived++;const adv=parseFloat(job.advPaid)||0;if(adv>0){const method=job.advPayMethod||"Cash";if(method==="Online")onlineUPICollection+=adv;else cashFromAdvance+=adv;addAuditRow(job.billNo,job.customerName,job.phone,job.model,"Adv Recv",method,adv,0);}}
 if(job.deliveryDate===selectedDate){
-if(job.status==="Delivered"){countDelivered++;const collected=(job.deliveryCollected!==undefined&&job.deliveryCollected!=='')?(parseFloat(job.deliveryCollected)||0):Math.max(0,(parseFloat(job.finalAmount)||0)-(parseFloat(job.advPaid)||0));const method=job.deliveryPayMethod||"Cash";if(method==="Online")onlineUPICollection+=collected;else cashFromDelivery+=collected;addAuditRow(job.billNo,job.customerName,job.phone,job.model,"Delivered",method,collected,0);}
+if(job.status==="Delivered"){
+    countDelivered++;
+    const collected=(job.deliveryCollected!==undefined&&job.deliveryCollected!=='')?(parseFloat(job.deliveryCollected)||0):Math.max(0,(parseFloat(job.finalAmount)||0)-(parseFloat(job.advPaid)||0));
+    const method=job.deliveryPayMethod||"Cash";
+    if(collected>0){
+        if(method==="Online")onlineUPICollection+=collected;else cashFromDelivery+=collected;
+        addAuditRow(job.billNo,job.customerName,job.phone,job.model,"Delivered",method,collected,0);
+    }
+    const overRefund=parseFloat(job.refundPaid)||0;
+    if(overRefund>0){
+        cashOutRefund+=overRefund;
+        addAuditRow(job.billNo,job.customerName,job.phone,job.model,"Overpay Refund","Cash",0,overRefund);
+    }
+}
 else if(job.status==="Unrepairable"){countUnrepaired++;const refund=parseFloat(job.refundPaid)||parseFloat(job.advPaid)||0;if(refund>0){cashOutRefund+=refund;addAuditRow(job.billNo,job.customerName,job.phone,job.model,"Refund Out","Cash",0,refund);}}
+}
+// Track subsequent Due Balance collections by date
+if(Array.isArray(job.duePayments)){
+    job.duePayments.forEach(dp=>{
+        if(dp.date===selectedDate){
+            const amt=parseFloat(dp.amount)||0;
+            const method=dp.method||"Cash";
+            if(amt>0){
+                if(method==="Online")onlineUPICollection+=amt;else cashFromDelivery+=amt;
+                addAuditRow(job.billNo,job.customerName,job.phone,job.model,"Due Collected",method,amt,0);
+            }
+        }
+    });
 }
 });
 const activePendingCount=repairJobs.filter(j=>j.status==='Pending').length;
@@ -1441,7 +1546,6 @@ const toDate=document.getElementById(isComplaintsTab?'complaintToDate':'trackToD
 const container=document.getElementById(isComplaintsTab?'complaintCardGrid':'jobCardGrid');
 container.innerHTML='';
 
-// Always keep latest entry first in Tracking
 const sortedJobs = sortJobsLatestFirst([...repairJobs]);
 
 const filteredByDateAndQuery=sortedJobs.filter(job=>{
@@ -1489,6 +1593,7 @@ ${hasDiagnosis&&job.diagnosedNote?`<p class="text-[10px] text-amber-400 mt-0.5 l
 <button onclick="handleStatusWhatsApp('${escapeHtml(job.billNo)}')" title="WhatsApp" class="w-8 h-8 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center text-sm shadow transition"><i class="fa-brands fa-whatsapp"></i></button>
 <button onclick="openCustomerHistoryModal('${escapeHtml(normalizePhoneLocal(job.phone))}')" title="Customer" class="w-8 h-8 rounded-xl bg-indigo-600/20 hover:bg-indigo-600 text-indigo-400 hover:text-white border border-indigo-500/30 flex items-center justify-center text-xs transition"><i class="fa-solid fa-user"></i></button>
 ${!isDelivered&&!isUnrepairable?`<button onclick="toggleDeviceReady('${escapeHtml(job.billNo)}')" title="${isReady?'Pending':'Ready'}" class="px-2 py-1.5 rounded-xl text-[11px] font-bold border transition flex items-center gap-1 ${isReady?'bg-blue-600 text-white border-blue-500':'bg-slate-800 text-slate-300 border-slate-700 hover:text-white'}"><i class="fa-solid fa-bell"></i> ${isReady?'Ready':'Set Ready'}</button><button onclick="openDiagnosisModal('${escapeHtml(job.billNo)}')" title="Diagnosis" class="px-2 py-1.5 rounded-xl text-[11px] font-bold border transition bg-amber-500/20 text-amber-400 border-amber-500/30 hover:bg-amber-500 hover:text-white flex items-center gap-1"><i class="fa-solid fa-stethoscope"></i> Est</button>`:''}
+${isDelivered&&hasDue?`<button onclick="openReceiveDueModal('${escapeHtml(job.billNo)}')" title="Receive Due" class="px-2 py-1.5 rounded-xl text-[11px] font-bold border transition bg-emerald-500/20 text-emerald-400 border-emerald-500/30 hover:bg-emerald-600 hover:text-white flex items-center gap-1"><i class="fa-solid fa-hand-holding-dollar"></i> Collect Due</button>`:''}
 ${isDelivered&&isWarrantyValid(job)?`<button onclick="checkAndFileWarranty('${escapeHtml(job.billNo)}')" title="Warranty Claim" class="px-2 py-1.5 rounded-xl text-[11px] font-bold border transition bg-amber-500/20 text-amber-400 border-amber-500/30 hover:bg-amber-500 hover:text-white flex items-center gap-1"><i class="fa-solid fa-shield-halved"></i> Claim</button>`:''}
 </div>
 <div class="flex items-center gap-1">
@@ -1510,6 +1615,8 @@ function openJobDetailModal(billNo){const job=repairJobs.find(j=>j.billNo===bill
 const displayEst=parseFloat(job.diagnosedEstimate)||0;const origEst=parseFloat(job.estCost)||0;const finalAmt=parseFloat(job.finalAmount)||0;
 const totalBilled=job.status==='Unrepairable'?0:(job.status==='Delivered'?finalAmt:(displayEst>0?displayEst:origEst));
 const discPct=getEffectiveDiscount(job);const discAmt=discPct > 0 ? (parseFloat(job.discountAmount) || 0) : 0;
+const duePaidSum = Array.isArray(job.duePayments) ? job.duePayments.reduce((s,p)=>s+(parseFloat(p.amount)||0),0) : 0;
+const totalCollected = (parseFloat(job.advPaid)||0) + (parseFloat(job.deliveryCollected)||0) + duePaidSum;
 document.getElementById('modalJobInfoBody').innerHTML=`
 <div class="grid grid-cols-2 gap-3 text-xs bg-slate-950 p-4 rounded-2xl border border-slate-800">
 <div><span class="text-slate-400">Customer:</span> <strong class="text-white block mt-0.5">${escapeHtml(job.customerName)}</strong></div>
@@ -1522,14 +1629,14 @@ ${discPct>0?`<div class="col-span-2 text-amber-300 bg-amber-500/10 p-2 rounded-l
 ${job.idNumber?`<div class="col-span-2 text-indigo-300"><i class="fa-solid fa-id-card mr-1"></i> ${escapeHtml(job.idType)}: <strong class="font-mono">${escapeHtml(job.idNumber)}</strong></div>`:''}
 ${job.remarks?`<div class="col-span-2 text-amber-300 bg-amber-500/10 p-2 rounded-lg border border-amber-500/20"><i class="fa-solid fa-note-sticky mr-1"></i> ${escapeHtml(job.remarks)}</div>`:''}
 <div><span class="text-slate-400">Total Billed:</span> <strong class="text-white block mt-0.5">₹${totalBilled}</strong></div>
-<div><span class="text-slate-400">Advance:</span> <strong class="text-emerald-400 block mt-0.5">₹${job.advPaid} (${escapeHtml(job.advPayMethod||'Cash')})</strong></div>
-${job.dueBalance>0?`<div class="col-span-2 text-rose-400 font-bold border-t border-slate-800 pt-1.5 flex justify-between"><span>Pending Due:</span><span>₹${job.dueBalance}</span></div>`:''}
+<div><span class="text-slate-400">Total Collected:</span> <strong class="text-emerald-400 block mt-0.5">₹${totalCollected} (Adv: ₹${job.advPaid||0})</strong></div>
+${job.dueBalance>0?`<div class="col-span-2 text-rose-400 font-bold border-t border-slate-800 pt-1.5 flex justify-between items-center"><span>Pending Due: ₹${job.dueBalance}</span><button onclick="closeJobDetailModal(); openReceiveDueModal('${escapeHtml(job.billNo)}')" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[11px] font-bold">Receive Due</button></div>`:''}
 </div>
 `;
 renderFollowUpList(job.followUps||[]);
 document.getElementById('jobDetailModal').classList.remove('hidden');document.getElementById('jobDetailModal').classList.add('flex');}
 
-function renderFollowUpList(logs){const container=document.getElementById('followUpList');container.innerHTML='';document.getElementById('followUpCountBadge').innerText=`${logs.length} Logs`;if(!logs||logs.length===0){container.innerHTML=`<p class="text-xs text-slate-500 py-3 text-center">No follow-ups yet.</p>`;return;}logs.forEach(item=>{let icon='<i class="fa-solid fa-info text-slate-400"></i>';if(item.type==='Call')icon='<i class="fa-solid fa-phone text-emerald-400"></i>';if(item.type==='WhatsApp')icon='<i class="fa-brands fa-whatsapp text-emerald-400"></i>';if(item.type==='Diagnosis')icon='<i class="fa-solid fa-stethoscope text-amber-400"></i>';container.innerHTML+=`
+function renderFollowUpList(logs){const container=document.getElementById('followUpList');container.innerHTML='';document.getElementById('followUpCountBadge').innerText=`${logs.length} Logs`;if(!logs||logs.length===0){container.innerHTML=`<p class="text-xs text-slate-500 py-3 text-center">No follow-ups yet.</p>`;return;}logs.forEach(item=>{let icon='<i class="fa-solid fa-info text-slate-400"></i>';if(item.type==='Call')icon='<i class="fa-solid fa-phone text-emerald-400"></i>';if(item.type==='WhatsApp')icon='<i class="fa-brands fa-whatsapp text-emerald-400"></i>';if(item.type==='Diagnosis')icon='<i class="fa-solid fa-stethoscope text-amber-400"></i>';if(item.type==='Due Payment')icon='<i class="fa-solid fa-hand-holding-dollar text-emerald-400"></i>';container.innerHTML+=`
 <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800/80 flex items-start gap-2.5 text-xs">
 <div class="mt-0.5">${icon}</div>
 <div class="flex-1"><div class="flex items-center justify-between text-[10px] text-slate-400"><span class="font-bold text-slate-300 uppercase">${escapeHtml(item.type)}</span><span>${escapeHtml(item.time)}</span></div><p class="text-slate-300 mt-0.5">${escapeHtml(item.note)}</p></div>
@@ -1544,6 +1651,67 @@ async function toggleDeviceReady(billNo){const idx=repairJobs.findIndex(j=>j.bil
 
 function checkAdminThenEdit(billNo){if(isOwnerAuthenticated)openEditModal(billNo);else{pendingDestinationTab='edit_'+billNo;openPasswordModal();}}
 function requestDirectDelete(billNo){if(isOwnerAuthenticated)executeConfirmedDeletion(billNo);else{pendingDestinationTab='delete_'+billNo;openPasswordModal();}}
+
+// ==========================================
+// DUE COLLECTION MODAL & HANDLER (NEW)
+// ==========================================
+function openReceiveDueModal(billNo){
+    const job=repairJobs.find(j=>j.billNo===billNo);
+    if(!job)return;
+    const due=parseFloat(job.dueBalance)||0;
+    if(due<=0){alert('No pending due on this bill.');return;}
+    document.getElementById('dueCollectBillNo').value=billNo;
+    document.getElementById('dueCollectBillDisp').innerText=job.billNo;
+    document.getElementById('dueCollectCustDisp').innerText=`${job.customerName} (${job.phone})`;
+    document.getElementById('dueCollectMaxDisp').innerText=`₹${due}`;
+    const amtInput=document.getElementById('dueCollectAmount');
+    amtInput.value=due;
+    amtInput.max=due;
+    document.getElementById('dueCollectMethod').value='Cash';
+    document.getElementById('receiveDueModal').classList.remove('hidden');
+    document.getElementById('receiveDueModal').classList.add('flex');
+}
+
+function closeReceiveDueModal(){
+    document.getElementById('receiveDueModal').classList.add('hidden');
+    document.getElementById('receiveDueModal').classList.remove('flex');
+}
+
+async function submitDueCollection(){
+    const billNo=document.getElementById('dueCollectBillNo').value;
+    const idx=repairJobs.findIndex(j=>j.billNo===billNo);
+    if(idx===-1)return;
+    const job=repairJobs[idx];
+    const currentDue=parseFloat(job.dueBalance)||0;
+    const collectAmt=parseFloat(document.getElementById('dueCollectAmount').value)||0;
+    const method=document.getElementById('dueCollectMethod').value||'Cash';
+    if(collectAmt<=0 || collectAmt>currentDue){
+        alert(`Please enter a valid amount between ₹1 and ₹${currentDue}.`);
+        return;
+    }
+    const btn=document.getElementById('dueCollectSubmitBtn');
+    const origHTML=btn.innerHTML;
+    btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
+    try{
+        const today=getTodayStr();
+        if(!Array.isArray(job.duePayments))job.duePayments=[];
+        job.duePayments.push({date:today,amount:collectAmt,method:method});
+        job.dueBalance=Math.max(0,currentDue-collectAmt);
+        job.netProfit=calculateRealizedProfit(job);
+        if(!Array.isArray(job.followUps))job.followUps=[];
+        job.followUps.unshift({type:"Due Payment",time:new Date().toLocaleString(),note:`Collected Due: ₹${collectAmt} (${method}). Remaining Due: ₹${job.dueBalance}`});
+        await syncJobToFirestore(job);
+        closeReceiveDueModal();
+        renderJobCards();
+        renderDailyCashReport();
+        if(isOwnerAuthenticated)renderLedgerTable();
+        alert(`✅ ₹${collectAmt} (${method}) received! Added to Today's Cashier & Realized Profit.`);
+    }catch(e){
+        alert('Failed: '+e.message);
+    }finally{
+        btn.disabled=false;btn.innerHTML=origHTML;
+    }
+}
 
 function openDiagnosisModal(billNo){const job=repairJobs.find(j=>j.billNo===billNo);if(!job)return;document.getElementById('diagBillNo').value=billNo;document.getElementById('diagFault').value=job.diagnosedNote||job.fault||'';document.getElementById('diagEstimate').value=job.diagnosedEstimate||job.estCost||0;document.getElementById('diagPartsCost').value=job.partCost||0;document.getElementById('diagPartsName').value=job.partName||'';document.getElementById('diagPartId').value=job.partId||'';document.getElementById('diagNotifyWhatsApp').checked=false;document.getElementById('diagnosisModal').classList.remove('hidden');document.getElementById('diagnosisModal').classList.add('flex');}
 function closeDiagnosisModal(){document.getElementById('diagnosisModal').classList.add('hidden');document.getElementById('diagnosisModal').classList.remove('flex');}
@@ -1622,7 +1790,7 @@ const bNo=document.getElementById('modalBillNo').value;const status=document.get
 const btn=document.getElementById('deliverySubmitBtn');const origHTML=btn.innerHTML;btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Processing...';
 try{
 repairJobs[idx].deliveryDate=today;
-if(status==="Unrepairable"){repairJobs[idx].status="Unrepairable";repairJobs[idx].warranty="No Warranty";repairJobs[idx].partName="Unrepairable / Returned";repairJobs[idx].partCost=0;repairJobs[idx].finalAmount=0;repairJobs[idx].estCost=0;repairJobs[idx].refundPaid=advPaid;repairJobs[idx].deliveryCollected=0;repairJobs[idx].dueBalance=0;repairJobs[idx].netProfit=0;}
+if(status==="Unrepairable"){repairJobs[idx].status="Unrepairable";repairJobs[idx].warranty="No Warranty";repairJobs[idx].partName="Unrepairable / Returned";repairJobs[idx].partCost=0;repairJobs[idx].finalAmount=0;repairJobs[idx].estCost=0;repairJobs[idx].refundPaid=advPaid;repairJobs[idx].deliveryCollected=0;repairJobs[idx].duePayments=[];repairJobs[idx].dueBalance=0;repairJobs[idx].netProfit=0;}
 else{const pName=document.getElementById('modalPartName').value.trim();const pCost=parseFloat(document.getElementById('modalPartCost').value)||0;const fAmount=parseFloat(document.getElementById('modalFinalAmount').value)||0;const warranty=document.getElementById('modalWarranty').value;const collected=parseFloat(document.getElementById('modalDeliveryCashCollected').value)||0;const delMethod=document.getElementById('modalDeliveryPaymentMethod').value||"Cash";
 const discPct=getEffectiveDiscount(repairJobs[idx]);
 const discAmt=Math.round(fAmount*discPct/100);
@@ -1630,8 +1798,11 @@ const netPayable=Math.max(0,fAmount-discAmt);
 const remainingPayable=Math.max(0,netPayable-advPaid);
 const pendingDue=Math.max(0,remainingPayable-collected);
 const overpaid=Math.max(0,advPaid-netPayable);
-const calculatedProfit=Math.max(0,netPayable-pCost);
-repairJobs[idx].status="Delivered";repairJobs[idx].warranty=warranty;repairJobs[idx].partName=pName;repairJobs[idx].partCost=pCost;repairJobs[idx].finalAmount=fAmount;repairJobs[idx].discountAmount=discAmt;repairJobs[idx].deliveryCollected=collected;repairJobs[idx].deliveryPayMethod=delMethod;repairJobs[idx].dueBalance=pendingDue;repairJobs[idx].refundPaid=overpaid;repairJobs[idx].netProfit=calculatedProfit;
+
+repairJobs[idx].status="Delivered";repairJobs[idx].warranty=warranty;repairJobs[idx].partName=pName;repairJobs[idx].partCost=pCost;repairJobs[idx].finalAmount=fAmount;repairJobs[idx].discountAmount=discAmt;repairJobs[idx].deliveryCollected=collected;repairJobs[idx].deliveryPayMethod=delMethod;repairJobs[idx].dueBalance=pendingDue;repairJobs[idx].refundPaid=overpaid;
+// REALIZED CASH PROFIT: Only collected cash/online minus parts cost (Unpaid due is NOT counted as profit yet)
+repairJobs[idx].netProfit=calculateRealizedProfit(repairJobs[idx]);
+
 const newPartId=pName ? document.getElementById('modalPartId').value : '';const oldPartId=repairJobs[idx].partId||'';repairJobs[idx].partId=newPartId;
 await adjustStockForJob(oldPartId,newPartId);
 if(overpaid>0)alert(`Note: Advance (₹${advPaid}) exceeded bill (₹${netPayable}). ₹${overpaid} must be refunded.`);
@@ -1644,21 +1815,71 @@ syncJobToFirestore(repairJobs[idx]);
 }catch(e){alert('Failed: '+e.message);}finally{btn.disabled=false;btn.innerHTML=origHTML;}
 }
 
-function openEditModal(billNo){const job=repairJobs.find(j=>j.billNo===billNo);if(!job)return;document.getElementById('editBillNo').value=job.billNo;document.getElementById('editModalBillBadge').innerText=job.billNo;document.getElementById('editCustName').value=job.customerName;document.getElementById('editCustPhone').value=job.phone;document.getElementById('editModel').value=job.model;document.getElementById('editImei').value=job.imei;document.getElementById('editFault').value=job.fault;document.getElementById('editPartName').value=job.partName||'';document.getElementById('editPartId').value=job.partId||'';document.getElementById('editIdType').value=job.idType||'';document.getElementById('editIdNumber').value=job.idNumber||'';document.getElementById('editRemarks').value=job.remarks||'';document.getElementById('editStatusSelect').value=job.status;document.getElementById('editEstCost').value=(job.status==='Unrepairable'?0:(job.finalAmount||job.diagnosedEstimate||job.estCost));document.getElementById('editAdvPaid').value=job.advPaid;document.getElementById('editDueBalance').value=(job.status==='Unrepairable'?0:(job.dueBalance||0));document.getElementById('editModal').classList.remove('hidden');document.getElementById('editModal').classList.add('flex');}
+function openEditModal(billNo){const job=repairJobs.find(j=>j.billNo===billNo);if(!job)return;document.getElementById('editBillNo').value=job.billNo;document.getElementById('editModalBillBadge').innerText=job.billNo;document.getElementById('editCustName').value=job.customerName;document.getElementById('editCustPhone').value=job.phone;document.getElementById('editModel').value=job.model;document.getElementById('editImei').value=job.imei;document.getElementById('editFault').value=job.fault;document.getElementById('editPartName').value=job.partName||'';document.getElementById('editPartId').value=job.partId||'';document.getElementById('editPartCost').value=job.partCost||0;document.getElementById('editIdType').value=job.idType||'';document.getElementById('editIdNumber').value=job.idNumber||'';document.getElementById('editRemarks').value=job.remarks||'';document.getElementById('editStatusSelect').value=job.status;document.getElementById('editEstCost').value=(job.status==='Unrepairable'?0:(job.finalAmount||job.diagnosedEstimate||job.estCost));document.getElementById('editAdvPaid').value=job.advPaid;document.getElementById('editDueBalance').value=(job.status==='Unrepairable'?0:(job.dueBalance||0));document.getElementById('editModal').classList.remove('hidden');document.getElementById('editModal').classList.add('flex');}
 function closeEditModal(){document.getElementById('editModal').classList.add('hidden');document.getElementById('editModal').classList.remove('flex');}
 
-async function saveEditedJob(){const bNo=document.getElementById('editBillNo').value;const idx=repairJobs.findIndex(j=>j.billNo===bNo);if(idx===-1)return;const newStatus=document.getElementById('editStatusSelect').value;
+async function saveEditedJob(){
+const bNo=document.getElementById('editBillNo').value;const idx=repairJobs.findIndex(j=>j.billNo===bNo);if(idx===-1)return;
+const job=repairJobs[idx];
+const newStatus=document.getElementById('editStatusSelect').value;
 const editedPartName=document.getElementById('editPartName').value.trim();
 const newPartId=editedPartName ? document.getElementById('editPartId').value : '';
-const oldPartId=repairJobs[idx].partId||'';
-repairJobs[idx].partId=newPartId;
-repairJobs[idx].partName=editedPartName;
-repairJobs[idx].customerName=document.getElementById('editCustName').value.trim();repairJobs[idx].phone=document.getElementById('editCustPhone').value.trim();repairJobs[idx].model=document.getElementById('editModel').value.trim();repairJobs[idx].imei=document.getElementById('editImei').value.trim();repairJobs[idx].fault=document.getElementById('editFault').value.trim();repairJobs[idx].idType=document.getElementById('editIdType').value;repairJobs[idx].idNumber=document.getElementById('editIdNumber').value.trim();repairJobs[idx].remarks=document.getElementById('editRemarks').value.trim();repairJobs[idx].status=newStatus;
+const oldPartId=job.partId||'';
+const oldDue=parseFloat(job.dueBalance)||0;
+
+job.partId=newPartId;
+job.partName=editedPartName;
+job.customerName=document.getElementById('editCustName').value.trim();
+job.phone=document.getElementById('editCustPhone').value.trim();
+job.model=document.getElementById('editModel').value.trim();
+job.imei=document.getElementById('editImei').value.trim();
+job.fault=document.getElementById('editFault').value.trim();
+job.idType=document.getElementById('editIdType').value;
+job.idNumber=document.getElementById('editIdNumber').value.trim();
+job.remarks=document.getElementById('editRemarks').value.trim();
+job.status=newStatus;
+
 const inputCost=parseFloat(document.getElementById('editEstCost').value)||0;
-if(newStatus==='Unrepairable'){repairJobs[idx].finalAmount=0;repairJobs[idx].estCost=0;repairJobs[idx].partCost=0;repairJobs[idx].netProfit=0;repairJobs[idx].dueBalance=0;repairJobs[idx].refundPaid=parseFloat(repairJobs[idx].advPaid)||0;}
-else{repairJobs[idx].finalAmount=inputCost;repairJobs[idx].estCost=inputCost;repairJobs[idx].diagnosedEstimate=inputCost;repairJobs[idx].advPaid=parseFloat(document.getElementById('editAdvPaid').value)||0;repairJobs[idx].dueBalance=parseFloat(document.getElementById('editDueBalance').value)||0;const pCost=parseFloat(repairJobs[idx].partCost)||0;const discPct=getEffectiveDiscount(repairJobs[idx]);const discAmt=discPct>0?Math.round(inputCost*discPct/100):0;repairJobs[idx].discountAmount=discAmt;repairJobs[idx].netProfit=Math.max(0,Math.max(0,inputCost-discAmt)-pCost);}
+const pCost=parseFloat(document.getElementById('editPartCost').value)||0;
+const newAdv=parseFloat(document.getElementById('editAdvPaid').value)||0;
+const newDue=parseFloat(document.getElementById('editDueBalance').value)||0;
+
+if(newStatus==='Unrepairable'){
+    job.finalAmount=0;job.estCost=0;job.partCost=0;job.netProfit=0;job.dueBalance=0;job.duePayments=[];job.refundPaid=newAdv;
+} else {
+    job.finalAmount=inputCost;
+    job.estCost=inputCost;
+    job.diagnosedEstimate=inputCost;
+    job.partCost=pCost;
+    job.advPaid=newAdv;
+    job.dueBalance=newDue;
+
+    const discPct=getEffectiveDiscount(job);
+    const discAmt=discPct>0?Math.round(inputCost*discPct/100):0;
+    job.discountAmount=discAmt;
+    const netPayable=Math.max(0,inputCost-discAmt);
+
+    // If Due was reduced during edit on a Delivered job, record the collected difference for today's cashier & realized profit
+    if(newStatus==='Delivered'){
+        if(!job.deliveryDate || job.deliveryDate==='--') job.deliveryDate=getTodayStr();
+        if(oldDue > newDue){
+            const diffPaid = oldDue - newDue;
+            if(!Array.isArray(job.duePayments)) job.duePayments=[];
+            job.duePayments.push({date:getTodayStr(),amount:diffPaid,method:'Cash'});
+            if(!Array.isArray(job.followUps)) job.followUps=[];
+            job.followUps.unshift({type:"Due Payment",time:new Date().toLocaleString(),note:`Due adjusted/collected in Edit: ₹${diffPaid}`});
+        } else {
+            const duePaidSum = Array.isArray(job.duePayments) ? job.duePayments.reduce((s,p)=>s+(parseFloat(p.amount)||0),0) : 0;
+            const totalExpectedPaid = Math.max(0, netPayable - newDue);
+            job.deliveryCollected = Math.max(0, totalExpectedPaid - newAdv - duePaidSum);
+        }
+        job.netProfit = calculateRealizedProfit(job);
+    } else {
+        job.netProfit = 0;
+    }
+}
 closeEditModal();renderJobCards();renderDailyCashReport();if(isOwnerAuthenticated)renderLedgerTable();
-syncJobToFirestore(repairJobs[idx]);
+syncJobToFirestore(job);
 await adjustStockForJob(oldPartId,newPartId);
 }
 
@@ -1674,11 +1895,18 @@ const fromDate=document.getElementById('ledgerFromDate')?.value||'';const toDate
 const filteredJobs=repairJobs.filter(job=>{const dateA=job.intakeDate||'';const dateB=(job.deliveryDate&&job.deliveryDate!=='--')?job.deliveryDate:dateA;if(fromDate&&dateA<fromDate&&dateB<fromDate)return false;if(toDate&&dateA>toDate&&dateB>toDate)return false;return true;});
 let totalParts=0,totalBilled=0,totalRefund=0,totalProfit=0,totalMarketDue=0,countDueCustomers=0,totalDiscount=0;
 filteredJobs.forEach(job=>{
-const isDelivered=job.status==="Delivered";const isUnrepairable=job.status==="Unrepairable";const partsCost=isUnrepairable?0:(parseFloat(job.partCost)||0);const billed=isUnrepairable?0:(isDelivered?(parseFloat(job.finalAmount)||0):(parseFloat(job.diagnosedEstimate)||parseFloat(job.estCost)||0));const refund=isUnrepairable?(parseFloat(job.refundPaid)||parseFloat(job.advPaid)||0):0;const profit=isUnrepairable?0:(parseFloat(job.netProfit)||0);const due=isUnrepairable?0:(parseFloat(job.dueBalance)||0);
+const isDelivered=job.status==="Delivered";const isUnrepairable=job.status==="Unrepairable";const partsCost=isUnrepairable?0:(parseFloat(job.partCost)||0);const billed=isUnrepairable?0:(isDelivered?(parseFloat(job.finalAmount)||0):(parseFloat(job.diagnosedEstimate)||parseFloat(job.estCost)||0));const refund=isUnrepairable?(parseFloat(job.refundPaid)||parseFloat(job.advPaid)||0):0;
+const due=isUnrepairable?0:(parseFloat(job.dueBalance)||0);
+// Always compute Realized Cash Profit accurately (Paid Cash/Online - Parts Cost)
+const profit=isUnrepairable?0:(isDelivered ? calculateRealizedProfit(job) : 0);
 const discPct=getEffectiveDiscount(job);
 const discAmt=discPct > 0 ? (parseFloat(job.discountAmount) || 0) : 0;
 totalParts+=partsCost;totalBilled+=billed;totalRefund+=refund;totalProfit+=profit;totalMarketDue+=due;totalDiscount+=discAmt;
-if(due>0&&!isUnrepairable){countDueCustomers++;const paidSoFar=(parseFloat(job.advPaid)||0)+(parseFloat(job.deliveryCollected)||0);const dueTr=document.createElement('tr');dueTr.className="hover:bg-slate-950/40 transition";dueTr.innerHTML=`
+if(due>0&&!isUnrepairable){
+    countDueCustomers++;
+    const duePaidSum = Array.isArray(job.duePayments) ? job.duePayments.reduce((s,p)=>s+(parseFloat(p.amount)||0),0) : 0;
+    const paidSoFar=(parseFloat(job.advPaid)||0)+(parseFloat(job.deliveryCollected)||0)+duePaidSum;
+    const dueTr=document.createElement('tr');dueTr.className="hover:bg-slate-950/40 transition";dueTr.innerHTML=`
 <td class="p-3 font-mono font-bold text-indigo-400">${escapeHtml(job.billNo)}</td>
 <td class="p-3 font-medium text-white">${escapeHtml(job.customerName)}</td>
 <td class="p-3 font-mono text-xs">${escapeHtml(job.phone)}</td>
@@ -1686,7 +1914,12 @@ if(due>0&&!isUnrepairable){countDueCustomers++;const paidSoFar=(parseFloat(job.a
 <td class="p-3 text-right">₹${billed}</td>
 <td class="p-3 text-right text-emerald-400">₹${paidSoFar}</td>
 <td class="p-3 text-right text-rose-400 font-bold">₹${due}</td>
-<td class="p-3 text-center"><button data-phone="${escapeHtml(job.phone)}" data-name="${escapeHtml(job.customerName)}" data-bill="${escapeHtml(job.billNo)}" data-model="${escapeHtml(job.model)}" data-due="${due}" onclick="sendWhatsAppReminder(this.dataset.phone, this.dataset.name, this.dataset.bill, this.dataset.model, parseFloat(this.dataset.due))" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold flex items-center gap-1 mx-auto shadow transition"><i class="fa-brands fa-whatsapp text-sm"></i> Remind</button></td>
+<td class="p-3 text-center">
+<div class="flex items-center justify-center gap-1.5">
+<button onclick="openReceiveDueModal('${escapeHtml(job.billNo)}')" class="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold flex items-center gap-1 shadow transition"><i class="fa-solid fa-hand-holding-dollar"></i> Receive Due</button>
+<button data-phone="${escapeHtml(job.phone)}" data-name="${escapeHtml(job.customerName)}" data-bill="${escapeHtml(job.billNo)}" data-model="${escapeHtml(job.model)}" data-due="${due}" onclick="sendWhatsAppReminder(this.dataset.phone, this.dataset.name, this.dataset.bill, this.dataset.model, parseFloat(this.dataset.due))" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold flex items-center gap-1 shadow transition"><i class="fa-brands fa-whatsapp text-sm"></i> Remind</button>
+</div>
+</td>
 `;dueTbody.appendChild(dueTr);}
 const tr=document.createElement('tr');tr.className="hover:bg-slate-950/40 transition";tr.innerHTML=`
 <td class="p-4 font-mono font-semibold text-indigo-400">${escapeHtml(job.billNo)}</td>
@@ -1836,7 +2069,7 @@ executeDirectPrint(printHTML);
 function printDirectDailyReport(){const selectedDate=document.getElementById('dailyReportDatePicker').value||getTodayStr();const sName=esc(currentStore?currentStore.shopName:"SMARTFIX MOBILE CARE");const advRecv=document.getElementById('dailyAdvReceived').innerText;const delCash=document.getElementById('dailyDeliveryCash').innerText;const onlineUPI=document.getElementById('dailyOnlineTotal').innerText;const advRef=document.getElementById('dailyAdvRefunded').innerText;const netCash=document.getElementById('dailyNetCash').innerText;const auditTableHTML=document.getElementById('dailyAuditTable').outerHTML;const summary=`
 <div>
 <div style="border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 12px;"><h1 style="font-size: 18px; font-weight: 900; margin: 0; text-transform: uppercase; color: #000;">${sName}</h1><p style="font-size: 11px; font-weight: 600; color: #000; margin: 2px 0;">Daily Cashier Closing | Date: ${esc(selectedDate)}</p></div>
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; border: 1.5px solid #000; padding: 10px; margin-bottom: 15px; font-size: 11px; font-weight: 600; color: #000;"><div>Adv Recv (Cash): ${advRecv}</div><div>Delivery Cash: ${delCash}</div><div>Online/UPI: ${onlineUPI}</div><div>Refunded: ${advRef}</div><div style="grid-column: span 2; font-size: 13px; font-weight: 900; border-top: 1px solid #000; padding-top: 4px;">Net Cash: ${netCash}</div></div>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; border: 1.5px solid #000; padding: 10px; margin-bottom: 15px; font-size: 11px; font-weight: 600; color: #000;"><div>Adv Recv (Cash): ${advRecv}</div><div>Delivery & Due Cash: ${delCash}</div><div>Online/UPI: ${onlineUPI}</div><div>Refunded: ${advRef}</div><div style="grid-column: span 2; font-size: 13px; font-weight: 900; border-top: 1px solid #000; padding-top: 4px;">Net Cash: ${netCash}</div></div>
 ${auditTableHTML}
 <div style="margin-top: 30px; display: flex; justify-content: space-between; font-size: 11px; font-weight: 600; color: #000;"><div>Generated: ${new Date().toLocaleString()}</div><div>Cashier: _______________________</div></div>
 <div style="border-top: 1px solid #000; margin-top: 25px; padding-top: 8px; text-align: center; font-size: 10.5px; font-weight: 900; color: #000;">Developed by Debapriya Sarkar<br><span style="font-size: 9px; font-weight: 600;">SmartFix Pro &copy; 2026</span></div>
@@ -1861,7 +2094,7 @@ function exportA4PDF(){try{const{jsPDF}=window.jspdf;const doc=new jsPDF('landsc
 let totalParts=0,totalBilled=0,totalProfit=0,totalDue=0,totalDiscount=0;
 const fromDate=document.getElementById('ledgerFromDate')?.value||'';const toDate=document.getElementById('ledgerToDate')?.value||'';
 const filtered=repairJobs.filter(job=>{const reportDate=String(job.intakeDate||'');if(fromDate&&reportDate<fromDate)return false;if(toDate&&reportDate>toDate)return false;return true;});
-const rows=filtered.map(j=>{const isUnrepairable=j.status==='Unrepairable';const billed=isUnrepairable?0:(j.finalAmount||j.diagnosedEstimate||j.estCost||0);const pCost=isUnrepairable?0:(j.partCost||0);const profit=isUnrepairable?0:(j.netProfit||0);const due=isUnrepairable?0:(j.dueBalance||0);const discPct=getEffectiveDiscount(j);const discAmt=(!isUnrepairable&&discPct>0)?(j.discountAmount||0):0;totalParts+=pCost;totalBilled+=billed;totalProfit+=profit;totalDue+=due;totalDiscount+=discAmt;return[j.billNo,j.intakeDate,j.deliveryDate||"--",`${j.customerName} (${j.phone})`,j.model,j.warranty||"None",`Rs. ${pCost}`,discPct>0?`${discPct}% (Rs. ${discAmt})`:"—",`Rs. ${billed}`,`Rs. ${due}`,`Rs. ${profit}`,j.status];});
+const rows=filtered.map(j=>{const isUnrepairable=j.status==='Unrepairable';const isDelivered=j.status==='Delivered';const billed=isUnrepairable?0:(j.finalAmount||j.diagnosedEstimate||j.estCost||0);const pCost=isUnrepairable?0:(j.partCost||0);const profit=isUnrepairable?0:(isDelivered?calculateRealizedProfit(j):0);const due=isUnrepairable?0:(j.dueBalance||0);const discPct=getEffectiveDiscount(j);const discAmt=(!isUnrepairable&&discPct>0)?(j.discountAmount||0):0;totalParts+=pCost;totalBilled+=billed;totalProfit+=profit;totalDue+=due;totalDiscount+=discAmt;return[j.billNo,j.intakeDate,j.deliveryDate||"--",`${j.customerName} (${j.phone})`,j.model,j.warranty||"None",`Rs. ${pCost}`,discPct>0?`${discPct}% (Rs. ${discAmt})`:"—",`Rs. ${billed}`,`Rs. ${due}`,`Rs. ${profit}`,j.status];});
 if(rows.length===0){alert('No records for selected range.');return;}
 doc.autoTable({head:[["Bill","Intake","Delivered","Customer","Model","Warranty","Parts Cost","Discount","Billed","Due","Profit","Status"]],body:rows,foot:[["TOTALS","","","","","",`Rs. ${totalParts}`,`Rs. ${totalDiscount}`,`Rs. ${totalBilled}`,`Rs. ${totalDue}`,`Rs. ${totalProfit}`,""]],startY:70,theme:'grid',headStyles:{fillColor:[49,46,129],textColor:[255,255,255],fontStyle:'bold'},footStyles:{fillColor:[15,23,42],textColor:[255,255,255],fontStyle:'bold'},styles:{fontSize:7,cellPadding:3}});
 const pageHeight=doc.internal.pageSize.height;doc.setFontSize(8);doc.setTextColor(100);doc.text("SmartFix Pro © 2026 | Developed by Debapriya Sarkar",40,pageHeight-20);doc.save(`${sName.replace(/\s+/g,'_')}_Statement.pdf`);
@@ -1897,8 +2130,8 @@ const jobsRef=storeRef.collection('jobs');
 if(document.getElementById('backupReplaceMode')?.checked){const existing=await jobsRef.get();for(let i=0;i<existing.docs.length;i+=400){const batch=db.batch();existing.docs.slice(i,i+400).forEach(d=>batch.delete(d.ref));await batch.commit();}}
 const jobs=payload.jobs.filter(j=>j&&(j.billNo||j.id)).map(j=>{const copy={...j};delete copy.savedPassword;delete copy.password;return copy;});
 for(let i=0;i<jobs.length;i+=400){const batch=db.batch();jobs.slice(i,i+400).forEach(job=>{const id=String(job.billNo||job.id);batch.set(jobsRef.doc(id),{...job,billNo:job.billNo||id,restoredAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});});await batch.commit();}
-if(Array.isArray(payload.customers)){const custRef=storeRef.collection('customers');for(let i=0;i<payload.customers.length;i+=400){const batch=db.batch();payload.customers.forEach(c=>{const cid=String(c.phone||c.id||'');if(cid)batch.set(custRef.doc(cid),{...c,phone:cid},{merge:true});});await batch.commit();}}
-if(Array.isArray(payload.inventory)){const invRef=storeRef.collection('lcd_inventory');for(let i=0;i<payload.inventory.length;i+=400){const batch=db.batch();payload.inventory.forEach(inv=>{if(inv.id)batch.set(invRef.doc(String(inv.id)),inv,{merge:true});});await batch.commit();}}
+if(Array.isArray(payload.customers)){const custRef=storeRef.collection('customers');for(let i=0;i<payload.customers.length;i+=400){const batch=db.batch();payload.customers.slice(i,i+400).forEach(c=>{const cid=String(c.phone||c.id||'');if(cid)batch.set(custRef.doc(cid),{...c,phone:cid},{merge:true});});await batch.commit();}}
+if(Array.isArray(payload.inventory)){const invRef=storeRef.collection('lcd_inventory');for(let i=0;i<payload.inventory.length;i+=400){const batch=db.batch();payload.inventory.slice(i,i+400).forEach(inv=>{if(inv.id)batch.set(invRef.doc(String(inv.id)),inv,{merge:true});});await batch.commit();}}
 currentStore={...(currentStore||{}),...storeData};
 document.getElementById('navShopName').innerText=currentStore.shopName||'SMARTFIX PRO';
 localStorage.setItem(storeMirrorKey(),JSON.stringify(currentStore));
